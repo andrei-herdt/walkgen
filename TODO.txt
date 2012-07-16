@@ -1,4 +1,4 @@
-This is the Todo list precising the required things before a clean release. 
+﻿This is the Todo list precising the required things before a clean release. 
 
 Complete the documentation
 
@@ -18,6 +18,9 @@ I think two categories can be noticed:
 -- those matrices (typically, they should be initialiazed after the construction).
 
 Remove the remaining TODO in the code.
+
+Fix QPMatrix - NbVarMin should be removed
+	(is QPMatrix necessary?)
 
 /////
 // The following are important remarks (maybe not all are necessary for a(n) (urgent) release)
