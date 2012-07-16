@@ -23,7 +23,7 @@ namespace MPCWalkgen{
 
   class LSSOLSolver:public QPSolver{
   public:
-    LSSOLSolver(const int nbVarMin=0, const int nbCtrMin=0, const int nbVarMax=QPSolver::DefaultNbVarMax_, const int nbCtrMax=QPSolver::DefaultNbCtrMax_);
+    LSSOLSolver(const int nbvarMin=0, const int nbCtrMin=0, const int nbvarMax=QPSolver::DefaultNbVarMax_, const int nbCtrMax=QPSolver::DefaultNbCtrMax_);
     virtual ~LSSOLSolver();
 
     // accessors

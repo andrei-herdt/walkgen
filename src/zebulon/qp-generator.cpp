@@ -122,7 +122,7 @@ void QPGenerator::buildObjective() {
   const BodyState & CoM = robot_->body(COM)->state();
   const BodyState & base = robot_->body(BASE)->state();
 
-  solver_->nbVar(4*N);
+  solver_->nbvar(4*N);
 
   solver_->matrix(matrixQ).setTerm(Qconst_[nb]);
 
@@ -372,8 +372,8 @@ void QPGenerator::buildConstraintsBaseJerk(){
 
 void QPGenerator::buildConstraints(){
 
-  solver_->nbCtr(9*generalData_->nbSamplesQP);
-  solver_->nbVar(4*generalData_->nbSamplesQP);
+  solver_->nbcstr(9*generalData_->nbSamplesQP);
+  solver_->nbvar(4*generalData_->nbSamplesQP);
 
   buildConstraintsCoP();
   buildConstraintsCoM();
@@ -384,7 +384,7 @@ void QPGenerator::buildConstraints(){
 }
 
 void QPGenerator::computeWarmStart(GlobalSolution & result){
-  if (result.constraints.rows()>=solver_->nbCtr()+solver_->nbVar()){
+  if (result.constraints.rows()>=solver_->nbcstr()+solver_->nbvar()){
       result.initialConstraints= result.constraints;
       result.initialSolution= result.qpSolution;
     }else{

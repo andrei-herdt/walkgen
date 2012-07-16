@@ -11,32 +11,29 @@
 using namespace MPCWalkgen;
 using namespace Eigen;
 
-
-//TODO: NB_VAR_MAX
-const int QPSolver::DefaultNbVars_ = 100;
-const int QPSolver::DefaultNbCstr_ = 100;
-
-QPSolver::QPSolver(const int nbvars_max, const int nbcstr_max)
-:hessian_mat_(nbvars_max, nbvars_max)
-,gradient_vec_(nbvars_max)
-,cstr_mat_(nbcstr_max, nbvars_max)
+QPSolver::QPSolver(int nbvar_max, int nbcstr_max)
+:hessian_mat_(nbvar_max, nbvar_max)
+,gradient_vec_(nbvar_max)
+,cstr_mat_(nbcstr_max, nbvar_max)
 ,cstr_arr_(0)
 ,cstr_u_bounds_vec_(nbcstr_max)
 ,cstr_l_bounds_vec_(nbcstr_max)
-,var_u_bounds_vec_(nbvars_max)
-,var_l_bounds_vec_(nbvars_max)
-,nbvars_(0)
+,var_u_bounds_vec_(nbvar_max)
+,var_l_bounds_vec_(nbvar_max)
+,nbvar_(0)
+,nbvar_max_(nbvar_max)
 ,nbcstr_(0)
-,var_indices_vec_(nbvars_max)
-,cstr_indices_vec_(nbvars_max + nbcstr_max) {
-  for (int i = 0; i < nbvars_max; ++i) {
+,nbcstr_max_(nbcstr_max)
+,var_indices_vec_(nbvar_max)
+,cstr_indices_vec_(nbvar_max + nbcstr_max) {
+  for (int i = 0; i < nbvar_max; ++i) {
     var_indices_vec_(i) = i;
   }
-  for (int i = 0; i < nbvars_max + nbcstr_max; ++i) {
+  for (int i = 0; i < nbvar_max + nbcstr_max; ++i) {
     cstr_indices_vec_(i) = i;
   }
-  cstr_arr_ = new double[nbvars_max*nbcstr_max];
-  hessian_arr_ = new double[nbvars_max*nbvars_max];
+  cstr_arr_ = new double[nbvar_max * nbcstr_max];
+  hessian_arr_ = new double[nbvar_max * nbvar_max];
 }
 
 QPSolver::~QPSolver() {
@@ -81,30 +78,6 @@ void QPSolver::reset() {
   var_l_bounds_vec_.reset();
 }
 
-void QPSolver::nbVar(const int nbvars) {
-
-  if (nbvars != nbvars_) {
-    nbvars_ = nbvars;
-    reset();
-  }
-}
-
-void QPSolver::nbCtr(const int nbcstr) {
-
-  if (nbcstr != nbcstr_) {
-    nbcstr_ = nbcstr;
-    reset(); 
-  }
-}
-
-void QPSolver::addNbCtr(const int addCtr) {
-
-  //	if (addCtr > 0) {
-  //		nbcstr_ += addCtr;
-  //		//resizeAll(); //Resize not necessary (as for now)
-  //	}
-}
-
 void QPSolver::varOrder(const Eigen::VectorXi &order) {
   var_indices_vec_ = order;
   hessian_mat_.rowOrder(order);
@@ -123,32 +96,20 @@ void QPSolver::ctrOrder(const Eigen::VectorXi &order) {
 }
 
 
-bool QPSolver::resizeAll() {//TODO: Remove resize functions
-
-  //	hessian_mat_.resize(nbvars_, nbvars_);
-  //	cstr_mat_.resize(nbcstr_, nbvars_);
-  //	gradient_vec_.resize(nbvars_);
-  //	cstr_u_bounds_vec_.resize(nbcstr_);
-  //	cstr_l_bounds_vec_.resize(nbcstr_);
-  //	var_u_bounds_vec_.resize(nbvars_);
-  //	var_l_bounds_vec_.resize(nbvars_);
-
-  return true;
-}
-
 void QPSolver::reorderInitialSolution(VectorXd &initialSolution,
-                                      VectorXi &initialConstraints) {
-                                        assert(initialSolution.size() >= nbvars_);
-                                        assert(initialConstraints.size() >= nbcstr_ + nbvars_);
-                                        VectorXd initialSolutionTmp = initialSolution;
-                                        VectorXi initialConstraintsTmp = initialConstraints;
-                                        for (int i = 0; i < nbvars_; ++i) {
-                                          initialSolution(var_indices_vec_(i)) = initialSolutionTmp(i);
-                                          initialConstraints(var_indices_vec_(i)) = initialConstraintsTmp(i);
-                                        }
-                                        for (int i = 0; i < nbcstr_; ++i) {
-                                          initialConstraints(cstr_indices_vec_(i + nbvars_)) = initialConstraintsTmp(i + nbvars_);
-                                        }
+                                      VectorXi &initialConstraints) 
+{
+  assert(initialSolution.size() >= nbvar_);
+  assert(initialConstraints.size() >= nbcstr_ + nbvar_);
+  VectorXd initialSolutionTmp = initialSolution;
+  VectorXi initialConstraintsTmp = initialConstraints;
+  for (int i = 0; i < nbvar_; ++i) {
+    initialSolution(var_indices_vec_(i)) = initialSolutionTmp(i);
+    initialConstraints(var_indices_vec_(i)) = initialConstraintsTmp(i);
+  }
+  for (int i = 0; i < nbcstr_; ++i) {
+    initialConstraints(cstr_indices_vec_(i + nbvar_)) = initialConstraintsTmp(i + nbvar_);
+  }
 
 }
 
@@ -157,44 +118,15 @@ void QPSolver::reorderSolution(VectorXd &qpSolution, VectorXi &constraints,
                                  VectorXd solutionTmp = qpSolution;
                                  VectorXi constraintsTmp = constraints;
 
-                                 for (int i = 0; i < nbvars_; ++i) {
+                                 for (int i = 0; i < nbvar_; ++i) {
                                    qpSolution(i) = solutionTmp(var_indices_vec_(i));
                                    constraints(i) = constraintsTmp(var_indices_vec_(i));
                                  }
                                  for (int i = 0; i < nbcstr_; ++i) {
-                                   constraints(i + nbvars_) = constraintsTmp(cstr_indices_vec_(i + nbvars_));
+                                   constraints(i + nbvar_) = constraintsTmp(cstr_indices_vec_(i + nbvar_));
                                  }
 
                                  initialConstraints = constraints;
-}
-
-void QPSolver::dump() {
-  std::cout << "nbVar : " << nbvars_ << std::endl;
-  std::cout << "nbCtr : " << nbcstr_ << std::endl;
-  std::cout << std::endl;
-  std::cout << "Q :" << std::endl;
-  std::cout << hessian_mat_() << std::endl;
-  std::cout << std::endl;
-  std::cout << std::endl;
-  std::cout << "chol(Q) :" << std::endl;
-  std::cout << hessian_mat_.cholesky() << std::endl;
-  std::cout << std::endl;
-  std::cout << std::endl;
-  std::cout << "P :" << std::endl;
-  std::cout << gradient_vec_().transpose() << std::endl;
-  std::cout << std::endl;
-  std::cout << std::endl;
-  std::cout << "A :" << std::endl;
-  std::cout << cstr_mat_() << std::endl;
-  std::cout << std::endl;
-  std::cout << std::endl;
-  std::cout << "Bl / Bu :" << std::endl;
-  std::cout << cstr_l_bounds_vec_().transpose() << std::endl;
-  std::cout << cstr_u_bounds_vec_().transpose() << std::endl;
-  std::cout << std::endl;
-  std::cout << "Xl / Xu :" << std::endl;
-  std::cout << var_l_bounds_vec_().transpose() << std::endl;
-  std::cout << var_u_bounds_vec_().transpose() << std::endl;
 }
 
 
@@ -213,17 +145,17 @@ void QPSolver::DumpProblem(const char *filename) {
 
 
 QPSolver *MPCWalkgen::createQPSolver(QPSolverType solvertype,
-                                     int nbvars, int nbcstr) {
+                                     int nbvar, int nbcstr) {
                                        QPSolver *solver = NULL;
 #ifdef MPC_WALKGEN_WITH_LSSOL
                                        if (solvertype == QPSOLVERTYPE_LSSOL) {
-                                         solver = new LSSOLSolver(nbVarMin, nbCtrMin, nbVarMax, nbCtrMax);
+                                         solver = new LSSOLSolver(nbvarMin, nbCtrMin, nbvarMax, nbCtrMax);
                                        }
 #endif //MPC_WALKGEN_WITH_LSSOL
 
 #ifdef MPC_WALKGEN_WITH_QPOASES
                                        if (solvertype == QPSOLVERTYPE_QPOASES) {
-                                         solver = new QPOasesSolver(nbvars, nbcstr);
+                                         solver = new QPOasesSolver(nbvar, nbcstr);
                                        }
 #endif //MPC_WALKGEN_WITH_QPOASES
 

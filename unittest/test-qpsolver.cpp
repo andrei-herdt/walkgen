@@ -37,8 +37,8 @@ obj = -8.2222
 bool testQP (QPSolver & qp)
 {
 	qp.reset();
-	qp.nbVar(2);
-	qp.nbCtr(3);
+	qp.nbvar(2);
+	qp.nbcstr(3);
 
 
 	// create the qp problem

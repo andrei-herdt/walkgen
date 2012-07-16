@@ -105,8 +105,8 @@ void QPGenerator::BuildProblem(MPCSolution &solution) {
   int nbvars = 2 * generalData_->nbSamplesQP +				// CoM
     2 * solution.supportStates_vec.back().stepNumber;	// Foot placement
   int nbcstr = 5 * solution.supportStates_vec.back().stepNumber;	// Foot placement
-  solver_->nbVar(nbvars);
-  solver_->nbCtr(nbcstr);
+  solver_->nbvar(nbvars);
+  solver_->nbcstr(nbcstr);
 
   buildObjective(solution);
   buildConstraints(solution);
@@ -131,7 +131,7 @@ void QPGenerator::buildObjective(const MPCSolution &result) {
   int nbsteps_previewed = result.supportStates_vec.back().stepNumber;
   int nbsamples = generalData_->nbSamplesQP;
 
-  //solver_->nbVar(2*nbsamples + 2*nbsteps_previewed);
+  //solver_->nbvar(2*nbsamples + 2*nbsteps_previewed);
   //solver_->nbCtr(1); 
 
   //The LSSOL solver is a bit particular since it uses the cholesky matrix first

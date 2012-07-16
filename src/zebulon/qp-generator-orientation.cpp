@@ -65,7 +65,7 @@ void QPGeneratorOrientation::buildObjective() {
 
   const BodyState & CoM = robot_->body(COM)->state();
 
-  solver_->nbVar(N);
+  solver_->nbvar(N);
 
   solver_->matrix(matrixQ).setTerm(Qconst_[nb]);
 
@@ -134,8 +134,8 @@ void QPGeneratorOrientation::buildConstraintsBaseJerk(){
 
 void QPGeneratorOrientation::buildConstraints(){
 
-  solver_->nbCtr(2*generalData_->nbSamplesQP);
-  solver_->nbVar(generalData_->nbSamplesQP);
+  solver_->nbcstr(2*generalData_->nbSamplesQP);
+  solver_->nbvar(generalData_->nbSamplesQP);
 
   buildConstraintsBaseVelocity();
   buildConstraintsBaseAcceleration();
@@ -144,7 +144,7 @@ void QPGeneratorOrientation::buildConstraints(){
 }
 
 void QPGeneratorOrientation::computeWarmStart(GlobalSolution & result){
-  if (result.constraintsOrientation.rows()>=solver_->nbCtr()+solver_->nbVar()){
+  if (result.constraintsOrientation.rows()>=solver_->nbcstr()+solver_->nbvar()){
       result.initialConstraintsOrientation= result.constraintsOrientation;
       result.initialSolutionOrientation= result.qpSolutionOrientation;
     }else{

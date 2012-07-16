@@ -13,6 +13,15 @@
 #include <algorithm>
 #include <stdio.h>
 
+
+#if _SECURE_SCL
+#error MOEP
+#endif
+
+#if _HAS_ITERATOR_DEBUGGING
+//#error MOEP2
+#endif
+
 using namespace Eigen;
 using namespace MPCWalkgen;
 using namespace Humanoid;
@@ -67,7 +76,7 @@ int main() {
   HipYawData rightHipYaw = leftHipYaw;
 
   MPCData mpcData;
-  printf("%d",sizeof(MPCData));
+  printf("sizeof(std::vector<double>): %d\n", sizeof(std::vector<double>));
   RobotData robotData(leftFoot, rightFoot, leftHipYaw, rightHipYaw, 0.0);
 
   // Feasible hulls:

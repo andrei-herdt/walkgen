@@ -23,12 +23,9 @@
 namespace MPCWalkgen{
 
   class QPSolver{
-  public:
-    static const int DefaultNbVars_;
-    static const int DefaultNbCstr_;
 
   public:
-    QPSolver(const int nbvars = DefaultNbVars_, const int nbcstr = DefaultNbCstr_);
+    QPSolver(int nbvar_max, int nbcstr_max);
     virtual ~QPSolver() = 0;
 
     virtual void Init() = 0;
@@ -40,30 +37,32 @@ namespace MPCWalkgen{
       Eigen::VectorXi & initialConstraints,
       bool useWarmStart) = 0;
 
-    void dump();
     void DumpProblem(const char *filename); 
 
   public:
     QPMatrix & matrix(const QPMatrixType type);
     QPVector & vector(const QPVectorType type);
 
-    void nbVar(const int nbvars);
-    inline int nbVar() const {return nbvars_;}
-    void nbCtr(const int nbcstr);
-    inline int nbCtr() const {return nbcstr_;}
-    void addNbCtr(const int addCtr);
+    inline void nbvar (int nbvar) 
+    {assert(nbvar > nbvar_); nbvar_ = nbvar;}
+    inline int nbvar () const {return nbvar_;}
+    inline void nbvar_max (int nbvar) {nbvar_max_ = nbvar;}
+    inline int nbvar_max () const {return nbvar_max_;}
+    inline void nbcstr(const int nbcstr) 
+    {assert(nbcstr > nbcstr_); nbcstr_ = nbcstr;}
+    inline int nbcstr() const {return nbcstr_;}
+    inline void nbcstr_max(const int nbcstr) {nbcstr_max_ = nbcstr;}
+    inline int nbcstr_max() const {return nbcstr_max_;}
 
     void varOrder(const Eigen::VectorXi & order);
     void ctrOrder(const Eigen::VectorXi & order);
 
     virtual QPSolverType getType() const =0;
 
-    // can we / should we use the cholesly matrix
     virtual bool useCholesky() const =0;
     virtual void useCholesky(bool)=0;
 
   protected:
-    virtual bool resizeAll();
 
     void reorderInitialSolution(Eigen::VectorXd & initialSolution,
       Eigen::VectorXi & initialConstraints);
@@ -84,15 +83,14 @@ namespace MPCWalkgen{
     QPVector var_u_bounds_vec_;
     QPVector var_l_bounds_vec_;
 
-    int nbvars_;
-    int nbcstr_;
+    int nbvar_, nbvar_max_,
+      nbcstr_, nbcstr_max_;
 
     Eigen::VectorXi var_indices_vec_;
     Eigen::VectorXi cstr_indices_vec_;
   };
-  QPSolver* createQPSolver(QPSolverType solvertype,
-    int nbvars = QPSolver::DefaultNbVars_,
-    int nbcstr = QPSolver::DefaultNbCstr_);
+
+  QPSolver* createQPSolver(QPSolverType solvertype, int nbvar_max, int nbcstr_max);
 }
 
 
@@ -107,9 +105,9 @@ namespace MPCWalkgen{
 * \brief Abstract interface of the solver used
 */
 
-/*! \fn MPCWalkgen::QPSolver::QPSolver(const int nbVarMax=DefaultNbVars_, const int nbCtrMax=DefaultNbCstr_)
+/*! \fn MPCWalkgen::QPSolver::QPSolver(const int nbvarMax=DefaultNbVars_, const int nbCtrMax=DefaultNbCstr_)
 * \brief Constructor
-* \param nbVarMax Maximum number of variables
+* \param nbvarMax Maximum number of variables
 * \param nbCtrMax Maximum number of constraints
 */
 
@@ -126,7 +124,7 @@ namespace MPCWalkgen{
 * \param withConstantPart if true, constant part of QPMatrices will replace current values
 */
 
-/*! \fn MPCWalkgen::QPSolver::nbVar(const int nbVar)
+/*! \fn MPCWalkgen::QPSolver::nbvar(const int nbvar)
 * \brief Setter to modify the number of variables
 */
 

@@ -51,7 +51,7 @@ MPCData::MPCData()
 ,DSSSPeriod(0.8)
 ,nbStepSSDS(2)
 ,ponderation(2) {
-  std::cout << sizeof(MPCData) << std::endl;
+	//assert(sizeof(MPCData)==112);
 }
 
 MPCData::~MPCData(){
@@ -108,6 +108,8 @@ QPPonderation::QPPonderation(int nb)
   instantVelocity[1] = 1;
 
   activePonderation  = 1;
+  assert(sizeof(instantVelocity)==20);
+
 }
 QPPonderation::~QPPonderation(){}
 

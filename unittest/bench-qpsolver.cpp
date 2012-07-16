@@ -21,8 +21,8 @@ using namespace Humanoid;
 bool testBenchmarkQP (QPSolver &qp, unsigned fDofWb, unsigned fNconstraints)
 {
   // nb unknow and constraint of the current problem
-  qp.nbVar(6+fDofWb);
-  qp.nbCtr(fNconstraints);
+  qp.nbvar(6+fDofWb);
+  qp.nbcstr(fNconstraints);
 
   std::string paths = std::string("./");
 

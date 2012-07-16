@@ -30,8 +30,7 @@ namespace MPCWalkgen{
 
 	class QPOasesSolver:public QPSolver{
 		public:
-			QPOasesSolver(const int nbvars = QPSolver::DefaultNbVars_, 
-				const int nbcstr = QPSolver::DefaultNbCstr_);
+			QPOasesSolver(int nbvar_max, int nbcstr_max);
 			virtual ~QPOasesSolver();
 
 			virtual void Init();
@@ -49,9 +48,6 @@ namespace MPCWalkgen{
 					   Eigen::VectorXd &initialSolution,
 					   Eigen::VectorXi &initialConstraints,
 					   bool useWarmStart);
-
-		protected:
-			virtual bool resizeAll();
 
 		protected:
 			qpOASES::SQProblem *qp_;
