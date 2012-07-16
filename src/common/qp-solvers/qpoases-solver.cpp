@@ -1,122 +1,158 @@
 #include "qpoases-solver.h"
-
-
-#ifdef USE_QPOASES_3_0
-# include <qpOASES/QProblem.hpp>
-#else //
-# include <QProblem.hpp>
-#endif //USE_QPOASES_3_0
+#include <iostream>
+#include <windows.h> 
 
 using namespace MPCWalkgen;
 using namespace Eigen;
 
 
-QPOasesSolver::QPOasesSolver(const int nbVarMin, const int nbCtrMin, const int nbVarMax, const int nbCtrMax)
-	:QPSolver(nbVarMin, nbCtrMin, nbVarMax, nbCtrMax)
-{}
+QPOasesSolver::QPOasesSolver(const int nbvars, const int nbcstr)
+	:QPSolver(nbvars, nbcstr) {
+	qp_ = new qpOASES::SQProblem(nbvars, nbcstr);
+	solution_vec_ = new double[nbvars];
+	cstr_init_vec_ = new  qpOASES::Constraints(nbcstr);
+	bounds_init_vec_ = new  qpOASES::Bounds(nbvars);
+}
 
-QPOasesSolver::~QPOasesSolver(){}
+QPOasesSolver::~QPOasesSolver() {
+  if (qp_ != 0x0)
+    delete qp_;
+    if (solution_vec_ != 0x0)
+    delete solution_vec_;
+	  if (cstr_init_vec_ != 0x0)
+    delete cstr_init_vec_;
+	    if (bounds_init_vec_ != 0x0)
+    delete bounds_init_vec_;
+}
 
-void QPOasesSolver::solve(VectorXd & qpSolution,
-			  VectorXi & constraints,
-			  VectorXd & initialSolution,
-			  VectorXi & initialConstraints,
-			  bool useWarmStart){
+void QPOasesSolver::Init() {
 
+		int ittMax = 100;
 
-	qp_ = new qpOASES::QProblem(nbVar_, nbCtr_);
+	//MatrixXd A = cstr_mat_().transpose();
+
+		qp_->init(hessian_mat_().data(), gradient_vec_().data(), cstr_mat_().data(),
+		  var_l_bounds_vec_().data(), var_u_bounds_vec_().data(),
+		  cstr_l_bounds_vec_().data(), cstr_u_bounds_vec_().data(),
+		  ittMax, NULL);
+		
+		//DumpProblem("problem_in_init.dat");
+
+}
+
+void QPOasesSolver::solve(VectorXd &solution,
+			  VectorXi &constraints,
+			  VectorXd &initialSolution,
+			  VectorXi &initialConstraints,
+			  bool useWarmStart) {
+
 	qp_->setPrintLevel(qpOASES::PL_NONE);
 
-	reorderInitialSolution(initialSolution, initialConstraints);
-
-	qpOASES::Constraints* ctrInit = new  qpOASES::Constraints(nbCtr_);
-	qpOASES::Bounds* boundsInit = new  qpOASES::Bounds(nbVar_);
-	if (useWarmStart){
-		qpSolution = initialSolution;
+	if (useWarmStart) {
+		reorderInitialSolution(initialSolution, initialConstraints);
+		solution = initialSolution;
 		constraints = initialConstraints;
-		for(int i=0;i<nbVar_;++i){
-		      if (constraints(i)==0){
-			    boundsInit->setupBound(i,qpOASES::ST_INACTIVE);
-		      }else if (constraints(i)==1){
-			   boundsInit->setupBound(i,qpOASES::ST_LOWER);
+		for (int i = 0; i < nbvars_; ++i) {
+		      if (constraints(i) == 0) {//TODO: replace 0,1,-1 by ST_INACTIVE/ST_LOWER/ST_UPPER
+			    bounds_init_vec_->setupBound(i, qpOASES::ST_INACTIVE);
+		      }else if (constraints(i) == 1) {
+			   bounds_init_vec_->setupBound(i, qpOASES::ST_LOWER);
 		      }else{
-			   boundsInit->setupBound(i,qpOASES::ST_UPPER);
+			   bounds_init_vec_->setupBound(i, qpOASES::ST_UPPER);
 		      }
 		}
-		for(int i=0;i<nbCtr_;++i){
-		      if (constraints(nbVar_+i)==0){
-			   ctrInit->setupConstraint(i,qpOASES::ST_INACTIVE);
-		      }else if (constraints(nbVar_+i)==1){
-			   ctrInit->setupConstraint(i,qpOASES::ST_LOWER);
-		      }else{
-			   ctrInit->setupConstraint(i,qpOASES::ST_UPPER);
+		for (int i = nbvars_; i < nbvars_ + nbcstr_; ++i) {
+		      if (constraints(i) == 0) {
+			   cstr_init_vec_->setupConstraint(i, qpOASES::ST_INACTIVE);
+		      } else if (constraints(i) == 1) {
+			   cstr_init_vec_->setupConstraint(i, qpOASES::ST_LOWER);
+		      } else {
+			   cstr_init_vec_->setupConstraint(i, qpOASES::ST_UPPER);
 		      }
 		}
 
-	}else{
-		ctrInit->setupAllInactive();
-		boundsInit->setupAllFree();
-		if (qpSolution.rows()!=nbVar_){
-			qpSolution.setZero(nbVar_);
-		}else{
-			qpSolution.fill(0);
+	} else {
+//		cstr_init_vec_->setupAllInactive();
+//		bounds_init_vec_->setupAllFree();
+		if (solution.rows() != nbvars_) {
+			solution.setZero(nbvars_);
+		} else {
+			solution.fill(0);
 		}
-		if (constraints.rows()!=nbVar_ + nbCtr_){
-			constraints.setZero(nbVar_ + nbCtr_);
-		}else{
+		if (constraints.rows() != nbvars_ + nbcstr_) {
+			constraints.setZero(nbvars_ + nbcstr_);
+		} else {
 			constraints.fill(0);
 		}
 	}
 
-	int ittMax=100;
+	    //Variablen 
+    LONGLONG g_Frequency, g_CurentCount, g_LastCount; 
 
-	MatrixXd A = matrixA_().transpose();
+    //Frequenz holen 
+    if (!QueryPerformanceFrequency((LARGE_INTEGER*)&g_Frequency)) 
+        std::cout << "Performance Counter nicht vorhanden" << std::endl; 
 
-	qp_->init(matrixQ_().data(), vectorP_().data(), A.data(),
-		  vectorXL_().data(), vectorXU_().data(),
-		  vectorBL_().data(), vectorBU_().data(),
-		  ittMax, 0,
-		  qpSolution.data(),NULL,
-		  boundsInit, ctrInit);
+    //1. Messung 
+    QueryPerformanceCounter((LARGE_INTEGER*)&g_CurentCount); 
 
-        double* sol = new double[nbVar_];
-        qp_->getPrimalSolution(sol);
-        for(int i=0;i<nbVar_;++i){
-            qpSolution(i) = sol[i];
-        }
+		//DumpProblem("problem_in_solve.dat");
+	//qpOASES::Options myoptions;
+	//myoptions.printLevel = qpOASES::PL_HIGH;
+	//	qp_->setOptions(myoptions);
+		int nWSR = 5;
+		qp_->hotstart(hessian_mat_().data(), gradient_vec_().data(), cstr_mat_().data(),
+		  var_l_bounds_vec_().data(), var_u_bounds_vec_().data(),
+		  cstr_l_bounds_vec_().data(), cstr_u_bounds_vec_().data(),
+		  nWSR, NULL);
 
+		qp_->getPrimalSolution(solution_vec_);
+        for (int i = 0; i < nbvars_; ++i) {
+            solution(i) = solution_vec_[i];
+	        }
+
+		    //2. Messung 
+    QueryPerformanceCounter((LARGE_INTEGER*)&g_LastCount); 
+
+    double dTimeDiff = (((double)(g_LastCount-g_CurentCount))/((double)g_Frequency));  
+
+	std::cout << "Zeit: " << dTimeDiff << "at: "  << std::endl<< std::endl<< std::endl<< std::endl; 
+
+/////// TODO: checked until here
         qpOASES::Constraints ctr;
         qpOASES::Bounds bounds;
         qp_->getConstraints(ctr);
         qp_->getBounds(bounds);
-        for(int i=0;i<nbVar_;++i){
-            if (bounds.getStatus(i)==qpOASES::ST_LOWER){
-                constraints(i)=1;
-            }else if (bounds.getStatus(i)==qpOASES::ST_UPPER){
-                constraints(i)=2;
-            }else{
-                constraints(i)=0;
+        for(int i=0; i < nbvars_; ++i) {
+            if (bounds.getStatus(i) == qpOASES::ST_LOWER) {
+                constraints(i) = 1;
+            } else if (bounds.getStatus(i) == qpOASES::ST_UPPER) {
+                constraints(i) = 2;
+            } else {
+                constraints(i) = 0;
             }
         }
-        for(int i=0;i<nbCtr_;++i){
-            if (ctr.getStatus(i)==qpOASES::ST_LOWER){
-                constraints(i+nbVar_)=1;
-            }else if (ctr.getStatus(i)==qpOASES::ST_UPPER){
-                constraints(i+nbVar_)=2;
+        for (int i = 0; i < nbcstr_; ++i) {
+            if (ctr.getStatus(i) == qpOASES::ST_LOWER) {
+                constraints(i + nbvars_) = 1;
+            }else if (ctr.getStatus(i) == qpOASES::ST_UPPER) {
+                constraints(i + nbvars_) = 2;
             }else{
-                constraints(i+nbVar_)=0;
+                constraints(i + nbvars_) = 0;
             }
         }
 
-        reorderSolution(qpSolution, constraints, initialConstraints);
+        reorderSolution(solution, constraints, initialConstraints);
 
-	delete qp_;
-	delete ctrInit;
-	delete boundsInit;
+	// RESET 
+		//bounds_init_vec_->print();
+
+		//cstr_init_vec_->fill(0);
+	
 }
 
 
-bool QPOasesSolver::resizeAll(){
+bool QPOasesSolver::resizeAll() {
 	bool maxSizechanged = QPSolver::resizeAll();
 
 	return maxSizechanged;

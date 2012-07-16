@@ -6,6 +6,7 @@
 ///
 ///\file	qp-solver.h
 ///\brief	A class to solver the QP problem
+///\author  Andrei Herdt
 ///\author	Lafaye Jory
 ///\author      Keith François
 ///\version	1.2
@@ -21,81 +22,84 @@
 
 namespace MPCWalkgen{
 
-	class QPSolver{
-		public:
-			static const int DefaultNbVarMax_;
-			static const int DefaultNbCtrMax_;
+  class QPSolver{
+  public:
+    static const int DefaultNbVars_;
+    static const int DefaultNbCstr_;
 
-		public:
-			QPSolver(const int nbVarMin=0, const int nbCtrMin=0, const int nbVarMax=DefaultNbVarMax_, const int nbCtrMax=DefaultNbCtrMax_);
-			virtual ~QPSolver()=0;
+  public:
+    QPSolver(const int nbvars = DefaultNbVars_, const int nbcstr = DefaultNbCstr_);
+    virtual ~QPSolver() = 0;
 
-			void reset();
-			virtual void solve(Eigen::VectorXd & qpSolution,
-					   Eigen::VectorXi & constraints,
-					   Eigen::VectorXd & initialSolution,
-					   Eigen::VectorXi & initialConstraints,
-					   bool useWarmStart)=0;
+    virtual void Init() = 0;
 
-			void dump();
+    void reset();
+    virtual void solve(Eigen::VectorXd & qpSolution,
+      Eigen::VectorXi & constraints,
+      Eigen::VectorXd & initialSolution,
+      Eigen::VectorXi & initialConstraints,
+      bool useWarmStart) = 0;
 
-		public:
-			QPMatrix & matrix(const QPMatrixType type);
-			QPVector & vector(const QPVectorType type);
+    void dump();
+    void DumpProblem(const char *filename); 
 
-			void nbVar(const int nbVar);
-			inline int nbVar() const {return nbVar_;}
-			void nbCtr(const int nbCtr);
-			inline int nbCtr() const {return nbCtr_;}
-			void addNbCtr(const int addCtr);
+  public:
+    QPMatrix & matrix(const QPMatrixType type);
+    QPVector & vector(const QPVectorType type);
 
-			void varOrder(const Eigen::VectorXi & order);
-			void ctrOrder(const Eigen::VectorXi & order);
+    void nbVar(const int nbvars);
+    inline int nbVar() const {return nbvars_;}
+    void nbCtr(const int nbcstr);
+    inline int nbCtr() const {return nbcstr_;}
+    void addNbCtr(const int addCtr);
 
-			virtual QPSolverType getType() const =0;
+    void varOrder(const Eigen::VectorXi & order);
+    void ctrOrder(const Eigen::VectorXi & order);
 
-			// can we / should we use the cholesly matrix
-			virtual bool useCholesky() const =0;
-			virtual void useCholesky(bool)=0;
+    virtual QPSolverType getType() const =0;
 
-		protected:
-			virtual bool resizeAll();
+    // can we / should we use the cholesly matrix
+    virtual bool useCholesky() const =0;
+    virtual void useCholesky(bool)=0;
 
-			void reorderInitialSolution(Eigen::VectorXd & initialSolution,
-						    Eigen::VectorXi & initialConstraints);
-			void reorderSolution(Eigen::VectorXd & qpSolution,
-					     Eigen::VectorXi & constraints,
-					     Eigen::VectorXi & initialConstraints);
+  protected:
+    virtual bool resizeAll();
 
-		protected:
-			QPMatrix matrixQ_;
-			QPMatrix matrixA_;
-			QPVector vectorP_;
-			QPVector vectorBU_;
-			QPVector vectorBL_;
-			QPVector vectorXU_;
-			QPVector vectorXL_;
+    void reorderInitialSolution(Eigen::VectorXd & initialSolution,
+      Eigen::VectorXi & initialConstraints);
+    void reorderSolution(Eigen::VectorXd & qpSolution,
+      Eigen::VectorXi & constraints,
+      Eigen::VectorXi & initialConstraints);
 
-			int nbVar_;
-			int nbCtr_;
-			int nbVarMax_;
-			int nbCtrMax_;
+  protected:
+    QPMatrix hessian_mat_;
+    double *hessian_arr_;
+    QPVector gradient_vec_;
 
-			Eigen::VectorXi varOrder_;
-			Eigen::VectorXi ctrOrder_;
-	};
-	QPSolver* createQPSolver(QPSolverType solvertype,
-			int nbVarMin=0,
-			int nbCtrMin=0,
-			int nbVarMax=QPSolver::DefaultNbVarMax_,
-			int nbCtrMax=QPSolver::DefaultNbCtrMax_);
+    QPMatrix cstr_mat_;
+    double *cstr_arr_;
+    QPVector cstr_u_bounds_vec_;
+    QPVector cstr_l_bounds_vec_;
+
+    QPVector var_u_bounds_vec_;
+    QPVector var_l_bounds_vec_;
+
+    int nbvars_;
+    int nbcstr_;
+
+    Eigen::VectorXi var_indices_vec_;
+    Eigen::VectorXi cstr_indices_vec_;
+  };
+  QPSolver* createQPSolver(QPSolverType solvertype,
+    int nbvars = QPSolver::DefaultNbVars_,
+    int nbcstr = QPSolver::DefaultNbCstr_);
 }
 
 
 /*! @defgroup solver solvers
- *  @ingroup private
- * this group gathers the solver available with mpc-walkgen
- */
+*  @ingroup private
+* this group gathers the solver available with mpc-walkgen
+*/
 
 /*!
 * \class MPCWalkgen::QPSolver qp-solver.h "Definition"
@@ -103,7 +107,7 @@ namespace MPCWalkgen{
 * \brief Abstract interface of the solver used
 */
 
-/*! \fn MPCWalkgen::QPSolver::QPSolver(const int nbVarMax=DefaultNbVarMax_, const int nbCtrMax=DefaultNbCtrMax_)
+/*! \fn MPCWalkgen::QPSolver::QPSolver(const int nbVarMax=DefaultNbVars_, const int nbCtrMax=DefaultNbCstr_)
 * \brief Constructor
 * \param nbVarMax Maximum number of variables
 * \param nbCtrMax Maximum number of constraints

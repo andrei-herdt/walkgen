@@ -6,9 +6,9 @@
 ///
 ///\file	qp-generator.h
 ///\brief	A class to compute QP elements (objective, constraints, warmstart)
+///\author	Herdt Andrei
 ///\author	Lafaye Jory
 ///\author      Keith François
-///\author	Herdt Andrei
 ///\version	1.2
 ///\date	27/04/12
 ///
@@ -30,15 +30,13 @@ namespace MPCWalkgen{
 
     public:
       QPGenerator(QPPreview * preview, QPSolver * solver,
-                  Reference * velRef, QPPonderation * ponderation,
-                  RigidBodySystem * robot, const MPCData * generalData);
+        Reference * velRef, QPPonderation * ponderation,
+        RigidBodySystem * robot, const MPCData * generalData);
       ~QPGenerator();
 
       void precomputeObjective();
 
-      void buildObjective(const MPCSolution & result);
-
-      void buildConstraints(const MPCSolution & result);
+      void BuildProblem(MPCSolution & solution);
 
       void computeWarmStart(MPCSolution & result);
 
@@ -51,6 +49,10 @@ namespace MPCWalkgen{
     private:
 
       void buildInequalitiesFeet(const MPCSolution & result);
+
+      void buildObjective(const MPCSolution & result);
+
+      void buildConstraints(const MPCSolution & result);
 
       void buildConstraintsFeet(const MPCSolution & result);
 

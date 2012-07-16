@@ -6,9 +6,9 @@
 ///
 ///\file	rigid-body-system.h
 ///\brief	A class to store the rigid body model
+///\author	Herdt Andrei
 ///\author	Lafaye Jory
 ///\author      Keith François
-///\author	Herdt Andrei
 ///\version	1.2
 ///\date	27/04/12
 ///
@@ -27,7 +27,7 @@ namespace MPCWalkgen{
 
     public:
       RigidBodySystem(const MPCData *generalData
-                      , const Interpolation *interpolation);
+        , const Interpolation *interpolation);
       ~RigidBodySystem();
 
       void init(const RobotData &robotData);
@@ -46,7 +46,7 @@ namespace MPCWalkgen{
         convexHull(hull, type, prwSupport, computeLinearSystem, rotateHull);
         return hull;
       }
-      void convexHull(ConvexHull &hull, HullType type, const SupportState &prwSupport, bool computeLinearSystem=true, bool rotateHull=true) const;
+      void convexHull(ConvexHull &hull, HullType type, const SupportState &prwSupport, bool computeLinearSystem=true, bool rotateHull=true) const;//TODO: Change this
 
       RigidBody *body(BodyType type);
       const RigidBody *body(BodyType type) const;
@@ -80,7 +80,7 @@ namespace MPCWalkgen{
 }
 
 /*! \fn MPCWalkgen::RigidBodySystem::RigidBodySystem(const MPCData *generalData
-                                        , const Interpolation *interpolation)
+, const Interpolation *interpolation)
 * \brief Constructor
 */
 

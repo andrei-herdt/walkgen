@@ -9,8 +9,8 @@ using namespace Humanoid;
 using namespace Eigen;
 
 RigidBodySystem::RigidBodySystem(const MPCData *generalData, const Interpolation *interpolation)
-  :generalData_(generalData)
-  ,robotData_() {
+:generalData_(generalData)
+,robotData_() {
   CoM_ = new CoMBody(generalData_, &robotData_, interpolation);
   leftFoot_ = new FootBody(generalData_, &robotData_, interpolation, LEFT);
   rightFoot_ = new FootBody(generalData_, &robotData_, interpolation, RIGHT);
@@ -56,21 +56,21 @@ void RigidBodySystem::updateBodyState(const MPCSolution & solution){
   BodyState leftFoot, rightFoot, CoM;
 
   for (int i = 0; i < 3; ++i){
-      const MPCSolution::State & currentState = solution.state_vec[i];
-      leftFoot.x(i) = currentState.leftFootTrajX_(nextCurrentState);
-      leftFoot.y(i) = currentState.leftFootTrajY_(nextCurrentState);
-      leftFoot.z(i) = currentState.leftFootTrajZ_(nextCurrentState);
-      leftFoot.yaw(i) = currentState.leftFootTrajYaw_(nextCurrentState);
+    const MPCSolution::State & currentState = solution.state_vec[i];
+    leftFoot.x(i) = currentState.leftFootTrajX_(nextCurrentState);
+    leftFoot.y(i) = currentState.leftFootTrajY_(nextCurrentState);
+    leftFoot.z(i) = currentState.leftFootTrajZ_(nextCurrentState);
+    leftFoot.yaw(i) = currentState.leftFootTrajYaw_(nextCurrentState);
 
-      rightFoot.x(i) = currentState.rightFootTrajX_(nextCurrentState);
-      rightFoot.y(i) = currentState.rightFootTrajY_(nextCurrentState);
-      rightFoot.z(i) = currentState.rightFootTrajZ_(nextCurrentState);
-      rightFoot.yaw(i) = currentState.rightFootTrajYaw_(nextCurrentState);
+    rightFoot.x(i) = currentState.rightFootTrajX_(nextCurrentState);
+    rightFoot.y(i) = currentState.rightFootTrajY_(nextCurrentState);
+    rightFoot.z(i) = currentState.rightFootTrajZ_(nextCurrentState);
+    rightFoot.yaw(i) = currentState.rightFootTrajYaw_(nextCurrentState);
 
-      CoM.x(i) = currentState.CoMTrajX_(nextCurrentState);
-      CoM.y(i) = currentState.CoMTrajY_(nextCurrentState);
-      CoM.yaw(i) = currentState.trunkYaw_(nextCurrentState);
-    }
+    CoM.x(i) = currentState.CoMTrajX_(nextCurrentState);
+    CoM.y(i) = currentState.CoMTrajY_(nextCurrentState);
+    CoM.yaw(i) = currentState.trunkYaw_(nextCurrentState);
+  }
   CoM.z(0) = robotData_.CoMHeight;
   CoM.z(1) = 0;
   CoM.z(2) = 0;
@@ -95,7 +95,7 @@ RigidBody * RigidBodySystem::body(BodyType type){
       return leftFoot_;
     default:
       return rightFoot_;
-    }
+  }
 }
 
 const RigidBody * RigidBodySystem::body(BodyType type) const{
@@ -106,7 +106,7 @@ const RigidBody * RigidBodySystem::body(BodyType type) const{
       return leftFoot_;
     default:
       return rightFoot_;
-    }
+  }
 }
 
 
@@ -116,33 +116,33 @@ void RigidBodySystem::convexHull(ConvexHull &hull, HullType type, const SupportS
   switch (type){
     case FootHull:
       if (prwSupport.foot == LEFT){
-          hull = robotData_.leftFootHull;
-        }else{
-          hull = robotData_.rightFootHull;
-        }
+        hull = robotData_.leftFootHull;
+      }else{
+        hull = robotData_.rightFootHull;
+      }
       break;
     case CoPHull:
       if (prwSupport.foot == LEFT){
-          if (prwSupport.phase == SS){
-              hull = robotData_.CoPLeftSSHull;
-            }else{
-              hull = robotData_.CoPLeftDSHull;
-            }
+        if (prwSupport.phase == SS){
+          hull = robotData_.CoPLeftSSHull;
         }else{
-          if (prwSupport.phase==SS){
-              hull = robotData_.CoPRightSSHull;
-            }else{
-              hull =  robotData_.CoPRightDSHull;
-            }
+          hull = robotData_.CoPLeftDSHull;
         }
+      }else{
+        if (prwSupport.phase==SS){
+          hull = robotData_.CoPRightSSHull;
+        }else{
+          hull =  robotData_.CoPRightDSHull;
+        }
+      }
       break;
-    }
+  }
 
   if (rotateHull){
-      hull.rotate(prwSupport.yaw);
-    }
+    hull.rotate(prwSupport.yaw);
+  }
 
   if (computeLinearSystem){
-      hull.computeLinearSystem(prwSupport.foot);
-    }
+    hull.computeLinearSystem(prwSupport.foot);
+  }
 }

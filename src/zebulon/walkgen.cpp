@@ -38,10 +38,8 @@ Walkgen::Walkgen(::MPCWalkgen::QPSolverType solvertype)
 {
 
   solver_ = createQPSolver(solvertype,
-          4*generalData_.nbSamplesQP, 9*generalData_.nbSamplesQP,
           4*generalData_.nbSamplesQP, 9*generalData_.nbSamplesQP);
   solverOrientation_ = createQPSolver(solvertype,
-          generalData_.nbSamplesQP, 2*generalData_.nbSamplesQP,
           generalData_.nbSamplesQP, 2*generalData_.nbSamplesQP);
   interpolation_ = new Interpolation();
   robot_ = new RigidBodySystem(&generalData_, interpolation_);

@@ -5,10 +5,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 ///
 ///\file	walkgen.h
-///\brief	Main program of the MPC
+///\author	Herdt Andrei
 ///\author	Lafaye Jory
 ///\author      Keith François
-///\author	Herdt Andrei
 ///\version	1.2
 ///\date	27/04/12
 ///
@@ -30,7 +29,7 @@ namespace MPCWalkgen{
     class OrientationsPreview;
 
     class Walkgen :
-        public WalkgenAbstract
+      public WalkgenAbstract
     {
 
     public:
@@ -60,8 +59,10 @@ namespace MPCWalkgen{
 
       virtual const BodyState & bodyState(BodyType body)const;
       virtual void bodyState(BodyType body, const BodyState & state);
-      /// \}
 
+
+    private:
+      void BuildProblem();
 
     private:
       MPCData generalData_;

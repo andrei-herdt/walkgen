@@ -6,9 +6,9 @@
 ///
 ///\file	types.h
 ///\brief	Definition of types used in MPC
+///\author	Herdt Andrei
 ///\author	Lafaye Jory
 ///\author      Keith François
-///\author	Herdt Andrei
 ///\version	1.2
 ///\date	27/04/12
 ///
@@ -53,8 +53,8 @@ namespace MPCWalkgen{
 }
 
 /** @defgroup private MPCWalkgen private interface
- *  This group gathers the classes contained in the private interface
- */
+*  This group gathers the classes contained in the private interface
+*/
 
 
 #endif // MPC_WALKGEN_HUMANOID_TYPES_H

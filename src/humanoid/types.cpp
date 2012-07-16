@@ -4,39 +4,41 @@ using namespace MPCWalkgen;
 using namespace Humanoid;
 
 SelectionMatrices::SelectionMatrices(const MPCData & generalData)
-  :V(generalData.nbSamplesQP,generalData.nbSamplesQP)
-  ,VT(generalData.nbSamplesQP,generalData.nbSamplesQP)
-  ,VcX(generalData.nbSamplesQP)
-  ,VcY(generalData.nbSamplesQP)
-  ,Vf(generalData.nbSamplesQP,generalData.nbSamplesQP)
-  ,VcfX(generalData.nbSamplesQP)
-  ,VcfY(generalData.nbSamplesQP)
+:V(generalData.nbSamplesQP,generalData.nbSamplesQP)
+,VT(generalData.nbSamplesQP,generalData.nbSamplesQP)
+,VcX(generalData.nbSamplesQP)
+,VcY(generalData.nbSamplesQP)
+,Vf(generalData.nbSamplesQP,generalData.nbSamplesQP)
+,VcfX(generalData.nbSamplesQP)
+,VcfY(generalData.nbSamplesQP)
 {}
 
 void RelativeInequalities::resize(int rows, int cols){
   if (rows!=DX.rows() || cols!=DX.cols()){
-      DX.setZero(rows, cols);
-      DY.setZero(rows, cols);
-      Dc.setZero(rows, cols);
-    }else{
-      DX.fill(0);
-      DY.fill(0);
-      Dc.fill(0);
-    }
+    DX.setZero(rows, cols);
+    DY.setZero(rows, cols);
+    Dc.setZero(rows, cols);
+  }else{
+    DX.fill(0);
+    DY.fill(0);
+    Dc.fill(0);
+  }
 
 }
 
 
 
 ConvexHull::ConvexHull()
-  :x(Eigen::VectorXd::Zero(0))
-  ,y(Eigen::VectorXd::Zero(0))
-  ,z(Eigen::VectorXd::Zero(0))
-  ,A(Eigen::VectorXd::Zero(0))
-  ,B(Eigen::VectorXd::Zero(0))
-  ,C(Eigen::VectorXd::Zero(0))
-  ,D(Eigen::VectorXd::Zero(0)) {
+:x(Eigen::VectorXd::Zero(0))
+,y(Eigen::VectorXd::Zero(0))
+,z(Eigen::VectorXd::Zero(0))
+,A(Eigen::VectorXd::Zero(0))
+,B(Eigen::VectorXd::Zero(0))
+,C(Eigen::VectorXd::Zero(0))
+,D(Eigen::VectorXd::Zero(0)) {
 }
+
+ConvexHull::~ConvexHull() {}
 
 // TODO: Necessary?
 ConvexHull & ConvexHull::operator=(const ConvexHull & hull){
@@ -53,20 +55,20 @@ ConvexHull & ConvexHull::operator=(const ConvexHull & hull){
 
 void ConvexHull::resize(int size){
   if (size != x.rows()){
-      x.setZero(size);
-      y.setZero(size);
-      A.setZero(size);
-      B.setZero(size);
-      C.setZero(size);
-      D.setZero(size);
-    }else{
-      x.fill(0);
-      y.fill(0);
-      A.fill(0);
-      B.fill(0);
-      C.fill(0);
-      D.fill(0);
-    }
+    x.setZero(size);
+    y.setZero(size);
+    A.setZero(size);
+    B.setZero(size);
+    C.setZero(size);
+    D.setZero(size);
+  }else{
+    x.fill(0);
+    y.fill(0);
+    A.fill(0);
+    B.fill(0);
+    C.fill(0);
+    D.fill(0);
+  }
 }
 
 void ConvexHull::rotate(double yaw) {
@@ -76,11 +78,11 @@ void ConvexHull::rotate(double yaw) {
   double xOld, yOld;
   int size = x.rows();
   for(int i = 0; i < size; ++i){
-      xOld = x(i);
-      yOld = y(i);
-      x(i) = (xOld*std::cos(yaw) - yOld*std::sin(yaw));
-      y(i) = (xOld*std::sin(yaw) + yOld*std::cos(yaw));
-    }
+    xOld = x(i);
+    yOld = y(i);
+    x(i) = (xOld*std::cos(yaw) - yOld*std::sin(yaw));
+    y(i) = (xOld*std::sin(yaw) + yOld*std::cos(yaw));
+  }
 }
 
 void ConvexHull::computeLinearSystem(const Foot & foot) {
@@ -89,23 +91,23 @@ void ConvexHull::computeLinearSystem(const Foot & foot) {
 
   double sign;
   if(foot == LEFT){
-      sign = 1.0;
-    }else{
-      sign = -1.0;
-    }
+    sign = 1.0;
+  }else{
+    sign = -1.0;
+  }
   for( unsigned i=0; i<nbRows;++i ){
-      y1 = y(i);
-      y2 = y((i+1)%nbRows);
-      x1 = x(i);
-      x2 = x((i+1)%nbRows);
+    y1 = y(i);
+    y2 = y((i+1)%nbRows);
+    x1 = x(i);
+    x2 = x((i+1)%nbRows);
 
-      dx = sign*(y1-y2);
-      dy = sign*(x2-x1);
-      dc = dx*x1+dy*y1;
+    dx = sign*(y1-y2);
+    dy = sign*(x2-x1);
+    dc = dx*x1+dy*y1;
 
 
-      A(i) = dx;
-      B(i) = dy;
-      D(i) = dc;
-    }
+    A(i) = dx;
+    B(i) = dy;
+    D(i) = dc;
+  }
 }
