@@ -6,6 +6,7 @@
 ///
 ///\file	qp-matrix.h
 ///\brief	A class to store QP matrices
+///\author  Herdt Andrei
 ///\author	Lafaye Jory
 ///\author      Keith François
 ///\version	1.2
@@ -19,87 +20,83 @@
 
 namespace MPCWalkgen{
 
-	class QPMatrix{
-		public:
-			QPMatrix(const int nbRowsMin=1, const int nbColsMin=1,
-					 const int nbRowsMax=1, const int nbColsMax=1);
-			~QPMatrix();
+  class QPMatrix{
+  public:
 
-			void addTerm(const Eigen::MatrixXd & mat,
-					const int row = 0, const int col = 0);
+    /// \name Typedefs
+    /// \{
+    typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> EigenMatrixXdRM;
+    /// \}
 
-			void setTerm(const Eigen::MatrixXd & mat,
-					const int row = 0, const int col = 0);
+    QPMatrix(const int nbrows = 0, const int nbcols = 0);
 
-			void setConstantPart(const Eigen::MatrixXd & mat);
+    ~QPMatrix();
 
-			void reset();
+    void addTerm(const Eigen::MatrixXd & mat,
+      const int row = 0, const int col = 0);
 
-			void resize(const int nbRows, const int nbCols);
+    void setTerm(const Eigen::MatrixXd & mat,
+      const int row = 0, const int col = 0);
 
-			Eigen::MatrixXd & cholesky();
-			Eigen::MatrixXd & cholesky(Eigen::MatrixXd & partialCholesky);
+    void setConstantPart(const Eigen::MatrixXd & mat);
 
-			void colOrder(const Eigen::VectorXi & order);
-			void rowOrder(const Eigen::VectorXi & order);
+    void reset();
+
+    void resize(const int nbrows, const int nbcols);
+
+    Eigen::MatrixXd & cholesky();
+    Eigen::MatrixXd & cholesky(Eigen::MatrixXd & partialCholesky);
+
+    void colOrder(const Eigen::VectorXi & order);
+    void rowOrder(const Eigen::VectorXi & order);
 
 
-		// accessors
-			inline Eigen::MatrixXd & operator()(void) {
-				choleskyMatrixOutdated_=true;
-				return matrix_[vectorElem_];
-			}
-			inline const Eigen::MatrixXd & operator()(void) const {
-				return matrix_[vectorElem_];
-			}
+    // accessors
+    inline EigenMatrixXdRM &operator()(void) {
+      cholesky_old_mat_ = true;
+      return matrix_;
+    }
+    inline const EigenMatrixXdRM &operator()(void) const {
+      return matrix_;
+    }
 
-			inline double & operator()(int row, int col=0){return matrix_[vectorElem_](row,col);}
+    inline double &operator()(int row, int col=0){return matrix_(row,col);}
 
-			inline int nbRows() const	 {return nbRows_;}
-			inline int nbCols() const    {return nbCols_;}
+    inline int nbrows() const	 {return nbrows_;}
+    inline int nbcols() const    {return nbcols_;}
 
-			inline int nbRowsMax() const {return nbRowsMin_+sizeRows_-1;}
-			inline int nbColsMax() const {return nbColsMin_+sizeCols_-1;}
+  private:
+    void computeCholesky(const Eigen::MatrixXd &partialCholesky);
+    void computeCholesky();
 
-		private:
-			void computeCholesky(const Eigen::MatrixXd & partialCholesky);
-			void computeCholesky();
+  private:
 
-		private:
+    EigenMatrixXdRM constant_mat_;
+    EigenMatrixXdRM matrix_;
+    Eigen::MatrixXd cholesky_mat_;//TODO: Is this logical? (move out?)
 
-			int sizeRows_;
-			int sizeCols_;
+    int nbrows_;
+    int nbcols_;
 
-			std::vector<Eigen::MatrixXd> constantPart_;
-			std::vector<Eigen::MatrixXd> matrix_;
-			std::vector<Eigen::MatrixXd> choleskyMatrix_;
+    bool cholesky_old_mat_;
 
-			int nbRowsMin_;
-			int nbColsMin_;
-
-			int nbRows_;
-			int nbCols_;
-			int vectorElem_;
-
-			bool choleskyMatrixOutdated_;
-
-			Eigen::VectorXi rowOrder_;
-			Eigen::VectorXi colOrder_;
-	};
+    Eigen::VectorXi row_indices_vec_;
+    Eigen::VectorXi col_indices_vec_;
+  };
 
 }
 
-/*! \fn MPCWalkgen::QPMatrix::QPMatrix(const int nbRows, const int nbCols,
-					 const int nbRowsMax=1, const int nbColsMax=1)
-* \brief Constructor. nbRowsMax/nbColsMax must be greater or equal than nbRows/nbCols
-* \param nbRows Declared row number of dense matrix
-* \param nbCols Declared col number of dense matrix
-* \param nbRowsMax number of rows of storage matrix
-* \param nbColsMax number of cols of storage matrix
+/*! \fn MPCWalkgen::QPMatrix::QPMatrix(const int nbrows, const int nbcols,
+const int nbrowsMax=1, const int nbcolsMax=1)
+* \brief Constructor. nbrowsMax/nbcolsMax must be greater or equal than nbrows/nbcols
+* \param nbrows Declared row number of dense matrix
+* \param nbcols Declared col number of dense matrix
+* \param nbrowsMax number of rows of storage matrix
+* \param nbcolsMax number of cols of storage matrix
 */
 
 /*! \fn void MPCWalkgen::QPMatrix::addTerm(const Eigen::MatrixXd & mat,
-					const int row = 0, const int col = 0)
+const int row = 0, const int col = 0)
 * \brief Add the content of matrix mat into the QPMatrix, starting at position (row/col)
 */
 
@@ -112,8 +109,8 @@ namespace MPCWalkgen{
 * \param withConstantPart If true, Set QPMatrix to it constant part
 */
 
-/*! \fn void MPCWalkgen::QPMatrix::resize(const int nbRows, const int nbCols=1,
-					const bool preserve=false, const bool withConstantPart = false)
+/*! \fn void MPCWalkgen::QPMatrix::resize(const int nbrows, const int nbcols=1,
+const bool preserve=false, const bool withConstantPart = false)
 * \brief define the new declared dimension of dense matrix
 * \param preserve if true, the content will be conserved. Else, reset method will be called
 * \param withConstantPart for reset method, only if preserve=true
@@ -131,19 +128,19 @@ namespace MPCWalkgen{
 * \brief return the dense matrix
 */
 
-/*! \fn int MPCWalkgen::QPMatrix::nbRows() const
+/*! \fn int MPCWalkgen::QPMatrix::nbrows() const
 * \brief return the dense matrix number of rows
 */
 
-/*! \fn int MPCWalkgen::QPMatrix::nbCols() const
+/*! \fn int MPCWalkgen::QPMatrix::nbcols() const
 * \brief return the dense matrix number of cols
 */
 
-/*! \fn int MPCWalkgen::QPMatrix::nbRowsMax() const
+/*! \fn int MPCWalkgen::QPMatrix::nbrowsMax() const
 * \brief return the storage matrix number of rows
 */
 
-/*! \fn int MPCWalkgen::QPMatrix::nbColsMax() const
+/*! \fn int MPCWalkgen::QPMatrix::nbcolsMax() const
 * \brief return the storage matrix number of cols
 */
 
