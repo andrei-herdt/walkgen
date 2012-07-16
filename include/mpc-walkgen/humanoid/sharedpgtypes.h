@@ -6,6 +6,7 @@
 ///
 ///\file	api.h
 ///\brief	Definition of humanoid types
+///\author  Herdt Andrei
 ///\author	Lafaye Jory
 ///\author      Keith François
 ///\version	1.2
@@ -18,65 +19,37 @@
 #include <vector>
 
 
-
-
-
 namespace MPCWalkgen{
   namespace Humanoid{
-    //
-    // Enum types
-    //
 
     /// \name Enum types
     /// \{
     enum Phase{
-      SS,
-      DS
+      SS, DS
     };
 
     enum Foot{
-      LEFT,
-      RIGHT
+      LEFT, RIGHT
     };
 
     enum BodyType{
-      LEFT_FOOT,
-      RIGHT_FOOT,
-      COM
+      LEFT_FOOT, RIGHT_FOOT, COM
     };
-
-
     /// \}
-
-    //
-    // Structures
-    //
 
     /// \name Structures
     /// \{
-
-
-
     struct MPC_WALKGEN_API FootData{
       double soleWidth;
       double soleHeight;
       Eigen::Vector3d anklePositionInLocalFrame;
 
-      inline FootData()
-        : soleWidth(0)
-        , soleHeight(0)
-        , anklePositionInLocalFrame()
-      {}
-
-      inline FootData(const FootData &f)
-        : soleWidth(f.soleWidth)
-        , soleHeight(f.soleHeight)
-        , anklePositionInLocalFrame(f.anklePositionInLocalFrame)//TODO: LocalAnklePosition_ better?
-      {}
-
+      FootData();
+      FootData(const FootData &f);//TODO: LocalAnklePosition_ better?
+      ~FootData();
     };
 
-    struct MPC_WALKGEN_API HipYawData{
+    struct MPC_WALKGEN_API HipYawData {
       double lowerBound;
       double upperBound;
       double lowerVelocityBound;
@@ -85,6 +58,7 @@ namespace MPCWalkgen{
       double upperAccelerationBound;
 
       HipYawData();
+      ~HipYawData();
     };
 
     struct MPC_WALKGEN_API QPPonderation{
@@ -96,9 +70,10 @@ namespace MPCWalkgen{
       int activePonderation;
 
       QPPonderation(int nb = 2);
+      ~QPPonderation();
     };
 
-    struct MPC_WALKGEN_API SupportState{
+    struct MPC_WALKGEN_API SupportState {
       Phase phase;
       Foot foot;
 
@@ -109,7 +84,7 @@ namespace MPCWalkgen{
       double timeLimit;
       double startTime;
 
-      double x,y,yaw;
+      double x, y, yaw;
       double yawTrunk;//TODO: Why in SupportState? -> for compatibility with temporary previewROrientation class
 
       bool stateChanged;
@@ -137,13 +112,15 @@ namespace MPCWalkgen{
       Eigen::VectorXd D;
 
       ConvexHull();
-      ConvexHull &operator=(const ConvexHull &hull); // TODO: copyFrom() instead of =
+      ~ConvexHull();
+
+      ConvexHull &operator= (const ConvexHull &hull); // TODO: copyFrom() instead of =
       void resize(int size);
       void rotate(double yaw);
       void computeLinearSystem(const Foot &foot);
     };
 
-    struct MPC_WALKGEN_API MPCData{
+    struct MPC_WALKGEN_API MPCData {
       // The following parameters are fixed once and for all at initialization
       /// \brief Sampling period considered in the QP
       double QPSamplingPeriod;    //blocked - precomputeObjective
@@ -170,6 +147,7 @@ namespace MPCWalkgen{
       QPPonderation ponderation;
 
       MPCData();
+      ~MPCData();
     };
 
     struct MPC_WALKGEN_API RobotData {
@@ -195,14 +173,16 @@ namespace MPCWalkgen{
       ConvexHull CoPRightDSHull;
 
       RobotData(const FootData &leftFoot, const FootData &rightFoot,
-                const HipYawData &leftHipYaw, const HipYawData &rightHipYaw,
-                double mass);
+        const HipYawData &leftHipYaw, const HipYawData &rightHipYaw,
+        double mass);
       RobotData();
+      ~RobotData();
     };
 
-    struct MPC_WALKGEN_API MPCSolution{
+    struct MPC_WALKGEN_API MPCSolution {
 
       MPCSolution();
+      ~MPCSolution();
 
       void reset();
 
@@ -229,8 +209,7 @@ namespace MPCWalkgen{
       Eigen::VectorXd CoPTrajX;
       Eigen::VectorXd CoPTrajY;
 
-      struct State
-      {
+      struct State {
         Eigen::VectorXd CoMTrajX_;
         Eigen::VectorXd CoMTrajY_;
 

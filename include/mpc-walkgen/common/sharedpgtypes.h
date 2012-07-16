@@ -6,9 +6,9 @@
 ///
 ///\file	api.h
 ///\brief	Definition of common types between each walkgen
+///\author	Herdt Andrei
 ///\author	Lafaye Jory
 ///\author      Keith François
-///\author	Herdt Andrei
 ///\version	1.2
 ///\date	27/04/12
 ///
@@ -19,14 +19,13 @@
 
 #include <Eigen/Dense>
 
-namespace MPCWalkgen
-{
+namespace MPCWalkgen {
 
-  enum Axis{
-          X,
-          Y,
-          Z,
-          Yaw
+  enum Axis {
+    X,
+    Y,
+    Z,
+    Yaw
   };
 
   struct MPC_WALKGEN_API BodyState{

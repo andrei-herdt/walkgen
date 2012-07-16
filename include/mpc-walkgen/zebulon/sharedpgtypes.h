@@ -63,7 +63,7 @@ namespace MPCWalkgen{
       QPPonderation(int nb = 1);
     };
 
-    struct MPC_WALKGEN_API MPCData{
+    struct MPC_WALKGEN_API MPCData {
       // The following parameters are fixed once and for all at initialization
       /// \brief Sampling period considered in the QP
       double QPSamplingPeriod;    //blocked - precomputeObjective
@@ -108,8 +108,7 @@ namespace MPCWalkgen{
       Eigen::VectorXd CoPTrajX;
       Eigen::VectorXd CoPTrajY;
 
-      struct State
-      {
+      struct State {
         Eigen::VectorXd CoMTrajX_;
         Eigen::VectorXd CoMTrajY_;
         Eigen::VectorXd CoMTrajYaw_;
