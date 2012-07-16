@@ -32,3 +32,8 @@ build/
 *build*
 CMakeLists.txt.user
 *.autosave
+
+*.data
+*.ref
+/deps
+*.sci
