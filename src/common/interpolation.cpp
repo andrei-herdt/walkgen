@@ -20,8 +20,8 @@ void Interpolation::computeInterpolationByJerk(VectorXd &solutionX, VectorXd &so
 	VectorXd UX = VectorXd::Constant(nbSamples, jerkX);
 	VectorXd UY = VectorXd::Constant(nbSamples, jerkY);
 
-	solutionX = dyn.S*state.x + dyn.U*UX;
-	solutionY = dyn.S*state.y + dyn.U*UY;
+	solutionX = dyn.S * state.x + dyn.U * UX;
+	solutionY = dyn.S * state.y + dyn.U * UY;
 }
 
 void Interpolation::computeInterpolationByJerk(VectorXd &solution, const VectorXd &state,
@@ -50,7 +50,7 @@ void Interpolation::computePolynomialNormalisedFactors( Eigen::Matrix<double,6,1
 
 	Vector3d abc;
 
-	abc=AinvNorm_*b;
+	abc = AinvNorm_ * b;
 
 
 	factor(2) = abc(2);

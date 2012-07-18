@@ -4,7 +4,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 ///
-///\file	qp-solver.h
+///\file	qp-solver.hc
 ///\brief	A class to solver the QP problem
 ///\author  Andrei Herdt
 ///\author	Lafaye Jory
@@ -38,18 +38,18 @@ namespace MPCWalkgen{
       bool useWarmStart) = 0;
 
     void DumpProblem(const char *filename); 
-
+ 
   public:
     QPMatrix & matrix(const QPMatrixType type);
     QPVector & vector(const QPVectorType type);
 
     inline void nbvar (int nbvar) 
-    {assert(nbvar > nbvar_); nbvar_ = nbvar;}
+    {assert(nbvar <= nbvar_max_); nbvar_ = nbvar;}
     inline int nbvar () const {return nbvar_;}
     inline void nbvar_max (int nbvar) {nbvar_max_ = nbvar;}
     inline int nbvar_max () const {return nbvar_max_;}
-    inline void nbcstr(const int nbcstr) 
-    {assert(nbcstr > nbcstr_); nbcstr_ = nbcstr;}
+    inline void nbcstr(int nbcstr) 
+    {assert(nbcstr <= nbcstr_max_); nbcstr_ = nbcstr;}
     inline int nbcstr() const {return nbcstr_;}
     inline void nbcstr_max(const int nbcstr) {nbcstr_max_ = nbcstr;}
     inline int nbcstr_max() const {return nbcstr_max_;}

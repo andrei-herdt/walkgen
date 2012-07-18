@@ -396,7 +396,6 @@ void QPGenerator::convertCopToJerk(MPCSolution &result){
   const MatrixXd &rot = preview_->rotationMatrix();
   const BodyState &CoM = robot_->body(COM)->state();
   const LinearDynamics &CoP = robot_->body(COM)->dynamics(copDynamic);
-  // int nbSteps =  result.supportState_vec.back().stepNumber;
 
   VectorXd sx = result.qpSolution.segment(0, 2);
   VectorXd sy = result.qpSolution.segment(nbsamples, 2);
@@ -416,21 +415,21 @@ void QPGenerator::convertCopToJerk(MPCSolution &result){
   }
   */
 
-
+  // TODO: The jerk is computed only for the first instant and copied for the whole preview period!!
   double zx;
-  zx =(rot.block(0,0,1,2)*sx -rot.block(0,nbsamples,1,2)*sy)(0,0);
+  zx =(rot.block(0,0,1,2)*sx - rot.block(0,nbsamples,1,2)*sy)(0,0);
   zx+=/*Vpx(0,0)+*/State.VcX(0,0);
 
   double zy;
-  zy =(rot.block(nbsamples,nbsamples,1,2)*sy -rot.block(nbsamples,0,1,2)*sx)(0,0);
+  zy =(rot.block(nbsamples,nbsamples,1,2)*sy - rot.block(nbsamples,0,1,2)*sx)(0,0);
   zy+=/*Vpy(0,0)+*/State.VcY(0,0);
 
   double X;
   double Y;
-  zx -= (CoP.S.block(0,0,1,3) *CoM.x)(0,0);
-  X  =  CoP.UInv(0,0) *zx;
-  zy -= (CoP.S.block(0,0,1,3) *CoM.y)(0,0) ;
-  Y  =  CoP.UInv(0,0) *zy;
+  zx -= (CoP.S.block(0,0,1,3) * CoM.x)(0,0);
+  X  =  CoP.UInv(0,0) * zx;
+  zy -= (CoP.S.block(0,0,1,3) * CoM.y)(0,0) ;
+  Y  =  CoP.UInv(0,0) * zy;
 
   result.qpSolution.segment(0, nbsamples).fill(X);
   result.qpSolution.segment(nbsamples, nbsamples).fill(Y);

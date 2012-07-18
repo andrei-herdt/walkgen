@@ -1,7 +1,3 @@
-/*
-*/
-
-
 #include <mpc-walkgen/humanoid/walkgen-abstract.h>
 
 #include <cmath>
@@ -15,7 +11,7 @@
 
 
 #if _SECURE_SCL
-#error MOEP
+//#error MOEP
 #endif
 
 #if _HAS_ITERATOR_DEBUGGING

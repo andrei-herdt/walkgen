@@ -44,19 +44,19 @@ void RigidBodySystem::computeDynamics() {
   rightFoot_->computeDynamics();
 }
 
-void RigidBodySystem::interpolateBodies(MPCSolution & solution, double currentTime, const Reference & velRef){
+void RigidBodySystem::interpolateBodies(MPCSolution &solution, double currentTime, const Reference &velRef){
   CoM_->interpolate(solution, currentTime, velRef);
   leftFoot_->interpolate(solution, currentTime, velRef);
   rightFoot_->interpolate(solution, currentTime, velRef);
 }
 
-void RigidBodySystem::updateBodyState(const MPCSolution & solution){
+void RigidBodySystem::updateBodyState(const MPCSolution &solution){
   int nextCurrentState = (int)round(generalData_->MPCSamplingPeriod / generalData_->actuationSamplingPeriod)-1;
 
   BodyState leftFoot, rightFoot, CoM;
 
   for (int i = 0; i < 3; ++i){
-    const MPCSolution::State & currentState = solution.state_vec[i];
+    const MPCSolution::State &currentState = solution.state_vec[i];
     leftFoot.x(i) = currentState.leftFootTrajX_(nextCurrentState);
     leftFoot.y(i) = currentState.leftFootTrajY_(nextCurrentState);
     leftFoot.z(i) = currentState.leftFootTrajZ_(nextCurrentState);
@@ -112,7 +112,7 @@ const RigidBody * RigidBodySystem::body(BodyType type) const{
 
 
 
-void RigidBodySystem::convexHull(ConvexHull &hull, HullType type, const SupportState & prwSupport, bool computeLinearSystem, bool rotateHull) const {
+void RigidBodySystem::convexHull(ConvexHull &hull, HullType type, const SupportState &prwSupport, bool computeLinearSystem, bool rotateHull) const {
   switch (type){
     case FootHull:
       if (prwSupport.foot == LEFT){

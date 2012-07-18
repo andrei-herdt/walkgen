@@ -54,8 +54,7 @@ MPCData::MPCData()
 	//assert(sizeof(MPCData)==112);
 }
 
-MPCData::~MPCData(){
-}
+MPCData::~MPCData(){}
 
 int MPCData::nbFeedbackSamplesLeft(double firstIterationduration) const{
   return static_cast<int> (round(firstIterationduration / MPCSamplingPeriod)-1 );
@@ -108,7 +107,6 @@ QPPonderation::QPPonderation(int nb)
   instantVelocity[1] = 1;
 
   activePonderation  = 1;
-  assert(sizeof(instantVelocity)==20);
 
 }
 QPPonderation::~QPPonderation(){}

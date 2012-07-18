@@ -150,7 +150,7 @@ void CoMBody::interpolateTrunkOrientation(MPCSolution &result,
 
 
   interpolation_->computePolynomialNormalisedFactors(factor, state().yaw, nextTrunkState, T);
-  for(int i=0; i < nbSampling; ++i){
+  for (int i=0; i < nbSampling; ++i) {
       double ti = (i+1)*generalData_->actuationSamplingPeriod;
 
       result.state_vec[0].trunkYaw_(i) = p(factor, ti/T);

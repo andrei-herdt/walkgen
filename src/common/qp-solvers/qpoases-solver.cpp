@@ -6,7 +6,7 @@ using namespace MPCWalkgen;
 using namespace Eigen;
 
 
-QPOasesSolver::QPOasesSolver(const int nbvars, const int nbcstr)
+QPOasesSolver::QPOasesSolver(int nbvars, int nbcstr)
 :QPSolver(nbvars, nbcstr) {
   qp_ = new qpOASES::SQProblem(nbvars, nbcstr);
   solution_vec_ = new double[nbvars];

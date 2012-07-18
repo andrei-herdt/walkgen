@@ -16,7 +16,7 @@
 using namespace MPCWalkgen;
 using namespace Humanoid;
 using namespace Eigen;
-
+ 
 
 MPCWalkgen::Humanoid::WalkgenAbstract* MPCWalkgen::Humanoid::createWalkgen(MPCWalkgen::QPSolverType solvertype) {
   MPCWalkgen::Humanoid::WalkgenAbstract* zmpVra = new MPCWalkgen::Humanoid::Walkgen(solvertype);
@@ -163,7 +163,6 @@ const MPCSolution & Walkgen::online(double time, bool previewBodiesNextState){
 
   if (time  > upperTimeLimitToFeedback_ + EPSILON) {
     BuildProblem();
-
 
     //    //Variablen 
     //    LONGLONG g_Frequency, g_CurentCount, g_LastCount; 

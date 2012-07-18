@@ -10,7 +10,7 @@
 #endif
 using namespace MPCWalkgen;
 using namespace Eigen;
-
+ 
 QPSolver::QPSolver(int nbvar_max, int nbcstr_max)
 :hessian_mat_(nbvar_max, nbvar_max)
 ,gradient_vec_(nbvar_max)
@@ -34,6 +34,7 @@ QPSolver::QPSolver(int nbvar_max, int nbcstr_max)
   }
   cstr_arr_ = new double[nbvar_max * nbcstr_max];
   hessian_arr_ = new double[nbvar_max * nbvar_max];
+
 }
 
 QPSolver::~QPSolver() {
