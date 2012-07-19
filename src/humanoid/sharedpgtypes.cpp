@@ -35,6 +35,33 @@ MPCSolution::MPCSolution()
 
 MPCSolution::~MPCSolution() {}
 
+
+MPCSolution& MPCSolution::operator=(MPCSolution const &rhs){
+      qpSolution = rhs.qpSolution;
+      initialSolution = rhs.initialSolution;
+
+      constraints = rhs.constraints;
+      initialConstraints = rhs.initialConstraints;
+      useWarmStart = rhs.useWarmStart;
+      /// \brief True if a new trajectory is computed in online loop
+      newTraj = rhs.newTraj;
+
+      /// \brief Sampling times
+      /// starting with 0, i.e. all times are relative to the current time
+      samplingTimes_vec = rhs.samplingTimes_vec;
+
+      supportStates_vec = rhs.supportStates_vec;
+
+      supportOrientations_vec = rhs.supportOrientations_vec;//TODO: supportOrientations_vec
+      supportTrunkOrientations_vec = rhs.supportTrunkOrientations_vec;//TODO: TrunkOrientations_vec
+
+      CoPTrajX = rhs.CoPTrajX;
+      CoPTrajY = rhs.CoPTrajY;
+
+      state_vec = rhs.state_vec;
+      return(*this);
+}
+
 void MPCSolution::reset(){
   supportStates_vec.resize(0);
   supportOrientations_vec.resize(0);

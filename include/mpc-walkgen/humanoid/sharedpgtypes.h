@@ -183,6 +183,7 @@ namespace MPCWalkgen{
 
       MPCSolution();
       ~MPCSolution();
+      MPCSolution& operator=(MPCSolution const &);
 
       void reset();
 
