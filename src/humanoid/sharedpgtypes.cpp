@@ -37,29 +37,29 @@ MPCSolution::~MPCSolution() {}
 
 
 MPCSolution& MPCSolution::operator=(MPCSolution const &rhs){
-      qpSolution = rhs.qpSolution;
-      initialSolution = rhs.initialSolution;
+  qpSolution = rhs.qpSolution;
+  initialSolution = rhs.initialSolution;
 
-      constraints = rhs.constraints;
-      initialConstraints = rhs.initialConstraints;
-      useWarmStart = rhs.useWarmStart;
-      /// \brief True if a new trajectory is computed in online loop
-      newTraj = rhs.newTraj;
+  constraints = rhs.constraints;
+  initialConstraints = rhs.initialConstraints;
+  useWarmStart = rhs.useWarmStart;
+  /// \brief True if a new trajectory is computed in online loop
+  newTraj = rhs.newTraj;
 
-      /// \brief Sampling times
-      /// starting with 0, i.e. all times are relative to the current time
-      samplingTimes_vec = rhs.samplingTimes_vec;
+  /// \brief Sampling times
+  /// starting with 0, i.e. all times are relative to the current time
+  samplingTimes_vec = rhs.samplingTimes_vec;
 
-      supportStates_vec = rhs.supportStates_vec;
+  supportStates_vec = rhs.supportStates_vec;
 
-      supportOrientations_vec = rhs.supportOrientations_vec;//TODO: supportOrientations_vec
-      supportTrunkOrientations_vec = rhs.supportTrunkOrientations_vec;//TODO: TrunkOrientations_vec
+  supportOrientations_vec = rhs.supportOrientations_vec;//TODO: supportOrientations_vec
+  supportTrunkOrientations_vec = rhs.supportTrunkOrientations_vec;//TODO: TrunkOrientations_vec
 
-      CoPTrajX = rhs.CoPTrajX;
-      CoPTrajY = rhs.CoPTrajY;
+  CoPTrajX = rhs.CoPTrajX;
+  CoPTrajY = rhs.CoPTrajY;
 
-      state_vec = rhs.state_vec;
-      return(*this);
+  state_vec = rhs.state_vec;
+  return(*this);
 }
 
 void MPCSolution::reset(){
@@ -78,7 +78,7 @@ MPCData::MPCData()
 ,DSSSPeriod(0.8)
 ,nbStepSSDS(2)
 ,ponderation(2) {
-	//assert(sizeof(MPCData)==112);
+  //assert(sizeof(MPCData)==112);
 }
 
 MPCData::~MPCData(){}
@@ -100,7 +100,7 @@ int MPCData::nbSamplesControl() const{
 RobotData::RobotData(const FootData &leftFoot, const FootData &rightFoot,
                      const HipYawData &leftHipYaw, const HipYawData &rightHipYaw,
                      double mass)
-                     :	CoMHeight(0.814)
+                     :	com()
                      ,freeFlyingFootMaxHeight(0.05)
                      ,leftFoot(leftFoot)
                      ,rightFoot(rightFoot)
@@ -115,9 +115,11 @@ RobotData::RobotData(const FootData &leftFoot, const FootData &rightFoot,
                      ,CoPRightSSHull()
                      ,CoPLeftDSHull()
                      ,CoPRightDSHull() {
+                       com << 0.0, 0.0, 0.814;
                        leftFootPos << 0.00949035, 0.095, 0;
                        rightFootPos << 0.00949035, -0.095, 0;
 }
+
 RobotData::RobotData(){}
 RobotData::~RobotData(){}
 
@@ -129,7 +131,7 @@ QPPonderation::QPPonderation(int nb)
   JerkMin[0]         = 0.001;
   instantVelocity[0] = 1;
 
-  CopCentering[1]    = 10;
+  CopCentering[1]    = 0.0001;
   JerkMin[1]         = 0.001;
   instantVelocity[1] = 1;
 

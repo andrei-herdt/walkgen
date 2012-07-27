@@ -61,7 +61,7 @@ void QPGenerator::precomputeObjective(){
       s += generalData_->MPCSamplingPeriod) {
         int nb = (int)round(s / generalData_->MPCSamplingPeriod)-1;
         nb += i*size;
-        robot_->firstSamplingPeriod(s);
+        robot_->setSelectionNumber(s);
 
         const LinearDynamics &CoPDynamics = robot_->body(COM)->dynamics(copDynamic);
         const LinearDynamics &VelDynamics = robot_->body(COM)->dynamics(velDynamic);
@@ -375,7 +375,7 @@ void QPGenerator::computeWarmStart(MPCSolution &result){
 
 void QPGenerator::computeReferenceVector(const MPCSolution &result){
 
-  if (velRef_->global.x.rows()!=generalData_->nbSamplesQP){
+  if (velRef_->global.x.rows() != generalData_->nbSamplesQP){
     velRef_->global.x.resize(generalData_->nbSamplesQP);
     velRef_->global.y.resize(generalData_->nbSamplesQP);
   }
@@ -441,7 +441,7 @@ void QPGenerator::buildInequalitiesFeet(const MPCSolution &result){
   int nbIneq = 5;
   int nbSteps = result.supportStates_vec.back().stepNumber;
 
-  feetInequalities_.resize(nbIneq*nbSteps , nbSteps);
+  feetInequalities_.resize(nbIneq * nbSteps , nbSteps);
 
   std::vector<SupportState>::const_iterator prwSS_it = result.supportStates_vec.begin();
   prwSS_it++;//Point at the first previewed instant
@@ -498,8 +498,8 @@ void QPGenerator::buildConstraintsCOP(const MPCSolution &result) {
   tmpVec2_.resize(size);
 
   ++prwSS_it;//Point at the first previewed instant
-  for(int i = 0; i < nbsamples; ++i) {
-    if( prwSS_it->stateChanged ) {
+  for (int i = 0; i < nbsamples; ++i) {
+    if (prwSS_it->stateChanged) {
       robot_->convexHull(hull, CoPHull, *prwSS_it, false, false);
     }
     tmpVec_(i)  = std::min(hull.x(0), hull.x(3));

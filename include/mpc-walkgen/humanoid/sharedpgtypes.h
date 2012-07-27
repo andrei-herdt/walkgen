@@ -151,7 +151,7 @@ namespace MPCWalkgen{
     };
 
     struct MPC_WALKGEN_API RobotData {
-      double CoMHeight;
+      Eigen::Vector3d com;
       double freeFlyingFootMaxHeight;
 
       FootData leftFoot;
@@ -210,9 +210,10 @@ namespace MPCWalkgen{
       Eigen::VectorXd CoPTrajX;
       Eigen::VectorXd CoPTrajY;
 
-      struct State {
+      struct State {//TODO: remove underscores since public members
         Eigen::VectorXd CoMTrajX_;
         Eigen::VectorXd CoMTrajY_;
+        //TODO: Add CoMTrajZ_;
 
         Eigen::VectorXd leftFootTrajX_;
         Eigen::VectorXd leftFootTrajY_;

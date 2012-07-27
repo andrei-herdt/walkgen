@@ -26,11 +26,10 @@ namespace MPCWalkgen{
     class RigidBodySystem{
 
     public:
-      RigidBodySystem(const MPCData *generalData
-        , const Interpolation *interpolation);
+      RigidBodySystem(const MPCData *generalData);
       ~RigidBodySystem();
 
-      void init(const RobotData &robotData);
+      void Init(const RobotData &robot_data, const Interpolation *interpolation);
 
       void computeDynamics();
 
@@ -38,7 +37,7 @@ namespace MPCWalkgen{
 
       void updateBodyState(const MPCSolution &solution);
 
-      void firstSamplingPeriod(double firstSamplingPeriod);
+      void setSelectionNumber(double firstSamplingPeriod);
 
       inline ConvexHull convexHull(HullType type, const SupportState &prwSupport, bool computeLinearSystem=true, bool rotateHull=true) const
       {
@@ -60,13 +59,13 @@ namespace MPCWalkgen{
       inline void currentSupport(const SupportState &currentSupport) {
         currentSupport_ = currentSupport;
       };
-      inline RobotData &robotData() {
-        return robotData_;
+      inline RobotData &robot_data() {
+        return robot_data_;
       };
 
     private:
       const MPCData *generalData_;
-      RobotData robotData_;
+      RobotData robot_data_;
 
       RigidBody *CoM_;
       RigidBody *leftFoot_;

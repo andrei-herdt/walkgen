@@ -8,34 +8,40 @@ using namespace MPCWalkgen;
 using namespace Humanoid;
 using namespace Eigen;
 
-RigidBodySystem::RigidBodySystem(const MPCData *generalData, const Interpolation *interpolation)
+RigidBodySystem::RigidBodySystem(const MPCData *generalData)
 :generalData_(generalData)
-,robotData_() {
-  CoM_ = new CoMBody(generalData_, &robotData_, interpolation);
-  leftFoot_ = new FootBody(generalData_, &robotData_, interpolation, LEFT);
-  rightFoot_ = new FootBody(generalData_, &robotData_, interpolation, RIGHT);
+,robot_data_() {
 
-  // Default initialization
+}
+
+RigidBodySystem::~RigidBodySystem() {
+  if (CoM_ != 0x0)
+    delete CoM_;
+
+  if (leftFoot_ != 0x0)
+    delete leftFoot_;
+  
+  if (rightFoot_ != 0x0)
+    delete rightFoot_;
+}
+
+void RigidBodySystem::Init(const RobotData &robot_data, const Interpolation *interpolation) {//TODO: Remove object robot_data
+  robot_data_ = robot_data;
+
+  CoM_ = new CoMBody(generalData_, &robot_data_, interpolation);
+  leftFoot_ = new FootBody(generalData_, &robot_data_, interpolation, LEFT);
+  rightFoot_ = new FootBody(generalData_, &robot_data_, interpolation, RIGHT);
+
   currentSupport_.phase = DS;
   currentSupport_.foot = LEFT;
   currentSupport_.timeLimit = 1e9;
   currentSupport_.nbStepsLeft = 1;
-  currentSupport_.stateChanged = false;
-  currentSupport_.x = 0.0;
-  currentSupport_.y = 0.1;
+  currentSupport_.stateChanged = true;
+  currentSupport_.x = robot_data.leftFootPos(0);
+  currentSupport_.y = robot_data.leftFootPos(1);
   currentSupport_.yaw = 0.0;
   currentSupport_.yawTrunk = 0.0;
   currentSupport_.startTime = 0.0;
-}
-
-RigidBodySystem::~RigidBodySystem() {
-  delete rightFoot_;
-  delete leftFoot_;
-  delete CoM_;
-}
-
-void RigidBodySystem::init(const RobotData &robotData) {
-  robotData_ = robotData;
 }
 
 void RigidBodySystem::computeDynamics() {
@@ -71,9 +77,9 @@ void RigidBodySystem::updateBodyState(const MPCSolution &solution){
     CoM.y(i) = currentState.CoMTrajY_(nextCurrentState);
     CoM.yaw(i) = currentState.trunkYaw_(nextCurrentState);
   }
-  CoM.z(0) = robotData_.CoMHeight;
-  CoM.z(1) = 0;
-  CoM.z(2) = 0;
+  CoM.z(0) = robot_data_.com(2);
+  CoM.z(1) = 0.0;
+  CoM.z(2) = 0.0;
 
   CoM_->state(CoM);
   leftFoot_->state(leftFoot);
@@ -81,10 +87,10 @@ void RigidBodySystem::updateBodyState(const MPCSolution &solution){
 
 }
 
-void RigidBodySystem::firstSamplingPeriod(double firstSamplingPeriod){
-  CoM_->setDynamics(firstSamplingPeriod);
-  leftFoot_->setDynamics(firstSamplingPeriod);
-  rightFoot_->setDynamics(firstSamplingPeriod);
+void RigidBodySystem::setSelectionNumber(double firstSamplingPeriod){
+  CoM_->setSelectionNumber(firstSamplingPeriod);
+  leftFoot_->setSelectionNumber(firstSamplingPeriod);
+  rightFoot_->setSelectionNumber(firstSamplingPeriod);
 }
 
 RigidBody * RigidBodySystem::body(BodyType type){
@@ -109,30 +115,27 @@ const RigidBody * RigidBodySystem::body(BodyType type) const{
   }
 }
 
-
-
-
 void RigidBodySystem::convexHull(ConvexHull &hull, HullType type, const SupportState &prwSupport, bool computeLinearSystem, bool rotateHull) const {
   switch (type){
     case FootHull:
       if (prwSupport.foot == LEFT){
-        hull = robotData_.leftFootHull;
+        hull = robot_data_.leftFootHull;
       }else{
-        hull = robotData_.rightFootHull;
+        hull = robot_data_.rightFootHull;
       }
       break;
     case CoPHull:
       if (prwSupport.foot == LEFT){
         if (prwSupport.phase == SS){
-          hull = robotData_.CoPLeftSSHull;
+          hull = robot_data_.CoPLeftSSHull;
         }else{
-          hull = robotData_.CoPLeftDSHull;
+          hull = robot_data_.CoPLeftDSHull;
         }
       }else{
         if (prwSupport.phase==SS){
-          hull = robotData_.CoPRightSSHull;
+          hull = robot_data_.CoPRightSSHull;
         }else{
-          hull =  robotData_.CoPRightDSHull;
+          hull =  robot_data_.CoPRightDSHull;
         }
       }
       break;

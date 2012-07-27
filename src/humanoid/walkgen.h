@@ -40,25 +40,22 @@ namespace MPCWalkgen{
 
       virtual void init();
 
-      virtual const MPCSolution &online(double time, bool previewBodiesNextState=true);
+      virtual const MPCSolution &online(double time, bool previewBodiesNextState = true);
 
-      virtual const MPCSolution &online(bool previewBodiesNextState=true);
+      virtual const MPCSolution &online(bool previewBodiesNextState = true);
 
-      /// \name Accessors and mutators
-      /// \{
       void reference(double dx, double dy, double dyaw);
       void reference(Eigen::VectorXd dx, Eigen::VectorXd dy, Eigen::VectorXd dyaw);
-      /// \}
 
     public:
       virtual const SupportState &currentSupportState() const;
       virtual inline void currentSupportState(const SupportState &newSupportState){
-        newCurrentSupport_=newSupportState;
-        isNewCurrentSupport_=true;
+        newCurrentSupport_ = newSupportState;
+        isNewCurrentSupport_ = true;
       }
 
-      virtual const BodyState & bodyState(BodyType body)const;
-      virtual void bodyState(BodyType body, const BodyState & state);
+      virtual const BodyState &bodyState(BodyType body)const;
+      virtual void bodyState(BodyType body, const BodyState &state);
 
 
     private:
@@ -68,13 +65,13 @@ namespace MPCWalkgen{
       MPCData generalData_;
       RobotData robotData_;
 
-      ::MPCWalkgen::QPSolver * solver_;
-      QPGenerator * generator_;
-      QPPreview * preview_;
-      ::MPCWalkgen::Interpolation * interpolation_;
-      RigidBodySystem * robot_;
+      ::MPCWalkgen::QPSolver *solver_;
+      QPGenerator *generator_;
+      QPPreview *preview_;
+      ::MPCWalkgen::Interpolation *interpolation_;
+      RigidBodySystem *robot_;
 
-      OrientationsPreview * orientPrw_;
+      OrientationsPreview *orientPrw_;
 
       MPCSolution solution_;
       Reference velRef_;
@@ -87,8 +84,8 @@ namespace MPCWalkgen{
 
 
       /// \brief Time at which the problem should be updated
-      double upperTimeLimitToUpdate_;
-      double upperTimeLimitToFeedback_;
+      double update_stack_time_;
+      double compute_control_time_;
 
       /// \brief Synchronised time with QP sampling
       double currentTime_;

@@ -36,7 +36,7 @@ const LinearDynamics & RigidBody::dynamics(DynamicMatrixType type) const{
     }
 }
 
-void RigidBody::setDynamics(double firstSamplingPeriod){
+void RigidBody::setSelectionNumber(double firstSamplingPeriod){
   matrixNumber_ = (int)round(firstSamplingPeriod / generalData_->MPCSamplingPeriod)-1;
 }
 

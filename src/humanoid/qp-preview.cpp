@@ -38,8 +38,8 @@ void QPPreview::previewSamplingTimes(double firstSamplingPeriod, MPCSolution &so
 
 }
 
-void QPPreview::previewSupportStates(const double currentTime,
-                                     const double firstSamplingPeriod, MPCSolution & solution){
+void QPPreview::previewSupportStates(double currentTime,
+                                     double firstSamplingPeriod, MPCSolution & solution){
 
   const BodyState * foot;
   SupportState &currentSupport = robot_->currentSupport();

@@ -40,8 +40,10 @@ Walkgen::Walkgen(::MPCWalkgen::QPSolverType solvertype)
 ,velRef_()
 ,newCurrentSupport_()
 ,isNewCurrentSupport_(false)
-,upperTimeLimitToUpdate_(0)
-,upperTimeLimitToFeedback_(0)
+,update_stack_time_(generalData_.QPSamplingPeriod)
+,compute_control_time_(0)
+,currentTime_(0)
+,currentRealTime_(0)
 {
   int nb_steps_max = 2;
   solver_ = createQPSolver(solvertype,
@@ -53,7 +55,7 @@ Walkgen::Walkgen(::MPCWalkgen::QPSolverType solvertype)
 
   interpolation_ = new Interpolation();
 
-  robot_ = new RigidBodySystem(&generalData_, interpolation_);
+  robot_ = new RigidBodySystem(&generalData_);
 
   preview_ = new QPPreview(&velRef_, robot_, &generalData_);
 
@@ -93,7 +95,7 @@ void Walkgen::init(const RobotData &robotData, const MPCData &mpcData) {
 }
 
 void Walkgen::init() {
-  robot_->init(robotData_);
+  robot_->Init(robotData_, interpolation_);
 
   //Check if sampling periods are defined correctly
   assert(generalData_.actuationSamplingPeriod > 0);
@@ -128,14 +130,11 @@ void Walkgen::init() {
   state.y[0] = robotData_.rightFootPos[1];
   robot_->body(RIGHT_FOOT)->state(state);
 
-  state.x[0] = 0;
-  state.y[0] = 0;
-  state.z[0] = robotData_.CoMHeight;
+  state.x[0] = robotData_.com(0);//TODO: Add macros for x,y,z
+  state.y[0] = robotData_.com(1);
+  state.z[0] = robotData_.com(2);
 
   robot_->body(COM)->state(state);
-
-  upperTimeLimitToUpdate_ = 0.0;
-  upperTimeLimitToFeedback_ = 0.0;
 
   ponderation_.activePonderation = 0;
 
@@ -153,15 +152,18 @@ const MPCSolution & Walkgen::online(bool previewBodiesNextState){
 }
 
 const MPCSolution & Walkgen::online(double time, bool previewBodiesNextState){
-  currentRealTime_ = time;
   solution_.newTraj = false;
   solution_.useWarmStart = false;
-  if(time  > upperTimeLimitToUpdate_+EPSILON){
-    upperTimeLimitToUpdate_ += generalData_.QPSamplingPeriod;
+  if(time  > update_stack_time_ - EPSILON){
+    update_stack_time_ += generalData_.QPSamplingPeriod;
+    if (time > update_stack_time_) {
+      update_stack_time_ = time + generalData_.QPSamplingPeriod - EPSILON;
+      compute_control_time_ = time - EPSILON;
+    }
     currentTime_ = time;
   }
 
-  if (time  > upperTimeLimitToFeedback_ + EPSILON) {
+  if (time  > compute_control_time_) {
     BuildProblem();
 
     //    //Variablen 
@@ -216,7 +218,7 @@ void Walkgen::BuildProblem() {
   if (robot_->currentSupport().phase == SS && robot_->currentSupport().nbStepsLeft == 0) {
     velRef_.local.x.fill(0);
     velRef_.local.y.fill(0);
-    velRef_.local.yaw.fill(0);
+    velRef_.local.yaw.fill(0);//TODO: Bullshit
   }
   if (velRef_.local.yaw(0) == 0 && velRef_.local.x(0) == 0 && velRef_.local.y(0) == 0) {
     ponderation_.activePonderation = 1;
@@ -224,9 +226,9 @@ void Walkgen::BuildProblem() {
     ponderation_.activePonderation = 0;
   }
 
-  double firstSamplingPeriod = upperTimeLimitToUpdate_ - upperTimeLimitToFeedback_;
-  upperTimeLimitToFeedback_ += generalData_.MPCSamplingPeriod;
-  robot_->firstSamplingPeriod(firstSamplingPeriod);
+  double firstSamplingPeriod = update_stack_time_ - compute_control_time_;
+  compute_control_time_ += generalData_.MPCSamplingPeriod;
+  robot_->setSelectionNumber(firstSamplingPeriod);
 
   // PREVIEW:
   // --------
