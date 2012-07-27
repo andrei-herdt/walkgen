@@ -116,7 +116,6 @@ int main() {
 
   // Create and initialize generator:
   // -------------------------------
-  std::cout << "10%" << std::endl;
   WalkgenAbstract * walk = createWalkgen(CURRENT_QPSOLVERTYPE);
 
   walk->init(robotData, mpcData);
@@ -124,12 +123,11 @@ int main() {
 
   // Run:
   // ----
-  double velocity = 0.45;
-  walk->reference(0, 0, 0);
-  double t = 0;
+  double velocity = 0.05;
+  double t = 3.0;
   for (; t < 5; t += 0.005){
-    //MPCSolution result = walk->online(t);
-    //dumpTrajectory(result, data_vec);
+    MPCSolution result = walk->online(t);
+    dumpTrajectory(result, data_vec);
   }
 
   walk->reference(velocity, 0, 0);

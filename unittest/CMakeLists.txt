@@ -75,9 +75,6 @@ if(WITH_LSSOL AND WITH_QPOASES)
   create_test(bench-solvers-humanoid
     SRC bench-solvers-humanoid.cpp ../src/common/mpc-debug.cpp
     INTDEPS mpc-walkgen timer)
-  create_test(bench-solvers-zebulon
-    SRC bench-solvers-zebulon.cpp ../src/common/mpc-debug.cpp
-    INTDEPS mpc-walkgen timer)
 endif()
 
 # the "with-solver" subfolder is included once per supported solver. The tests

@@ -88,9 +88,6 @@ SET(${PROJECT_NAME}_HEADERS
 
   include/mpc-walkgen/humanoid/walkgen-abstract.h
   include/mpc-walkgen/humanoid/sharedpgtypes.h
-
-  include/mpc-walkgen/zebulon/walkgen-abstract.h
-  include/mpc-walkgen/zebulon/sharedpgtypes.h
 )
 
 SET(mpc-walkgen_SRC
@@ -137,25 +134,6 @@ SET(mpc-walkgen_SRC
   src/humanoid/walkgen.h
   src/humanoid/sharedpgtypes.cpp
   src/humanoid/walkgen-abstract.cpp
-
-  src/zebulon/qp-generator.cpp
-  src/zebulon/qp-generator.h
-  src/zebulon/qp-generator-orientation.cpp
-  src/zebulon/qp-generator-orientation.h
-  src/zebulon/rigid-bodies/com-body.cpp
-  src/zebulon/rigid-bodies/com-body.h
-  src/zebulon/rigid-bodies/base-body.cpp
-  src/zebulon/rigid-bodies/base-body.h
-  src/zebulon/rigid-body.cpp
-  src/zebulon/rigid-body.h
-  src/zebulon/rigid-body-system.cpp
-  src/zebulon/rigid-body-system.h
-  src/zebulon/types.cpp
-  src/zebulon/types.h
-  src/zebulon/walkgen.cpp
-  src/zebulon/walkgen.h
-  src/zebulon/sharedpgtypes.cpp
-  src/zebulon/walkgen-abstract.cpp
 )
 
 if(WITH_LSSOL)
