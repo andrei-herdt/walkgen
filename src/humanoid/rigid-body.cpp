@@ -16,15 +16,15 @@ RigidBody::~RigidBody()
 const LinearDynamics & RigidBody::dynamics(DynamicMatrixType type) const{
   switch (type){
     case posDynamic:
-      return pos_vec_[matrixNumber_];
+      return pos_dynamics_vec_[matrixNumber_];
     case velDynamic:
-      return vel_vec_[matrixNumber_];
+      return vel_dynamics_vec_[matrixNumber_];
     case accDynamic:
-      return acc_vec_[matrixNumber_];
+      return acc_dynamics_vec_[matrixNumber_];
     case jerkDynamic:
-      return jerk_vec_[matrixNumber_];
+      return jerk_dynamics_vec_[matrixNumber_];
     case copDynamic:
-      return cop_vec_[matrixNumber_];
+      return cop_dynamics_vec_[matrixNumber_];
     case interpolationPos:
       return posInterpol_;
     case interpolationVel:
@@ -37,30 +37,30 @@ const LinearDynamics & RigidBody::dynamics(DynamicMatrixType type) const{
 }
 
 void RigidBody::setSelectionNumber(double firstSamplingPeriod){
-  matrixNumber_ = (int)round(firstSamplingPeriod / generalData_->MPCSamplingPeriod)-1;
+  matrixNumber_ = (int)round(firstSamplingPeriod / generalData_->MPCSamplingPeriod) - 1;
 }
 
 void RigidBody::computeDynamics(){
 
   int vecSize = generalData_->nbFeedbackSamplesStandard();
 
-  pos_vec_.resize(vecSize);
-  vel_vec_.resize(vecSize);
-  acc_vec_.resize(vecSize);
-  jerk_vec_.resize(vecSize);
-  cop_vec_.resize(vecSize);
+  pos_dynamics_vec_.resize(vecSize);
+  vel_dynamics_vec_.resize(vecSize);
+  acc_dynamics_vec_.resize(vecSize);
+  jerk_dynamics_vec_.resize(vecSize);
+  cop_dynamics_vec_.resize(vecSize);
 
-  for (int k=0; k<vecSize; ++k) {
+  for (int k = 0; k < vecSize; ++k) {
       double S = generalData_->MPCSamplingPeriod * (k+1);
-      computeDynamicsMatrices(pos_vec_[k], S,
+      computeDynamicsMatrices(pos_dynamics_vec_[k], S,
                               generalData_->QPSamplingPeriod, generalData_->nbSamplesQP, posDynamic);
-      computeDynamicsMatrices(vel_vec_[k], S,
+      computeDynamicsMatrices(vel_dynamics_vec_[k], S,
                               generalData_->QPSamplingPeriod, generalData_->nbSamplesQP, velDynamic);
-      computeDynamicsMatrices(acc_vec_[k], S,
+      computeDynamicsMatrices(acc_dynamics_vec_[k], S,
                               generalData_->QPSamplingPeriod, generalData_->nbSamplesQP, accDynamic);
-      computeDynamicsMatrices(jerk_vec_[k], S,
+      computeDynamicsMatrices(jerk_dynamics_vec_[k], S,
                               generalData_->QPSamplingPeriod, generalData_->nbSamplesQP, jerkDynamic);
-      computeDynamicsMatrices(cop_vec_[k], S,
+      computeDynamicsMatrices(cop_dynamics_vec_[k], S,
                               generalData_->QPSamplingPeriod, generalData_->nbSamplesQP, copDynamic);
 
     }

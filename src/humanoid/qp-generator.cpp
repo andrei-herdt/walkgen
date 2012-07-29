@@ -42,7 +42,7 @@ void QPGenerator::precomputeObjective(){
   pconstRef_.resize(size*nbUsedPonderations);
 
   int nbsamples = generalData_->nbSamplesQP;
-  MatrixXd pondFactor = MatrixXd::Identity(nbsamples,nbsamples);
+  //MatrixXd pondFactor = MatrixXd::Identity(nbsamples,nbsamples);
   MatrixXd G(nbsamples,nbsamples);
 
   VectorXi order(2*nbsamples);
@@ -67,12 +67,12 @@ void QPGenerator::precomputeObjective(){
         const LinearDynamics &VelDynamics = robot_->body(COM)->dynamics(velDynamic);
 
         double firstIterationWeight = s / generalData_->QPSamplingPeriod;
-        pondFactor(0, 0) = firstIterationWeight;
-        pondFactor(nbsamples-1, nbsamples-1) = 1.05 - firstIterationWeight;
+        //pondFactor(0, 0) = 1.0;//firstIterationWeight;
+        //pondFactor(nbsamples-1, nbsamples-1) = 1.0;//1.05 - firstIterationWeight;
 
 
-        tmpMat_ = CoPDynamics.UInvT*VelDynamics.UT*pondFactor*VelDynamics.U*CoPDynamics.UInv;
-        tmpMat2_= CoPDynamics.UInvT*pondFactor*CoPDynamics.UInv;
+        tmpMat_ = CoPDynamics.UInvT*VelDynamics.UT/**pondFactor*/*VelDynamics.U*CoPDynamics.UInv;
+        tmpMat2_= CoPDynamics.UInvT/**pondFactor*/*CoPDynamics.UInv;
 
         G = ponderation_->instantVelocity[i] * tmpMat_ + ponderation_->JerkMin[i]*tmpMat2_;
         Qconst_[nb] = G;
@@ -86,13 +86,13 @@ void QPGenerator::precomputeObjective(){
         choleskyConst_[nb] = chol.cholesky();
 
         pconstCoM_[nb] = VelDynamics.S - VelDynamics.U*CoPDynamics.UInv*CoPDynamics.S;
-        pconstCoM_[nb] = CoPDynamics.UInvT*VelDynamics.UT*ponderation_->instantVelocity[i]*pondFactor*pconstCoM_[nb];
-        pconstCoM_[nb]-= CoPDynamics.UInvT*ponderation_->JerkMin[i]*pondFactor*CoPDynamics.UInv*CoPDynamics.S;
+        pconstCoM_[nb] = CoPDynamics.UInvT*VelDynamics.UT*ponderation_->instantVelocity[i]/**pondFactor*/*pconstCoM_[nb];
+        pconstCoM_[nb]-= CoPDynamics.UInvT*ponderation_->JerkMin[i]/**pondFactor*/*CoPDynamics.UInv*CoPDynamics.S;
 
-        pconstVc_[nb]  = CoPDynamics.UInvT*ponderation_->JerkMin[i]*pondFactor*CoPDynamics.UInv;
-        pconstVc_[nb] += CoPDynamics.UInvT*VelDynamics.UT*ponderation_->instantVelocity[i]*pondFactor*VelDynamics.U*CoPDynamics.UInv;
+        pconstVc_[nb]  = CoPDynamics.UInvT*ponderation_->JerkMin[i]/**pondFactor*/*CoPDynamics.UInv;
+        pconstVc_[nb] += CoPDynamics.UInvT*VelDynamics.UT*ponderation_->instantVelocity[i]/**pondFactor*/*VelDynamics.U*CoPDynamics.UInv;
 
-        pconstRef_[nb] = -CoPDynamics.UInvT*VelDynamics.UT*ponderation_->instantVelocity[i]*pondFactor;
+        pconstRef_[nb] = -CoPDynamics.UInvT*VelDynamics.UT*ponderation_->instantVelocity[i]/**pondFactor*/;
     }
   }
 

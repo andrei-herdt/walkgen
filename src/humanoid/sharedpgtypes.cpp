@@ -70,7 +70,7 @@ void MPCSolution::reset(){
 
 MPCData::MPCData()
 :QPSamplingPeriod(0.1)
-,MPCSamplingPeriod(0.005)
+,MPCSamplingPeriod(0.1)
 ,actuationSamplingPeriod(0.005)
 ,nbSamplesQP(16)
 ,stepPeriod(0.8)
@@ -128,11 +128,11 @@ QPPonderation::QPPonderation(int nb)
 ,CopCentering(nb)
 ,JerkMin(nb) {
   CopCentering[0]    = 0.0001;
-  JerkMin[0]         = 0.001;
+  JerkMin[0]         = 0.00001;
   instantVelocity[0] = 1;
 
   CopCentering[1]    = 0.0001;
-  JerkMin[1]         = 0.001;
+  JerkMin[1]         = 0.00001;
   instantVelocity[1] = 1;
 
   activePonderation  = 1;

@@ -38,7 +38,7 @@ namespace MPCWalkgen{
 		vectorXL
 	};
 
-	enum DynamicMatrixType{
+	enum DynamicMatrixType{//TODO: This can be replaced through POSITION, VELOCITY...
 		posDynamic,
 		velDynamic,
 		accDynamic,

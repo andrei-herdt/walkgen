@@ -163,7 +163,7 @@ const MPCSolution & Walkgen::online(double time, bool previewBodiesNextState){
     currentTime_ = time;
   }
 
-  if (time  > compute_control_time_) {
+  if (time  > compute_control_time_ - EPSILON) {
     BuildProblem();
 
     //    //Variablen 
@@ -182,6 +182,7 @@ const MPCSolution & Walkgen::online(double time, bool previewBodiesNextState){
       solution_.initialConstraints,
       solution_.useWarmStart);
 
+    solver_->DumpProblem("problem.dat");
     //2. Messung 
     //    QueryPerformanceCounter((LARGE_INTEGER*)&g_LastCount); 
 

@@ -53,11 +53,11 @@ namespace MPCWalkgen{
       const Interpolation *interpolation_;
 
       BodyState state_;
-      std::vector<LinearDynamics> pos_vec_;
-      std::vector<LinearDynamics> vel_vec_;
-      std::vector<LinearDynamics> acc_vec_;
-      std::vector<LinearDynamics> jerk_vec_;
-      std::vector<LinearDynamics> cop_vec_;
+      std::vector<LinearDynamics> pos_dynamics_vec_;
+      std::vector<LinearDynamics> vel_dynamics_vec_;
+      std::vector<LinearDynamics> acc_dynamics_vec_;
+      std::vector<LinearDynamics> jerk_dynamics_vec_;
+      std::vector<LinearDynamics> cop_dynamics_vec_;
 
       LinearDynamics posInterpol_;
       LinearDynamics velInterpol_;

@@ -30,7 +30,7 @@ void QPPreview::previewSamplingTimes(double firstSamplingPeriod, MPCSolution &so
   std::fill(solution.samplingTimes_vec.begin(), solution.samplingTimes_vec.end(), 0);
   // As for now, only the first sampling period varies
   solution.samplingTimes_vec[0] = 0;//This is the current time
-  solution.samplingTimes_vec[1] = solution.samplingTimes_vec[0] + generalData_->QPSamplingPeriod;// firstSamplingPeriod;////;
+  solution.samplingTimes_vec[1] = solution.samplingTimes_vec[0] + generalData_->QPSamplingPeriod;//firstSamplingPeriod;//// //
   for (int sample = 2; sample < generalData_->nbSamplesQP + 1; sample++) {
       solution.samplingTimes_vec[sample] += solution.samplingTimes_vec[sample - 1] +
           generalData_->QPSamplingPeriod;
