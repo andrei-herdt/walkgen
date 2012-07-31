@@ -38,7 +38,7 @@ namespace MPCWalkgen{
       Eigen::VectorXi & constraints,
       Eigen::VectorXd & initialSolution,
       Eigen::VectorXi & initialConstraints,
-      bool useWarmStart);
+      bool warmstart);
 
   protected:
     virtual bool resizeAll();

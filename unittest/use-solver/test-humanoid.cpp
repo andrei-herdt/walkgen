@@ -72,7 +72,7 @@ int main() {
   HipYawData rightHipYaw = leftHipYaw;
 
   MPCData mpcData;
-  printf("sizeof(std::vector<double>): %d\n", sizeof(std::vector<double>));
+
   RobotData robotData(leftFoot, rightFoot, leftHipYaw, rightHipYaw, 0.0);
 
   // Feasible hulls:
@@ -186,8 +186,7 @@ int main() {
     delete data_vec[i];
   }
   delete walk;
-  std::cout << "100%" << std::endl;
-  std::cin.get();
+
   return (success)?0:1;
 }
 

@@ -45,6 +45,22 @@ namespace MPCWalkgen{
 
 }
 
+    //    //Variablen 
+    //    LONGLONG g_Frequency, g_CurentCount, g_LastCount; 
+
+    //    //Frequenz holen 
+    //    if (!QueryPerformanceFrequency((LARGE_INTEGER*)&g_Frequency)) //
+    //        std::cout << "Performance Counter nicht vorhanden" << std::endl; 
+
+    //    //1. Messung 
+    //    QueryPerformanceCounter((LARGE_INTEGER*)&g_CurentCount); 
+
+    //2. Messung 
+    //    QueryPerformanceCounter((LARGE_INTEGER*)&g_LastCount); 
+
+    //    double dTimeDiff = (((double)(g_LastCount-g_CurentCount))/((double)g_Frequency));  
+
+    //	std::cout << "Zeit: " << dTimeDiff << "at: " << time << std::endl; 
 
 
 #endif // MPC_WALKGEN_MPC_DEBUG_H

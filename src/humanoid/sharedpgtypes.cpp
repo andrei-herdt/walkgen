@@ -29,8 +29,7 @@ HipYawData::HipYawData()
 HipYawData::~HipYawData() {}
 
 MPCSolution::MPCSolution()
-:useWarmStart(true)
-,state_vec(3)
+:state_vec(3)
 {}
 
 MPCSolution::~MPCSolution() {}
@@ -42,7 +41,6 @@ MPCSolution& MPCSolution::operator=(MPCSolution const &rhs){
 
   constraints = rhs.constraints;
   initialConstraints = rhs.initialConstraints;
-  useWarmStart = rhs.useWarmStart;
   /// \brief True if a new trajectory is computed in online loop
   newTraj = rhs.newTraj;
 
@@ -70,7 +68,7 @@ void MPCSolution::reset(){
 
 MPCData::MPCData()
 :QPSamplingPeriod(0.1)
-,MPCSamplingPeriod(0.1)
+,MPCSamplingPeriod(0.005)
 ,actuationSamplingPeriod(0.005)
 ,nbSamplesQP(16)
 ,stepPeriod(0.8)

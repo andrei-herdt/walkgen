@@ -35,7 +35,7 @@ namespace MPCWalkgen{
       Eigen::VectorXi & constraints,
       Eigen::VectorXd & initialSolution,
       Eigen::VectorXi & initialConstraints,
-      bool useWarmStart) = 0;
+      bool warmstart) = 0;
 
     void DumpProblem(const char *filename); 
  

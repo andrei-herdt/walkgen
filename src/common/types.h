@@ -77,6 +77,14 @@ namespace MPCWalkgen{
 		void resize(int size);
 	};
 
+  struct Trajectory {
+      Eigen::VectorXd x_vec, y_vec, z_vec, yaw_vec;
+    };
+
+    struct States {
+      Trajectory pos, vel, acc;
+    };
+
 }
 
 

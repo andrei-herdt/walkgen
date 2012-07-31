@@ -6,7 +6,7 @@ using namespace MPCWalkgen;
 using namespace Humanoid;
 using namespace Eigen;
 
-const double QPPreview::EPS_=1e-5;
+const double QPPreview::EPS_ = 1e-6;
 
 //TODO:change name QPPreview to Preview
 QPPreview::QPPreview(Reference * velRef, RigidBodySystem * robot, const MPCData * generalData)
@@ -30,7 +30,7 @@ void QPPreview::previewSamplingTimes(double firstSamplingPeriod, MPCSolution &so
   std::fill(solution.samplingTimes_vec.begin(), solution.samplingTimes_vec.end(), 0);
   // As for now, only the first sampling period varies
   solution.samplingTimes_vec[0] = 0;//This is the current time
-  solution.samplingTimes_vec[1] = solution.samplingTimes_vec[0] + generalData_->QPSamplingPeriod;//firstSamplingPeriod;//// //
+  solution.samplingTimes_vec[1] = solution.samplingTimes_vec[0] + firstSamplingPeriod;// generalData_->QPSamplingPeriod;////// //
   for (int sample = 2; sample < generalData_->nbSamplesQP + 1; sample++) {
       solution.samplingTimes_vec[sample] += solution.samplingTimes_vec[sample - 1] +
           generalData_->QPSamplingPeriod;
@@ -92,7 +92,7 @@ void QPPreview::previewSupportStates(double currentTime,
         }
       if (sample == 1) {
           previewedSupport.previousSamplingPeriod = firstSamplingPeriod;
-          previewedSupport.sampleWeight = firstSamplingPeriod/generalData_->QPSamplingPeriod;
+          previewedSupport.sampleWeight = 1;
         } else {
           previewedSupport.previousSamplingPeriod = generalData_->QPSamplingPeriod;
           previewedSupport.sampleWeight = 1;

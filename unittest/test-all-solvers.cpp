@@ -51,12 +51,11 @@ Eigen::VectorXd test_all_solvers(QPSolver & qp1, int nbvar, int nbcstr)
 
   MPCSolution result1;
   result1.reset();
-  result1.useWarmStart=false;
   result1.initialSolution.resize(nbvar);
   result1.initialConstraints.resize(nbvar+nbcstr);
 
   qp1.solve(result1.qpSolution, result1.constraints,
-     result1.initialSolution, result1.initialConstraints, result1.useWarmStart);
+     result1.initialSolution, result1.initialConstraints, true);
 
   return result1.qpSolution;
 }

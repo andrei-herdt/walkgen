@@ -40,12 +40,12 @@ void QPOasesSolver::solve(VectorXd &solution,
                           VectorXi &constraints,
                           VectorXd &initialSolution,
                           VectorXi &initialConstraints,
-                          bool useWarmStart) 
+                          bool warmstart) 
 {
 
   qp_->setPrintLevel(qpOASES::PL_NONE);
 
-  if (useWarmStart) {
+  if (warmstart) {
     reorderInitialSolution(initialSolution, initialConstraints);
     solution = initialSolution;
     constraints = initialConstraints;
@@ -97,16 +97,24 @@ void QPOasesSolver::solve(VectorXd &solution,
   //qpOASES::Options myoptions;
   //myoptions.printLevel = qpOASES::PL_HIGH;
   //	qp_->setOptions(myoptions);
-  int nWSR = 5;
-  qp_->hotstart(hessian_mat_().data(), gradient_vec_().data(), cstr_mat_().data(),
-    var_l_bounds_vec_().data(), var_u_bounds_vec_().data(),
-    cstr_l_bounds_vec_().data(), cstr_u_bounds_vec_().data(),
-    nWSR, NULL);
+  int nWSR = 100;
+  if (warmstart) {
+    qp_->hotstart(hessian_mat_().data(), gradient_vec_().data(), cstr_mat_().data(),
+      var_l_bounds_vec_().data(), var_u_bounds_vec_().data(),
+      cstr_l_bounds_vec_().data(), cstr_u_bounds_vec_().data(),
+      nWSR, NULL);
+  } else {
+    qp_->hotstart(hessian_mat_().data(), gradient_vec_().data(), cstr_mat_().data(),
+      var_l_bounds_vec_().data(), var_u_bounds_vec_().data(),
+      cstr_l_bounds_vec_().data(), cstr_u_bounds_vec_().data(),
+      nWSR, NULL);
+  }
 
   qp_->getPrimalSolution(solution_vec_);
   for (int i = 0; i < nbvar_; ++i) {
     solution(i) = solution_vec_[i];
   }
+  qp_->printProperties();
 
   //2. Messung 
   QueryPerformanceCounter((LARGE_INTEGER*)&g_LastCount); 
@@ -120,7 +128,7 @@ void QPOasesSolver::solve(VectorXd &solution,
   qpOASES::Bounds bounds;
   qp_->getConstraints(ctr);
   qp_->getBounds(bounds);
-  for(int i=0; i < nbvar_; ++i) {
+  for (int i=0; i < nbvar_; ++i) {
     if (bounds.getStatus(i) == qpOASES::ST_LOWER) {
       constraints(i) = 1;
     } else if (bounds.getStatus(i) == qpOASES::ST_UPPER) {

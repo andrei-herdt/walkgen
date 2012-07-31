@@ -239,11 +239,11 @@ bool testBenchmarkQP (QPSolver &qp, unsigned fDofWb, unsigned fNconstraints)
     result.reset();
     if (i==0)
     {
-      result.useWarmStart=false;
+
     }
     else
     {
-      result.useWarmStart = true;
+
       result.initialSolution = result.qpSolution;
       result.initialConstraints = result.constraints;
     }
@@ -251,7 +251,7 @@ bool testBenchmarkQP (QPSolver &qp, unsigned fDofWb, unsigned fNconstraints)
     debug.getTime(1, true);
     qp.solve(result.qpSolution, result.constraints,
              result.initialSolution, result.initialConstraints,
-             result.useWarmStart);
+             true);
     debug.getTime(1, false);
 
 

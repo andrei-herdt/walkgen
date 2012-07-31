@@ -46,11 +46,10 @@ namespace MPCWalkgen{
       /// \brief Call method to handle on-line generation of ZMP reference trajectory.
       /// \param[in] time : Current time.
       /// \param[in] previewBodiesNextState
-
       /// \return The associated solution
       ///   If solution.newTraj is true, the method has succeeded.
-      virtual const MPCSolution &online(double time, bool previewBodiesNextState = true) = 0;
-      virtual const MPCSolution &online(bool previewBodiesNextState=true) = 0;
+      virtual const MPCSolution &online(double time) = 0;
+      virtual const MPCSolution &online() = 0;
 
       /// \name Accessors and mutators
       /// \{
@@ -59,13 +58,15 @@ namespace MPCWalkgen{
       virtual void reference(Eigen::VectorXd dx, Eigen::VectorXd dy, Eigen::VectorXd dyaw) = 0;
       /// \}
 
-      /// \name accessors relative to the state of the robot.
+      /// \name Accessors relative to the state of the robot.
       /// \{
       virtual const SupportState &currentSupportState() const = 0;
       virtual void currentSupportState(const SupportState &newSupportState)=0;
 
-      virtual const BodyState &bodyState(BodyType body)const=0;
-      virtual void bodyState(BodyType body, const BodyState &state)=0;
+      virtual const BodyState &bodyState(BodyType body)const = 0;
+      virtual void bodyState(BodyType body, const BodyState &state) = 0;
+
+      virtual const ControlOutput &output() = 0;
       /// \}
 
     };

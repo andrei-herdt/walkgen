@@ -76,13 +76,12 @@ bool testQP (QPSolver & qp)
 
 	MPCSolution result;
 	result.reset();
-	result.useWarmStart=false;
 	result.initialSolution.resize(2);
 	result.initialConstraints.resize(2+3);
 
 	qp.solve(result.qpSolution, result.constraints,
 		 result.initialSolution, result.initialConstraints,
-		 result.useWarmStart);
+		 true);
 
 	Vector2d expectedResult;
 	expectedResult << 2./3., 4./3.;

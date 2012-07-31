@@ -16,7 +16,7 @@
 using namespace MPCWalkgen;
 using namespace Humanoid;
 using namespace Eigen;
- 
+
 
 MPCWalkgen::Humanoid::WalkgenAbstract* MPCWalkgen::Humanoid::createWalkgen(MPCWalkgen::QPSolverType solvertype) {
   MPCWalkgen::Humanoid::WalkgenAbstract* zmpVra = new MPCWalkgen::Humanoid::Walkgen(solvertype);
@@ -36,12 +36,15 @@ Walkgen::Walkgen(::MPCWalkgen::QPSolverType solvertype)
 ,interpolation_(0x0)
 ,robot_(0x0)
 ,orientPrw_(0x0)
+,output_()
+,output_index_(0)
 ,solution_()
 ,velRef_()
 ,newCurrentSupport_()
 ,isNewCurrentSupport_(false)
-,update_stack_time_(generalData_.QPSamplingPeriod)
-,compute_control_time_(0)
+,first_sample_time_(0)
+,next_computation_(0)
+,next_act_sample_(0)
 ,currentTime_(0)
 ,currentRealTime_(0)
 {
@@ -146,62 +149,53 @@ void Walkgen::init() {
   solver_->Init();
 }
 
-const MPCSolution & Walkgen::online(bool previewBodiesNextState){
+const MPCSolution & Walkgen::online(){
   currentRealTime_ += generalData_.MPCSamplingPeriod;
-  return online(currentRealTime_, previewBodiesNextState);
+  return online(currentRealTime_);
 }
 
-const MPCSolution & Walkgen::online(double time, bool previewBodiesNextState){
-  solution_.newTraj = false;
-  solution_.useWarmStart = false;
-  if(time  > update_stack_time_ - EPSILON){
-    update_stack_time_ += generalData_.QPSamplingPeriod;
-    if (time > update_stack_time_) {
-      update_stack_time_ = time + generalData_.QPSamplingPeriod - EPSILON;
-      compute_control_time_ = time - EPSILON;
+const MPCSolution & Walkgen::online(double time){
+  currentTime_ = time;
+
+  if (time  > next_computation_ - EPSILON) {
+    next_computation_ += generalData_.MPCSamplingPeriod;
+    if (time > next_computation_) {   
+      ResetCounters(time);
     }
-    currentTime_ = time;
-  }
+    if(time  > first_sample_time_ - EPSILON){
+      first_sample_time_ += generalData_.QPSamplingPeriod;
+      if (time > first_sample_time_) {
+        ResetCounters(time);
+      }
+    }
+    ResetOutputIndex();
 
-  if (time  > compute_control_time_ - EPSILON) {
     BuildProblem();
-
-    //    //Variablen 
-    //    LONGLONG g_Frequency, g_CurentCount, g_LastCount; 
-
-    //    //Frequenz holen 
-    //    if (!QueryPerformanceFrequency((LARGE_INTEGER*)&g_Frequency)) //
-    //        std::cout << "Performance Counter nicht vorhanden" << std::endl; 
-
-    //    //1. Messung 
-    //    QueryPerformanceCounter((LARGE_INTEGER*)&g_CurentCount); 
 
     solver_->solve(solution_.qpSolution,
       solution_.constraints,
       solution_.initialSolution,
       solution_.initialConstraints,
-      solution_.useWarmStart);
+      generalData_.warmstart);
 
-    solver_->DumpProblem("problem.dat");
-    //2. Messung 
-    //    QueryPerformanceCounter((LARGE_INTEGER*)&g_LastCount); 
-
-    //    double dTimeDiff = (((double)(g_LastCount-g_CurentCount))/((double)g_Frequency));  
-
-    //	std::cout << "Zeit: " << dTimeDiff << "at: " << time << std::endl; 
-
-    generator_->convertCopToJerk(solution_);
-
-    robot_->interpolateBodies(solution_, time, velRef_);
-
-    if (previewBodiesNextState) {
-      robot_->updateBodyState(solution_);
-    }
-
-    orientPrw_->interpolate_trunk_orientation(robot_);
+    GenerateTrajectories();
   }
 
+  if (time > next_act_sample_) {
+    next_act_sample_ += generalData_.actuationSamplingPeriod;
+
+    IncrementOutputIndex();
+    UpdateOutput();
+  }
+
+
   return solution_;
+}
+
+void Walkgen::ResetCounters(double time) {
+  first_sample_time_ = time + generalData_.QPSamplingPeriod;
+  next_computation_ = time + generalData_.MPCSamplingPeriod;
+  next_act_sample_ = time + generalData_.actuationSamplingPeriod;
 }
 
 void Walkgen::BuildProblem() {
@@ -209,7 +203,6 @@ void Walkgen::BuildProblem() {
   // ---------------------
   solver_->reset();
   solution_.reset();
-  solution_.newTraj = true;
   velRef_ = newVelRef_;
   if (isNewCurrentSupport_){
     robot_->currentSupport(newCurrentSupport_);
@@ -227,8 +220,7 @@ void Walkgen::BuildProblem() {
     ponderation_.activePonderation = 0;
   }
 
-  double firstSamplingPeriod = update_stack_time_ - compute_control_time_;
-  compute_control_time_ += generalData_.MPCSamplingPeriod;
+  double firstSamplingPeriod = first_sample_time_ - currentTime_;
   robot_->setSelectionNumber(firstSamplingPeriod);
 
   // PREVIEW:
@@ -244,8 +236,74 @@ void Walkgen::BuildProblem() {
 
   generator_->computeReferenceVector(solution_);
 
-
+  // BUILD:
+  // ------
   generator_->BuildProblem(solution_);
+}
+
+void Walkgen::GenerateTrajectories() {
+  generator_->convertCopToJerk(solution_);
+
+  robot_->interpolateBodies(solution_, currentTime_, velRef_);
+
+  robot_->updateBodyState(solution_);
+
+  orientPrw_->interpolate_trunk_orientation(robot_);
+
+  ResetOutputIndex();
+  UpdateOutput();
+}
+
+
+void Walkgen::ResetOutputIndex() {
+  output_index_ = 0;
+}
+
+void Walkgen::IncrementOutputIndex() {
+  if (output_index_ < generalData_.nbSamplesControl() - 1) {
+    output_index_++;
+  }
+}
+
+void Walkgen::UpdateOutput() {
+  output_.com.x = solution_.state_vec[0].CoMTrajX_[output_index_];
+  output_.com.y = solution_.state_vec[0].CoMTrajY_[output_index_];
+  output_.com.z = robot_->body(COM)->state().z(0);
+  output_.com.dx = solution_.state_vec[1].CoMTrajX_[output_index_];
+  output_.com.dy = solution_.state_vec[1].CoMTrajY_[output_index_];
+  output_.com.dz = robot_->body(COM)->state().z(1);
+  output_.com.ddx = solution_.state_vec[2].CoMTrajX_[output_index_];
+  output_.com.ddy = solution_.state_vec[2].CoMTrajY_[output_index_];
+  output_.com.ddz = robot_->body(COM)->state().z(2);
+
+  output_.cop.x = solution_.CoPTrajX[output_index_];
+  output_.cop.y = solution_.CoPTrajY[output_index_];
+
+  output_.left_foot.x = solution_.state_vec[0].leftFootTrajX_[output_index_];
+  output_.left_foot.y = solution_.state_vec[0].leftFootTrajY_[output_index_];
+  output_.left_foot.z = solution_.state_vec[0].leftFootTrajZ_[output_index_];
+  output_.left_foot.yaw = solution_.state_vec[0].leftFootTrajYaw_[output_index_];
+  output_.left_foot.dx = solution_.state_vec[1].leftFootTrajX_[output_index_];
+  output_.left_foot.dy = solution_.state_vec[1].leftFootTrajY_[output_index_];
+  output_.left_foot.dz = solution_.state_vec[1].leftFootTrajZ_[output_index_];
+  output_.left_foot.dyaw = solution_.state_vec[1].leftFootTrajYaw_[output_index_];
+  output_.left_foot.ddx = solution_.state_vec[2].leftFootTrajX_[output_index_];
+  output_.left_foot.ddy = solution_.state_vec[2].leftFootTrajY_[output_index_];
+  output_.left_foot.ddz = solution_.state_vec[2].leftFootTrajZ_[output_index_];
+  output_.left_foot.ddyaw = solution_.state_vec[2].leftFootTrajYaw_[output_index_];
+
+  output_.right_foot.x = solution_.state_vec[0].rightFootTrajX_[output_index_];
+  output_.right_foot.y = solution_.state_vec[0].rightFootTrajY_[output_index_];
+  output_.right_foot.z = solution_.state_vec[0].rightFootTrajZ_[output_index_];
+  output_.right_foot.yaw = solution_.state_vec[0].rightFootTrajYaw_[output_index_];
+  output_.right_foot.dx = solution_.state_vec[1].rightFootTrajX_[output_index_];
+  output_.right_foot.dy = solution_.state_vec[1].rightFootTrajY_[output_index_];
+  output_.right_foot.dz = solution_.state_vec[1].rightFootTrajZ_[output_index_];
+  output_.right_foot.dyaw = solution_.state_vec[1].rightFootTrajYaw_[output_index_];
+  output_.right_foot.ddx = solution_.state_vec[2].rightFootTrajX_[output_index_];
+  output_.right_foot.ddy = solution_.state_vec[2].rightFootTrajY_[output_index_];
+  output_.right_foot.ddz = solution_.state_vec[2].rightFootTrajZ_[output_index_];
+  output_.right_foot.ddyaw = solution_.state_vec[2].rightFootTrajYaw_[output_index_];
 }
 
 void Walkgen::reference(double dx, double dy, double dyaw){

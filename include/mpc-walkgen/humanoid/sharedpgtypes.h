@@ -146,6 +146,8 @@ namespace MPCWalkgen{
 
       QPPonderation ponderation;
 
+      bool warmstart;
+
       MPCData();
       ~MPCData();
     };
@@ -194,7 +196,6 @@ namespace MPCWalkgen{
       Eigen::VectorXi constraints;
       Eigen::VectorXi initialConstraints;
 
-      bool useWarmStart;
       /// \brief True if a new trajectory is computed in online loop
       bool newTraj;
 
@@ -210,7 +211,7 @@ namespace MPCWalkgen{
       Eigen::VectorXd CoPTrajX;
       Eigen::VectorXd CoPTrajY;
 
-      struct State {//TODO: remove underscores since public members
+      struct State {
         Eigen::VectorXd CoMTrajX_;
         Eigen::VectorXd CoMTrajY_;
         //TODO: Add CoMTrajZ_;
@@ -229,7 +230,20 @@ namespace MPCWalkgen{
       };
       std::vector<State> state_vec;
     };
-  }
+
+    struct MPC_WALKGEN_API StateValues {
+      double x, dx, ddx;
+      double y, dy, ddy;
+      double z, dz, ddz;
+      double yaw, dyaw, ddyaw;
+    };
+
+    struct MPC_WALKGEN_API ControlOutput {
+      StateValues com, cop, left_foot, right_foot;
+    };
+
+  };
 }
+
 
 #endif // MPC_WALKGEN_HUMANOID_SHAREDPGTYPE_H
