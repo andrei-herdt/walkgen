@@ -10,7 +10,7 @@
 
 using namespace Eigen;
 using namespace MPCWalkgen;
-using namespace Humanoid;
+
 
 Eigen::VectorXd test_all_solvers(QPSolver & qp1, int nbvar, int nbcstr)
 {

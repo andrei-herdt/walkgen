@@ -1,16 +1,15 @@
 #include "types.h"
 
 using namespace MPCWalkgen;
-using namespace Humanoid;
 
 SelectionMatrices::SelectionMatrices(const MPCData & generalData)
-:V(generalData.nbSamplesQP,generalData.nbSamplesQP)
-,VT(generalData.nbSamplesQP,generalData.nbSamplesQP)
-,VcX(generalData.nbSamplesQP)
-,VcY(generalData.nbSamplesQP)
-,Vf(generalData.nbSamplesQP,generalData.nbSamplesQP)
-,VcfX(generalData.nbSamplesQP)
-,VcfY(generalData.nbSamplesQP)
+:V(generalData.nbsamples_qp,generalData.nbsamples_qp)
+,VT(generalData.nbsamples_qp,generalData.nbsamples_qp)
+,VcX(generalData.nbsamples_qp)
+,VcY(generalData.nbsamples_qp)
+,Vf(generalData.nbsamples_qp,generalData.nbsamples_qp)
+,VcfX(generalData.nbsamples_qp)
+,VcfY(generalData.nbsamples_qp)
 {}
 
 void RelativeInequalities::resize(int rows, int cols){

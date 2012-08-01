@@ -1,6 +1,6 @@
 #pragma once
-#ifndef MPC_WALKGEN_HUMANOID_FOOT_BODY_H
-#define MPC_WALKGEN_HUMANOID_FOOT_BODY_H
+#ifndef MPC_WALKGEN_FOOT_BODY_H
+#define MPC_WALKGEN_FOOT_BODY_H
 
 ////////////////////////////////////////////////////////////////////////////////
 ///
@@ -20,7 +20,6 @@
 #include <Eigen/Dense>
 
 namespace MPCWalkgen{
-  namespace Humanoid{
     class FootBody:public RigidBody{
     public:
       FootBody(const MPCData * generalData,
@@ -44,7 +43,6 @@ namespace MPCWalkgen{
     private:
       Foot footType_;
     };
-  }
 }
 
-#endif // MPC_WALKGEN_HUMANOID_FOOT_BODY_H
+#endif // MPC_WALKGEN_FOOT_BODY_H

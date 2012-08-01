@@ -1,6 +1,6 @@
 #pragma once
-#ifndef MPC_WALKGEN_HUMANOID_WALKGEN
-#define MPC_WALKGEN_HUMANOID_WALKGEN
+#ifndef MPC_WALKGEN_WALKGEN
+#define MPC_WALKGEN_WALKGEN
 
 ////////////////////////////////////////////////////////////////////////////////
 ///
@@ -20,8 +20,6 @@ namespace MPCWalkgen{
 
   class Interpolation;
   class QPSolver;
-
-  namespace Humanoid{
 
     class QPGenerator;
     class QPPreview;
@@ -70,6 +68,7 @@ namespace MPCWalkgen{
       void IncrementOutputIndex();
       void UpdateOutput();
       void ResetCounters(double time);
+      void SetCounters(double time);
 
     private:
       MPCData generalData_;
@@ -110,9 +109,8 @@ namespace MPCWalkgen{
       double currentRealTime_;
 
     };
-  }
 }
 
 
 
-#endif // MPC_WALKGEN_HUMANOID_WALKGEN
+#endif // MPC_WALKGEN_WALKGEN

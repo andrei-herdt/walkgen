@@ -1,6 +1,6 @@
 #pragma once
-#ifndef MPC_WALKGEN_HUMANOID_QP_GENERATOR_H
-#define MPC_WALKGEN_HUMANOID_QP_GENERATOR_H
+#ifndef MPC_WALKGEN_QP_GENERATOR_H
+#define MPC_WALKGEN_QP_GENERATOR_H
 
 ////////////////////////////////////////////////////////////////////////////////
 ///
@@ -25,7 +25,6 @@
 #include <vector>
 
 namespace MPCWalkgen{
-  namespace Humanoid{
     class QPGenerator{
 
     public:
@@ -85,7 +84,6 @@ namespace MPCWalkgen{
       ConvexHull COPFeasibilityEdges;
       ConvexHull hull;
     };
-  }
 }
 
 /*! \fn MPCWalkgen::QPGenerator::QPGenerator(QPPreview * preview, QPSolver * solver,
@@ -120,4 +118,4 @@ namespace MPCWalkgen{
 * \param filename the file to display solution
 */
 
-#endif // MPC_WALKGEN_HUMANOID_QP_GENERATOR_H
+#endif // MPC_WALKGEN_QP_GENERATOR_H

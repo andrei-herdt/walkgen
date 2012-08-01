@@ -1,6 +1,6 @@
 #pragma once
-#ifndef MPC_WALKGEN_HUMANOID_QP_PREVIEW_H
-#define MPC_WALKGEN_HUMANOID_QP_PREVIEW_H
+#ifndef MPC_WALKGEN_QP_PREVIEW_H
+#define MPC_WALKGEN_QP_PREVIEW_H
 
 ////////////////////////////////////////////////////////////////////////////////
 ///
@@ -16,14 +16,13 @@
 
 
 #include "rigid-body-system.h"
-#include "state-solver.h"
+#include "state-fsm.h"
 #include "types.h"
 
 #include <Eigen/Dense>
 
 
 namespace MPCWalkgen{
-  namespace Humanoid{
     class QPPreview{
     private:
       static const double EPS_;
@@ -33,10 +32,9 @@ namespace MPCWalkgen{
 
       ~QPPreview();
 
-      void previewSamplingTimes(double firstSamplingPeriod, MPCSolution &solution);
+      void previewSamplingTimes(double currenttime, double firstSamplingPeriod, MPCSolution &solution);
 
-      void previewSupportStates(const double currentTime,
-                                const double FirstIterationDynamicsDuration, MPCSolution &result);
+      void previewSupportStates(double FirstIterationDynamicsDuration, MPCSolution &result);
 
       void computeRotationMatrix(MPCSolution &result);
 
@@ -55,15 +53,13 @@ namespace MPCWalkgen{
     private:
       RigidBodySystem * robot_;
       const MPCData * generalData_;
-      StateSolver * statesolver_;	//TODO: Name statesolver is bad
+      StateFSM * statesolver_;	//TODO: Name statesolver is bad
 
       SelectionMatrices selectionMatrices_;
       Eigen::MatrixXd rotationMatrix_;
       Eigen::MatrixXd rotationMatrix2_;
 
     };
-
-  }
 }
 
 /*! \fn MPCWalkgen::QPPreview::QPPreview(VelReference * velRef, RigidBodySystem * robot, const MPCData * generalData)
@@ -82,4 +78,4 @@ namespace MPCWalkgen{
 * \brief Return computed selection matrices
 */
 
-#endif // MPC_WALKGEN_HUMANOID_QP_PREVIEW_H
+#endif // MPC_WALKGEN_QP_PREVIEW_H

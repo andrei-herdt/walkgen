@@ -1,6 +1,6 @@
 #pragma once
-#ifndef MPC_WALKGEN_HUMANOID_TYPES_H
-#define MPC_WALKGEN_HUMANOID_TYPES_H
+#ifndef MPC_WALKGEN_TYPES_H
+#define MPC_WALKGEN_TYPES_H
 
 ////////////////////////////////////////////////////////////////////////////////
 ///
@@ -21,7 +21,6 @@
 #include "../common/types.h"
 
 namespace MPCWalkgen{
-  namespace Humanoid{
 
     enum HullType{
       FootHull,
@@ -48,8 +47,6 @@ namespace MPCWalkgen{
 
       void resize(int rows, int cols);
     };
-
-  }
 }
 
 /** @defgroup private MPCWalkgen private interface
@@ -57,4 +54,4 @@ namespace MPCWalkgen{
 */
 
 
-#endif // MPC_WALKGEN_HUMANOID_TYPES_H
+#endif // MPC_WALKGEN_TYPES_H

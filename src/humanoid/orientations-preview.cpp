@@ -34,7 +34,7 @@
 #include <vector>
 
 using namespace MPCWalkgen;
-using namespace Humanoid;
+
 using namespace std;
 
 const double OrientationsPreview::EPS_ = 0.00000001;
@@ -64,10 +64,10 @@ OrientationsPreview::~OrientationsPreview()
 { }
 
 void OrientationsPreview::init(const MPCData &data, const RobotData &robotData) {
-	T_ 			= data.QPSamplingPeriod;
-	Ti_ 		= data.MPCSamplingPeriod;
-	N_ 			= data.nbSamplesQP;
-	SSPeriod_ 	= data.stepPeriod;
+	T_ 			= data.period_qpsample;
+	Ti_ 		= data.period_mpcsample;
+	N_ 			= data.nbsamples_qp;
+  SSPeriod_ 	= data.nbqpsamples_step * data.period_qpsample;//TODO: Incoherent
 
 	lLimitLeftHipYaw_ = robotData.leftHipYaw.lowerBound;
 	uLimitLeftHipYaw_ = robotData.leftHipYaw.upperBound;

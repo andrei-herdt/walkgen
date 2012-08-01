@@ -1,6 +1,6 @@
 #pragma once
-#ifndef MPC_WALKGEN_HUMANOID_RIGID_BODY_SYSTEM_H
-#define MPC_WALKGEN_HUMANOID_RIGID_BODY_SYSTEM_H
+#ifndef MPC_WALKGEN_RIGID_BODY_SYSTEM_H
+#define MPC_WALKGEN_RIGID_BODY_SYSTEM_H
 
 ////////////////////////////////////////////////////////////////////////////////
 ///
@@ -22,7 +22,6 @@
 #include <vector>
 
 namespace MPCWalkgen{
-  namespace Humanoid{
     class RigidBodySystem{
 
     public:
@@ -74,8 +73,6 @@ namespace MPCWalkgen{
       SupportState currentSupport_;
 
     };
-
-  }
 }
 
 /*! \fn MPCWalkgen::RigidBodySystem::RigidBodySystem(const MPCData *generalData
@@ -111,4 +108,4 @@ namespace MPCWalkgen{
 * \param computeLinearSystem if false, linear inequalities will not be computed
 */
 
-#endif // MPC_WALKGEN_HUMANOID_RIGID_BODY_SYSTEM_H
+#endif // MPC_WALKGEN_RIGID_BODY_SYSTEM_H

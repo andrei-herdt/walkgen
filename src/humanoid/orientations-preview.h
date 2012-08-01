@@ -4,8 +4,8 @@
  * Temporary class
  */
 #pragma once
-#ifndef MPC_WALKGEN_HUMANOID_ORIENTATIONS_PREVIEW_H
-#define MPC_WALKGEN_HUMANOID_ORIENTATIONS_PREVIEW_H
+#ifndef MPC_WALKGEN_ORIENTATIONS_PREVIEW_H
+#define MPC_WALKGEN_ORIENTATIONS_PREVIEW_H
 
 
 
@@ -18,7 +18,6 @@
 
 namespace MPCWalkgen
 {
-namespace Humanoid{
 
 struct  COMState_s2
 {
@@ -206,6 +205,6 @@ typedef struct COMState_s2 COMState2;
 
 
   };
+
 }
-}
-#endif // MPC_WALKGEN_HUMANOID_ORIENTATIONS_PREVIEW_H
+#endif // MPC_WALKGEN_ORIENTATIONS_PREVIEW_H

@@ -1,6 +1,6 @@
 #include <mpc-walkgen/humanoid/walkgen-abstract.h>
 
-using namespace MPCWalkgen::Humanoid;
+using namespace MPCWalkgen;
 
 WalkgenAbstract::WalkgenAbstract(){}
 

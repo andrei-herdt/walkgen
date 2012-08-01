@@ -5,7 +5,7 @@
 #define PI 3.1415926
 
 using namespace MPCWalkgen;
-using namespace Humanoid;
+
 using namespace Eigen;
 
 RigidBodySystem::RigidBodySystem(const MPCData *generalData)
@@ -57,7 +57,7 @@ void RigidBodySystem::interpolateBodies(MPCSolution &solution, double currentTim
 }
 
 void RigidBodySystem::updateBodyState(const MPCSolution &solution){
-  int nextCurrentState = (int)round(generalData_->MPCSamplingPeriod / generalData_->actuationSamplingPeriod)-1;
+  int nextCurrentState = (int)round(generalData_->period_mpcsample / generalData_->period_actsample)-1;
 
   BodyState leftFoot, rightFoot, CoM;
 

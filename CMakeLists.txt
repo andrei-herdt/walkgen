@@ -126,8 +126,8 @@ SET(mpc-walkgen_SRC
   src/humanoid/rigid-body.h
   src/humanoid/rigid-body-system.cpp
   src/humanoid/rigid-body-system.h
-  src/humanoid/state-solver.cpp
-  src/humanoid/state-solver.h
+  src/humanoid/state-fsm.cpp
+  src/humanoid/state-fsm.h
   src/humanoid/types.cpp
   src/humanoid/types.h
   src/humanoid/walkgen.cpp

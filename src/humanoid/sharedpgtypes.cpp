@@ -3,7 +3,7 @@
 #include <iostream>
 #include <cassert>
 using namespace std;
-using namespace MPCWalkgen::Humanoid;
+using namespace MPCWalkgen;
 
 
 FootData::FootData()
@@ -67,33 +67,39 @@ void MPCSolution::reset(){
 }
 
 MPCData::MPCData()
-:QPSamplingPeriod(0.1)
-,MPCSamplingPeriod(0.005)
-,actuationSamplingPeriod(0.005)
-,nbSamplesQP(16)
-,stepPeriod(0.8)
-,DSPeriod(1e9)
-,DSSSPeriod(0.8)
-,nbStepSSDS(2)
-,ponderation(2) {
-  //assert(sizeof(MPCData)==112);
+:period_qpsample(0.1)
+,period_mpcsample(0.005)
+,period_actsample(0.005)
+,nbsamples_qp(16)
+,nbqpsamples_step(8)
+,nbqpsamples_dsss(8)
+,nbsteps_ssds(2)
+,period_ds(1000000000.0)
+,ponderation(2)
+,warmstart(false) {
 }
 
 MPCData::~MPCData(){}
 
 int MPCData::nbFeedbackSamplesLeft(double firstIterationduration) const{
-  return static_cast<int> (round(firstIterationduration / MPCSamplingPeriod)-1 );
+  return static_cast<int> (round(firstIterationduration / period_mpcsample)-1 );
 }
 
 int MPCData::nbFeedbackSamplesStandard() const{
-  return static_cast<int> (round(QPSamplingPeriod / MPCSamplingPeriod) );
+  return static_cast<int> (round(period_qpsample / period_mpcsample) );
 }
 
 int MPCData::nbSamplesControl() const{
-  return static_cast<int> (round(MPCSamplingPeriod / actuationSamplingPeriod) );
+  return static_cast<int> (round(period_mpcsample / period_actsample) );
 }
 
+double MPCData::period_ss() const {
+  return nbqpsamples_step * period_qpsample - period_trans_ds();
+}
 
+double MPCData::period_trans_ds() const {
+  return period_qpsample;
+}
 
 RobotData::RobotData(const FootData &leftFoot, const FootData &rightFoot,
                      const HipYawData &leftHipYaw, const HipYawData &rightHipYaw,

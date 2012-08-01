@@ -13,7 +13,7 @@
 
 using namespace Eigen;
 using namespace MPCWalkgen;
-using namespace Humanoid;
+
 /*
   Test whole body problem
 */

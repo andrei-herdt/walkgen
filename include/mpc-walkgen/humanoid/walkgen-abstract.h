@@ -12,8 +12,8 @@
 
 
 #pragma once
-#ifndef MPC_WALKGEN_HUMANOID_WALKGEN_ABSTRACT_H
-#define MPC_WALKGEN_HUMANOID_WALKGEN_ABSTRACT_H
+#ifndef MPC_WALKGEN_WALKGEN_ABSTRACT_H
+#define MPC_WALKGEN_WALKGEN_ABSTRACT_H
 
 
 //TODO: Change this ... interface
@@ -24,8 +24,6 @@
 
 
 namespace MPCWalkgen{
-  namespace Humanoid{
-
     class  WalkgenAbstract
     {
       //
@@ -72,8 +70,7 @@ namespace MPCWalkgen{
     };
     /*! Factory of Pattern generator interface. */
     MPC_WALKGEN_API WalkgenAbstract * createWalkgen(QPSolverType solvertype);
-  }
 }
 
 
-#endif // MPC_WALKGEN_HUMANOID_WALKGEN_ABSTRACT_H
+#endif // MPC_WALKGEN_WALKGEN_ABSTRACT_H

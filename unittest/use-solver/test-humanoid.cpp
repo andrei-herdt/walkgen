@@ -20,7 +20,7 @@
 
 using namespace Eigen;
 using namespace MPCWalkgen;
-using namespace Humanoid;
+
 
 void dumpTrajectory(MPCSolution & result, std::vector<std::ofstream*> & data_vec);
 bool checkFiles(std::ifstream & f1, std::ifstream & f2);

@@ -1,6 +1,6 @@
 #pragma once
-#ifndef MPC_WALKGEN_HUMANOID_RIGID_BODY_H
-#define MPC_WALKGEN_HUMANOID_RIGID_BODY_H
+#ifndef MPC_WALKGEN_RIGID_BODY_H
+#define MPC_WALKGEN_RIGID_BODY_H
 
 ////////////////////////////////////////////////////////////////////////////////
 ///
@@ -20,7 +20,6 @@
 #include <vector>
 
 namespace MPCWalkgen{
-  namespace Humanoid{
     class RigidBody{
 
     public:
@@ -66,7 +65,6 @@ namespace MPCWalkgen{
 
       int matrixNumber_;
     };
-  }
 }
 
-#endif // MPC_WALKGEN_HUMANOID_RIGID_BODY_H
+#endif // MPC_WALKGEN_RIGID_BODY_H

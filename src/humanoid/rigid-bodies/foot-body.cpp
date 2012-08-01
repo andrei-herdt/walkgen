@@ -2,7 +2,7 @@
 #include "../../common/tools.h"
 
 using namespace MPCWalkgen;
-using namespace Humanoid;
+
 using namespace Eigen;
 
 
@@ -24,9 +24,9 @@ void FootBody::interpolate(MPCSolution &result, double currentTime, const Refere
   double Txy = 1; // Local horizontal interpolation time
   double Tz = 1; // Local vertical interpolation time
   int nbSamples = generalData_->nbSamplesControl();
-  double transitionalDSPeriod = generalData_->QPSamplingPeriod;
+  double period_ds = generalData_->period_trans_ds();
   double raiseTime = 0.05; // Time during which the horizontal displacement is blocked
-  double freeFlyingTimeLeft = curSupport.timeLimit - transitionalDSPeriod - currentTime;
+  double freeFlyingTimeLeft = curSupport.timeLimit - period_ds - currentTime;
   double freeFlyingTimeSpent = currentTime - curSupport.startTime;
   if (result.supportStates_vec[0].phase == SS) {
       int nbStepsPreviewed = result.supportStates_vec.back().stepNumber;
@@ -49,8 +49,8 @@ void FootBody::interpolate(MPCSolution &result, double currentTime, const Refere
           Txy = freeFlyingTimeLeft - raiseTime;
           int nbPreviewedSteps = result.supportStates_vec.back().stepNumber;
           if (nbPreviewedSteps > 0) {
-              nextFootState.x(0) = result.qpSolution(2 * generalData_->nbSamplesQP);
-              nextFootState.y(0) = result.qpSolution(2 * generalData_->nbSamplesQP + nbStepsPreviewed);
+              nextFootState.x(0) = result.qpSolution(2 * generalData_->nbsamples_qp);
+              nextFootState.y(0) = result.qpSolution(2 * generalData_->nbsamples_qp + nbStepsPreviewed);
               nextFootState.yaw(0) = result.supportOrientations_vec[0];
             } else {
               nextFootState.x(0) = state_.x(0);
@@ -58,10 +58,10 @@ void FootBody::interpolate(MPCSolution &result, double currentTime, const Refere
               nextFootState.yaw(0) = state_.yaw(0);
             }
         }
-      if (freeFlyingTimeLeft - (generalData_->stepPeriod - transitionalDSPeriod)/2 > generalData_->actuationSamplingPeriod) {
+      if (freeFlyingTimeLeft - (generalData_->period_ss() / 2.0) > generalData_->period_actsample) {
           nextFootState.z(0) = robotData_->freeFlyingFootMaxHeight;
-          Tz = freeFlyingTimeLeft - (generalData_->stepPeriod - transitionalDSPeriod)/2 ;
-        } else if (freeFlyingTimeLeft < (generalData_->stepPeriod - transitionalDSPeriod)/2 && freeFlyingTimeLeft > EPSILON) { // Half-time passed
+          Tz = freeFlyingTimeLeft - (generalData_->period_ss() / 2.0) ;
+        } else if (freeFlyingTimeLeft < (generalData_->period_ss() / 2.0) && freeFlyingTimeLeft > EPSILON) { // Half-time passed
           Tz = freeFlyingTimeLeft;
         } else {
           // Tz stays 1
@@ -169,7 +169,7 @@ void FootBody::computeFootInterpolationByPolynomial(MPCSolution &result, Axis ax
           Eigen::Matrix<double,6,1> factor;
           interpolation_->computePolynomialNormalisedFactors(factor, FootCurrentState, nextSupportFootState, T);
           for (int i = 0; i < nbSamples; ++i) {
-              double ti = (i+1)*generalData_->actuationSamplingPeriod;
+              double ti = (i+1)*generalData_->period_actsample;
 
               FootTrajState(i) = p(factor, ti/T);
               FootTrajVel(i)   = dp(factor, ti/T)/T;

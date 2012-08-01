@@ -1,6 +1,6 @@
 #pragma once
-#ifndef MPC_WALKGEN_HUMANOID_SHAREDPGTYPE_H
-#define  MPC_WALKGEN_HUMANOID_SHAREDPGTYPE_H
+#ifndef MPC_WALKGEN_SHAREDPGTYPE_H
+#define  MPC_WALKGEN_SHAREDPGTYPE_H
 
 ////////////////////////////////////////////////////////////////////////////////
 ///
@@ -20,7 +20,6 @@
 
 
 namespace MPCWalkgen{
-  namespace Humanoid{
 
     /// \name Enum types
     /// \{
@@ -92,7 +91,7 @@ namespace MPCWalkgen{
       /// \brief Define if the support state is in a (transitional) double support phase
       bool inTransitionalDS;
 
-      /// \brief The length of the previous sampling period (can be different from QPSamplingPeriod)
+      /// \brief The length of the previous sampling period (can be different from period_qpsample)
       double previousSamplingPeriod;//TODO: change name
 
       // \brief The relative weight of this support state in the QP (A support state duration of QPSamplingTime have : iterationWeight = 1)
@@ -123,19 +122,25 @@ namespace MPCWalkgen{
     struct MPC_WALKGEN_API MPCData {
       // The following parameters are fixed once and for all at initialization
       /// \brief Sampling period considered in the QP
-      double QPSamplingPeriod;    //blocked - precomputeObjective
-      double MPCSamplingPeriod;   //blocked - precomputeObjective / RigidBodySystem::computeDynamicMatrix
-      double actuationSamplingPeriod;   //blocked - precomputeObjective / RigidBodySystem::computeDynamicMatrix
+      double period_qpsample;    //blocked - precomputeObjective
+      double period_mpcsample;   //blocked - precomputeObjective / RigidBodySystem::computeDynamicMatrix
+      double period_actsample;   //blocked - precomputeObjective / RigidBodySystem::computeDynamicMatrix
 
       /// \brief Nb. samplings inside preview window
-      int nbSamplesQP;  //blocked - precomputeObjective
+      int nbsamples_qp;  //blocked - precomputeObjective
 
-      // The following parameters can be changed online
-      double stepPeriod;  //blocked by orientPrw_ ? can be solved --
-      double DSPeriod;
-      double DSSSPeriod;
-      int nbStepSSDS;
+      // \brief Step period ss_left<->ss_right in qp sample periods
+      int nbqpsamples_step;  //blocked by orientPrw_ ? can be solved --
+      // \brief Transition period ds->ss in qp sample periods
+      int nbqpsamples_dsss;
+      // \brief Steps to be done before ss->ds
+      int nbsteps_ssds;
+      // \brief Double support phase length (should be a large value)
+      double period_ds;
 
+      QPPonderation ponderation;
+ 
+      bool warmstart;
 
       /// \brief Compute the number of recomputations left until next sample
       int nbFeedbackSamplesLeft(double firstSamplingPeriod) const;
@@ -144,9 +149,8 @@ namespace MPCWalkgen{
       /// \brief number of feedback iterations between two QP instants
       int nbFeedbackSamplesStandard() const;
 
-      QPPonderation ponderation;
-
-      bool warmstart;
+      double period_ss() const;
+      double period_trans_ds() const;
 
       MPCData();
       ~MPCData();
@@ -241,9 +245,7 @@ namespace MPCWalkgen{
     struct MPC_WALKGEN_API ControlOutput {
       StateValues com, cop, left_foot, right_foot;
     };
-
-  };
 }
 
 
-#endif // MPC_WALKGEN_HUMANOID_SHAREDPGTYPE_H
+#endif // MPC_WALKGEN_SHAREDPGTYPE_H

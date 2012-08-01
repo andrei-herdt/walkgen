@@ -2,7 +2,7 @@
 #include "../../common/tools.h"
 
 using namespace MPCWalkgen;
-using namespace Humanoid;
+
 using namespace Eigen;
 
 
@@ -17,19 +17,19 @@ CoMBody::~CoMBody(){}
 void CoMBody::interpolate(MPCSolution &solution, double currentTime, const Reference &velRef){
   interpolation_->computeInterpolationByJerk(solution.state_vec[0].CoMTrajX_, solution.state_vec[0].CoMTrajY_, state_,
                                              dynamics(interpolationPos), solution.qpSolution(0),
-                                             solution.qpSolution(generalData_->nbSamplesQP));
+                                             solution.qpSolution(generalData_->nbsamples_qp));
 
   interpolation_->computeInterpolationByJerk(solution.state_vec[1].CoMTrajX_, solution.state_vec[1].CoMTrajY_, state_,
                                              dynamics(interpolationVel), solution.qpSolution(0),
-                                             solution.qpSolution(generalData_->nbSamplesQP));
+                                             solution.qpSolution(generalData_->nbsamples_qp));
 
   interpolation_->computeInterpolationByJerk(solution.state_vec[2].CoMTrajX_, solution.state_vec[2].CoMTrajY_, state_,
                                              dynamics(interpolationAcc), solution.qpSolution(0),
-                                             solution.qpSolution(generalData_->nbSamplesQP));
+                                             solution.qpSolution(generalData_->nbsamples_qp));
 
   interpolation_->computeInterpolationByJerk(solution.CoPTrajX, solution.CoPTrajY, state_,
                                              dynamics(interpolationCoP), solution.qpSolution(0),
-                                             solution.qpSolution(generalData_->nbSamplesQP));
+                                             solution.qpSolution(generalData_->nbsamples_qp));
 
   interpolateTrunkOrientation(solution, currentTime, velRef);
 }
@@ -118,7 +118,7 @@ void CoMBody::interpolateTrunkOrientation(MPCSolution &result,
   Eigen::Matrix<double,6,1> factor;
 
 
-  double T = generalData_->stepPeriod;/*
+  double T = generalData_->nbqpsamples_step * generalData_->period_qpsample;/*
         if (result.supportState_vec[0].phase == ss){
                 T = result.supportState_vec[0].startTime+generalData_->stepPeriod-currentTime;;
         }else{
@@ -151,7 +151,7 @@ void CoMBody::interpolateTrunkOrientation(MPCSolution &result,
 
   interpolation_->computePolynomialNormalisedFactors(factor, state().yaw, nextTrunkState, T);
   for (int i=0; i < nbSampling; ++i) {
-      double ti = (i+1)*generalData_->actuationSamplingPeriod;
+      double ti = (i+1)*generalData_->period_actsample;
 
       result.state_vec[0].trunkYaw_(i) = p(factor, ti/T);
       result.state_vec[1].trunkYaw_(i) = dp(factor, ti/T)/T;

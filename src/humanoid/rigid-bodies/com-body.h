@@ -1,6 +1,6 @@
 #pragma once
-#ifndef MPC_WALKGEN_HUMANOID_COM_BODY_H
-#define MPC_WALKGEN_HUMANOID_COM_BODY_H
+#ifndef MPC_WALKGEN_COM_BODY_H
+#define MPC_WALKGEN_COM_BODY_H
 
 ////////////////////////////////////////////////////////////////////////////////
 ///
@@ -19,7 +19,6 @@
 #include <Eigen/Dense>
 
 namespace MPCWalkgen{
-  namespace Humanoid{
     class CoMBody:public RigidBody{
     public:
       CoMBody(const MPCData * generalData,
@@ -39,8 +38,7 @@ namespace MPCWalkgen{
 
 
     };
-  }
 }
 
 
-#endif // MPC_WALKGEN_HUMANOID_COM_BODY_H
+#endif // MPC_WALKGEN_COM_BODY_H
