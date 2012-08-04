@@ -6,6 +6,7 @@
 ///
 ///\file	interpolation.h
 ///\brief	A tools class wich provide some interpolation methods
+///\author	Andrei Herdt
 ///\author	Lafaye Jory
 ///\author      Keith François
 ///\version	1.2
@@ -32,6 +33,9 @@ namespace MPCWalkgen{
 
 				void computeInterpolationByJerk(Eigen::VectorXd & solution, const Eigen::VectorXd & state,
 						 const LinearDynamics & dyn, double jerk) const;
+
+        Eigen::VectorXd Interpolate(const LinearDynamics &dyn, 
+          const Eigen::Vector3d &state_vec, const Eigen::VectorXd &u_vec) const;
 
 				void computePolynomialNormalisedFactors(
 						Eigen::Matrix<double,6,1> & factor, const Eigen::Vector3d & initialstate,

@@ -100,7 +100,7 @@ void Walkgen::init(const RobotData &robotData, const MPCData &mpcData) {
 void Walkgen::init() {
   robot_->Init(robotData_, interpolation_);
 
-  //Check if sampling periods are defined correctly
+  // Check if sampling periods are defined correctly
   assert(generalData_.period_actsample > 0);
   assert(generalData_.period_mpcsample >= generalData_.period_actsample);
   assert(generalData_.period_qpsample >= generalData_.period_mpcsample);

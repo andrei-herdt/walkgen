@@ -185,15 +185,16 @@ namespace MPCWalkgen{
       ~RobotData();
     };
 
+    struct Trajectory {
+      Eigen::VectorXd x_vec, y_vec, z_vec, yaw_vec;
+    };
+
+    struct Motion {
+      Trajectory pos, vel, acc;
+    };
+
     struct MPC_WALKGEN_API MPCSolution {
 
-      MPCSolution();
-      ~MPCSolution();
-      MPCSolution& operator=(MPCSolution const &);
-
-      void reset();
-
-      // attributes
       Eigen::VectorXd qpSolution;
       Eigen::VectorXd initialSolution;
 
@@ -215,6 +216,8 @@ namespace MPCWalkgen{
       Eigen::VectorXd CoPTrajX;
       Eigen::VectorXd CoPTrajY;
 
+      Motion com_prw, cop_prw, foot_left_prw, foot_right_prw; 
+
       struct State {
         Eigen::VectorXd CoMTrajX_;
         Eigen::VectorXd CoMTrajY_;
@@ -233,6 +236,13 @@ namespace MPCWalkgen{
         Eigen::VectorXd trunkYaw_;
       };
       std::vector<State> state_vec;
+
+      MPCSolution& operator = (MPCSolution const &);
+
+      void reset();
+
+      MPCSolution();
+      ~MPCSolution();
     };
 
     struct MPC_WALKGEN_API StateValues {

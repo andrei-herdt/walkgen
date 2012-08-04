@@ -2,8 +2,6 @@
 #include "rigid-bodies/com-body.h"
 #include "rigid-bodies/foot-body.h"
 
-#define PI 3.1415926
-
 using namespace MPCWalkgen;
 
 using namespace Eigen;
@@ -15,22 +13,22 @@ RigidBodySystem::RigidBodySystem(const MPCData *generalData)
 }
 
 RigidBodySystem::~RigidBodySystem() {
-  if (CoM_ != 0x0)
-    delete CoM_;
+  if (com_ != 0x0)
+    delete com_;
 
-  if (leftFoot_ != 0x0)
-    delete leftFoot_;
+  if (foot_left_ != 0x0)
+    delete foot_left_;
   
-  if (rightFoot_ != 0x0)
-    delete rightFoot_;
+  if (foot_right_ != 0x0)
+    delete foot_right_;
 }
 
 void RigidBodySystem::Init(const RobotData &robot_data, const Interpolation *interpolation) {//TODO: Remove object robot_data
   robot_data_ = robot_data;
 
-  CoM_ = new CoMBody(generalData_, &robot_data_, interpolation);
-  leftFoot_ = new FootBody(generalData_, &robot_data_, interpolation, LEFT);
-  rightFoot_ = new FootBody(generalData_, &robot_data_, interpolation, RIGHT);
+  com_ = new CoMBody(generalData_, &robot_data_, interpolation);
+  foot_left_ = new FootBody(generalData_, &robot_data_, interpolation, LEFT);
+  foot_right_ = new FootBody(generalData_, &robot_data_, interpolation, RIGHT);
 
   currentSupport_.phase = DS;
   currentSupport_.foot = LEFT;
@@ -45,15 +43,15 @@ void RigidBodySystem::Init(const RobotData &robot_data, const Interpolation *int
 }
 
 void RigidBodySystem::computeDynamics() {
-  CoM_->computeDynamics();
-  leftFoot_->computeDynamics();
-  rightFoot_->computeDynamics();
+  com_->computeDynamics();
+  foot_left_->computeDynamics();
+  foot_right_->computeDynamics();
 }
 
 void RigidBodySystem::interpolateBodies(MPCSolution &solution, double currentTime, const Reference &velRef){
-  CoM_->interpolate(solution, currentTime, velRef);
-  leftFoot_->interpolate(solution, currentTime, velRef);
-  rightFoot_->interpolate(solution, currentTime, velRef);
+  com_->interpolate(solution, currentTime, velRef);
+  foot_left_->interpolate(solution, currentTime, velRef);
+  foot_right_->interpolate(solution, currentTime, velRef);
 }
 
 void RigidBodySystem::updateBodyState(const MPCSolution &solution){
@@ -81,37 +79,37 @@ void RigidBodySystem::updateBodyState(const MPCSolution &solution){
   CoM.z(1) = 0.0;
   CoM.z(2) = 0.0;
 
-  CoM_->state(CoM);
-  leftFoot_->state(leftFoot);
-  rightFoot_->state(rightFoot);
+  com_->state(CoM);
+  foot_left_->state(leftFoot);
+  foot_right_->state(rightFoot);
 
 }
 
 void RigidBodySystem::setSelectionNumber(double firstSamplingPeriod){
-  CoM_->setSelectionNumber(firstSamplingPeriod);
-  leftFoot_->setSelectionNumber(firstSamplingPeriod);
-  rightFoot_->setSelectionNumber(firstSamplingPeriod);
+  com_->setSelectionNumber(firstSamplingPeriod);
+  foot_left_->setSelectionNumber(firstSamplingPeriod);
+  foot_right_->setSelectionNumber(firstSamplingPeriod);
 }
 
 RigidBody * RigidBodySystem::body(BodyType type){
   switch(type){
     case COM:
-      return CoM_;
+      return com_;
     case LEFT_FOOT:
-      return leftFoot_;
+      return foot_left_;
     default:
-      return rightFoot_;
+      return foot_right_;
   }
 }
 
 const RigidBody * RigidBodySystem::body(BodyType type) const{
   switch(type){
     case COM:
-      return CoM_;
+      return com_;
     case LEFT_FOOT:
-      return leftFoot_;
+      return foot_left_;
     default:
-      return rightFoot_;
+      return foot_right_;
   }
 }
 

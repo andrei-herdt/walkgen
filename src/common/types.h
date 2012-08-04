@@ -6,9 +6,9 @@
 ///
 ///\file	common-types.h
 ///\brief	Definition of types used in MPC
+///\author	Herdt Andrei
 ///\author	Lafaye Jory
 ///\author      Keith François
-///\author	Herdt Andrei
 ///\version	1.2
 ///\date	27/04/12
 ///
@@ -39,11 +39,11 @@ namespace MPCWalkgen{
 	};
 
 	enum DynamicMatrixType{//TODO: This can be replaced through POSITION, VELOCITY...
-		posDynamic,
-		velDynamic,
-		accDynamic,
-		jerkDynamic,
-		copDynamic,
+		POSITION,
+		VELOCITY,
+		ACCELERATION,
+		JERK,
+		COP,
 		interpolationPos,
 		interpolationVel,
 		interpolationAcc,
@@ -76,14 +76,6 @@ namespace MPCWalkgen{
 
 		void resize(int size);
 	};
-
-  struct Trajectory {
-      Eigen::VectorXd x_vec, y_vec, z_vec, yaw_vec;
-    };
-
-    struct States {
-      Trajectory pos, vel, acc;
-    };
 
 }
 

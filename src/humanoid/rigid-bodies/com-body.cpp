@@ -15,18 +15,38 @@ CoMBody::CoMBody(const MPCData *generalData,
 CoMBody::~CoMBody(){}
 
 void CoMBody::interpolate(MPCSolution &solution, double currentTime, const Reference &velRef){
+  // Position:
   interpolation_->computeInterpolationByJerk(solution.state_vec[0].CoMTrajX_, solution.state_vec[0].CoMTrajY_, state_,
                                              dynamics(interpolationPos), solution.qpSolution(0),
                                              solution.qpSolution(generalData_->nbsamples_qp));
 
+  // TODO: Only in debug mode
+  solution.com_prw.pos.x_vec = interpolation_->Interpolate(dynamics(POSITION), 
+    state_.x, solution.qpSolution.segment(0, generalData_->nbsamples_qp));
+  solution.com_prw.pos.y_vec = interpolation_->Interpolate(dynamics(POSITION), 
+    state_.y, solution.qpSolution.segment(0, generalData_->nbsamples_qp));
+
+  // Velocity:
   interpolation_->computeInterpolationByJerk(solution.state_vec[1].CoMTrajX_, solution.state_vec[1].CoMTrajY_, state_,
                                              dynamics(interpolationVel), solution.qpSolution(0),
                                              solution.qpSolution(generalData_->nbsamples_qp));
+    // TODO: Only in debug mode
+  solution.com_prw.vel.x_vec = interpolation_->Interpolate(dynamics(VELOCITY), 
+    state_.x, solution.qpSolution.segment(0, generalData_->nbsamples_qp));
+  solution.com_prw.vel.y_vec = interpolation_->Interpolate(dynamics(VELOCITY), 
+    state_.y, solution.qpSolution.segment(0, generalData_->nbsamples_qp));
 
+  // Acceleration:
   interpolation_->computeInterpolationByJerk(solution.state_vec[2].CoMTrajX_, solution.state_vec[2].CoMTrajY_, state_,
                                              dynamics(interpolationAcc), solution.qpSolution(0),
                                              solution.qpSolution(generalData_->nbsamples_qp));
+    // TODO: Only in debug mode
+  solution.com_prw.acc.x_vec = interpolation_->Interpolate(dynamics(ACCELERATION), 
+    state_.x, solution.qpSolution.segment(0, generalData_->nbsamples_qp));
+  solution.com_prw.acc.y_vec = interpolation_->Interpolate(dynamics(ACCELERATION), 
+    state_.y, solution.qpSolution.segment(0, generalData_->nbsamples_qp));
 
+  // Jerk:
   interpolation_->computeInterpolationByJerk(solution.CoPTrajX, solution.CoPTrajY, state_,
                                              dynamics(interpolationCoP), solution.qpSolution(0),
                                              solution.qpSolution(generalData_->nbsamples_qp));
@@ -44,7 +64,7 @@ void CoMBody::computeDynamicsMatrices(LinearDynamics &dyn,
 
 
   switch (type){
-    case posDynamic:
+    case POSITION:
       for (int i=0; i<N; ++i) {
           dyn.S(i,0) = 1;
           dyn.S(i,1) = i*T + S;
@@ -59,7 +79,7 @@ void CoMBody::computeDynamicsMatrices(LinearDynamics &dyn,
         }
       break;
 
-    case velDynamic:
+    case VELOCITY:
       for (int i=0;i<N;i++) {
           dyn.S(i,0) = 0.0;
           dyn.S(i,1) = 1.0;
@@ -74,7 +94,7 @@ void CoMBody::computeDynamicsMatrices(LinearDynamics &dyn,
         }
       break;
 
-    case accDynamic:
+    case ACCELERATION:
       for (int i=0; i<N; i++) {
           dyn.S(i,2) = 1.0;
 
@@ -87,7 +107,7 @@ void CoMBody::computeDynamicsMatrices(LinearDynamics &dyn,
         }
       break;
 
-    case copDynamic:
+    case COP:
       for (int i=0; i<N; i++) {
           dyn.S(i,0) = 1;
           dyn.S(i,1) = i*T + S;

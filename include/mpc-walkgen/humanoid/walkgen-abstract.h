@@ -24,6 +24,9 @@
 
 
 namespace MPCWalkgen{
+
+    class RigidBodySystem;
+
     class  WalkgenAbstract
     {
       //
@@ -65,6 +68,8 @@ namespace MPCWalkgen{
       virtual void bodyState(BodyType body, const BodyState &state) = 0;
 
       virtual const ControlOutput &output() = 0;
+
+      virtual RigidBodySystem *robot() = 0;
       /// \}
 
     };

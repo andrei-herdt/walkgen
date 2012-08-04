@@ -15,15 +15,15 @@ RigidBody::~RigidBody()
 
 const LinearDynamics & RigidBody::dynamics(DynamicMatrixType type) const{
   switch (type){
-    case posDynamic:
+    case POSITION:
       return pos_dynamics_vec_[matrixNumber_];
-    case velDynamic:
+    case VELOCITY:
       return vel_dynamics_vec_[matrixNumber_];
-    case accDynamic:
+    case ACCELERATION:
       return acc_dynamics_vec_[matrixNumber_];
-    case jerkDynamic:
+    case JERK:
       return jerk_dynamics_vec_[matrixNumber_];
-    case copDynamic:
+    case COP:
       return cop_dynamics_vec_[matrixNumber_];
     case interpolationPos:
       return posInterpol_;
@@ -53,29 +53,29 @@ void RigidBody::computeDynamics(){
   for (int k = 0; k < vecSize; ++k) {
       double S = generalData_->period_mpcsample * (k+1);
       computeDynamicsMatrices(pos_dynamics_vec_[k], S,
-                              generalData_->period_qpsample, generalData_->nbsamples_qp, posDynamic);
+                              generalData_->period_qpsample, generalData_->nbsamples_qp, POSITION);
       computeDynamicsMatrices(vel_dynamics_vec_[k], S,
-                              generalData_->period_qpsample, generalData_->nbsamples_qp, velDynamic);
+                              generalData_->period_qpsample, generalData_->nbsamples_qp, VELOCITY);
       computeDynamicsMatrices(acc_dynamics_vec_[k], S,
-                              generalData_->period_qpsample, generalData_->nbsamples_qp, accDynamic);
+                              generalData_->period_qpsample, generalData_->nbsamples_qp, ACCELERATION);
       computeDynamicsMatrices(jerk_dynamics_vec_[k], S,
-                              generalData_->period_qpsample, generalData_->nbsamples_qp, jerkDynamic);
+                              generalData_->period_qpsample, generalData_->nbsamples_qp, JERK);
       computeDynamicsMatrices(cop_dynamics_vec_[k], S,
-                              generalData_->period_qpsample, generalData_->nbsamples_qp, copDynamic);
+                              generalData_->period_qpsample, generalData_->nbsamples_qp, COP);
 
     }
 
   int nbSamplingSim = generalData_->nbSamplesControl();
   computeDynamicsMatrices(posInterpol_, generalData_->period_actsample,
-                          generalData_->period_actsample, nbSamplingSim, posDynamic);
+                          generalData_->period_actsample, nbSamplingSim, POSITION);
 
   computeDynamicsMatrices(velInterpol_, generalData_->period_actsample,
-                          generalData_->period_actsample, nbSamplingSim, velDynamic);
+                          generalData_->period_actsample, nbSamplingSim, VELOCITY);
 
   computeDynamicsMatrices(accInterpol_, generalData_->period_actsample,
-                          generalData_->period_actsample, nbSamplingSim, accDynamic);
+                          generalData_->period_actsample, nbSamplingSim, ACCELERATION);
 
   computeDynamicsMatrices(copInterpol_, generalData_->period_actsample,
-                          generalData_->period_actsample, nbSamplingSim, copDynamic);
+                          generalData_->period_actsample, nbSamplingSim, COP);
 }
 

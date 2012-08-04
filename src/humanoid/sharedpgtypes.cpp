@@ -56,6 +56,11 @@ MPCSolution& MPCSolution::operator=(MPCSolution const &rhs){
   CoPTrajX = rhs.CoPTrajX;
   CoPTrajY = rhs.CoPTrajY;
 
+  com_prw = rhs.com_prw;
+  cop_prw = rhs.cop_prw; 
+  foot_left_prw = rhs.foot_left_prw; 
+  foot_right_prw = rhs.foot_right_prw; 
+
   state_vec = rhs.state_vec;
   return(*this);
 }

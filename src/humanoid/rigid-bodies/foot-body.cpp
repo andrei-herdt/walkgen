@@ -93,16 +93,16 @@ void FootBody::computeDynamicsMatrices(LinearDynamics & dyn,
 
 
   switch (type){
-    case posDynamic:
+    case POSITION:
       break;
 
-    case velDynamic:
+    case VELOCITY:
       break;
 
-    case accDynamic:
+    case ACCELERATION:
       break;
 
-    case copDynamic:
+    case COP:
       break;
 
     default:

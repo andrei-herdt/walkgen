@@ -24,6 +24,10 @@ void Interpolation::computeInterpolationByJerk(VectorXd &solutionX, VectorXd &so
 	solutionY = dyn.S * state.y + dyn.U * UY;
 }
 
+VectorXd Interpolation::Interpolate(const LinearDynamics &dyn, const Vector3d &state_vec, const VectorXd &u_vec) const {
+  return dyn.S * state_vec + dyn.U * u_vec;
+}
+
 void Interpolation::computeInterpolationByJerk(VectorXd &solution, const VectorXd &state,
 		 const LinearDynamics &dyn, double jerk) const{
 
