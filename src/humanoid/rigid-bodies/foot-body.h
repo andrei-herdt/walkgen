@@ -27,7 +27,7 @@ namespace MPCWalkgen{
                const Interpolation * interpolation, Foot type);
       virtual ~FootBody();
 
-      virtual void interpolate(MPCSolution & result, double currentTime, const Reference & velRef);
+      virtual void interpolate(MPCSolution & solution, double currentTime, const Reference & velRef);
 
     protected:
       virtual void computeDynamicsMatrices(LinearDynamics & dyn,
@@ -36,7 +36,7 @@ namespace MPCWalkgen{
     private:
       Eigen::VectorXd & getFootVector(MPCSolution & solution, Axis axis, unsigned derivative);
 
-      void computeFootInterpolationByPolynomial(MPCSolution & result, Axis axis, int nbSampling,
+      void computeFootInterpolationByPolynomial(MPCSolution & solution, Axis axis, int nbSampling,
                                                 const Eigen::Vector3d & FootCurrentState,
                                                 double T, const Eigen::Vector3d & nextSupportFootState);
 

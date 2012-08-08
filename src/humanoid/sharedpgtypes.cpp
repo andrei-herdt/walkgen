@@ -35,7 +35,7 @@ MPCSolution::MPCSolution()
 MPCSolution::~MPCSolution() {}
 
 
-MPCSolution& MPCSolution::operator=(MPCSolution const &rhs){
+MPCSolution& MPCSolution::operator = (MPCSolution const &rhs){
   qpSolution = rhs.qpSolution;
   initialSolution = rhs.initialSolution;
 
@@ -81,7 +81,8 @@ MPCData::MPCData()
 ,nbsteps_ssds(2)
 ,period_ds(1000000000.0)
 ,ponderation(2)
-,warmstart(false) {
+,warmstart(false)
+,interpolate_preview(false){
 }
 
 MPCData::~MPCData(){}

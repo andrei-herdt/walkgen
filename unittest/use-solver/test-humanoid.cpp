@@ -22,7 +22,7 @@ using namespace Eigen;
 using namespace MPCWalkgen;
 
 
-void dumpTrajectory(MPCSolution & result, std::vector<std::ofstream*> & data_vec);
+void dumpTrajectory(MPCSolution & solution, std::vector<std::ofstream*> & data_vec);
 bool checkFiles(std::ifstream & f1, std::ifstream & f2);
 int copyFile(const std::string & source, const std::string & destination);
 
@@ -126,28 +126,28 @@ int main() {
   double velocity = 0.05;
   double t = 3.0;
   for (; t < 5; t += 0.005){
-    MPCSolution result = walk->online(t);
-    dumpTrajectory(result, data_vec);
+    MPCSolution solution = walk->online(t);
+    dumpTrajectory(solution, data_vec);
   }
 
   walk->reference(velocity, 0, 0);
   for (; t < 10; t += 0.005){
-    MPCSolution result = walk->online(t);
-    dumpTrajectory(result, data_vec);
+    MPCSolution solution = walk->online(t);
+    dumpTrajectory(solution, data_vec);
   }
 
   //walk->reference(0, velocity, 0);
   walk->reference(velocity, 0, 0);
   for (; t < 20; t += 0.005){
-    MPCSolution result = walk->online(t);
-    dumpTrajectory(result, data_vec);
+    MPCSolution solution = walk->online(t);
+    dumpTrajectory(solution, data_vec);
   }
 
   //walk->reference(velocity, 0, velocity);
   walk->reference(0, 0, 0);
   for (; t < 30; t += 0.005){
-    MPCSolution result = walk->online(t);
-    dumpTrajectory(result, data_vec);
+    MPCSolution solution = walk->online(t);
+    dumpTrajectory(solution, data_vec);
   }
 
 
@@ -190,18 +190,18 @@ int main() {
   return (success)?0:1;
 }
 
-void dumpTrajectory(MPCSolution &result, std::vector<std::ofstream*> &data_vec) {
-  for (int i = 0; i < result.state_vec[0].CoMTrajX_.rows(); ++i) {
-    *data_vec[0] << result.state_vec[0].CoMTrajX_(i) << " " << result.state_vec[1].CoMTrajX_(i) << " " << result.state_vec[2].CoMTrajX_(i) << std::endl;
-    *data_vec[1] << result.state_vec[0].CoMTrajY_(i) << " " << result.state_vec[1].CoMTrajY_(i) << " " << result.state_vec[2].CoMTrajY_(i) << std::endl;
-    *data_vec[2] << result.CoPTrajX(i)  << std::endl;
-    *data_vec[3] << result.CoPTrajY(i) << std::endl;
-    *data_vec[4] << result.state_vec[0].leftFootTrajX_(i) << " " << result.state_vec[1].leftFootTrajX_(i) << " " << result.state_vec[2].leftFootTrajX_(i) << std::endl;
-    *data_vec[5] << result.state_vec[0].leftFootTrajY_(i) << " " << result.state_vec[1].leftFootTrajY_(i) << " " << result.state_vec[2].leftFootTrajY_(i) << std::endl;
-    *data_vec[6] << result.state_vec[0].rightFootTrajX_(i) << " " << result.state_vec[1].rightFootTrajX_(i) << " " << result.state_vec[2].rightFootTrajX_(i) << std::endl;
-    *data_vec[7] << result.state_vec[0].rightFootTrajY_(i) << " " << result.state_vec[1].rightFootTrajY_(i) << " " << result.state_vec[2].rightFootTrajY_(i) << std::endl;
-    *data_vec[8] << result.state_vec[0].rightFootTrajZ_(i) << " " << result.state_vec[1].rightFootTrajZ_(i) << " " << result.state_vec[2].rightFootTrajZ_(i) << std::endl;
-    *data_vec[9] << result.state_vec[0].leftFootTrajZ_(i) << " " << result.state_vec[1].leftFootTrajZ_(i) << " " << result.state_vec[2].leftFootTrajZ_(i) << std::endl;
+void dumpTrajectory(MPCSolution &solution, std::vector<std::ofstream*> &data_vec) {
+  for (int i = 0; i < solution.state_vec[0].CoMTrajX_.rows(); ++i) {
+    *data_vec[0] << solution.state_vec[0].CoMTrajX_(i) << " " << solution.state_vec[1].CoMTrajX_(i) << " " << solution.state_vec[2].CoMTrajX_(i) << std::endl;
+    *data_vec[1] << solution.state_vec[0].CoMTrajY_(i) << " " << solution.state_vec[1].CoMTrajY_(i) << " " << solution.state_vec[2].CoMTrajY_(i) << std::endl;
+    *data_vec[2] << solution.CoPTrajX(i)  << std::endl;
+    *data_vec[3] << solution.CoPTrajY(i) << std::endl;
+    *data_vec[4] << solution.state_vec[0].leftFootTrajX_(i) << " " << solution.state_vec[1].leftFootTrajX_(i) << " " << solution.state_vec[2].leftFootTrajX_(i) << std::endl;
+    *data_vec[5] << solution.state_vec[0].leftFootTrajY_(i) << " " << solution.state_vec[1].leftFootTrajY_(i) << " " << solution.state_vec[2].leftFootTrajY_(i) << std::endl;
+    *data_vec[6] << solution.state_vec[0].rightFootTrajX_(i) << " " << solution.state_vec[1].rightFootTrajX_(i) << " " << solution.state_vec[2].rightFootTrajX_(i) << std::endl;
+    *data_vec[7] << solution.state_vec[0].rightFootTrajY_(i) << " " << solution.state_vec[1].rightFootTrajY_(i) << " " << solution.state_vec[2].rightFootTrajY_(i) << std::endl;
+    *data_vec[8] << solution.state_vec[0].rightFootTrajZ_(i) << " " << solution.state_vec[1].rightFootTrajZ_(i) << " " << solution.state_vec[2].rightFootTrajZ_(i) << std::endl;
+    *data_vec[9] << solution.state_vec[0].leftFootTrajZ_(i) << " " << solution.state_vec[1].leftFootTrajZ_(i) << " " << solution.state_vec[2].leftFootTrajZ_(i) << std::endl;
   }
 }
 

@@ -30,12 +30,12 @@ void MPCWalkgen::inverse(const MatrixXd & A, MatrixXd & Ap, double eps){
 bool MPCWalkgen::isSparseRotationMatrix (const MatrixXd & rot1)
 {
 	int N = rot1.rows() / 2;
-	bool result = true;
+	bool solution = true;
 	for (int i=0; i<2*N; ++i)
 		for (int j=0; j<2*N; ++j)
-			result = result && ( rot1(i,j) == 0
+			solution = solution && ( rot1(i,j) == 0
 					|| (i==j) || (i==j+N) || (i+N==j) );
-	return result;
+	return solution;
 }
 
 //

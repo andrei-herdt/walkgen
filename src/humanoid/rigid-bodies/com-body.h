@@ -26,14 +26,14 @@ namespace MPCWalkgen{
               const Interpolation * interpolation);
       virtual ~CoMBody();
 
-      virtual void interpolate(MPCSolution & result, double currentTime, const Reference & velRef);
+      virtual void interpolate(MPCSolution & solution, double currentTime, const Reference & velRef);
 
     protected:
       virtual void computeDynamicsMatrices(LinearDynamics & dyn,
                                            double S, double T, int N, DynamicMatrixType type);
 
     private:
-      void interpolateTrunkOrientation(MPCSolution & result,
+      void interpolateTrunkOrientation(MPCSolution & solution,
                                        double /*currentTime*/, const Reference & velRef);
 
 

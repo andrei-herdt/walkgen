@@ -54,7 +54,7 @@ int main ()
   qp.getPrimalSolution(x);
 
 
-  bool result = ((fabs(x[0] + 1) < 1e-9)  && (fabs(x[1] - 1) < 1e-9));
+  bool solution = ((fabs(x[0] + 1) < 1e-9)  && (fabs(x[1] - 1) < 1e-9));
 
   std::cout << "solution : " << x[0] << " " << x[1] << std::endl;
 
@@ -64,5 +64,5 @@ int main ()
   delete[] bu;
   delete[] bl;
 
-  return (result == true)? 0 : 1;
+  return (solution == true)? 0 : 1;
 }

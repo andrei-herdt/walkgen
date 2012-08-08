@@ -115,11 +115,11 @@ void QPGenerator::BuildProblem(MPCSolution &solution) {
 
 }
 
-void QPGenerator::buildObjective(const MPCSolution &result) {
+void QPGenerator::buildObjective(const MPCSolution &solution) {
 
   // Choose the precomputed element depending on the nb of "feedback-recomputations" until new qp-sample
-  int precomputedMatrixNumber = generalData_->nbFeedbackSamplesLeft(result.supportStates_vec[1].previousSamplingPeriod);
-  precomputedMatrixNumber += ponderation_->activePonderation *generalData_->nbFeedbackSamplesStandard();
+  int precomputedMatrixNumber = generalData_->nbFeedbackSamplesLeft(solution.supportStates_vec[1].previousSamplingPeriod);
+  precomputedMatrixNumber += ponderation_->activePonderation * generalData_->nbFeedbackSamplesStandard();
 
   const BodyState &CoM = robot_->body(COM)->state();
   const SelectionMatrices &state = preview_->selectionMatrices();
@@ -128,7 +128,7 @@ void QPGenerator::buildObjective(const MPCSolution &result) {
 
   QPMatrix &Q = solver_->matrix(matrixQ);
 
-  int nbsteps_previewed = result.supportStates_vec.back().stepNumber;
+  int nbsteps_previewed = solution.supportStates_vec.back().stepNumber;
   int nbsamples = generalData_->nbsamples_qp;
 
   //solver_->nbvar(2*nbsamples + 2*nbsteps_previewed);
@@ -196,76 +196,76 @@ void QPGenerator::buildObjective(const MPCSolution &result) {
   HY += pconstRef_[precomputedMatrixNumber]*velRef_->global.y;
 
   if (nbsteps_previewed>0){
-    tmpVec_ = state.VT*HX;
-    solver_->vector(vectorP).addTerm(tmpVec_, 2*nbsamples);
-    tmpVec_ = state.VT*HY;
-    solver_->vector(vectorP).addTerm(tmpVec_, 2*nbsamples+nbsteps_previewed);
+    tmpVec_ = state.VT * HX;
+    solver_->vector(vectorP).addTerm(tmpVec_, 2 * nbsamples);
+    tmpVec_ = state.VT * HY;
+    solver_->vector(vectorP).addTerm(tmpVec_, 2 * nbsamples + nbsteps_previewed);
   }
 
   H << HX, HY;
-  H = rot*H;
+  H = rot * H;
 
   solver_->vector(vectorP).addTerm(H, 0 );
 
 }
 
-void QPGenerator::buildConstraints(const MPCSolution &result){
-  int nbsteps_previewed = result.supportStates_vec.back().stepNumber;
+void QPGenerator::buildConstraints(const MPCSolution &solution){
+  int nbsteps_previewed = solution.supportStates_vec.back().stepNumber;
 
-  buildConstraintsCOP(result);
+  buildConstraintsCOP(solution);
   if (nbsteps_previewed>0){
-    buildInequalitiesFeet(result);
-    buildConstraintsFeet(result);
+    buildInequalitiesFeet(solution);
+    buildConstraintsFeet(solution);
   }
 }
 
-void QPGenerator::computeWarmStart(MPCSolution &result){
+void QPGenerator::computeWarmStart(MPCSolution &solution){
 
   // Initialize:
   // -----------
-  int nbSteps = result.supportStates_vec.back().stepNumber;
+  int nbSteps = solution.supportStates_vec.back().stepNumber;
   int nbStepsMax = generalData_->nbsamples_qp;
 
   int nbFC = 5;// Number of foot constraints per step TODO: can be read?
   int nbSamples = generalData_->nbsamples_qp;
-  result.initialSolution.resize(4*nbSamples + 4*nbSteps);//TODO: 2*nbSamples+2*nbSteps
+  solution.initialSolution.resize(4*nbSamples + 4*nbSteps);//TODO: 2*nbSamples+2*nbSteps
   //TODO: resize necessary?
 
   // Preview active set:
   // -------------------
-  int size = result.initialConstraints.rows();//TODO: size of what?
-  VectorXi initialConstraintTmp = result.initialConstraints;//TODO: Copy not necessary for shifting
-  double TimeFactor = result.supportStates_vec[1].sampleWeight;//TODO: TimeFactor? sampleWeight??
+  int size = solution.initialConstraints.rows();//TODO: size of what?
+  VectorXi initialConstraintTmp = solution.initialConstraints;//TODO: Copy not necessary for shifting
+  double TimeFactor = solution.supportStates_vec[1].sampleWeight;//TODO: TimeFactor? sampleWeight??
   int shiftCtr = 0;
   if (fabs(TimeFactor-1.) < EPSILON) {
     shiftCtr = 1;//if sampleWeight == 1
   }
   if (size >= 2*nbSamples){//TODO: Verification wouldn't be necessary without copying
     // Shift active set by
-    result.initialConstraints.segment(0,         nbSamples-1) = initialConstraintTmp.segment(shiftCtr,    nbSamples-1);
-    result.initialConstraints.segment(nbSamples, nbSamples-1) = initialConstraintTmp.segment(shiftCtr+nbSamples, nbSamples-1);
+    solution.initialConstraints.segment(0,         nbSamples-1) = initialConstraintTmp.segment(shiftCtr,    nbSamples-1);
+    solution.initialConstraints.segment(nbSamples, nbSamples-1) = initialConstraintTmp.segment(shiftCtr+nbSamples, nbSamples-1);
 
     // New final ZMP elements are old final elements
-    result.initialConstraints(  nbSamples-1) = initialConstraintTmp(  nbSamples-1);
-    result.initialConstraints(2*nbSamples-1) = initialConstraintTmp(2*nbSamples-1);
+    solution.initialConstraints(  nbSamples-1) = initialConstraintTmp(  nbSamples-1);
+    solution.initialConstraints(2*nbSamples-1) = initialConstraintTmp(2*nbSamples-1);
 
     // Foot constraints are not shifted
-    result.initialConstraints.segment(2*nbSamples          , nbFC*nbSteps)=
+    solution.initialConstraints.segment(2*nbSamples          , nbFC*nbSteps)=
       initialConstraintTmp.segment (2*nbSamples          , nbFC*nbSteps);
-    result.initialConstraints.segment(2*nbSamples+nbFC*nbSteps, nbFC*(nbStepsMax-nbSteps))=
+    solution.initialConstraints.segment(2*nbSamples+nbFC*nbSteps, nbFC*(nbStepsMax-nbSteps))=
       initialConstraintTmp.segment (2*nbSamples+nbFC*nbSteps, nbFC*(nbStepsMax-nbSteps));
   } else {
-    result.initialConstraints = VectorXi::Zero(2*nbSamples+(4+nbFC)*nbStepsMax);//TODO: Why this value?
+    solution.initialConstraints = VectorXi::Zero(2*nbSamples+(4+nbFC)*nbStepsMax);//TODO: Why this value?
   }
 
   //TODO: Checked until here.
 
   // Compute feasible initial ZMP and foot positions:
   // ------------------------------------------------
-  std::vector<SupportState>::iterator prwSS_it = result.supportStates_vec.begin();
+  std::vector<SupportState>::iterator prwSS_it = solution.supportStates_vec.begin();
   ++prwSS_it;//Point at the first previewed support state
 
-  SupportState currentSupport = result.supportStates_vec.front();
+  SupportState currentSupport = solution.supportStates_vec.front();
   // if in transition phase
   if (prwSS_it->stateChanged){
     currentSupport = *prwSS_it;
@@ -290,9 +290,9 @@ void QPGenerator::computeWarmStart(MPCSolution &result){
       shiftx=shifty=0;
       noActiveConstraints=true;
       for(int k=0;k<nbFC;++k){
-        if (result.initialConstraints(k+2*nbSamples+j*nbFC)!=0){
+        if (solution.initialConstraints(k+2*nbSamples+j*nbFC)!=0){
           int k2=(k+1)%5; // k(4) = k(0)
-          if (result.initialConstraints(k2+2*nbSamples+j*nbFC)!=0){
+          if (solution.initialConstraints(k2+2*nbSamples+j*nbFC)!=0){
             shiftx=FootFeasibilityEdges.x(k2);
             shifty=FootFeasibilityEdges.y(k2);
           }else{
@@ -312,8 +312,8 @@ void QPGenerator::computeWarmStart(MPCSolution &result){
       currentSupport.y += shifty;
 
       // Set the new position into initial solution vector
-      result.initialSolution(2*nbSamples+j) = currentSupport.x;
-      result.initialSolution(2*nbSamples+nbSteps+j) = currentSupport.y;
+      solution.initialSolution(2*nbSamples+j) = currentSupport.x;
+      solution.initialSolution(2*nbSamples+nbSteps+j) = currentSupport.y;
       ++j;
     }
     // Place the ZMP on active constraints
@@ -321,35 +321,35 @@ void QPGenerator::computeWarmStart(MPCSolution &result){
     noActiveConstraints=true;
     int k1=-1;
     int k2=-1;
-    if (result.initialConstraints(0+i*2)==1){
-      if (result.initialConstraints(nbSamples+i*2)==1){
+    if (solution.initialConstraints(0+i*2)==1){
+      if (solution.initialConstraints(nbSamples+i*2)==1){
         k2=1;
         noActiveConstraints=false;
-      }else if (result.initialConstraints(nbSamples+i*2)==2){
+      }else if (solution.initialConstraints(nbSamples+i*2)==2){
         k2=0;
         noActiveConstraints=false;
-      }else if (result.initialConstraints(nbSamples+i*2)==0){
+      }else if (solution.initialConstraints(nbSamples+i*2)==0){
         k1=0;
         k2=1;
         noActiveConstraints=false;
       }
-    }else if (result.initialConstraints(0+i*2)==2){
-      if (result.initialConstraints(nbSamples+i*2)==1){
+    }else if (solution.initialConstraints(0+i*2)==2){
+      if (solution.initialConstraints(nbSamples+i*2)==1){
         k2=2;
         noActiveConstraints=false;
-      }else if (result.initialConstraints(nbSamples+i*2)==2){
+      }else if (solution.initialConstraints(nbSamples+i*2)==2){
         k2=3;
         noActiveConstraints=false;
-      }else if (result.initialConstraints(nbSamples+i*2)==0){
+      }else if (solution.initialConstraints(nbSamples+i*2)==0){
         k1=3;
         k2=2;
         noActiveConstraints=false;
       }
-    }else if (result.initialConstraints(nbSamples+i*2)==1){
+    }else if (solution.initialConstraints(nbSamples+i*2)==1){
       k1=2;
       k2=1;
       noActiveConstraints=false;
-    }else if (result.initialConstraints(nbSamples+i*2)==2){
+    }else if (solution.initialConstraints(nbSamples+i*2)==2){
       k1=0;
       k2=3;
       noActiveConstraints=false;
@@ -365,15 +365,15 @@ void QPGenerator::computeWarmStart(MPCSolution &result){
       }
     }
 
-    result.initialSolution(i) = shiftx;
-    result.initialSolution(nbSamples+i) = shifty;
+    solution.initialSolution(i) = shiftx;
+    solution.initialSolution(nbSamples+i) = shifty;
     ++prwSS_it;
 
   }
 
 }
 
-void QPGenerator::computeReferenceVector(const MPCSolution &result){
+void QPGenerator::computeReferenceVector(const MPCSolution &solution){
 
   if (velRef_->global.x.rows() != generalData_->nbsamples_qp){
     velRef_->global.x.resize(generalData_->nbsamples_qp);
@@ -382,47 +382,87 @@ void QPGenerator::computeReferenceVector(const MPCSolution &result){
 
   double YawTrunk;
   for (int i=0;i<generalData_->nbsamples_qp;++i){
-    YawTrunk = result.supportStates_vec[i+1].yaw;
+    YawTrunk = solution.supportStates_vec[i+1].yaw;
     velRef_->global.x(i) = velRef_->local.x(i)*cos(YawTrunk)-velRef_->local.y(i)*sin(YawTrunk);
     velRef_->global.y(i) = velRef_->local.x(i)*sin(YawTrunk)+velRef_->local.y(i)*cos(YawTrunk);
   }
 
 }
 
-void QPGenerator::convertCopToJerk(MPCSolution &result){
+void QPGenerator::ConvertCopToJerk(MPCSolution &solution){
   int nbsamples = generalData_->nbsamples_qp;
 
-  const SelectionMatrices &State = preview_->selectionMatrices();
-  const MatrixXd &rot = preview_->rotationMatrix();
+  const SelectionMatrices &select = preview_->selectionMatrices();
+  const MatrixXd &rot_mat = preview_->rotationMatrix();
   const BodyState &CoM = robot_->body(COM)->state();
   const LinearDynamics &CoP = robot_->body(COM)->dynamics(COP);
 
-  VectorXd sx = result.qpSolution.segment(0, 2);
-  VectorXd sy = result.qpSolution.segment(nbsamples, 2);
 
+  VectorXd sol_x_vec = solution.qpSolution.segment(0, nbsamples);//TODO: Solution should not be overwritten
+  VectorXd sol_y_vec = solution.qpSolution.segment(nbsamples, nbsamples);
+  int nbsteps = solution.supportStates_vec.back().stepNumber;
+  const VectorXd feet_x_vec = solution.qpSolution.segment(2 * nbsamples, nbsteps);
+  const VectorXd feet_y_vec = solution.qpSolution.segment(2 * nbsamples + nbsteps, nbsteps);
+
+
+  int nbsamples_interp = 1;
+  if (generalData_->interpolate_preview == true) {
+    nbsamples_interp = nbsamples;
+  }
+
+  VectorXd &cop_prw_x_vec = solution.cop_prw.pos.x_vec;
+  VectorXd &cop_prw_y_vec = solution.cop_prw.pos.y_vec;//TODO: Resize OK?
+  //std::vector<SupportState>::iterator ss_it = solution.SupportStates_vec.begin();
+  VectorXd Vpx =select.V * feet_x_vec;
+  VectorXd Vpy =select.V * feet_y_vec;
+  cop_prw_x_vec.resize(nbsamples_interp);
+  cop_prw_y_vec.resize(nbsamples_interp);
+  for (int s = 0; s < nbsamples_interp; ++s) {
+    // Rotate: Rx*x - Ry*y;
+    cop_prw_x_vec(s) = 
+      rot_mat(s, s) * sol_x_vec(s) - rot_mat(s, nbsamples + s) * sol_y_vec(s);
+    cop_prw_y_vec(s) = 
+       rot_mat(nbsamples + s, nbsamples + s) * sol_y_vec(s) - rot_mat(nbsamples + s, s) * sol_x_vec(s);
+    // Add to global coordinates
+    cop_prw_x_vec(s) += select.VcX(s) + Vpx(s);
+    cop_prw_y_vec(s) += select.VcY(s) + Vpy(s);
+
+  }
+  // Transform to jerk trajectory
+  solution.com_prw.jerk.x_vec.resize(nbsamples_interp);
+  solution.com_prw.jerk.y_vec.resize(nbsamples_interp);
+  cop_prw_x_vec -= CoP.S * CoM.x;
+  solution.com_prw.jerk.x_vec = CoP.UInv * cop_prw_x_vec;
+  cop_prw_y_vec -= CoP.S * CoM.y;
+  solution.com_prw.jerk.y_vec = CoP.UInv * cop_prw_y_vec;
+
+  //TODO: We don't need the rest
   // Vpx(0,0) and Vpy(0,0) always equal to 0 because the first iteration always on the current foot and never on previewed steps
   /*
-  const VectorXd px = result.solution.segment(2*nbsamples,         nbSteps);
-  const VectorXd py = result.solution.segment(2*nbsamples+nbSteps, nbSteps);
+  const VectorXd px = solution.solution.segment(2*nbsamples,         nbSteps);
+  const VectorXd py = solution.solution.segment(2*nbsamples+nbSteps, nbSteps);
   VectorXd Vpx;
   VectorXd Vpy;
   if (nbSteps>0){
-  Vpx =State.V*px;
-  Vpy =State.V*py;
+  Vpx =select.V*px;
+  Vpy =select.V*py;
   }else{
   Vpx=VectorXd::Zero(nbsamples);
   Vpy=VectorXd::Zero(nbsamples);
   }
   */
 
+  // Compute ZMP wrt the inertial frame:
+  // -----------------------------------
   // TODO: The jerk is computed only for the first instant and copied for the whole preview period!!
+  
   double zx;
-  zx =(rot.block(0,0,1,2)*sx - rot.block(0,nbsamples,1,2)*sy)(0,0);
-  zx+=/*Vpx(0,0)+*/State.VcX(0,0);
+  zx =(rot_mat.block(0,0,1,2) * sol_x_vec.segment(0, 2) - rot_mat.block(0,nbsamples,1,2)*sol_y_vec.segment(0, 2))(0,0);
+  zx+=/*Vpx(0,0)+*/select.VcX(0,0);
 
   double zy;
-  zy =(rot.block(nbsamples,nbsamples,1,2)*sy - rot.block(nbsamples,0,1,2)*sx)(0,0);
-  zy+=/*Vpy(0,0)+*/State.VcY(0,0);
+  zy =(rot_mat.block(nbsamples,nbsamples,1,2)*sol_y_vec.segment(0, 2) - rot_mat.block(nbsamples,0,1,2)*sol_x_vec.segment(0, 2))(0,0);
+  zy+=/*Vpy(0,0)+*/select.VcY(0,0);
 
   double X;
   double Y;
@@ -431,19 +471,19 @@ void QPGenerator::convertCopToJerk(MPCSolution &result){
   zy -= (CoP.S.block(0,0,1,3) * CoM.y)(0,0) ;
   Y  =  CoP.UInv(0,0) * zy;
 
-  result.qpSolution.segment(0, nbsamples).fill(X);
-  result.qpSolution.segment(nbsamples, nbsamples).fill(Y);
+  solution.qpSolution.segment(0, nbsamples).fill(X);
+  solution.qpSolution.segment(nbsamples, nbsamples).fill(Y);
 
 }
 
-void QPGenerator::buildInequalitiesFeet(const MPCSolution &result){
+void QPGenerator::buildInequalitiesFeet(const MPCSolution &solution){
 
   int nbIneq = 5;
-  int nbSteps = result.supportStates_vec.back().stepNumber;
+  int nbSteps = solution.supportStates_vec.back().stepNumber;
 
   feetInequalities_.resize(nbIneq * nbSteps , nbSteps);
 
-  std::vector<SupportState>::const_iterator prwSS_it = result.supportStates_vec.begin();
+  std::vector<SupportState>::const_iterator prwSS_it = solution.supportStates_vec.begin();
   prwSS_it++;//Point at the first previewed instant
   for( int i = 0; i < generalData_->nbsamples_qp; ++i ){
     //foot positioning constraints
@@ -464,35 +504,35 @@ void QPGenerator::buildInequalitiesFeet(const MPCSolution &result){
 
 }
 
-void QPGenerator::buildConstraintsFeet(const MPCSolution &result){
+void QPGenerator::buildConstraintsFeet(const MPCSolution &solution){
 
-  int nbsteps_previewed = result.supportStates_vec.back().stepNumber;
-  const SelectionMatrices &State = preview_->selectionMatrices();
+  int nbsteps_previewed = solution.supportStates_vec.back().stepNumber;
+  const SelectionMatrices &select = preview_->selectionMatrices();
   int nbsamples = generalData_->nbsamples_qp;
 
-  tmpMat_.noalias() = feetInequalities_.DX * State.Vf;
+  tmpMat_.noalias() = feetInequalities_.DX * select.Vf;
   solver_->matrix(matrixA).addTerm(tmpMat_,  0,  2 * nbsamples);
 
-  tmpMat_.noalias() = feetInequalities_.DY * State.Vf;
+  tmpMat_.noalias() = feetInequalities_.DY * select.Vf;
   solver_->matrix(matrixA).addTerm(tmpMat_,  0, 2 * nbsamples + nbsteps_previewed);
 
   solver_->vector(vectorBL).addTerm(feetInequalities_.Dc, 0);
 
-  tmpVec_ =  feetInequalities_.DX * State.VcfX;
-  tmpVec_ += feetInequalities_.DY * State.VcfY;
+  tmpVec_ =  feetInequalities_.DX * select.VcfX;
+  tmpVec_ += feetInequalities_.DY * select.VcfY;
   solver_->vector(vectorBL).addTerm(tmpVec_,  0);
 
   solver_->vector(vectorBU)().segment(0, tmpVec_.size()).fill(10e10);
 }
 
-void QPGenerator::buildConstraintsCOP(const MPCSolution &result) {
+void QPGenerator::buildConstraintsCOP(const MPCSolution &solution) {
 
   int nbsamples = generalData_->nbsamples_qp;
-  std::vector<SupportState>::const_iterator prwSS_it = result.supportStates_vec.begin();
+  std::vector<SupportState>::const_iterator prwSS_it = solution.supportStates_vec.begin();
 
   robot_->convexHull(hull, CoPHull, *prwSS_it, false, false);
 
-  int nbsteps_previewed = result.supportStates_vec.back().stepNumber;
+  int nbsteps_previewed = solution.supportStates_vec.back().stepNumber;
   int size = 2 * nbsamples + 2 * nbsteps_previewed;
   tmpVec_.resize(size);
   tmpVec2_.resize(size);
@@ -522,39 +562,39 @@ void QPGenerator::buildConstraintsCOP(const MPCSolution &result) {
 
 
 
-void QPGenerator::display(const MPCSolution &result, const std::string &filename) const
+void QPGenerator::display(const MPCSolution &solution, const std::string &filename) const
 {
   int nbsamples = generalData_->nbsamples_qp;
 
-  const SelectionMatrices &State = preview_->selectionMatrices();
+  const SelectionMatrices &select = preview_->selectionMatrices();
   const MatrixXd &rot = preview_->rotationMatrix();
   const BodyState &CoM = robot_->body(COM)->state();
   const LinearDynamics &CoP = robot_->body(COM)->dynamics(COP);
-  int nbSteps =  result.supportStates_vec.back().stepNumber;
+  int nbSteps =  solution.supportStates_vec.back().stepNumber;
 
-  const VectorXd &sx = result.qpSolution.segment(0, nbsamples);
-  const VectorXd &sy = result.qpSolution.segment(nbsamples, nbsamples);
+  const VectorXd &sol_x_vec = solution.qpSolution.segment(0, nbsamples);
+  const VectorXd &sol_y_vec = solution.qpSolution.segment(nbsamples, nbsamples);
 
-  const VectorXd px = result.qpSolution.segment(2*nbsamples,         nbSteps);
-  const VectorXd py = result.qpSolution.segment(2*nbsamples+nbSteps, nbSteps);
+  const VectorXd px = solution.qpSolution.segment(2*nbsamples,         nbSteps);
+  const VectorXd py = solution.qpSolution.segment(2*nbsamples+nbSteps, nbSteps);
 
   VectorXd Vpx;
   VectorXd Vpy;
   if (nbSteps > 0){
-    Vpx =State.V*px;
-    Vpy =State.V*py;
+    Vpx =select.V*px;
+    Vpy =select.V*py;
   } else {
     Vpx=VectorXd::Zero(nbsamples);
     Vpy=VectorXd::Zero(nbsamples);
   }
 
   VectorXd zx(nbsamples);
-  zx = rot.block(0,0,nbsamples,nbsamples)*sx -rot.block(0,nbsamples,nbsamples,nbsamples)*sy;
-  zx += Vpx+State.VcX;
+  zx = rot.block(0,0,nbsamples,nbsamples)*sol_x_vec -rot.block(0,nbsamples,nbsamples,nbsamples)*sol_y_vec;
+  zx += Vpx+select.VcX;
 
   VectorXd zy(nbsamples);
-  zy = rot.block(nbsamples,nbsamples,nbsamples,nbsamples)*sy -rot.block(nbsamples,0,nbsamples,nbsamples)*sx;
-  zy += Vpy+State.VcY;
+  zy = rot.block(nbsamples,nbsamples,nbsamples,nbsamples)*sol_y_vec -rot.block(nbsamples,0,nbsamples,nbsamples)*sol_x_vec;
+  zy += Vpy+select.VcY;
 
   VectorXd X;
   VectorXd Y;
@@ -606,8 +646,8 @@ void QPGenerator::display(const MPCSolution &result, const std::string &filename
 
 
 
-  SupportState currentSupport = result.supportStates_vec.front();
-  std::vector<SupportState>::const_iterator prwSS_it = result.supportStates_vec.begin();
+  SupportState currentSupport = solution.supportStates_vec.front();
+  std::vector<SupportState>::const_iterator prwSS_it = solution.supportStates_vec.begin();
 
 
   int j = 0, b = 0;
@@ -645,20 +685,20 @@ void QPGenerator::display(const MPCSolution &result, const std::string &filename
       ConvexHull FootFeasibilityEdges = robot_->convexHull(FootHull, *prwSS_it, false);
 
       if (prwSS_it->stepNumber == 0) {
-        Xfoot=result.supportStates_vec[0].x;
-        Yfoot=result.supportStates_vec[0].y;
+        Xfoot=solution.supportStates_vec[0].x;
+        Yfoot=solution.supportStates_vec[0].y;
       } else {
 
-        Xfoot=result.qpSolution(2*generalData_->nbsamples_qp+j);
-        Yfoot=result.qpSolution(2*generalData_->nbsamples_qp+nbSteps+j);
+        Xfoot=solution.qpSolution(2*generalData_->nbsamples_qp+j);
+        Yfoot=solution.qpSolution(2*generalData_->nbsamples_qp+nbSteps+j);
         if (j+1<nbSteps) {
           j++;
         }
       }
 
       if (prwSS_it->inTransitionalDS){
-        Xfoot=result.supportStates_vec[1].x;
-        Yfoot=result.supportStates_vec[1].y;
+        Xfoot=solution.supportStates_vec[1].x;
+        Yfoot=solution.supportStates_vec[1].y;
       }
 
       //display COP constraints

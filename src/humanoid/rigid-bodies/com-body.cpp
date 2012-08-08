@@ -22,9 +22,9 @@ void CoMBody::interpolate(MPCSolution &solution, double currentTime, const Refer
 
   // TODO: Only in debug mode
   solution.com_prw.pos.x_vec = interpolation_->Interpolate(dynamics(POSITION), 
-    state_.x, solution.qpSolution.segment(0, generalData_->nbsamples_qp));
+    state_.x, solution.com_prw.jerk.x_vec);
   solution.com_prw.pos.y_vec = interpolation_->Interpolate(dynamics(POSITION), 
-    state_.y, solution.qpSolution.segment(0, generalData_->nbsamples_qp));
+    state_.y, solution.com_prw.jerk.y_vec);
 
   // Velocity:
   interpolation_->computeInterpolationByJerk(solution.state_vec[1].CoMTrajX_, solution.state_vec[1].CoMTrajY_, state_,
@@ -32,9 +32,9 @@ void CoMBody::interpolate(MPCSolution &solution, double currentTime, const Refer
                                              solution.qpSolution(generalData_->nbsamples_qp));
     // TODO: Only in debug mode
   solution.com_prw.vel.x_vec = interpolation_->Interpolate(dynamics(VELOCITY), 
-    state_.x, solution.qpSolution.segment(0, generalData_->nbsamples_qp));
+    state_.x, solution.com_prw.jerk.x_vec);
   solution.com_prw.vel.y_vec = interpolation_->Interpolate(dynamics(VELOCITY), 
-    state_.y, solution.qpSolution.segment(0, generalData_->nbsamples_qp));
+    state_.y, solution.com_prw.jerk.y_vec);
 
   // Acceleration:
   interpolation_->computeInterpolationByJerk(solution.state_vec[2].CoMTrajX_, solution.state_vec[2].CoMTrajY_, state_,
@@ -42,9 +42,9 @@ void CoMBody::interpolate(MPCSolution &solution, double currentTime, const Refer
                                              solution.qpSolution(generalData_->nbsamples_qp));
     // TODO: Only in debug mode
   solution.com_prw.acc.x_vec = interpolation_->Interpolate(dynamics(ACCELERATION), 
-    state_.x, solution.qpSolution.segment(0, generalData_->nbsamples_qp));
+    state_.x, solution.com_prw.jerk.x_vec);
   solution.com_prw.acc.y_vec = interpolation_->Interpolate(dynamics(ACCELERATION), 
-    state_.y, solution.qpSolution.segment(0, generalData_->nbsamples_qp));
+    state_.y, solution.com_prw.jerk.y_vec);
 
   // Jerk:
   interpolation_->computeInterpolationByJerk(solution.CoPTrajX, solution.CoPTrajY, state_,
@@ -132,15 +132,15 @@ void CoMBody::computeDynamicsMatrices(LinearDynamics &dyn,
     }
 }
 
-void CoMBody::interpolateTrunkOrientation(MPCSolution &result,
+void CoMBody::interpolateTrunkOrientation(MPCSolution &solution,
                                           double /*currentTime*/, const Reference &velRef){
 
   Eigen::Matrix<double,6,1> factor;
 
 
   double T = generalData_->nbqpsamples_step * generalData_->period_qpsample;/*
-        if (result.supportState_vec[0].phase == ss){
-                T = result.supportState_vec[0].startTime+generalData_->stepPeriod-currentTime;;
+        if (solution.supportState_vec[0].phase == ss){
+                T = solution.supportState_vec[0].startTime+generalData_->stepPeriod-currentTime;;
         }else{
                 T = generalData_->stepPeriod;
         }*/
@@ -148,20 +148,20 @@ void CoMBody::interpolateTrunkOrientation(MPCSolution &result,
 
   int nbSampling = generalData_->nbSamplesControl();
 
-  if (result.state_vec[0].trunkYaw_.rows() != nbSampling){
+  if (solution.state_vec[0].trunkYaw_.rows() != nbSampling){
       for (int i = 0; i < 3; ++i) {
-          result.state_vec[i].trunkYaw_.resize(nbSampling);
+          solution.state_vec[i].trunkYaw_.resize(nbSampling);
         }
     }
 
-  double orientation0 = result.supportTrunkOrientations_vec[0];
+  double orientation0 = solution.supportTrunkOrientations_vec[0];
   double orientation1;
 
-  int size = result.supportTrunkOrientations_vec.size();
+  int size = solution.supportTrunkOrientations_vec.size();
 
 
   if (size >= 2) {
-      orientation1 = result.supportTrunkOrientations_vec[1];
+      orientation1 = solution.supportTrunkOrientations_vec[1];
     } else {
       orientation1 = orientation0;
     }
@@ -173,9 +173,9 @@ void CoMBody::interpolateTrunkOrientation(MPCSolution &result,
   for (int i=0; i < nbSampling; ++i) {
       double ti = (i+1)*generalData_->period_actsample;
 
-      result.state_vec[0].trunkYaw_(i) = p(factor, ti/T);
-      result.state_vec[1].trunkYaw_(i) = dp(factor, ti/T)/T;
-      result.state_vec[2].trunkYaw_(i) = ddp(factor, ti/T)/(T*T);
+      solution.state_vec[0].trunkYaw_(i) = p(factor, ti/T);
+      solution.state_vec[1].trunkYaw_(i) = dp(factor, ti/T)/T;
+      solution.state_vec[2].trunkYaw_(i) = ddp(factor, ti/T)/(T*T);
 
     }
 

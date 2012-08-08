@@ -106,7 +106,7 @@ void QPPreview::previewSupportStates(double firstSamplingPeriod, MPCSolution & s
 // Fill the two rotation matrices.
 //  The indexes not given are supposed to be zero and are not reset
 //  to reduce computation time.
-void QPPreview::computeRotationMatrix(MPCSolution &result){
+void QPPreview::computeRotationMatrix(MPCSolution &solution){
   int N = generalData_->nbsamples_qp;
 
   // check that the elements not on the diagonal are null
@@ -116,22 +116,22 @@ void QPPreview::computeRotationMatrix(MPCSolution &result){
   assert(isDiagonalRotationMatrix(rotationMatrix2_) && "The matrix rotationMatrix2_ is not 2.2 block diagonal");
 
   for (int i=0; i<N; ++i) {
-      double cosYaw = cos(result.supportStates_vec[i+1].yaw);
-      double sinYaw = sin(result.supportStates_vec[i+1].yaw);
+      double cosYaw = cos(solution.supportStates_vec[i+1].yaw);
+      double sinYaw = sin(solution.supportStates_vec[i+1].yaw);
       rotationMatrix_(i  ,i  ) =  cosYaw;
       rotationMatrix_(i+N,i  ) = -sinYaw;
       rotationMatrix_(i  ,i+N) =  sinYaw;
       rotationMatrix_(i+N,i+N) =  cosYaw;
 
-      rotationMatrix2_(2*i  ,2*i  ) =  cosYaw;
+      rotationMatrix2_(2*i  ,2*i  ) =  cosYaw;//TODO: Seems to be not used
       rotationMatrix2_(2*i+1,2*i  ) = -sinYaw;
       rotationMatrix2_(2*i  ,2*i+1) =  sinYaw;
       rotationMatrix2_(2*i+1,2*i+1) =  cosYaw;
     }
 }
 
-void QPPreview::buildSelectionMatrices(MPCSolution & result){
-  const int & NbPrwSteps = result.supportStates_vec.back().stepNumber;
+void QPPreview::buildSelectionMatrices(MPCSolution & solution){
+  const int & NbPrwSteps = solution.supportStates_vec.back().stepNumber;
 
   if (selectionMatrices_.V.cols() != NbPrwSteps){
       selectionMatrices_.V.resize(generalData_->nbsamples_qp,NbPrwSteps);
@@ -152,7 +152,7 @@ void QPPreview::buildSelectionMatrices(MPCSolution & result){
 
 
   std::vector<SupportState>::iterator SS_it;
-  SS_it = result.supportStates_vec.begin();//points at the cur. sup. st.
+  SS_it = solution.supportStates_vec.begin();//points at the cur. sup. st.
   ++SS_it;
   for (int i=0; i<generalData_->nbsamples_qp; i++){
       if (SS_it->stepNumber>0){

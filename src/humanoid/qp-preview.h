@@ -34,9 +34,9 @@ namespace MPCWalkgen{
 
       void previewSamplingTimes(double currenttime, double firstSamplingPeriod, MPCSolution &solution);
 
-      void previewSupportStates(double FirstIterationDynamicsDuration, MPCSolution &result);
+      void previewSupportStates(double FirstIterationDynamicsDuration, MPCSolution &solution);
 
-      void computeRotationMatrix(MPCSolution &result);
+      void computeRotationMatrix(MPCSolution &solution);
 
       inline SelectionMatrices &selectionMatrices(){return selectionMatrices_;}
 
@@ -46,7 +46,7 @@ namespace MPCWalkgen{
 
     private:
 
-      void buildSelectionMatrices(MPCSolution & result);
+      void buildSelectionMatrices(MPCSolution & solution);
 
 
 
@@ -67,11 +67,11 @@ namespace MPCWalkgen{
 */
 
 /*! \fn void MPCWalkgen::QPPreview::previewSupportStates(const double currentTime,
-                                        const double FirstIterationDynamicsDuration,  MPCSolution & result)
+                                        const double FirstIterationDynamicsDuration,  MPCSolution & solution)
 * \brief Preview support states for the defined horizon
 * \param [in] currentTime current time (synchronized with QP sampling time)
 * \param [in] FirstIterationDynamicsDuration Duration of the first iteration
-* \param [out] result
+* \param [out] solution
 */
 
 /*! \fn SelectionMatrix & MPCWalkgen::QPPreview::selectionMatrices()

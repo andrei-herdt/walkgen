@@ -29,7 +29,7 @@ subject to
 2x1 +  x2 ≤ 3
 0 ≤ x1, 0 ≤ x2.
 
-Expected result:
+Expected solution:
 x   = 0.6667, 1.3333
 obj = -8.2222
 */
@@ -74,19 +74,19 @@ bool testQP (QPSolver & qp)
 	xu.fill(1e10);
 	qp.vector(vectorXU).addTerm(xu);
 
-	MPCSolution result;
-	result.reset();
-	result.initialSolution.resize(2);
-	result.initialConstraints.resize(2+3);
+	MPCSolution solution;
+	solution.reset();
+	solution.initialSolution.resize(2);
+	solution.initialConstraints.resize(2+3);
 
-	qp.solve(result.qpSolution, result.constraints,
-		 result.initialSolution, result.initialConstraints,
+	qp.solve(solution.qpSolution, solution.constraints,
+		 solution.initialSolution, solution.initialConstraints,
 		 true);
 
 	Vector2d expectedResult;
 	expectedResult << 2./3., 4./3.;
-	std::cout << result.qpSolution.transpose() << std::endl;
-	bool success = ((result.qpSolution - expectedResult).norm() < 1e-4);
+	std::cout << solution.qpSolution.transpose() << std::endl;
+	bool success = ((solution.qpSolution - expectedResult).norm() < 1e-4);
 	return success;
 }
 

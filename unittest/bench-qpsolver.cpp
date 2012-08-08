@@ -214,9 +214,9 @@ bool testBenchmarkQP (QPSolver &qp, unsigned fDofWb, unsigned fNconstraints)
 
   MPCDebug debug(true);
 
-  MPCSolution result;
-  result.initialSolution.resize(6+fDofWb);
-  result.initialConstraints.resize(fNconstraints+6+fDofWb);
+  MPCSolution solution;
+  solution.initialSolution.resize(6+fDofWb);
+  solution.initialConstraints.resize(fNconstraints+6+fDofWb);
 
   for (unsigned int i=0; i<H_List.size(); i++)
   {
@@ -236,7 +236,7 @@ bool testBenchmarkQP (QPSolver &qp, unsigned fDofWb, unsigned fNconstraints)
 
     qp.vector(vectorXU).addTerm(ub_List.at(i));
 
-    result.reset();
+    solution.reset();
     if (i==0)
     {
 
@@ -244,25 +244,25 @@ bool testBenchmarkQP (QPSolver &qp, unsigned fDofWb, unsigned fNconstraints)
     else
     {
 
-      result.initialSolution = result.qpSolution;
-      result.initialConstraints = result.constraints;
+      solution.initialSolution = solution.qpSolution;
+      solution.initialConstraints = solution.constraints;
     }
 
     debug.getTime(1, true);
-    qp.solve(result.qpSolution, result.constraints,
-             result.initialSolution, result.initialConstraints,
+    qp.solve(solution.qpSolution, solution.constraints,
+             solution.initialSolution, solution.initialConstraints,
              true);
     debug.getTime(1, false);
 
 
     for (unsigned int j=0; j<6+fDofWb; j++)
     {
-      if ((result.qpSolution(j)-solution_List.at(i)(j)) > 0.006 ||
-          (result.qpSolution(j)-solution_List.at(i)(j)) < -0.006)
+      if ((solution.qpSolution(j)-solution_List.at(i)(j)) > 0.006 ||
+          (solution.qpSolution(j)-solution_List.at(i)(j)) < -0.006)
       {
         std::cout << "i: " << i
                   << " j: " << j
-                  << " " << result.qpSolution(j)
+                  << " " << solution.qpSolution(j)
                   << " " << solution_List.at(i)(j) << std::endl;
         isSuccess = false;
       }

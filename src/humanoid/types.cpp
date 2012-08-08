@@ -25,8 +25,6 @@ void RelativeInequalities::resize(int rows, int cols){
 
 }
 
-
-
 ConvexHull::ConvexHull()
 :x(Eigen::VectorXd::Zero(0))
 ,y(Eigen::VectorXd::Zero(0))

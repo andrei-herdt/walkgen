@@ -15,11 +15,11 @@ FootBody::FootBody(const MPCData *generalData,
 
 FootBody::~FootBody(){}
 
-void FootBody::interpolate(MPCSolution &result, double currentTime, const Reference &/*velRef*/) {
+void FootBody::interpolate(MPCSolution &solution, double currentTime, const Reference &/*velRef*/) {
 
   BodyState nextFootState;
-  SupportState curSupport = result.supportStates_vec.front();
-  SupportState nextSupportState = result.supportStates_vec[1];
+  SupportState curSupport = solution.supportStates_vec.front();
+  SupportState nextSupportState = solution.supportStates_vec[1];
 
   double Txy = 1; // Local horizontal interpolation time
   double Tz = 1; // Local vertical interpolation time
@@ -28,8 +28,8 @@ void FootBody::interpolate(MPCSolution &result, double currentTime, const Refere
   double raiseTime = 0.05; // Time during which the horizontal displacement is blocked
   double freeFlyingTimeLeft = curSupport.timeLimit - period_ds - currentTime;
   double freeFlyingTimeSpent = currentTime - curSupport.startTime;
-  if (result.supportStates_vec[0].phase == SS) {
-      int nbStepsPreviewed = result.supportStates_vec.back().stepNumber;
+  if (solution.supportStates_vec[0].phase == SS) {
+      int nbStepsPreviewed = solution.supportStates_vec.back().stepNumber;
       if (nextSupportState.inTransitionalDS) {
           Txy = curSupport.timeLimit - currentTime;
           nextFootState.x(0) = state_.x(0);
@@ -47,11 +47,11 @@ void FootBody::interpolate(MPCSolution &result, double currentTime, const Refere
           nextFootState.yaw(0) = state_.yaw(0);
         } else {
           Txy = freeFlyingTimeLeft - raiseTime;
-          int nbPreviewedSteps = result.supportStates_vec.back().stepNumber;
+          int nbPreviewedSteps = solution.supportStates_vec.back().stepNumber;
           if (nbPreviewedSteps > 0) {
-              nextFootState.x(0) = result.qpSolution(2 * generalData_->nbsamples_qp);
-              nextFootState.y(0) = result.qpSolution(2 * generalData_->nbsamples_qp + nbStepsPreviewed);
-              nextFootState.yaw(0) = result.supportOrientations_vec[0];
+              nextFootState.x(0) = solution.qpSolution(2 * generalData_->nbsamples_qp);
+              nextFootState.y(0) = solution.qpSolution(2 * generalData_->nbsamples_qp + nbStepsPreviewed);
+              nextFootState.yaw(0) = solution.supportOrientations_vec[0];
             } else {
               nextFootState.x(0) = state_.x(0);
               nextFootState.y(0) = state_.y(0);
@@ -68,16 +68,16 @@ void FootBody::interpolate(MPCSolution &result, double currentTime, const Refere
         }
     }
 
-  computeFootInterpolationByPolynomial(result, X, nbSamples,
+  computeFootInterpolationByPolynomial(solution, X, nbSamples,
                                        state_.x,
                                        Txy, nextFootState.x);
-  computeFootInterpolationByPolynomial(result, Y, nbSamples,
+  computeFootInterpolationByPolynomial(solution, Y, nbSamples,
                                        state_.y,
                                        Txy, nextFootState.y);
-  computeFootInterpolationByPolynomial(result, Z, nbSamples,
+  computeFootInterpolationByPolynomial(solution, Z, nbSamples,
                                        state_.z,
                                        Tz, nextFootState.z);
-  computeFootInterpolationByPolynomial(result, Yaw, nbSamples,
+  computeFootInterpolationByPolynomial(solution, Yaw, nbSamples,
                                        state_.yaw,
                                        Txy, nextFootState.yaw);
 
@@ -139,13 +139,13 @@ VectorXd & FootBody::getFootVector(MPCSolution & solution, Axis axis, unsigned d
     }
 }
 
-void FootBody::computeFootInterpolationByPolynomial(MPCSolution &result, Axis axis, int nbSamples,
+void FootBody::computeFootInterpolationByPolynomial(MPCSolution &solution, Axis axis, int nbSamples,
 						    const Eigen::Vector3d &FootCurrentState,
 						    double T, const Eigen::Vector3d &nextSupportFootState){
 
-  VectorXd &FootTrajState = getFootVector(result, axis, 0);
-  VectorXd &FootTrajVel   = getFootVector(result, axis, 1);
-  VectorXd &FootTrajAcc   = getFootVector(result, axis, 2);
+  VectorXd &FootTrajState = getFootVector(solution, axis, 0);
+  VectorXd &FootTrajVel   = getFootVector(solution, axis, 1);
+  VectorXd &FootTrajAcc   = getFootVector(solution, axis, 2);
 
   if (FootTrajState.rows() != nbSamples){
       FootTrajState.resize(nbSamples);
@@ -153,14 +153,14 @@ void FootBody::computeFootInterpolationByPolynomial(MPCSolution &result, Axis ax
       FootTrajAcc.resize(nbSamples);
     }
 
-  if (result.supportStates_vec[0].foot==footType_){
+  if (solution.supportStates_vec[0].foot==footType_){
       FootTrajState.fill(FootCurrentState(0));
       FootTrajVel.fill(0);
       FootTrajAcc.fill(0);
 
     }else{
 
-      if (result.supportStates_vec[0].phase == DS){
+      if (solution.supportStates_vec[0].phase == DS){
           FootTrajState.fill(FootCurrentState(0));
           FootTrajVel.fill(0);
           FootTrajAcc.fill(0);

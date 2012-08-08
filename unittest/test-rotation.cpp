@@ -134,24 +134,24 @@ bool testCholeskyRotation(int n, std::ofstream &out)
   out <<      "\t\t " << timeM1a << "\t\t " << timeM1b;
   out <<      "\t\t " << timeM2a << "\t\t " << timeM2b << std::endl;
 
-  bool result = true;
-  result = compare (rotatedChol0, rotatedChol_1a, 1e-12);
-  if (!result)
+  bool solution = true;
+  solution = compare (rotatedChol0, rotatedChol_1a, 1e-12);
+  if (!solution)
 	  std::cerr << " Failed comparison for rotatedChol1_a " << std::endl;
 
-  result = compare (rotatedChol0, rotatedChol_1b, 1e-12);
-  if (!result)
+  solution = compare (rotatedChol0, rotatedChol_1b, 1e-12);
+  if (!solution)
 	  std::cerr << " Failed comparison for rotatedChol_1b " << std::endl;
 
-  result = compare (rotatedChol0, rotatedChol_2a, 1e-12);
-  if (!result)
+  solution = compare (rotatedChol0, rotatedChol_2a, 1e-12);
+  if (!solution)
 	  std::cerr << " Failed comparison for rotatedChol_2a " << std::endl;
 
-  result = compare (rotatedChol0, rotatedChol_2b, 1e-12);
-  if (!result)
+  solution = compare (rotatedChol0, rotatedChol_2b, 1e-12);
+  if (!solution)
 	std::cerr << " Failed comparison for rotatedChol_2b " << std::endl;
 
-  return result;
+  return solution;
 }
 
 
@@ -199,24 +199,24 @@ bool testRotation2(int n, int nbSP, std::ofstream &/*out*/)
 	gettimeofday(&tend,0);
 	double timeM2= (1e6*tend.tv_sec + tend.tv_usec) -(1e6*tdeb.tv_sec + tdeb.tv_usec);
 
-	// end of the tests, display the result.
+	// end of the tests, display the solution.
 	std::cout << "(" << n << ", " << nbSP << ")\t Init   " << timeM0
 			<< "\tMeth1   " << timeM1  << "\tMeth2   " << timeM2 << std::endl;
 
 	// Check that the results are the same for the three methods.
-	bool result = true;
+	bool solution = true;
 	if (! compare (test0, test1, 1e-12) )
 	{
 	  std::cerr << " Failed comparison between matrix 0 and 1 " << std::endl;
-	  result = false;
+	  solution = false;
 	}
 
 	if (! compare (test0, test2, 1e-12) )
 	{
 	  std::cerr << " Failed comparison between matrix 0 and 1 " << std::endl;
-	  result = false;
+	  solution = false;
 	}
-	return result;
+	return solution;
 
 }
 
@@ -226,9 +226,9 @@ int main ()
   std::ofstream out;
   std::cout << " Test of the multiplication R * TriangSup * Rt" << std::endl;
   out.open("time_test-rotation.dat");
-  bool result = true;
+  bool solution = true;
   for (unsigned i=1; i<20; ++i)
-	  result = testCholeskyRotation(2*i, out) && result;
+	  solution = testCholeskyRotation(2*i, out) && solution;
 
   out.close();
 
@@ -237,7 +237,7 @@ int main ()
 	  for (unsigned i=0; i<2; ++i)
 		  testRotation2(2*xi, i, out);
 
-  if (result == true)
+  if (solution == true)
     return 0;
   else
     return 1;

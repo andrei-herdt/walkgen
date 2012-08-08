@@ -245,7 +245,7 @@ void Walkgen::BuildProblem() {
 }
 
 void Walkgen::GenerateTrajectories() {
-  generator_->convertCopToJerk(solution_);
+  generator_->ConvertCopToJerk(solution_);
 
   robot_->interpolateBodies(solution_, currentTime_, velRef_);
 
