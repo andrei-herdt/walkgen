@@ -66,10 +66,10 @@ namespace MPCWalkgen{
       QPPonderation * ponderation_;
       const MPCData * generalData_;
 
-      Eigen::VectorXd tmpVec_;
-      Eigen::VectorXd tmpVec2_;
-      Eigen::MatrixXd tmpMat_;
-      Eigen::MatrixXd tmpMat2_;
+      Eigen::VectorXd tmp_vec_;
+      Eigen::VectorXd tmp_vec2_;
+      Eigen::MatrixXd tmp_mat_;
+      Eigen::MatrixXd tmp_mat2_;
 
       RelativeInequalities feetInequalities_;//TODO: Maybe should be instantiated in robot_
 

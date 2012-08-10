@@ -46,6 +46,13 @@ void CoMBody::interpolate(MPCSolution &solution, double currentTime, const Refer
   solution.com_prw.acc.y_vec = interpolation_->Interpolate(dynamics(ACCELERATION), 
     state_.y, solution.com_prw.jerk.y_vec);
 
+  // CoP:
+//    solution.cop_prw.pos.x_vec = interpolation_->Interpolate(dynamics(COP), 
+//    state_.x, solution.com_prw.jerk.x_vec);
+//    solution.cop_prw.pos.y_vec = interpolation_->Interpolate(dynamics(COP), 
+//    state_.y, solution.com_prw.jerk.y_vec);
+
+
   // Jerk:
   interpolation_->computeInterpolationByJerk(solution.CoPTrajX, solution.CoPTrajY, state_,
                                              dynamics(interpolationCoP), solution.qpSolution(0),
