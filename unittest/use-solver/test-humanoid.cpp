@@ -22,9 +22,9 @@ using namespace Eigen;
 using namespace MPCWalkgen;
 
 
-void dumpTrajectory(MPCSolution & solution, std::vector<std::ofstream*> & data_vec);
-bool checkFiles(std::ifstream & f1, std::ifstream & f2);
-int copyFile(const std::string & source, const std::string & destination);
+void dumpTrajectory(MPCSolution &solution, std::vector<std::ofstream*> &data_vec);
+bool checkFiles(std::ifstream &f1, std::ifstream &f2);
+int copyFile(const std::string &source, const std::string &destination);
 
 int main() {
   // Logging:
@@ -205,7 +205,7 @@ void dumpTrajectory(MPCSolution &solution, std::vector<std::ofstream*> &data_vec
   }
 }
 
-bool checkFiles(std::ifstream & fich1, std::ifstream & fich2) {
+bool checkFiles(std::ifstream &fich1, std::ifstream &fich2) {
   bool equal=1;
   if (fich1 && fich2) {
     std::string lignef1;
@@ -220,7 +220,7 @@ bool checkFiles(std::ifstream & fich1, std::ifstream & fich2) {
   return equal;
 }
 
-int copyFile(const std::string & source, const std::string & destination) {
+int copyFile(const std::string &source, const std::string &destination) {
   std::ifstream ifs(source.c_str(), std::ios::binary);
   std::ofstream ofs(destination.c_str(), std::ios::binary);
   ofs << ifs.rdbuf();
