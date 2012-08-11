@@ -107,6 +107,11 @@ void Walkgen::init() {
   assert(generalData_.nbqpsamples_step <= generalData_.nbsamples_qp);
   assert(generalData_.nbqpsamples_dsss <= generalData_.nbsamples_qp);
 
+  solution_.com_act.resize(generalData_.nbSamplesControl());
+  solution_.cop_act.resize(generalData_.nbSamplesControl());
+  solution_.com_prw.resize(generalData_.nbFeedbackSamplesStandard());
+  solution_.cop_prw.resize(generalData_.nbFeedbackSamplesStandard());
+
   // Redistribute the X,Y vectors of variables inside the optimization problems
   VectorXi order(solver_->nbvar_max());
   for (int i = 0; i < generalData_.nbsamples_qp; ++i) {// 0,2,4,1,3,5 (CoM)
@@ -121,8 +126,6 @@ void Walkgen::init() {
   solver_->varOrder(order);
 
   orientPrw_->init(generalData_, robotData_);
-
-  robot_->computeDynamics();
 
   generator_->precomputeObjective();
 
@@ -151,12 +154,12 @@ void Walkgen::init() {
   solver_->Init();
 }
 
-const MPCSolution & Walkgen::online(){
+const MPCSolution &Walkgen::online(){
   currentRealTime_ += generalData_.period_mpcsample;
   return online(currentRealTime_);
 }
 
-const MPCSolution & Walkgen::online(double time){
+const MPCSolution &Walkgen::online(double time){
   currentTime_ = time;
 
   if (time  > next_computation_ - EPSILON) {
@@ -249,7 +252,7 @@ void Walkgen::GenerateTrajectories() {
 
   robot_->interpolateBodies(solution_, currentTime_, velRef_);
 
-  robot_->updateBodyState(solution_);
+  robot_->UpdateState(solution_);
 
   orientPrw_->interpolate_trunk_orientation(robot_);
 
@@ -269,18 +272,18 @@ void Walkgen::IncrementOutputIndex() {
 }
 
 void Walkgen::UpdateOutput() {
-  output_.com.x = solution_.state_vec[0].CoMTrajX_[output_index_];
-  output_.com.y = solution_.state_vec[0].CoMTrajY_[output_index_];
+  output_.com.x = solution_.com_act.pos.x_vec[output_index_];
+  output_.com.y =   solution_.com_act.pos.y_vec[output_index_];
   output_.com.z = robot_->body(COM)->state().z(0);
-  output_.com.dx = solution_.state_vec[1].CoMTrajX_[output_index_];
-  output_.com.dy = solution_.state_vec[1].CoMTrajY_[output_index_];
+  output_.com.dx =   solution_.com_act.vel.x_vec[output_index_];
+  output_.com.dy =   solution_.com_act.vel.y_vec[output_index_];
   output_.com.dz = robot_->body(COM)->state().z(1);
-  output_.com.ddx = solution_.state_vec[2].CoMTrajX_[output_index_];
-  output_.com.ddy = solution_.state_vec[2].CoMTrajY_[output_index_];
+  output_.com.ddx =   solution_.com_act.acc.x_vec[output_index_];
+  output_.com.ddy =   solution_.com_act.acc.y_vec[output_index_];
   output_.com.ddz = robot_->body(COM)->state().z(2);
 
-  output_.cop.x = solution_.CoPTrajX[output_index_];
-  output_.cop.y = solution_.CoPTrajY[output_index_];
+  output_.cop.x =   solution_.cop_act.pos.x_vec[output_index_];
+  output_.cop.y =   solution_.cop_act.pos.y_vec[output_index_];
 
   output_.left_foot.x = solution_.state_vec[0].leftFootTrajX_[output_index_];
   output_.left_foot.y = solution_.state_vec[0].leftFootTrajY_[output_index_];
@@ -322,15 +325,15 @@ void Walkgen::reference(Eigen::VectorXd dx, Eigen::VectorXd dy, Eigen::VectorXd 
 }
 
 
-const SupportState & Walkgen::currentSupportState() const {
+const SupportState &Walkgen::currentSupportState() const {
   return robot_->currentSupport(); }
 
 
-const BodyState & Walkgen::bodyState(BodyType body)const{
+const BodyState &Walkgen::bodyState(BodyType body)const{
   return robot_->body(body)->state();
 }
 
-void Walkgen::bodyState(BodyType body, const BodyState & state){
+void Walkgen::bodyState(BodyType body, const BodyState &state){
   robot_->body(body)->state(state);
 }
 

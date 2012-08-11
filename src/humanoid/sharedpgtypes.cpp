@@ -71,6 +71,14 @@ void MPCSolution::reset(){
   supportTrunkOrientations_vec.resize(0);
 }
 
+void Motion::resize(int size) {
+  pos.x_vec.setZero(size); pos.y_vec.setZero(size); pos.z_vec.setZero(size); pos.yaw_vec.setZero(size);
+  vel.x_vec.setZero(size); vel.y_vec.setZero(size); vel.z_vec.setZero(size); vel.yaw_vec.setZero(size);
+  acc.x_vec.setZero(size); acc.y_vec.setZero(size); acc.z_vec.setZero(size); acc.yaw_vec.setZero(size);
+  jerk.x_vec.setZero(size); jerk.y_vec.setZero(size); jerk.z_vec.setZero(size); jerk.yaw_vec.setZero(size);
+}
+
+
 MPCData::MPCData()
 :period_qpsample(0.1)
 ,period_mpcsample(0.005)

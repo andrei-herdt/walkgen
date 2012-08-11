@@ -2,7 +2,7 @@
 
 using namespace MPCWalkgen;
 
-SelectionMatrices::SelectionMatrices(const MPCData & generalData)
+SelectionMatrices::SelectionMatrices(const MPCData &generalData)
 :V(generalData.nbsamples_qp,generalData.nbsamples_qp)
 ,VT(generalData.nbsamples_qp,generalData.nbsamples_qp)
 ,VcX(generalData.nbsamples_qp)
@@ -38,7 +38,7 @@ ConvexHull::ConvexHull()
 ConvexHull::~ConvexHull() {}
 
 // TODO: Necessary?
-ConvexHull & ConvexHull::operator=(const ConvexHull & hull){
+ConvexHull &ConvexHull::operator=(const ConvexHull &hull){
   x=hull.x;
   y=hull.y;
   z=hull.z;
@@ -82,7 +82,7 @@ void ConvexHull::rotate(double yaw) {
   }
 }
 
-void ConvexHull::computeLinearSystem(const Foot & foot) {
+void ConvexHull::computeLinearSystem(const Foot &foot) {
   double dx,dy,dc,x1,y1,x2,y2;
   unsigned nbRows = x.rows();
 

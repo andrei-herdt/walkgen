@@ -34,10 +34,10 @@ namespace MPCWalkgen{
     inline void useCholesky(bool /*ch*/)
     { }
 
-    virtual void solve(Eigen::VectorXd & qpSolution,
-      Eigen::VectorXi & constraints,
-      Eigen::VectorXd & initialSolution,
-      Eigen::VectorXi & initialConstraints,
+    virtual void solve(Eigen::VectorXd &qpSolution,
+      Eigen::VectorXi &constraints,
+      Eigen::VectorXd &initialSolution,
+      Eigen::VectorXi &initialConstraints,
       bool warmstart);
 
   protected:

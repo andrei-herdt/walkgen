@@ -34,7 +34,7 @@ x   = 0.6667, 1.3333
 obj = -8.2222
 */
 
-bool testQP (QPSolver & qp)
+bool testQP (QPSolver &qp)
 {
 	qp.reset();
 	qp.nbvar(2);

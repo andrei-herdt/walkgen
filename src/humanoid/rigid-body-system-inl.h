@@ -31,8 +31,8 @@ public:
   inline void currentSupport(const SupportState &currentSupport) {
     currentSupport_ = currentSupport;
   };
-  inline RobotData &robot_data() {
-    return robot_data_;
+  inline RobotData &data_robot() {
+    return data_robot_;
   };
   inline RigidBody *com() {
     return com_;

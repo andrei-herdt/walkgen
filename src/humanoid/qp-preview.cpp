@@ -39,7 +39,7 @@ void QPPreview::previewSamplingTimes(double currenttime,
 
 }
 
-void QPPreview::previewSupportStates(double firstSamplingPeriod, MPCSolution & solution){
+void QPPreview::previewSupportStates(double firstSamplingPeriod, MPCSolution &solution){
 
   const BodyState *foot;
   SupportState &currentSupport = robot_->currentSupport();
@@ -130,8 +130,8 @@ void QPPreview::computeRotationMatrix(MPCSolution &solution){
     }
 }
 
-void QPPreview::buildSelectionMatrices(MPCSolution & solution){
-  const int & NbPrwSteps = solution.supportStates_vec.back().stepNumber;
+void QPPreview::buildSelectionMatrices(MPCSolution &solution){
+  const int &NbPrwSteps = solution.supportStates_vec.back().stepNumber;
 
   if (selectionMatrices_.V.cols() != NbPrwSteps){
       selectionMatrices_.V.resize(generalData_->nbsamples_qp,NbPrwSteps);

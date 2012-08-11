@@ -11,7 +11,7 @@ using namespace Eigen;
 
 
 
-void MPCWalkgen::inverse(const MatrixXd & A, MatrixXd & Ap, double eps){
+void MPCWalkgen::inverse(const MatrixXd &A, MatrixXd &Ap, double eps){
 
 
 	FullPivLU<MatrixXd> lu(A);
@@ -27,7 +27,7 @@ void MPCWalkgen::inverse(const MatrixXd & A, MatrixXd & Ap, double eps){
 }
 
 // Every elmt is supposed to be 0, execpted the diagonal.
-bool MPCWalkgen::isSparseRotationMatrix (const MatrixXd & rot1)
+bool MPCWalkgen::isSparseRotationMatrix (const MatrixXd &rot1)
 {
 	int N = rot1.rows() / 2;
 	bool solution = true;
@@ -39,7 +39,7 @@ bool MPCWalkgen::isSparseRotationMatrix (const MatrixXd & rot1)
 }
 
 //
-bool MPCWalkgen::isDiagonalRotationMatrix(const Eigen::MatrixXd & rot)
+bool MPCWalkgen::isDiagonalRotationMatrix(const Eigen::MatrixXd &rot)
 {
 	for (int i=0; i<rot.rows(); ++i)
 	{
@@ -58,7 +58,7 @@ bool MPCWalkgen::isDiagonalRotationMatrix(const Eigen::MatrixXd & rot)
 	return true;
 }
 
-bool MPCWalkgen::isUpperTriangular(const Eigen::MatrixXd & m)
+bool MPCWalkgen::isUpperTriangular(const Eigen::MatrixXd &m)
 {
 	for (int i=0; i<m.rows(); ++i)
 		for (int j=0; j<i; ++j)
@@ -68,7 +68,7 @@ bool MPCWalkgen::isUpperTriangular(const Eigen::MatrixXd & m)
 	return true;
 }
 
-bool MPCWalkgen::hasCholeskyForm(const Eigen::MatrixXd & m)
+bool MPCWalkgen::hasCholeskyForm(const Eigen::MatrixXd &m)
 {
 	//Check that the matrix is upper triangular,  (a)
 	//such as m(2*i,2*i) = m(2*i+1,2*i+1)         (b)
@@ -104,7 +104,7 @@ bool MPCWalkgen::hasCholeskyForm(const Eigen::MatrixXd & m)
 	return true;
 }
 
-void MPCWalkgen::rotateCholeskyMatrix(MatrixXd & mInOut, const MatrixXd & rot)
+void MPCWalkgen::rotateCholeskyMatrix(MatrixXd &mInOut, const MatrixXd &rot)
 {
 	assert(isDiagonalRotationMatrix(rot) && "The matrix rot is not 2.2 block diagonal");
 	assert(hasCholeskyForm(mInOut) && "The cholesky matrix has not the form required for a cholesky matrix");
@@ -123,20 +123,20 @@ void MPCWalkgen::rotateCholeskyMatrix(MatrixXd & mInOut, const MatrixXd & rot)
 	assert(isUpperTriangular(mInOut) && "The cholesky matrix is not upper triangular at the exit of the function");
 }
 
-void MPCWalkgen::computeRM(MatrixXd & mIn, const MatrixXd & rot)
+void MPCWalkgen::computeRM(MatrixXd &mIn, const MatrixXd &rot)
 {
 	assert(isDiagonalRotationMatrix(rot) && "The matrix rot is not 2.2 block diagonal");
 
 	// first step: compute rot*chol
 	for (int i=0; i<mIn.rows()/2; ++i)
 	{
-		const Eigen::Matrix2d & rot_i = rot.block<2,2>(2*i, 2*i);
+		const Eigen::Matrix2d &rot_i = rot.block<2,2>(2*i, 2*i);
 		for (int j=0; j<mIn.cols()/2; ++j)
 			mIn.block<2,2>(2*i, 2*j) = rot_i*mIn.block<2,2>(2*i, 2*j);
 	}
 }
 
-void MPCWalkgen::computeMRt(MatrixXd & mIn, const MatrixXd & rot)
+void MPCWalkgen::computeMRt(MatrixXd &mIn, const MatrixXd &rot)
 {
 	assert(isDiagonalRotationMatrix(rot) && "The matrix rot is not 2.2 block diagonal");
 

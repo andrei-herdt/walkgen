@@ -39,7 +39,7 @@ MatrixXd buildRotationMatrix(int N, double angle){
 // A simple method to compare two matrices.
 // a and b are the two matrics
 // epsilon is the tolerance
-bool compare(const MatrixXd & a, const MatrixXd & b, double epsilon)
+bool compare(const MatrixXd &a, const MatrixXd &b, double epsilon)
 {
 	int numDiff =0;
 

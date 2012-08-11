@@ -70,11 +70,11 @@ typedef struct COMState_s2 COMState2;
     /// \param[in] RightFoot
     /// \param[out] Solution Trunk and Foot orientations
     void preview_orientations(double Time,
-        const Reference & Ref,
+        const Reference &Ref,
         double StepDuration,
-        const BodyState & LeftFoot,
-        const BodyState & RightFoot,
-        MPCSolution & Solution);
+        const BodyState &LeftFoot,
+        const BodyState &RightFoot,
+        MPCSolution &Solution);
 
     /// \brief Interpolate previewed orientation of the trunk
     ///
@@ -83,9 +83,9 @@ typedef struct COMState_s2 COMState2;
 
     /// \name Accessors
     /// \{
-    inline COMState2 const & CurrentTrunkState() const
+    inline COMState2 const &CurrentTrunkState() const
     { return TrunkState_; };
-    inline void CurrentTrunkState(const COMState2 & TrunkState)
+    inline void CurrentTrunkState(const COMState2 &TrunkState)
     { TrunkState_ = TrunkState; };
     inline double SSLength() const
     { return SSPeriod_; };
@@ -118,8 +118,8 @@ typedef struct COMState_s2 COMState2;
     ///
     /// \param[in] Ref
     /// \param[in] CurrentSupport
-    void verify_acceleration_hip_joint(const Reference & Ref,
-        const SupportState & CurrentSupport);
+    void verify_acceleration_hip_joint(const Reference &Ref,
+        const SupportState &CurrentSupport);
 
     /// \brief Verify velocity of hip joint
     /// The velocity is verified only between previewed supports.
@@ -138,7 +138,7 @@ typedef struct COMState_s2 COMState2;
         double PreviewedSupportFoot,
         double PreviewedSupportAngle,
         unsigned StepNumber,
-        const SupportState & CurrentSupport,
+        const SupportState &CurrentSupport,
         double CurrentRightFootAngle,
         double CurrentLeftFootAngle,
         double CurrentLeftFootVelocity,
@@ -155,10 +155,10 @@ typedef struct COMState_s2 COMState2;
     /// \param[in] StepNumber
     ///
     /// \return AngleOK
-    bool verify_angle_hip_joint(const SupportState & CurrentSupport,
+    bool verify_angle_hip_joint(const SupportState &CurrentSupport,
         double PreviewedTrunkAngleEnd,
-        const COMState2 & TrunkState,
-        COMState2 & TrunkStateT,
+        const COMState2 &TrunkState,
+        COMState2 &TrunkStateT,
         double CurrentSupportFootAngle,
         unsigned StepNumber);
 

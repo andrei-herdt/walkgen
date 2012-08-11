@@ -38,25 +38,30 @@ namespace MPCWalkgen{
 		vectorXL
 	};
 
-	enum DynamicMatrixType{//TODO: This can be replaced through POSITION, VELOCITY...
+	enum Derivative {
 		POSITION,
 		VELOCITY,
 		ACCELERATION,
 		JERK,
-		COP,
-		interpolationPos,
-		interpolationVel,
-		interpolationAcc,
-		interpolationCoP
-	};
+		COP
+  };
 
-	struct LinearDynamics{
+  enum SampleRate {
+    QP,
+    ACTUATORS
+  };
+
+	struct LinearDynamicsMatrices{
 		Eigen::MatrixXd S;
 		Eigen::MatrixXd U;
 		Eigen::MatrixXd UT;
 		Eigen::MatrixXd UInv;
 		Eigen::MatrixXd UInvT;
 	};
+
+  struct LinearDynamics {
+    LinearDynamicsMatrices pos, vel, acc, jerk, cop;
+  };
 
 	struct Reference{
 		struct Frame{

@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.250"
+    ComputedModelVersion    "1.252"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Wed Aug 08 17:59:35 2012"
+  LastModifiedDate	  "Sat Aug 11 18:44:12 2012"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:250>"
+  ModelVersionFormat	  "1.%<AutoIncrement:252>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -611,7 +611,7 @@ Model {
       FunctionWithSeparateData off
       System {
 	Name			"MPCSimulation"
-	Location		[848, 74, 1594, 876]
+	Location		[848, 74, 1594, 860]
 	Open			on
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
@@ -628,13 +628,13 @@ Model {
 	  BlockType		  EnablePort
 	  Name			  "Enable"
 	  Ports			  []
-	  Position		  [260, 15, 280, 35]
+	  Position		  [285, 15, 305, 35]
 	}
 	Block {
 	  BlockType		  BusCreator
 	  Name			  "Bus\nCreator"
 	  Ports			  [3, 1]
-	  Position		  [385, 111, 390, 149]
+	  Position		  [410, 111, 415, 149]
 	  ShowName		  off
 	  Inputs		  "3"
 	  DisplayOption		  "bar"
@@ -643,7 +643,7 @@ Model {
 	  BlockType		  BusCreator
 	  Name			  "Bus\nCreator1"
 	  Ports			  [3, 1]
-	  Position		  [390, 211, 395, 249]
+	  Position		  [415, 211, 420, 249]
 	  ShowName		  off
 	  Inputs		  "3"
 	  DisplayOption		  "bar"
@@ -652,7 +652,7 @@ Model {
 	  BlockType		  BusCreator
 	  Name			  "Bus\nCreator2"
 	  Ports			  [3, 1]
-	  Position		  [390, 286, 395, 324]
+	  Position		  [415, 286, 420, 324]
 	  ShowName		  off
 	  Inputs		  "3"
 	  DisplayOption		  "bar"
@@ -660,7 +660,7 @@ Model {
 	Block {
 	  BlockType		  Constant
 	  Name			  "Constant1"
-	  Position		  [45, 165, 155, 185]
+	  Position		  [55, 165, 165, 185]
 	  ShowName		  off
 	  FontName		  "Arial"
 	  FontSize		  8
@@ -668,11 +668,17 @@ Model {
 	  Value			  "[-0.035, 0.22, 0.0]"
 	  OutDataType		  "sfix(16)"
 	  OutScaling		  "2^0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "left_ankle"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
 	}
 	Block {
 	  BlockType		  Constant
 	  Name			  "Constant2"
-	  Position		  [45, 87, 155, 103]
+	  Position		  [55, 87, 165, 103]
 	  ShowName		  off
 	  FontName		  "Arial"
 	  FontSize		  8
@@ -689,7 +695,7 @@ Model {
 	Block {
 	  BlockType		  Constant
 	  Name			  "Constant3"
-	  Position		  [45, 205, 155, 225]
+	  Position		  [55, 205, 165, 225]
 	  ShowName		  off
 	  FontName		  "Arial"
 	  FontSize		  8
@@ -697,11 +703,17 @@ Model {
 	  Value			  "[-0.035, -0.0059, 0.0]"
 	  OutDataType		  "sfix(16)"
 	  OutScaling		  "2^0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "right_ankle"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
 	}
 	Block {
 	  BlockType		  Constant
 	  Name			  "Constant4"
-	  Position		  [45, 245, 155, 265]
+	  Position		  [55, 245, 165, 265]
 	  ShowName		  off
 	  FontName		  "Arial"
 	  FontSize		  8
@@ -709,11 +721,17 @@ Model {
 	  Value			  "0.0"
 	  OutDataType		  "sfix(16)"
 	  OutScaling		  "2^0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "left_yaw"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
 	}
 	Block {
 	  BlockType		  Constant
 	  Name			  "Constant5"
-	  Position		  [45, 125, 155, 145]
+	  Position		  [15, 125, 165, 145]
 	  ShowName		  off
 	  FontName		  "Arial"
 	  FontSize		  8
@@ -723,7 +741,7 @@ Model {
 	  OutScaling		  "2^0"
 	  Port {
 	    PortNumber		    1
-	    Name		    "com_init"
+	    Name		    "com"
 	    RTWStorageClass	    "Auto"
 	    DataLoggingNameMode	    "SignalName"
 	  }
@@ -731,7 +749,7 @@ Model {
 	Block {
 	  BlockType		  Constant
 	  Name			  "Constant6"
-	  Position		  [45, 285, 155, 305]
+	  Position		  [55, 285, 165, 305]
 	  ShowName		  off
 	  FontName		  "Arial"
 	  FontSize		  8
@@ -739,11 +757,17 @@ Model {
 	  Value			  "0.0"
 	  OutDataType		  "sfix(16)"
 	  OutScaling		  "2^0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "right_yaw"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
 	}
 	Block {
 	  BlockType		  Constant
 	  Name			  "Constant7"
-	  Position		  [45, 325, 155, 345]
+	  Position		  [55, 325, 165, 345]
 	  ShowName		  off
 	  FontName		  "Arial"
 	  FontSize		  8
@@ -751,12 +775,18 @@ Model {
 	  Value			  "[0.13, -0.06, 0.0475, -0.0475]"
 	  OutDataType		  "sfix(16)"
 	  OutScaling		  "2^0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "foot_geometry"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
 	}
 	Block {
 	  BlockType		  "S-Function"
 	  Name			  "S-Function"
 	  Ports			  [9, 13]
-	  Position		  [215, 81, 305, 429]
+	  Position		  [240, 81, 330, 429]
 	  FunctionName		  "walkgen_cpp"
 	  Port {
 	    PortNumber		    1
@@ -817,7 +847,7 @@ Model {
 	  BlockType		  Scope
 	  Name			  "Scope"
 	  Ports			  [1]
-	  Position		  [545, 79, 575, 111]
+	  Position		  [570, 79, 600, 111]
 	  Floating		  off
 	  Location		  [86, 40, 1595, 891]
 	  Open			  off
@@ -836,7 +866,7 @@ Model {
 	  BlockType		  Scope
 	  Name			  "Scope1"
 	  Ports			  [1]
-	  Position		  [545, 139, 575, 171]
+	  Position		  [570, 139, 600, 171]
 	  Floating		  off
 	  Location		  [86, 40, 1595, 894]
 	  Open			  off
@@ -853,7 +883,7 @@ Model {
 	  BlockType		  Scope
 	  Name			  "Scope2"
 	  Ports			  [1]
-	  Position		  [545, 249, 575, 281]
+	  Position		  [570, 249, 600, 281]
 	  Floating		  off
 	  Location		  [86, 40, 1595, 894]
 	  Open			  off
@@ -870,7 +900,7 @@ Model {
 	  BlockType		  Scope
 	  Name			  "Scope3"
 	  Ports			  [1]
-	  Position		  [545, 189, 575, 221]
+	  Position		  [570, 189, 600, 221]
 	  Floating		  off
 	  Location		  [86, 40, 1595, 894]
 	  Open			  off
@@ -886,7 +916,7 @@ Model {
 	Block {
 	  BlockType		  ToWorkspace
 	  Name			  "To Workspace"
-	  Position		  [425, 120, 475, 140]
+	  Position		  [450, 120, 500, 140]
 	  ShowName		  off
 	  VariableName		  "com"
 	  MaxDataPoints		  "inf"
@@ -896,7 +926,7 @@ Model {
 	Block {
 	  BlockType		  ToWorkspace
 	  Name			  "To Workspace1"
-	  Position		  [425, 170, 475, 190]
+	  Position		  [450, 170, 500, 190]
 	  ShowName		  off
 	  VariableName		  "cop"
 	  MaxDataPoints		  "inf"
@@ -906,7 +936,7 @@ Model {
 	Block {
 	  BlockType		  ToWorkspace
 	  Name			  "To Workspace2"
-	  Position		  [425, 220, 475, 240]
+	  Position		  [450, 220, 500, 240]
 	  ShowName		  off
 	  VariableName		  "left_foot"
 	  MaxDataPoints		  "inf"
@@ -916,7 +946,7 @@ Model {
 	Block {
 	  BlockType		  ToWorkspace
 	  Name			  "To Workspace3"
-	  Position		  [425, 295, 475, 315]
+	  Position		  [450, 295, 500, 315]
 	  ShowName		  off
 	  VariableName		  "right_foot"
 	  MaxDataPoints		  "inf"
@@ -926,7 +956,7 @@ Model {
 	Block {
 	  BlockType		  ToWorkspace
 	  Name			  "To Workspace4"
-	  Position		  [425, 345, 500, 365]
+	  Position		  [450, 345, 525, 365]
 	  ShowName		  off
 	  VariableName		  "next_foot"
 	  MaxDataPoints		  "inf"
@@ -936,7 +966,7 @@ Model {
 	Block {
 	  BlockType		  ToWorkspace
 	  Name			  "To Workspace5"
-	  Position		  [425, 370, 500, 390]
+	  Position		  [450, 370, 525, 390]
 	  ShowName		  off
 	  VariableName		  "com_prw"
 	  MaxDataPoints		  "inf"
@@ -946,7 +976,7 @@ Model {
 	Block {
 	  BlockType		  ToWorkspace
 	  Name			  "To Workspace6"
-	  Position		  [425, 395, 500, 415]
+	  Position		  [450, 395, 525, 415]
 	  ShowName		  off
 	  VariableName		  "cop_prw"
 	  MaxDataPoints		  "inf"
@@ -956,18 +986,32 @@ Model {
 	Block {
 	  BlockType		  Constant
 	  Name			  "closed_loop"
-	  Position		  [135, 365, 155, 385]
+	  Position		  [145, 365, 165, 385]
+	  ShowName		  off
 	  Value			  "0"
 	  OutDataType		  "sfix(16)"
 	  OutScaling		  "2^0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "closed_loop"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
 	}
 	Block {
 	  BlockType		  Constant
 	  Name			  "cop_real"
-	  Position		  [95, 404, 155, 426]
+	  Position		  [105, 404, 165, 426]
+	  ShowName		  off
 	  Value			  "[0,0]"
 	  OutDataType		  "sfix(16)"
 	  OutScaling		  "2^0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "cop"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
 	}
 	Line {
 	  Name			  "com"
@@ -1052,7 +1096,7 @@ Model {
 	  DstPort		  1
 	}
 	Line {
-	  Name			  "com_init"
+	  Name			  "com"
 	  Labels		  [0, 0]
 	  SrcBlock		  "Constant5"
 	  SrcPort		  1
@@ -1060,30 +1104,40 @@ Model {
 	  DstPort		  2
 	}
 	Line {
+	  Name			  "left_ankle"
+	  Labels		  [0, 0]
 	  SrcBlock		  "Constant1"
 	  SrcPort		  1
 	  DstBlock		  "S-Function"
 	  DstPort		  3
 	}
 	Line {
+	  Name			  "right_ankle"
+	  Labels		  [0, 0]
 	  SrcBlock		  "Constant3"
 	  SrcPort		  1
 	  DstBlock		  "S-Function"
 	  DstPort		  4
 	}
 	Line {
+	  Name			  "left_yaw"
+	  Labels		  [0, 0]
 	  SrcBlock		  "Constant4"
 	  SrcPort		  1
 	  DstBlock		  "S-Function"
 	  DstPort		  5
 	}
 	Line {
+	  Name			  "right_yaw"
+	  Labels		  [0, 0]
 	  SrcBlock		  "Constant6"
 	  SrcPort		  1
 	  DstBlock		  "S-Function"
 	  DstPort		  6
 	}
 	Line {
+	  Name			  "foot_geometry"
+	  Labels		  [0, 0]
 	  SrcBlock		  "Constant7"
 	  SrcPort		  1
 	  DstBlock		  "S-Function"
@@ -1161,12 +1215,16 @@ Model {
 	  DstPort		  1
 	}
 	Line {
+	  Name			  "closed_loop"
+	  Labels		  [0, 0]
 	  SrcBlock		  "closed_loop"
 	  SrcPort		  1
 	  DstBlock		  "S-Function"
 	  DstPort		  8
 	}
 	Line {
+	  Name			  "cop"
+	  Labels		  [0, 0]
 	  SrcBlock		  "cop_real"
 	  SrcPort		  1
 	  DstBlock		  "S-Function"

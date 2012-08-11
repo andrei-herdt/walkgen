@@ -83,12 +83,12 @@ void QPMatrix::resize(const int nbrows, const int nbcols) {
   //matrix_.resize(nbRows_, nbCols_); //TODO: This should be avoided
 }
 
-MatrixXd & QPMatrix::cholesky() {
+MatrixXd &QPMatrix::cholesky() {
   computeCholesky();
   return cholesky_mat_;
 }
 
-MatrixXd & QPMatrix::cholesky(MatrixXd & partialCholesky) {
+MatrixXd &QPMatrix::cholesky(MatrixXd &partialCholesky) {
   computeCholesky(partialCholesky);
   return cholesky_mat_;
 }

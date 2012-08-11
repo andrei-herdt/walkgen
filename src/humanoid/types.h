@@ -36,7 +36,7 @@ namespace MPCWalkgen{
       Eigen::VectorXd VcfX;
       Eigen::VectorXd VcfY;
 
-      SelectionMatrices(const MPCData & generalData);
+      SelectionMatrices(const MPCData &generalData);
     };
 
 

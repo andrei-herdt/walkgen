@@ -7,15 +7,14 @@ using namespace Eigen;
 
 
 FootBody::FootBody(const MPCData *generalData,
-		   const RobotData *robotData,
-		   const Interpolation *interpolation, Foot type)
-  :RigidBody(generalData, robotData, interpolation)
+		   const RobotData *robotData, Foot type)
+  :RigidBody(generalData, robotData)
   ,footType_(type)
 {}
 
 FootBody::~FootBody(){}
 
-void FootBody::interpolate(MPCSolution &solution, double currentTime, const Reference &/*velRef*/) {
+void FootBody::Interpolate(MPCSolution &solution, double currentTime, const Reference &/*velRef*/) {
 
   BodyState nextFootState;
   SupportState curSupport = solution.supportStates_vec.front();
@@ -83,37 +82,15 @@ void FootBody::interpolate(MPCSolution &solution, double currentTime, const Refe
 
 }
 
-void FootBody::computeDynamicsMatrices(LinearDynamics & dyn,
-                                       double /*S*/, double /*T*/, int N, DynamicMatrixType type){
-  dyn.S.setZero(N,3);
-  dyn.U.setZero(N,N);
-  dyn.UT.setZero(N,N);
-  dyn.UInv.setZero(N,N);
-  dyn.UInvT.setZero(N,N);
-
-
-  switch (type){
-    case POSITION:
-      break;
-
-    case VELOCITY:
-      break;
-
-    case ACCELERATION:
-      break;
-
-    case COP:
-      break;
-
-    default:
-      break;
-    }
-}
+//TODO: Remove this ...
+void FootBody::ComputeDynamicsMatrices(LinearDynamicsMatrices &dyn,
+                                      double sample_period_first, double sample_period_rest, int nbsamples, Derivative type) 
+{ }
 
 
 
-VectorXd & FootBody::getFootVector(MPCSolution & solution, Axis axis, unsigned derivative) {
-  MPCSolution::State & currentState = solution.state_vec[derivative];
+VectorXd &FootBody::getFootVector(MPCSolution &solution, Axis axis, unsigned derivative) {
+  MPCSolution::State &currentState = solution.state_vec[derivative];
   if (footType_==LEFT){
       switch(axis){
         case X:
@@ -167,7 +144,7 @@ void FootBody::computeFootInterpolationByPolynomial(MPCSolution &solution, Axis 
 
         }else{
           Eigen::Matrix<double,6,1> factor;
-          interpolation_->computePolynomialNormalisedFactors(factor, FootCurrentState, nextSupportFootState, T);
+          interpolation_.computePolynomialNormalisedFactors(factor, FootCurrentState, nextSupportFootState, T);
           for (int i = 0; i < nbSamples; ++i) {
               double ti = (i+1)*generalData_->period_actsample;
 

@@ -86,19 +86,19 @@ void OrientationsPreview::init(const MPCData &data, const RobotData &robotData) 
 }
 
 void OrientationsPreview::preview_orientations(double Time,
-    const Reference & Ref,
+    const Reference &Ref,
     double StepDuration,
-    const BodyState & LeftFoot,
-    const BodyState & RightFoot,
-    MPCSolution & Solution) {
+    const BodyState &LeftFoot,
+    const BodyState &RightFoot,
+    MPCSolution &Solution) {
 
-  const vector<SupportState> & PrwSupportStates_deq = Solution.supportStates_vec;
-  vector<double> & PreviewedSupportAngles_deq=Solution.supportOrientations_vec;
-  vector<double> & PreviewedTrunkOrientations_deq=Solution.supportTrunkOrientations_vec;
+  const vector<SupportState> &PrwSupportStates_deq = Solution.supportStates_vec;
+  vector<double> &PreviewedSupportAngles_deq=Solution.supportOrientations_vec;
+  vector<double> &PreviewedTrunkOrientations_deq=Solution.supportTrunkOrientations_vec;
 
 
 
-  const SupportState & CurrentSupport = PrwSupportStates_deq.front();
+  const SupportState &CurrentSupport = PrwSupportStates_deq.front();
 
   // Verify the acceleration of the hip joint
   verify_acceleration_hip_joint(Ref, CurrentSupport);
@@ -260,8 +260,8 @@ void OrientationsPreview::preview_orientations(double Time,
 
 
 void
-OrientationsPreview::verify_acceleration_hip_joint(const Reference & Ref,
-    const SupportState & CurrentSupport)
+OrientationsPreview::verify_acceleration_hip_joint(const Reference &Ref,
+    const SupportState &CurrentSupport)
 {
   if(CurrentSupport.phase != DS)
     //Verify change in velocity reference against the maximal acceleration of the hip joint
@@ -278,7 +278,7 @@ OrientationsPreview::verify_acceleration_hip_joint(const Reference & Ref,
 
 
 bool
-OrientationsPreview::verify_angle_hip_joint(const SupportState & CurrentSupport,
+OrientationsPreview::verify_angle_hip_joint(const SupportState &CurrentSupport,
     double PreviewedTrunkAngleEnd,
     const COMState2 &TrunkState, COMState2 &TrunkStateT,
     double CurrentSupportFootAngle,
@@ -313,7 +313,7 @@ OrientationsPreview::verify_angle_hip_joint(const SupportState & CurrentSupport,
 void
 OrientationsPreview::verify_velocity_hip_joint(double Time,
     double PreviewedSupportFoot, double PreviewedSupportAngle,
-    unsigned StepNumber, const SupportState & CurrentSupport,
+    unsigned StepNumber, const SupportState &CurrentSupport,
     double CurrentRightFootAngle, double CurrentLeftFootAngle,
     double CurrentLeftFootVelocity, double CurrentRightFootVelocity)
 {

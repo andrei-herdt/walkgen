@@ -32,23 +32,23 @@ namespace MPCWalkgen{
 
     ~QPMatrix();
 
-    void addTerm(const Eigen::MatrixXd & mat,
+    void addTerm(const Eigen::MatrixXd &mat,
       const int row = 0, const int col = 0);
 
-    void setTerm(const Eigen::MatrixXd & mat,
+    void setTerm(const Eigen::MatrixXd &mat,
       const int row = 0, const int col = 0);
 
-    void setConstantPart(const Eigen::MatrixXd & mat);
+    void setConstantPart(const Eigen::MatrixXd &mat);
 
     void reset();
 
     void resize(const int nbrows, const int nbcols);
 
-    Eigen::MatrixXd & cholesky();
-    Eigen::MatrixXd & cholesky(Eigen::MatrixXd & partialCholesky);
+    Eigen::MatrixXd &cholesky();
+    Eigen::MatrixXd &cholesky(Eigen::MatrixXd &partialCholesky);
 
-    void colOrder(const Eigen::VectorXi & order);
-    void rowOrder(const Eigen::VectorXi & order);
+    void colOrder(const Eigen::VectorXi &order);
+    void rowOrder(const Eigen::VectorXi &order);
 
 
     // accessors
@@ -95,12 +95,12 @@ const int nbrowsMax=1, const int nbcolsMax=1)
 * \param nbcolsMax number of cols of storage matrix
 */
 
-/*! \fn void MPCWalkgen::QPMatrix::addTerm(const Eigen::MatrixXd & mat,
+/*! \fn void MPCWalkgen::QPMatrix::addTerm(const Eigen::MatrixXd &mat,
 const int row = 0, const int col = 0)
 * \brief Add the content of matrix mat into the QPMatrix, starting at position (row/col)
 */
 
-/*! \fn void MPCWalkgen::QPMatrix::setConstantPart(const Eigen::MatrixXd & mat)
+/*! \fn void MPCWalkgen::QPMatrix::setConstantPart(const Eigen::MatrixXd &mat)
 * \brief Define the constant part of the QPMatrix
 */
 
@@ -116,15 +116,15 @@ const bool preserve=false, const bool withConstantPart = false)
 * \param withConstantPart for reset method, only if preserve=true
 */
 
-/*! \fn Eigen::MatrixXd & MPCWalkgen::QPMatrix::operator()(void)
+/*! \fn Eigen::MatrixXd &MPCWalkgen::QPMatrix::operator()(void)
 * \brief Return the storage matrix
 */
 
-/*! \fn double & MPCWalkgen::QPMatrix::operator()(int row, int col=0)
+/*! \fn double &MPCWalkgen::QPMatrix::operator()(int row, int col=0)
 * \brief return the value of the matrix at (row,col)
 */
 
-/*! \fn Eigen::MatrixXd & MPCWalkgen::QPMatrix::dense()
+/*! \fn Eigen::MatrixXd &MPCWalkgen::QPMatrix::dense()
 * \brief return the dense matrix
 */
 

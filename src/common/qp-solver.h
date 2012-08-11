@@ -31,17 +31,17 @@ namespace MPCWalkgen{
     virtual void Init() = 0;
 
     void reset();
-    virtual void solve(Eigen::VectorXd & qpSolution,
-      Eigen::VectorXi & constraints,
-      Eigen::VectorXd & initialSolution,
-      Eigen::VectorXi & initialConstraints,
+    virtual void solve(Eigen::VectorXd &qpSolution,
+      Eigen::VectorXi &constraints,
+      Eigen::VectorXd &initialSolution,
+      Eigen::VectorXi &initialConstraints,
       bool warmstart) = 0;
 
     void DumpProblem(const char *filename); 
  
   public:
-    QPMatrix & matrix(const QPMatrixType type);
-    QPVector & vector(const QPVectorType type);
+    QPMatrix &matrix(const QPMatrixType type);
+    QPVector &vector(const QPVectorType type);
 
     inline void nbvar (int nbvar) 
     {assert(nbvar <= nbvar_max_); nbvar_ = nbvar;}
@@ -54,8 +54,8 @@ namespace MPCWalkgen{
     inline void nbcstr_max(const int nbcstr) {nbcstr_max_ = nbcstr;}
     inline int nbcstr_max() const {return nbcstr_max_;}
 
-    void varOrder(const Eigen::VectorXi & order);
-    void ctrOrder(const Eigen::VectorXi & order);
+    void varOrder(const Eigen::VectorXi &order);
+    void ctrOrder(const Eigen::VectorXi &order);
 
     virtual QPSolverType getType() const =0;
 
@@ -64,11 +64,11 @@ namespace MPCWalkgen{
 
   protected:
 
-    void reorderInitialSolution(Eigen::VectorXd & initialSolution,
-      Eigen::VectorXi & initialConstraints);
-    void reorderSolution(Eigen::VectorXd & qpSolution,
-      Eigen::VectorXi & constraints,
-      Eigen::VectorXi & initialConstraints);
+    void reorderInitialSolution(Eigen::VectorXd &initialSolution,
+      Eigen::VectorXi &initialConstraints);
+    void reorderSolution(Eigen::VectorXd &qpSolution,
+      Eigen::VectorXi &constraints,
+      Eigen::VectorXi &initialConstraints);
 
   protected:
     QPMatrix hessian_mat_;
@@ -111,7 +111,7 @@ namespace MPCWalkgen{
 * \param nbCtrMax Maximum number of constraints
 */
 
-/*! \fn QPMatrix & MPCWalkgen::QPSolver::matrix(const QPMatrixType type)
+/*! \fn QPMatrix &MPCWalkgen::QPSolver::matrix(const QPMatrixType type)
 * \brief Return the desired QP matrix
 */
 
@@ -152,7 +152,7 @@ namespace MPCWalkgen{
 * \brief Augment the number of constraints
 */
 
-/*! \fn MPCWalkgen::QPSolver::solve(MPCSolution & solution)
+/*! \fn MPCWalkgen::QPSolver::solve(MPCSolution &solution)
 * \brief Solve the problem defined by this form : \f$ \left\{
 * \begin{array}{l}
 * 	min \| x^t Q x + p^t x \|\\

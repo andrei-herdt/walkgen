@@ -56,20 +56,17 @@ void QPGenerator::precomputeObjective(){
   chol.colOrder(order);
 
   for (int i = 0; i < nbUsedPonderations; ++i) {
-    for (double s = generalData_->period_mpcsample;
-      s < generalData_->period_qpsample+EPSILON;
-      s += generalData_->period_mpcsample) {
-        int nb = (int)round(s / generalData_->period_mpcsample)-1;
+    for (double period_first = generalData_->period_mpcsample;
+      period_first < generalData_->period_qpsample+EPSILON;
+      period_first += generalData_->period_mpcsample) {
+        int nb = (int)round(period_first / generalData_->period_mpcsample)-1;
         nb += i*size;
-        robot_->setSelectionNumber(s);
+        robot_->setSelectionNumber(period_first);
+        // TODO: Get access to entire vector and do all operations here
+        const LinearDynamicsMatrices &CoPDynamics = robot_->body(COM)->dynamics_qp().cop;
+        const LinearDynamicsMatrices &VelDynamics = robot_->body(COM)->dynamics_qp().vel;
 
-        const LinearDynamics &CoPDynamics = robot_->body(COM)->dynamics(COP);
-        const LinearDynamics &VelDynamics = robot_->body(COM)->dynamics(VELOCITY);
-
-        double firstIterationWeight = s / generalData_->period_qpsample;
-        //pondFactor(0, 0) = 1.0;//firstIterationWeight;
-        //pondFactor(nbsamples-1, nbsamples-1) = 1.0;//1.05 - firstIterationWeight;
-
+        double firstIterationWeight = period_first / generalData_->period_qpsample;
 
         tmp_mat_.noalias() = CoPDynamics.UInvT*VelDynamics.UT/**pondFactor*/*VelDynamics.U*CoPDynamics.UInv;
         tmp_mat2_.noalias() = CoPDynamics.UInvT/**pondFactor*/*CoPDynamics.UInv;
@@ -426,7 +423,7 @@ void QPGenerator::ConvertCopToJerk(MPCSolution &solution){
   cop_y_vec += select.V * feet_y_vec;
 
   // Transform to jerk vectors
-  const LinearDynamics &copdyn = robot_->body(COM)->dynamics(COP);
+  const LinearDynamicsMatrices &copdyn = robot_->body(COM)->dynamics_qp().cop;
   VectorXd &jerk_x_vec = solution.com_prw.jerk.x_vec;
   jerk_x_vec.setZero(nbsamples); 
   VectorXd &jerk_y_vec = solution.com_prw.jerk.y_vec;
@@ -569,7 +566,7 @@ void QPGenerator::display(const MPCSolution &solution, const std::string &filena
   const SelectionMatrices &select = preview_->selectionMatrices();
   const MatrixXd &rot = preview_->rotationMatrix();
   const BodyState &CoM = robot_->body(COM)->state();
-  const LinearDynamics &CoP = robot_->body(COM)->dynamics(COP);
+  const LinearDynamicsMatrices &CoP = robot_->body(COM)->dynamics_qp().cop;
   int nbSteps =  solution.supportStates_vec.back().stepNumber;
 
   const VectorXd &sol_x_vec = solution.qpSolution.segment(0, nbsamples);
@@ -622,7 +619,7 @@ void QPGenerator::display(const MPCSolution &solution, const std::string &filena
 
 
 
-  const LinearDynamics &CoMPos = robot_->body(COM)->dynamics(POSITION);
+  const LinearDynamicsMatrices &CoMPos = robot_->body(COM)->dynamics_qp().pos;
 
 
   // Compute previewed ZMP

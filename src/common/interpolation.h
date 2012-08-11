@@ -5,12 +5,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 ///
 ///\file	interpolation.h
-///\brief	A tools class wich provide some interpolation methods
 ///\author	Andrei Herdt
-///\author	Lafaye Jory
-///\author      Keith François
-///\version	1.2
-///\date	27/04/12
 ///
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -22,37 +17,37 @@
 
 namespace MPCWalkgen{
 
-	class Interpolation{
+  class Interpolation{
 
-		public:
-				Interpolation();
-				~Interpolation();
+  public:
+    Interpolation();
+    ~Interpolation();
 
-				void computeInterpolationByJerk(Eigen::VectorXd & solutionX, Eigen::VectorXd & solutionY, const BodyState & state,
-						 const LinearDynamics & dyn, double jerkX, double jerkY) const;
+    void computeInterpolationByJerk(Eigen::VectorXd &solutionX, Eigen::VectorXd &solutionY, const BodyState &state,
+      const LinearDynamicsMatrices &dyn, double jerkX, double jerkY) const;
 
-				void computeInterpolationByJerk(Eigen::VectorXd & solution, const Eigen::VectorXd & state,
-						 const LinearDynamics & dyn, double jerk) const;
+    void computeInterpolationByJerk(Eigen::VectorXd &solution, const Eigen::VectorXd &state,
+      const LinearDynamicsMatrices &dyn, double jerk) const;
 
-        Eigen::VectorXd Interpolate(const LinearDynamics &dyn, 
-          const Eigen::Vector3d &state_vec, const Eigen::VectorXd &u_vec) const;
+    void Interpolate(Eigen::VectorXd &solution_vec, const LinearDynamicsMatrices &dyn, 
+      const Eigen::Vector3d &state_vec, const Eigen::VectorXd &u_vec);
 
-				void computePolynomialNormalisedFactors(
-						Eigen::Matrix<double,6,1> & factor, const Eigen::Vector3d & initialstate,
-						const Eigen::Vector3d & finalState, double T ) const;
+    void Interpolate(Eigen::VectorXd &solution_vec, const LinearDynamicsMatrices &dyn, 
+      const Eigen::Vector3d &state_vec, double u);
 
-				void computePolynomialFactors(
-						Eigen::Matrix<double,6,1>  & factor,
-						const Eigen::Vector3d & initialstate,
-						const Eigen::Vector3d & finalState, double T ) const;
-		private:
-				Eigen::Matrix3d AinvNorm_;
-	};
+    void computePolynomialNormalisedFactors(
+      Eigen::Matrix<double,6,1> &factor, const Eigen::Vector3d &initialstate,
+      const Eigen::Vector3d &finalState, double T ) const;
+
+    void computePolynomialFactors(
+      Eigen::Matrix<double,6,1>  &factor,
+      const Eigen::Vector3d &initialstate,
+      const Eigen::Vector3d &finalState, double T ) const;
+
+  private:
+    Eigen::Matrix3d AinvNorm_;
+    Eigen::VectorXd tmp_vec_;
+  };
 }
-
-/*! \fn MPCWalkgen::Interpolation::Interpolation()
-* \brief Constructor
-*/
-
 
 #endif // MPC_WALKGEN_INTERPOLATION_H

@@ -6,11 +6,7 @@
 ///
 ///\file	rigid-body.h
 ///\brief	A class to store rigid bodies
-///\author	Lafaye Jory
-///\author      Keith François
 ///\author	Herdt Andrei
-///\version	1.2
-///\date	27/04/12
 ///
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -20,51 +16,49 @@
 #include <vector>
 
 namespace MPCWalkgen{
-    class RigidBody{
+  class RigidBody{
 
-    public:
-      RigidBody(const MPCData * generalData,
-                const RobotData * robotData,
-                const Interpolation * interpolation);
-      virtual ~RigidBody();
+  public:
+    RigidBody(const MPCData *generalData,
+      const RobotData *robotData);
+    virtual ~RigidBody();
 
-      inline const BodyState & state() const{return state_;}
-      inline BodyState & state(){return state_;}
+    void ComputeDynamics();
 
-      inline void state(const BodyState & s){state_=s;}
+    virtual void Interpolate(MPCSolution &solution, double currentTime, const Reference &velRef)=0;
 
-      const LinearDynamics & dynamics(DynamicMatrixType type) const;
+    /// \name Accessors and mutators 
+    /// \{
+    inline const BodyState &state() const{return state_;}
+    inline BodyState &state(){return state_;}
 
-      void setSelectionNumber(double firstSamplingPeriod);
+    inline void state(const BodyState &s){state_=s;}
 
-      void computeDynamics();
+    inline const LinearDynamics &dynamics_qp() const { return dynamics_qp_vec_[dynamics_iter_];};
+    inline const LinearDynamics &dynamics_act() const {return dynamics_act_;};
 
-      virtual void interpolate(MPCSolution & solution, double currentTime, const Reference & velRef)=0;
+    void setSelectionNumber(double firstSamplingPeriod);
+    /// \}
 
-    protected:
-      virtual void computeDynamicsMatrices(LinearDynamics & dyn,
-                                           double S, double T, int N, DynamicMatrixType type)=0;
+  protected:
+    virtual void ComputeDynamicsMatrices(LinearDynamicsMatrices &dyn,
+      double sample_period_first, double sample_period_rest, int nbsamples, Derivative type) = 0;
 
 
-    protected:
-      const MPCData *generalData_;
-      const RobotData *robotData_;
-      const Interpolation *interpolation_;
+  protected:
+    const MPCData *generalData_;
+    const RobotData *robotData_;
+    Interpolation interpolation_;
 
-      BodyState state_;
-      std::vector<LinearDynamics> pos_dynamics_vec_;
-      std::vector<LinearDynamics> vel_dynamics_vec_;
-      std::vector<LinearDynamics> acc_dynamics_vec_;
-      std::vector<LinearDynamics> jerk_dynamics_vec_;
-      std::vector<LinearDynamics> cop_dynamics_vec_;
+    BodyState state_;
+    /// \brief Dynamics sampled with the QP sampling rate
+    std::vector<LinearDynamics> dynamics_qp_vec_;
+    /// \brief Pointer to the currently relevant dynamics
+    int dynamics_iter_;
+    /// \brief Dynamics sampled with the actuator sampling rate
+    LinearDynamics dynamics_act_;
 
-      LinearDynamics posInterpol_;
-      LinearDynamics velInterpol_;
-      LinearDynamics accInterpol_;
-      LinearDynamics copInterpol_;
-
-      int matrixNumber_;
-    };
+  };
 }
 
 #endif // MPC_WALKGEN_RIGID_BODY_H

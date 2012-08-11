@@ -6,12 +6,9 @@
 ///
 ///\file	com-body.h
 ///\brief	A class to store CoM rigid body
+///\author	Herdt Andrei
 ///\author	Lafaye Jory
 ///\author      Keith François
-///\author	Herdt Andrei
-///\version	1.2
-///\date	27/04/12
-///
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "../types.h"
@@ -23,22 +20,21 @@ namespace MPCWalkgen{
     class FootBody:public RigidBody{
     public:
       FootBody(const MPCData * generalData,
-               const RobotData * robotData,
-               const Interpolation * interpolation, Foot type);
+               const RobotData * robotData, Foot type);
       virtual ~FootBody();
 
-      virtual void interpolate(MPCSolution & solution, double currentTime, const Reference & velRef);
+      virtual void Interpolate(MPCSolution &solution, double currentTime, const Reference &velRef);
 
     protected:
-      virtual void computeDynamicsMatrices(LinearDynamics & dyn,
-                                           double S, double T, int N, DynamicMatrixType type);
+    virtual void ComputeDynamicsMatrices(LinearDynamicsMatrices &dyn,
+      double sample_period_first, double sample_period_rest, int nbsamples, Derivative type);
 
     private:
-      Eigen::VectorXd & getFootVector(MPCSolution & solution, Axis axis, unsigned derivative);
+      Eigen::VectorXd &getFootVector(MPCSolution &solution, Axis axis, unsigned derivative);
 
-      void computeFootInterpolationByPolynomial(MPCSolution & solution, Axis axis, int nbSampling,
-                                                const Eigen::Vector3d & FootCurrentState,
-                                                double T, const Eigen::Vector3d & nextSupportFootState);
+      void computeFootInterpolationByPolynomial(MPCSolution &solution, Axis axis, int nbSampling,
+                                                const Eigen::Vector3d &FootCurrentState,
+                                                double T, const Eigen::Vector3d &nextSupportFootState);
 
     private:
       Foot footType_;

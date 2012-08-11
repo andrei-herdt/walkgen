@@ -146,9 +146,9 @@ namespace MPCWalkgen{
 
       /// \brief Compute the number of recomputations left until next sample
       int nbFeedbackSamplesLeft(double firstSamplingPeriod) const;
-      /// \brief number of simulation iterations between two feedback call
+      /// \brief Number of simulation iterations between two feedback call
       int nbSamplesControl() const;
-      /// \brief number of feedback iterations between two QP instants
+      /// \brief Number of feedback iterations between two QP instants
       int nbFeedbackSamplesStandard() const;
 
       double period_ss() const;
@@ -193,6 +193,8 @@ namespace MPCWalkgen{
 
     struct Motion {
       Trajectory pos, vel, acc, jerk;
+
+      void resize(int size);
     };
 
     struct MPC_WALKGEN_API MPCSolution {
@@ -219,6 +221,7 @@ namespace MPCWalkgen{
       Eigen::VectorXd CoPTrajY;
 
       Motion com_prw, cop_prw, foot_left_prw, foot_right_prw; 
+      Motion com_act, cop_act, foot_left_act, foot_right_act; 
 
       struct State {
         Eigen::VectorXd CoMTrajX_;

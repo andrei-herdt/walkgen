@@ -28,19 +28,20 @@ namespace MPCWalkgen{
       RigidBodySystem(const MPCData *generalData);
       ~RigidBodySystem();
 
-      void Init(const RobotData &robot_data, const Interpolation *interpolation);
-
-      void computeDynamics();
+      void Init(const RobotData &data_robot, const Interpolation *interpolation);
 
       void interpolateBodies(MPCSolution &solution, double currentTime, const Reference &velRef);
 
-      void updateBodyState(const MPCSolution &solution);
+      void UpdateState(const MPCSolution &solution);
 
       void setSelectionNumber(double firstSamplingPeriod);
 
     private:
-      const MPCData *generalData_;
-      RobotData robot_data_;
+      void ComputeDynamics();
+
+    private:
+      const MPCData *data_mpc_;
+      RobotData data_robot_;
 
       RigidBody *com_;
       RigidBody *foot_left_;

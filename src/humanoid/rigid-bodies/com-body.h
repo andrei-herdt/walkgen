@@ -5,12 +5,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 ///
 ///\file	com-body.h
-///\brief	A class to store CoM rigid body
 ///\author	Herdt Andrei
-///\author	Lafaye Jory
-///\author      Keith François
-///\version	1.2
-///\date	27/04/12
 ///
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -19,26 +14,22 @@
 #include <Eigen/Dense>
 
 namespace MPCWalkgen{
-    class CoMBody:public RigidBody{
-    public:
-      CoMBody(const MPCData * generalData,
-              const RobotData * robotData,
-              const Interpolation * interpolation);
-      virtual ~CoMBody();
 
-      virtual void interpolate(MPCSolution & solution, double currentTime, const Reference & velRef);
+  class CoMBody:public RigidBody{
+  public:
+    CoMBody(const MPCData *generalData, const RobotData *robotData);
+    virtual ~CoMBody();
 
-    protected:
-      virtual void computeDynamicsMatrices(LinearDynamics & dyn,
-                                           double S, double T, int N, DynamicMatrixType type);
+    virtual void Interpolate(MPCSolution &solution, double currentTime, const Reference &velRef);
 
-    private:
-      void interpolateTrunkOrientation(MPCSolution & solution,
-                                       double /*currentTime*/, const Reference & velRef);
+  protected:
+    virtual void ComputeDynamicsMatrices(LinearDynamicsMatrices &dyn,
+      double sample_period_first, double sample_period_rest, int N, Derivative type);
 
+  private:
+    void interpolateTrunkOrientation(MPCSolution &solution,
+      double /*currentTime*/, const Reference &velRef);
 
-    };
+  };
 }
-
-
 #endif // MPC_WALKGEN_COM_BODY_H

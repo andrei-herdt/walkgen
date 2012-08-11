@@ -11,7 +11,7 @@ StateFSM::StateFSM(Reference * velRef, const MPCData * generalData)
 StateFSM::~StateFSM(){}
 
 
-void StateFSM::setSupportState(int sample, const std::vector<double> &samplingTimes_vec, SupportState & support) {
+void StateFSM::setSupportState(int sample, const std::vector<double> &samplingTimes_vec, SupportState &support) {
 
   support.stateChanged = false;
   support.nbInstants++;

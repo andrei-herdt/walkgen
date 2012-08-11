@@ -35,27 +35,27 @@ namespace MPCWalkgen{
 
       void precomputeObjective();
 
-      void BuildProblem(MPCSolution & solution);
+      void BuildProblem(MPCSolution &solution);
 
-      void computeWarmStart(MPCSolution & solution);
+      void computeWarmStart(MPCSolution &solution);
 
-      void ConvertCopToJerk(MPCSolution & solution);
+      void ConvertCopToJerk(MPCSolution &solution);
 
-      void computeReferenceVector(const MPCSolution & solution);
+      void computeReferenceVector(const MPCSolution &solution);
 
-      void display(const MPCSolution & solution, const std::string & filename) const;
+      void display(const MPCSolution &solution, const std::string &filename) const;
 
     private:
 
-      void buildInequalitiesFeet(const MPCSolution & solution);
+      void buildInequalitiesFeet(const MPCSolution &solution);
 
-      void buildObjective(const MPCSolution & solution);
+      void buildObjective(const MPCSolution &solution);
 
-      void buildConstraints(const MPCSolution & solution);
+      void buildConstraints(const MPCSolution &solution);
 
-      void buildConstraintsFeet(const MPCSolution & solution);
+      void buildConstraintsFeet(const MPCSolution &solution);
 
-      void buildConstraintsCOP(const MPCSolution & solution);
+      void buildConstraintsCOP(const MPCSolution &solution);
 
     private:
 
@@ -92,27 +92,27 @@ namespace MPCWalkgen{
 * \brief Constructor
 */
 
-/*! \fn MPCWalkgen::QPGenerator::buildObjective(const MPCSolution & solution)
+/*! \fn MPCWalkgen::QPGenerator::buildObjective(const MPCSolution &solution)
 * \brief Build matrix Q and vector p for the QP
 */
 
-/*! \fn MPCWalkgen::QPGenerator::buildConstraints(const MPCSolution & solution)
+/*! \fn MPCWalkgen::QPGenerator::buildConstraints(const MPCSolution &solution)
 * \brief build matrix A and vectors BU, BL, XU, XL for the QP
 */
 
-/*! \fn MPCWalkgen::QPGenerator::computeWarmStart(MPCSolution & solution)
+/*! \fn MPCWalkgen::QPGenerator::computeWarmStart(MPCSolution &solution)
 * \brief Compute a feasible solution and an active-set of previewed constraints
 */
 
-/*! \fn MPCWalkgen::QPGenerator::convertCopToJerk(MPCSolution & solution)
+/*! \fn MPCWalkgen::QPGenerator::convertCopToJerk(MPCSolution &solution)
 * \brief the current QP generate a solution in CoP position. for the interpolation, we must to convert the solution into CoM Jerk
 */
 
-/*! \fn MPCWalkgen::QPGenerator::computeReferenceVector(const MPCSolution & solution)
+/*! \fn MPCWalkgen::QPGenerator::computeReferenceVector(const MPCSolution &solution)
 * \brief Compute the reference vector (constant over the horizon)
 */
 
-/*! \fn MPCWalkgen::QPGenerator::display(const MPCSolution & solution, const std::string & filename) const
+/*! \fn MPCWalkgen::QPGenerator::display(const MPCSolution &solution, const std::string &filename) const
 * \brief display some informations of the solution in a file (previewed CoM, CoP and feet and CoP constraints)
 * \param solution   the solution
 * \param filename the file to display solution

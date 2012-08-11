@@ -12,7 +12,7 @@ using namespace Eigen;
 using namespace MPCWalkgen;
 
 
-Eigen::VectorXd test_all_solvers(QPSolver & qp1, int nbvar, int nbcstr)
+Eigen::VectorXd test_all_solvers(QPSolver &qp1, int nbvar, int nbcstr)
 {
   qp1.reset();
   qp1.nbvar(nbvar);
