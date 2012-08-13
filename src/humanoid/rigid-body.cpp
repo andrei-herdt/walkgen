@@ -30,7 +30,7 @@ void RigidBody::ComputeDynamics() {
     ++dyn_it;
   }
 
-  nbsamples = data_mpc_->nbSamplesControl();
+  nbsamples = data_mpc_->num_samples_act();
   sp_first = data_mpc_->period_actsample;
   sp_rest = data_mpc_->period_actsample;
   ComputeDynamicsMatrices(dynamics_act_.pos, sp_first, sp_rest, nbsamples, POSITION);

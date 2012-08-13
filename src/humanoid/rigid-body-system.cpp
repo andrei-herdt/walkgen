@@ -32,14 +32,14 @@ void RigidBodySystem::Init(const RobotData &data_robot, const Interpolation *int
 
   currentSupport_.phase = DS;
   currentSupport_.foot = LEFT;
-  currentSupport_.timeLimit = 1e9;
+  currentSupport_.time_limit = 1e9;
   currentSupport_.nbStepsLeft = 1;
-  currentSupport_.stateChanged = true;
+  currentSupport_.state_changed = true;
   currentSupport_.x = data_robot.leftFootPos(0);
   currentSupport_.y = data_robot.leftFootPos(1);
   currentSupport_.yaw = 0.0;
   currentSupport_.yawTrunk = 0.0;
-  currentSupport_.startTime = 0.0;
+  currentSupport_.start_time = 0.0;
 
   ComputeDynamics();
 }
@@ -59,7 +59,7 @@ void RigidBodySystem::interpolateBodies(MPCSolution &solution, double currentTim
 void RigidBodySystem::UpdateState(const MPCSolution &solution) {
   BodyState foot_left, foot_right, com;
   // TODO: State updates can/should be done locally in RigidBody
-  int next_sample = data_mpc_->nbSamplesControl() - 1;
+  int next_sample = data_mpc_->num_samples_act() - 1;
   for (int i = 0; i < 3; ++i){
     const MPCSolution::State &currentState = solution.state_vec[i];
     foot_left.x(i) = currentState.leftFootTrajX_(next_sample);

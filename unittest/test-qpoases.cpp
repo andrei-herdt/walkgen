@@ -46,7 +46,7 @@ int main ()
 
   qp.setPrintLevel(PL_HIGH);
 
-  qp.init(H, p, (Real*)0,
+  qp.Init(H, p, (Real*)0,
             bl,bu,
           (Real*) 0,(Real*)0,
            itt, (Real*)0);

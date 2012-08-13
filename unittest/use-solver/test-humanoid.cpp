@@ -118,7 +118,7 @@ int main() {
   // -------------------------------
   WalkgenAbstract * walk = createWalkgen(CURRENT_QPSOLVERTYPE);
 
-  walk->init(robotData, mpcData);
+  walk->Init(robotData, mpcData);
   //	const RigidBodySystem *robot = walk->robot();// Not used yet
 
   // Run:

@@ -41,8 +41,8 @@ namespace MPCWalkgen{
       /// \brief Initialize the system
       /// \param[in] data_robot: data relative to the robot
       /// \param[in] mpcData: data relative to the qp solver
-      virtual void init(const RobotData &data_robot, const MPCData &mpcData) = 0;
-      virtual void init() = 0;
+      virtual void Init(const RobotData &data_robot, const MPCData &mpcData) = 0;
+      virtual void Init() = 0;
 
       /// \brief Call method to handle on-line generation of ZMP reference trajectory.
       /// \param[in] time : Current time.
@@ -74,7 +74,7 @@ namespace MPCWalkgen{
 
     };
     /*! Factory of Pattern generator interface. */
-    MPC_WALKGEN_API WalkgenAbstract * createWalkgen(QPSolverType solvertype);
+    MPC_WALKGEN_API WalkgenAbstract * createWalkgen();
 }
 
 

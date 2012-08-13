@@ -42,62 +42,62 @@ void QPPreview::previewSamplingTimes(double currenttime,
 void QPPreview::previewSupportStates(double firstSamplingPeriod, MPCSolution &solution){
 
   const BodyState *foot;
-  SupportState &currentSupport = robot_->currentSupport();
+  SupportState &current_support = robot_->current_support();
 
   // SET CURRENT SUPPORT STATE:
   // --------------------------
-  statesolver_->setSupportState(0, solution.samplingTimes_vec, currentSupport);
-  currentSupport.inTransitionalDS = false;
-  if (currentSupport.stateChanged) {
-      if (currentSupport.foot == LEFT) {
+  statesolver_->setSupportState(0, solution.samplingTimes_vec, current_support);
+  current_support.transitional_ds = false;
+  if (current_support.state_changed) {
+      if (current_support.foot == LEFT) {
           foot = &robot_->body(LEFT_FOOT)->state();
         } else {
           foot = &robot_->body(RIGHT_FOOT)->state();
         }
-      currentSupport.x = foot->x(0);
-      currentSupport.y = foot->y(0);
-      currentSupport.yaw = foot->yaw(0);
-      currentSupport.startTime = solution.samplingTimes_vec[0];
+      current_support.x = foot->x(0);
+      current_support.y = foot->y(0);
+      current_support.yaw = foot->yaw(0);
+      current_support.start_time = solution.samplingTimes_vec[0];
     }
-  solution.supportStates_vec.push_back(currentSupport);
+  solution.support_states_vec.push_back(current_support);
 
   // PREVIEW SUPPORT STATES:
   // -----------------------
   // initialize the previewed support state before previewing
-  SupportState previewedSupport = currentSupport;
-  previewedSupport.stepNumber = 0;
+  SupportState previewed_support = current_support;//TODO: Replace =operator by CopyFrom or give to constructor
+  previewed_support.stepNumber = 0;
   for (int sample = 1; sample <= data_mpc_->nbsamples_qp; sample++) {
-      statesolver_->setSupportState(sample, solution.samplingTimes_vec, previewedSupport);
+      statesolver_->setSupportState(sample, solution.samplingTimes_vec, previewed_support);
       // special treatment for the first instant of transitionalDS
-      previewedSupport.inTransitionalDS = false;
-      if (previewedSupport.stateChanged) {
+      previewed_support.transitional_ds = false;
+      if (previewed_support.state_changed) {
           if (sample == 1) {// robot is already in ds phase
-              if (previewedSupport.foot == LEFT) {
+              if (previewed_support.foot == LEFT) {
                   foot = &robot_->body(LEFT_FOOT)->state();
                 } else {
                   foot = &robot_->body(RIGHT_FOOT)->state();
                 }
-              previewedSupport.x = foot->x(0);
-              previewedSupport.y = foot->y(0);
-              previewedSupport.yaw = foot->yaw(0);
-              previewedSupport.startTime = solution.samplingTimes_vec[sample];
-              if (currentSupport.phase == SS && previewedSupport.phase == SS) {
-                  previewedSupport.inTransitionalDS = true;
+              previewed_support.x = foot->x(0);
+              previewed_support.y = foot->y(0);
+              previewed_support.yaw = foot->yaw(0);
+              previewed_support.start_time = solution.samplingTimes_vec[sample];
+              if (current_support.phase == SS && previewed_support.phase == SS) {
+                  previewed_support.transitional_ds = true;
                 }
             }
-          if (/*pi > 1 &&*/ previewedSupport.stepNumber > 0) {
-              previewedSupport.x = 0.0;
-              previewedSupport.y = 0.0;
+          if (/*pi > 1 &&*/ previewed_support.stepNumber > 0) {
+              previewed_support.x = 0.0;
+              previewed_support.y = 0.0;
             }
         }
       if (sample == 1) {
-          previewedSupport.previousSamplingPeriod = firstSamplingPeriod;
-          previewedSupport.sampleWeight = 1;
+          previewed_support.previousSamplingPeriod = firstSamplingPeriod;
+          previewed_support.sampleWeight = 1;
         } else {
-          previewedSupport.previousSamplingPeriod = data_mpc_->period_qpsample;
-          previewedSupport.sampleWeight = 1;
+          previewed_support.previousSamplingPeriod = data_mpc_->period_qpsample;
+          previewed_support.sampleWeight = 1;
         }
-      solution.supportStates_vec.push_back(previewedSupport);
+      solution.support_states_vec.push_back(previewed_support);
     }
 
   buildSelectionMatrices(solution);
@@ -116,8 +116,8 @@ void QPPreview::computeRotationMatrix(MPCSolution &solution){
   assert(isDiagonalRotationMatrix(rotationMatrix2_) && "The matrix rotationMatrix2_ is not 2.2 block diagonal");
 
   for (int i=0; i<N; ++i) {
-      double cosYaw = cos(solution.supportStates_vec[i+1].yaw);
-      double sinYaw = sin(solution.supportStates_vec[i+1].yaw);
+      double cosYaw = cos(solution.support_states_vec[i+1].yaw);
+      double sinYaw = sin(solution.support_states_vec[i+1].yaw);
       rotationMatrix_(i  ,i  ) =  cosYaw;
       rotationMatrix_(i+N,i  ) = -sinYaw;
       rotationMatrix_(i  ,i+N) =  sinYaw;
@@ -131,7 +131,7 @@ void QPPreview::computeRotationMatrix(MPCSolution &solution){
 }
 
 void QPPreview::buildSelectionMatrices(MPCSolution &solution){
-  const int &NbPrwSteps = solution.supportStates_vec.back().stepNumber;
+  const int &NbPrwSteps = solution.support_states_vec.back().stepNumber;
 
   if (selectionMatrices_.V.cols() != NbPrwSteps){
       selectionMatrices_.V.resize(data_mpc_->nbsamples_qp,NbPrwSteps);
@@ -152,12 +152,12 @@ void QPPreview::buildSelectionMatrices(MPCSolution &solution){
 
 
   std::vector<SupportState>::iterator SS_it;
-  SS_it = solution.supportStates_vec.begin();//points at the cur. sup. st.
+  SS_it = solution.support_states_vec.begin();//points at the cur. sup. st.
   ++SS_it;
   for (int i=0; i<data_mpc_->nbsamples_qp; i++){
       if (SS_it->stepNumber>0){
           selectionMatrices_.V(i,SS_it->stepNumber-1) = selectionMatrices_.VT(SS_it->stepNumber-1,i) = 1.0;
-          if (SS_it->stepNumber==1 && SS_it->stateChanged && SS_it->phase == SS) {
+          if (SS_it->stepNumber==1 && SS_it->state_changed && SS_it->phase == SS) {
               --SS_it;
               selectionMatrices_.VcfX(0) = SS_it->x;
               selectionMatrices_.VcfY(0) = SS_it->y;

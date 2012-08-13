@@ -37,7 +37,7 @@ namespace MPCWalkgen{
 
 			// accessors
 			inline QPSolverType getType() const
-			{ return QPSOLVERTYPE_QPOASES; }
+			{ return QPOASES; }
 			inline bool useCholesky() const
 			{ return false; }
 			inline void useCholesky(bool /*ch*/)

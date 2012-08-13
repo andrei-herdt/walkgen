@@ -150,7 +150,7 @@ void CoMBody::interpolateTrunkOrientation(MPCSolution &solution,
 {
   double T = data_mpc_->nbqpsamples_step * data_mpc_->period_qpsample;
 
-  int nbSampling = data_mpc_->nbSamplesControl();
+  int nbSampling = data_mpc_->num_samples_act();
 
   if (solution.state_vec[0].trunkYaw_.rows() != nbSampling){
     for (int i = 0; i < 3; ++i) {

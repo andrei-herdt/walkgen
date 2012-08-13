@@ -63,7 +63,7 @@ OrientationsPreview::OrientationsPreview()
 OrientationsPreview::~OrientationsPreview()
 { }
 
-void OrientationsPreview::init(const MPCData &data, const RobotData &data_robot) {
+void OrientationsPreview::Init(const MPCData &data, const RobotData &data_robot) {
 	T_ 			= data.period_qpsample;
 	Ti_ 		= data.period_mpcsample;
 	N_ 			= data.nbsamples_qp;
@@ -92,7 +92,7 @@ void OrientationsPreview::preview_orientations(double Time,
     const BodyState &RightFoot,
     MPCSolution &Solution) {
 
-  const vector<SupportState> &PrwSupportStates_deq = Solution.supportStates_vec;
+  const vector<SupportState> &PrwSupportStates_deq = Solution.support_states_vec;
   vector<double> &PreviewedSupportAngles_deq=Solution.supportOrientations_vec;
   vector<double> &PreviewedTrunkOrientations_deq=Solution.supportTrunkOrientations_vec;
 
@@ -151,7 +151,7 @@ void OrientationsPreview::preview_orientations(double Time,
               else
                 TrunkStateT_.yaw[0] = TrunkState_.yaw[0] + TrunkState_.yaw[1]*T_;
               //Compute the trunk angle at the end of the support phase
-              SupportTimePassed_ = CurrentSupport.timeLimit - Time;
+              SupportTimePassed_ = CurrentSupport.time_limit - Time;
               PreviewedTrunkAngleEnd = TrunkStateT_.yaw[0] + TrunkStateT_.yaw[1]*(SupportTimePassed_-T_);
 
               //Verify the angle between the support foot and the trunk at the end of the current support period
@@ -160,7 +160,7 @@ void OrientationsPreview::preview_orientations(double Time,
         }
       else//The trunk does not rotate in the DS phase
         {
-          SupportTimePassed_ = CurrentSupport.timeLimit+SSPeriod_-Time;
+          SupportTimePassed_ = CurrentSupport.time_limit+SSPeriod_-Time;
           FirstFootPreviewed = 1;
           PreviewedSupportAngles_deq.push_back(CurrentSupportAngle);
           TrunkStateT_.yaw[0] = PreviewedTrunkAngleEnd = TrunkState_.yaw[0];
@@ -242,12 +242,12 @@ void OrientationsPreview::preview_orientations(double Time,
 
 
 
-  std::vector<SupportState>::iterator prwSS_it = Solution.supportStates_vec.begin();
+  std::vector<SupportState>::iterator prwSS_it = Solution.support_states_vec.begin();
   double supportAngle = prwSS_it->yaw;
   prwSS_it++;//Point at the first previewed instant
   for(unsigned i = 0; i<N_; i++ )
     {
-      if(prwSS_it->stateChanged)
+      if(prwSS_it->state_changed)
         {
           supportAngle = Solution.supportOrientations_vec[j];
           j++;
@@ -342,7 +342,7 @@ OrientationsPreview::verify_velocity_hip_joint(double Time,
     }
   else if((StepNumber==0 && CurrentSupport.phase == SS) || (StepNumber==1 && CurrentSupport.phase == DS))
     {
-      T = CurrentSupport.timeLimit-Time-T_;
+      T = CurrentSupport.time_limit-Time-T_;
       //Previewed polynome
       a = CurrentAngle;
       if(PreviewedSupportFoot==1)

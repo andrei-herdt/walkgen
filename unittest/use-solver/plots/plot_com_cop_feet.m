@@ -1,3 +1,4 @@
+figure;
 com_lines = plot(com.signals.values(:,1), com.signals.values(:,2),'red');
 hold on
 cop_lines = plot(cop.signals.values(:,1), cop.signals.values(:,2),'black');

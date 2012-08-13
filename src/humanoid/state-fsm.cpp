@@ -13,7 +13,7 @@ StateFSM::~StateFSM(){}
 
 void StateFSM::setSupportState(int sample, const std::vector<double> &samplingTimes_vec, SupportState &support) {
 
-  support.stateChanged = false;
+  support.state_changed = false;
   support.nbInstants++;
 
   bool ReferenceGiven = false;
@@ -23,25 +23,25 @@ void StateFSM::setSupportState(int sample, const std::vector<double> &samplingTi
 
   // Update time limit for double support phase
   if (ReferenceGiven && support.phase == DS && 
-      support.timeLimit > samplingTimes_vec[data_mpc_->nbqpsamples_dsss] - EPSILON) {
-      support.timeLimit = samplingTimes_vec[data_mpc_->nbqpsamples_dsss];
+      support.time_limit > samplingTimes_vec[data_mpc_->nbqpsamples_dsss] - EPSILON) {
+      support.time_limit = samplingTimes_vec[data_mpc_->nbqpsamples_dsss];
       support.nbStepsLeft = data_mpc_->nbsteps_ssds;
   }
 
   //FSM logic
-  if (samplingTimes_vec[sample] >= support.timeLimit - EPSILON) {
+  if (samplingTimes_vec[sample] >= support.time_limit - EPSILON) {
     //SS->DS
     if (support.phase == SS && !ReferenceGiven && support.nbStepsLeft == 0){
       support.phase 			  = DS;
-      support.timeLimit 		= samplingTimes_vec[sample] + data_mpc_->period_ds;
-      support.stateChanged 	= true;
+      support.time_limit 		= samplingTimes_vec[sample] + data_mpc_->period_ds;
+      support.state_changed 	= true;
       support.nbInstants 		= 0;
       //DS->SS
     } else if (((support.phase == DS) && ReferenceGiven) || ((support.phase == DS) && (support.nbStepsLeft > 0))){
       support.phase         = SS;
-      support.timeLimit 		= samplingTimes_vec[sample] + data_mpc_->nbqpsamples_step * data_mpc_->period_qpsample;
+      support.time_limit 		= samplingTimes_vec[sample] + data_mpc_->nbqpsamples_step * data_mpc_->period_qpsample;
       support.nbStepsLeft 	= data_mpc_->nbsteps_ssds;
-      support.stateChanged 	= true;
+      support.state_changed 	= true;
       support.nbInstants 		= 0;
       //SS->SS
     } else if ((support.phase == SS && support.nbStepsLeft > 0) || (support.nbStepsLeft == 0 && ReferenceGiven)){
@@ -50,9 +50,9 @@ void StateFSM::setSupportState(int sample, const std::vector<double> &samplingTi
       } else {
         support.foot = LEFT;
       }
-      support.stateChanged 	= true;
+      support.state_changed 	= true;
       support.nbInstants 		= 0;
-      support.timeLimit 		= samplingTimes_vec[sample] + data_mpc_->nbqpsamples_step * data_mpc_->period_qpsample;
+      support.time_limit 		= samplingTimes_vec[sample] + data_mpc_->nbqpsamples_step * data_mpc_->period_qpsample;
       if (sample != 1) {//Flying foot is not down
         ++support.stepNumber;
       }

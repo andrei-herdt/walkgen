@@ -1,3 +1,4 @@
+figure
 %% Previewed
 nbsamples = 16;
 di = 10;

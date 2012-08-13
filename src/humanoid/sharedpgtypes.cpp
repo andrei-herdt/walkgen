@@ -48,7 +48,7 @@ MPCSolution& MPCSolution::operator = (MPCSolution const &rhs){
   /// starting with 0, i.e. all times are relative to the current time
   samplingTimes_vec = rhs.samplingTimes_vec;
 
-  supportStates_vec = rhs.supportStates_vec;
+  support_states_vec = rhs.support_states_vec;
 
   supportOrientations_vec = rhs.supportOrientations_vec;//TODO: supportOrientations_vec
   supportTrunkOrientations_vec = rhs.supportTrunkOrientations_vec;//TODO: TrunkOrientations_vec
@@ -66,7 +66,7 @@ MPCSolution& MPCSolution::operator = (MPCSolution const &rhs){
 }
 
 void MPCSolution::reset(){
-  supportStates_vec.resize(0);
+  support_states_vec.resize(0);
   supportOrientations_vec.resize(0);
   supportTrunkOrientations_vec.resize(0);
 }
@@ -88,9 +88,10 @@ MPCData::MPCData()
 ,nbqpsamples_dsss(8)
 ,nbsteps_ssds(2)
 ,period_ds(1000000000.0)
-,ponderation(2)
 ,warmstart(false)
-,interpolate_preview(false){
+,interpolate_preview(false)
+,ponderation(2)
+,solver(QPOASES){
 }
 
 MPCData::~MPCData(){}
@@ -103,8 +104,16 @@ int MPCData::nbFeedbackSamplesStandard() const{
   return static_cast<int> (round(period_qpsample / period_mpcsample) );
 }
 
-int MPCData::nbSamplesControl() const{
+int MPCData::num_samples_act() const{
   return static_cast<int> (round(period_mpcsample / period_actsample) );
+}
+
+int MPCData::num_qpsamples_ss() const {
+  return nbqpsamples_step - 1;
+}
+
+int MPCData::num_steps_max() const {
+  return static_cast<int>(nbsamples_qp / nbqpsamples_step) + 1;
 }
 
 double MPCData::period_ss() const {

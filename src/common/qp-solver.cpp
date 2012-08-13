@@ -155,7 +155,7 @@ QPSolver *MPCWalkgen::createQPSolver(QPSolverType solvertype,
 #endif //MPC_WALKGEN_WITH_LSSOL
 
 #ifdef MPC_WALKGEN_WITH_QPOASES
-                                       if (solvertype == QPSOLVERTYPE_QPOASES) {
+                                       if (solvertype == QPOASES) {
                                          solver = new QPOasesSolver(nbvar, nbcstr);
                                        }
 #endif //MPC_WALKGEN_WITH_QPOASES

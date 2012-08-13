@@ -80,16 +80,16 @@ namespace MPCWalkgen{
       int stepNumber;
       int nbInstants;
 
-      double timeLimit;
-      double startTime;
+      double time_limit;
+      double start_time;
 
       double x, y, yaw;
       double yawTrunk;//TODO: Why in SupportState? -> for compatibility with temporary previewROrientation class
 
-      bool stateChanged;
+      bool state_changed;
 
       /// \brief Define if the support state is in a (transitional) double support phase
-      bool inTransitionalDS;
+      bool transitional_ds;
 
       /// \brief The length of the previous sampling period (can be different from period_qpsample)
       double previousSamplingPeriod;//TODO: change name
@@ -138,18 +138,24 @@ namespace MPCWalkgen{
       // \brief Double support phase length (should be a large value)
       double period_ds;
 
-      QPPonderation ponderation;
- 
       bool warmstart;
       /// \brief Interpolate not only the control (first element) but the whole preview vector
       bool interpolate_preview;
 
+
+      QPPonderation ponderation;
+
+      QPSolverType solver;
+ 
       /// \brief Compute the number of recomputations left until next sample
       int nbFeedbackSamplesLeft(double firstSamplingPeriod) const;
       /// \brief Number of simulation iterations between two feedback call
-      int nbSamplesControl() const;
+      int num_samples_act() const;
       /// \brief Number of feedback iterations between two QP instants
       int nbFeedbackSamplesStandard() const;
+
+      int num_qpsamples_ss() const;
+      int num_steps_max() const;
 
       double period_ss() const;
       double period_trans_ds() const;
@@ -212,7 +218,7 @@ namespace MPCWalkgen{
       /// starting with 0, i.e. all times are relative to the current time
       std::vector<double> samplingTimes_vec;
 
-      std::vector<SupportState> supportStates_vec;
+      std::vector<SupportState> support_states_vec;
 
       std::vector<double> supportOrientations_vec;//TODO: supportOrientations_vec
       std::vector<double> supportTrunkOrientations_vec;//TODO: TrunkOrientations_vec

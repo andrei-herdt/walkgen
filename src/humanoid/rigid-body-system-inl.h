@@ -22,14 +22,14 @@ public:
   RigidBody *body(BodyType type);// TODO:To be removed
   const RigidBody *body(BodyType type) const;
 
-  inline SupportState &currentSupport() {
+  inline SupportState &current_support() {
     return currentSupport_;
   };
-  inline const SupportState &currentSupport() const {
+  inline const SupportState &current_support() const {
     return currentSupport_;
   };
-  inline void currentSupport(const SupportState &currentSupport) {
-    currentSupport_ = currentSupport;
+  inline void current_support(const SupportState &current_support) {
+    currentSupport_ = current_support;
   };
   inline RobotData &data_robot() {
     return data_robot_;

@@ -100,8 +100,8 @@ void QPGenerator::BuildProblem(MPCSolution &solution) {
   // DIMENSION OF QP:
   // ----------------
   int nbvars = 2 * data_mpc_->nbsamples_qp +				// CoM
-    2 * solution.supportStates_vec.back().stepNumber;	// Foot placement
-  int nbcstr = 5 * solution.supportStates_vec.back().stepNumber;	// Foot placement
+    2 * solution.support_states_vec.back().stepNumber;	// Foot placement
+  int nbcstr = 5 * solution.support_states_vec.back().stepNumber;	// Foot placement
   solver_->nbvar(nbvars);
   solver_->nbcstr(nbcstr);
 
@@ -115,7 +115,7 @@ void QPGenerator::BuildProblem(MPCSolution &solution) {
 void QPGenerator::buildObjective(const MPCSolution &solution) {
 
   // Choose the precomputed element depending on the nb of "feedback-recomputations" until new qp-sample
-  int precomputedMatrixNumber = data_mpc_->nbFeedbackSamplesLeft(solution.supportStates_vec[1].previousSamplingPeriod);
+  int precomputedMatrixNumber = data_mpc_->nbFeedbackSamplesLeft(solution.support_states_vec[1].previousSamplingPeriod);
   precomputedMatrixNumber += ponderation_->activePonderation * data_mpc_->nbFeedbackSamplesStandard();
 
   const BodyState &CoM = robot_->body(COM)->state();
@@ -125,7 +125,7 @@ void QPGenerator::buildObjective(const MPCSolution &solution) {
 
   QPMatrix &Q = solver_->matrix(matrixQ);
 
-  int nbsteps_previewed = solution.supportStates_vec.back().stepNumber;
+  int nbsteps_previewed = solution.support_states_vec.back().stepNumber;
   int nbsamples = data_mpc_->nbsamples_qp;
 
   //solver_->nbvar(2*nbsamples + 2*nbsteps_previewed);
@@ -207,7 +207,7 @@ void QPGenerator::buildObjective(const MPCSolution &solution) {
 }
 
 void QPGenerator::buildConstraints(const MPCSolution &solution){
-  int nbsteps_previewed = solution.supportStates_vec.back().stepNumber;
+  int nbsteps_previewed = solution.support_states_vec.back().stepNumber;
 
   buildConstraintsCOP(solution);
   if (nbsteps_previewed>0){
@@ -220,7 +220,7 @@ void QPGenerator::computeWarmStart(MPCSolution &solution){
 
   // Initialize:
   // -----------
-  int nbSteps = solution.supportStates_vec.back().stepNumber;
+  int nbSteps = solution.support_states_vec.back().stepNumber;
   int nbStepsMax = data_mpc_->nbsamples_qp;
 
   int nbFC = 5;// Number of foot constraints per step TODO: can be read?
@@ -232,7 +232,7 @@ void QPGenerator::computeWarmStart(MPCSolution &solution){
   // -------------------
   int size = solution.initialConstraints.rows();//TODO: size of what?
   VectorXi initialConstraintTmp = solution.initialConstraints;//TODO: Copy not necessary for shifting
-  double TimeFactor = solution.supportStates_vec[1].sampleWeight;//TODO: TimeFactor? sampleWeight??
+  double TimeFactor = solution.support_states_vec[1].sampleWeight;//TODO: TimeFactor? sampleWeight??
   int shiftCtr = 0;
   if (fabs(TimeFactor-1.) < EPSILON) {
     shiftCtr = 1;//if sampleWeight == 1
@@ -259,13 +259,13 @@ void QPGenerator::computeWarmStart(MPCSolution &solution){
 
   // Compute feasible initial ZMP and foot positions:
   // ------------------------------------------------
-  std::vector<SupportState>::iterator prwSS_it = solution.supportStates_vec.begin();
+  std::vector<SupportState>::iterator prwSS_it = solution.support_states_vec.begin();
   ++prwSS_it;//Point at the first previewed support state
 
-  SupportState currentSupport = solution.supportStates_vec.front();
+  SupportState current_support = solution.support_states_vec.front();
   // if in transition phase
-  if (prwSS_it->stateChanged){
-    currentSupport = *prwSS_it;
+  if (prwSS_it->state_changed){
+    current_support = *prwSS_it;
   }
   int j = 0;
 
@@ -276,7 +276,7 @@ void QPGenerator::computeWarmStart(MPCSolution &solution){
     robot_->convexHull(COPFeasibilityEdges, CoPHull, *prwSS_it, false);
 
     // Check if the support foot has changed
-    if (prwSS_it->stateChanged && prwSS_it->stepNumber>0){
+    if (prwSS_it->state_changed && prwSS_it->stepNumber>0){
 
       // Get feet convex hull for current support
       prwSS_it--;
@@ -305,12 +305,12 @@ void QPGenerator::computeWarmStart(MPCSolution &solution){
         shifty=(FootFeasibilityEdges.y(4)+FootFeasibilityEdges.y(2))/2;
       }
 
-      currentSupport.x += shiftx;
-      currentSupport.y += shifty;
+      current_support.x += shiftx;
+      current_support.y += shifty;
 
       // Set the new position into initial solution vector
-      solution.initialSolution(2*nbsamples+j) = currentSupport.x;
-      solution.initialSolution(2*nbsamples+nbSteps+j) = currentSupport.y;
+      solution.initialSolution(2*nbsamples+j) = current_support.x;
+      solution.initialSolution(2*nbsamples+nbSteps+j) = current_support.y;
       ++j;
     }
     // Place the ZMP on active constraints
@@ -379,7 +379,7 @@ void QPGenerator::computeReferenceVector(const MPCSolution &solution){
 
   double YawTrunk;
   for (int i=0;i<data_mpc_->nbsamples_qp;++i){
-    YawTrunk = solution.supportStates_vec[i+1].yaw;
+    YawTrunk = solution.support_states_vec[i+1].yaw;
     velRef_->global.x(i) = velRef_->local.x(i)*cos(YawTrunk)-velRef_->local.y(i)*sin(YawTrunk);
     velRef_->global.y(i) = velRef_->local.x(i)*sin(YawTrunk)+velRef_->local.y(i)*cos(YawTrunk);
   }
@@ -395,7 +395,7 @@ void QPGenerator::ConvertCopToJerk(MPCSolution &solution){
 
   VectorXd sol_x_vec = solution.qpSolution.segment(0, nbsamples);//TODO: Solution should not be overwritten
   VectorXd sol_y_vec = solution.qpSolution.segment(nbsamples, nbsamples);
-  int nbsteps = solution.supportStates_vec.back().stepNumber;
+  int nbsteps = solution.support_states_vec.back().stepNumber;
   const VectorXd feet_x_vec = solution.qpSolution.segment(2 * nbsamples, nbsteps);
   const VectorXd feet_y_vec = solution.qpSolution.segment(2 * nbsamples + nbsteps, nbsteps);
 
@@ -476,15 +476,15 @@ void QPGenerator::ConvertCopToJerk(MPCSolution &solution){
 void QPGenerator::buildInequalitiesFeet(const MPCSolution &solution){
 
   int nbIneq = 5;
-  int nbSteps = solution.supportStates_vec.back().stepNumber;
+  int nbSteps = solution.support_states_vec.back().stepNumber;
 
   feetInequalities_.resize(nbIneq * nbSteps , nbSteps);
 
-  std::vector<SupportState>::const_iterator prwSS_it = solution.supportStates_vec.begin();
+  std::vector<SupportState>::const_iterator prwSS_it = solution.support_states_vec.begin();
   ++prwSS_it;//Point at the first previewed instant
   for( int i = 0; i < data_mpc_->nbsamples_qp; ++i ){
     //foot positioning constraints
-    if( prwSS_it->stateChanged && prwSS_it->stepNumber > 0 && prwSS_it->phase != DS){
+    if( prwSS_it->state_changed && prwSS_it->stepNumber > 0 && prwSS_it->phase != DS){
 
       --prwSS_it;//Foot polygons are defined with respect to the supporting foot
       robot_->convexHull(hull, FootHull, *prwSS_it);
@@ -503,7 +503,7 @@ void QPGenerator::buildInequalitiesFeet(const MPCSolution &solution){
 
 void QPGenerator::buildConstraintsFeet(const MPCSolution &solution){
 
-  int nbsteps_previewed = solution.supportStates_vec.back().stepNumber;
+  int nbsteps_previewed = solution.support_states_vec.back().stepNumber;
   const SelectionMatrices &select = preview_->selectionMatrices();
   int nbsamples = data_mpc_->nbsamples_qp;
 
@@ -525,18 +525,18 @@ void QPGenerator::buildConstraintsFeet(const MPCSolution &solution){
 void QPGenerator::buildConstraintsCOP(const MPCSolution &solution) {
 
   int nbsamples = data_mpc_->nbsamples_qp;
-  std::vector<SupportState>::const_iterator prwSS_it = solution.supportStates_vec.begin();
+  std::vector<SupportState>::const_iterator prwSS_it = solution.support_states_vec.begin();
 
   robot_->convexHull(hull, CoPHull, *prwSS_it, false, false);
 
-  int nbsteps_previewed = solution.supportStates_vec.back().stepNumber;
+  int nbsteps_previewed = solution.support_states_vec.back().stepNumber;
   int size = 2 * nbsamples + 2 * nbsteps_previewed;
   tmp_vec_.resize(size);
   tmp_vec2_.resize(size);
 
   ++prwSS_it;//Point at the first previewed instant
   for (int i = 0; i < nbsamples; ++i) {
-    if (prwSS_it->stateChanged) {
+    if (prwSS_it->state_changed) {
       robot_->convexHull(hull, CoPHull, *prwSS_it, false, false);
     }
     tmp_vec_(i)  = std::min(hull.x(0), hull.x(3));

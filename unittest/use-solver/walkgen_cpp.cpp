@@ -62,7 +62,7 @@ static void mdlInitializeSizes(SimStruct *S)
   ssSetInputPortDirectFeedThrough(S, 7, 1);
   ssSetInputPortDirectFeedThrough(S, 8, 1);
 
-  if (!ssSetNumOutputPorts(S,13)) return;
+  if (!ssSetNumOutputPorts(S,14)) return;
   // Realized motions
   ssSetOutputPortWidth(S, 0, 3);//com
   ssSetOutputPortWidth(S, 1, 3);//dcom
@@ -80,6 +80,8 @@ static void mdlInitializeSizes(SimStruct *S)
   ssSetOutputPortWidth(S, 10, nbsteps_max);//first_foot_prw
   ssSetOutputPortWidth(S, 11, 4 * nbsamples);//com_prw (sample_instants, x, y, z)
   ssSetOutputPortWidth(S, 12, 3 * nbsamples);//cop_prw (sample_instants, x, y)
+
+  ssSetOutputPortWidth(S, 13, 1);//support
 
   ssSetNumSampleTimes(S, 1);
   // Reserve place for C++ object
@@ -114,7 +116,7 @@ static void mdlInitializeSampleTimes(SimStruct *S)
 static void mdlStart(SimStruct *S)//TODO: mdlInitializeConditions if subsystem enabled
 {
 
-  WalkgenAbstract *walk = createWalkgen(QPSOLVERTYPE_QPOASES);
+  WalkgenAbstract *walk = createWalkgen();
   ssSetPWorkValue(S, 0, (void*)walk);
   ssSetIWorkValue(S, 0, 0);//MPCWalkgen not initialized
 
@@ -148,6 +150,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
   real_T *first_foot_prw = ssGetOutputPortRealSignal(S, 10);
   real_T *com_prw        = ssGetOutputPortRealSignal(S, 11);
   real_T *cop_prw        = ssGetOutputPortRealSignal(S, 12);
+  real_T *support        = ssGetOutputPortRealSignal(S, 13);
 
   WalkgenAbstract *walk = (WalkgenAbstract *)ssGetPWorkValue(S, 0);
   RigidBodySystem *robot = walk->robot();
@@ -159,7 +162,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
     walk->reference(*vel_ref[0], *vel_ref[1], *vel_ref[2]);
 
     FootData leftFoot;// TODO: Never used
-    double security_margin = 0.02;
+    double security_margin = 0.0;
     leftFoot.anklePositionInLocalFrame << 0, 0, 0; //0, 0, 0.105;//TODO:Is not used
     leftFoot.soleHeight = *foot_geometry[2] - *foot_geometry[3] - security_margin;
     leftFoot.soleWidth = *foot_geometry[0] - *foot_geometry[1] - security_margin;
@@ -178,6 +181,10 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
     HipYawData rightHipYaw = leftHipYaw;
 
     MPCData mpcData;
+    mpcData.nbsamples_qp = 16;
+    mpcData.nbqpsamples_step = 8;
+    mpcData.nbqpsamples_dsss = 8;
+    mpcData.nbsteps_ssds = 2;
     mpcData.period_qpsample = 0.1;
     mpcData.period_mpcsample = 0.1;
     mpcData.period_actsample = 0.001;
@@ -218,9 +225,10 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
     }
 
     // Constraints on the CoP
+    // TODO: Should not be hardcoded
     const int nbVertCoP = 4;
-    double DefaultCoPSSEdgesX[nbVertCoP] = {0.0286, 0.0286, -0.0286, -0.0286};//= {0.0686, 0.0686, -0.0686, -0.0686};
-    double DefaultCoPSSEdgesY[nbVertCoP] = {0.009, -0.009, -0.009, 0.009};//= {0.029, -0.029, -0.029, 0.029};
+    double DefaultCoPSSEdgesX[nbVertCoP] = {0.0686, 0.0686, -0.0686, -0.0686};
+    double DefaultCoPSSEdgesY[nbVertCoP] = {0.029, -0.029, -0.029, 0.029};
     double DefaultCoPDSEdgesX[nbVertCoP] = {0.0686, 0.0686, -0.0686, -0.0686};
     double DefaultCoPDSEdgesY[nbVertCoP] = {0.029, -0.229, -0.229, 0.029};
 
@@ -240,7 +248,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
       robot_data.CoPRightDSHull.y(i) =- DefaultCoPDSEdgesY[i];
     }
 
-    walk->init(robot_data, mpcData);
+    walk->Init(robot_data, mpcData);
     ssSetIWorkValue(S, 0, 1);//Is initialized
   }
 
@@ -306,7 +314,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
   ddp_right[3] = walk->output().right_foot.ddyaw;
 
   // Previewed motions
-  int nbsamples = solution.supportStates_vec.size() - 1;
+  int nbsamples = solution.support_states_vec.size() - 1;
   for (int sample = 0; sample < nbsamples; ++sample) {
     // CoM:
     com_prw[sample] = solution.samplingTimes_vec[sample+1];
@@ -318,14 +326,24 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
     cop_prw[nbsamples + sample] = solution.cop_prw.pos.x_vec[sample];
     cop_prw[2 * nbsamples + sample] = solution.cop_prw.pos.y_vec[sample];
   }
-  
-  int nbsteps_prw = solution.supportStates_vec.back().stepNumber;
+
+  int nbsteps_prw = solution.support_states_vec.back().stepNumber;
   if (nbsteps_prw > 0) {
     first_foot_prw[0] = solution.qpSolution[2 * nbsamples];
     first_foot_prw[1] = solution.qpSolution[2 * nbsamples + nbsteps_prw];
   } else {
-    first_foot_prw[0] = solution.supportStates_vec.front().x;
-    first_foot_prw[1] = solution.supportStates_vec.front().y;
+    first_foot_prw[0] = solution.support_states_vec.front().x;
+    first_foot_prw[1] = solution.support_states_vec.front().y;
+  }
+  // Change of the current support state (time instant)
+  SupportState &current_support = solution.support_states_vec.front();
+  SupportState &next_support = solution.support_states_vec[1];
+  if (current_support.state_changed) {
+    support[0] = current_support.start_time;
+  } else if (next_support.transitional_ds) {
+    support[0] = current_support.time_limit - 0.1;// TODO: 0.1 is temporary solution
+  } else {
+    support[0] = 0.0;
   }
 
 

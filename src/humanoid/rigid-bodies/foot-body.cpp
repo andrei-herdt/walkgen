@@ -16,61 +16,65 @@ FootBody::~FootBody(){}
 
 void FootBody::Interpolate(MPCSolution &solution, double currentTime, const Reference &/*velRef*/) {
 
-  BodyState nextFootState;
-  SupportState curSupport = solution.supportStates_vec.front();
-  SupportState nextSupportState = solution.supportStates_vec[1];
+  BodyState goal_state;
+  const SupportState &current_support = solution.support_states_vec[0];
+  const SupportState &next_support = solution.support_states_vec[1];
 
   double time_left_xy = 1; // Duration of the current interpolation phase of the horizontal motion
   double time_left_z = 1; // Duration of the current interpolation phase of the vertical motion
-  int nbsamples = data_mpc_->nbSamplesControl();
+  int nbsamples = data_mpc_->num_samples_act();
   double period_ds = data_mpc_->period_trans_ds();
-  double raise_period = 0.05; // Time during which the horizontal displacement is blocked
-  double time_left_flying = curSupport.timeLimit - period_ds - currentTime;
-  double time_spent_flying = currentTime - curSupport.startTime;
-  if (solution.supportStates_vec[0].phase == SS) {
-    int nbStepsPreviewed = solution.supportStates_vec.back().stepNumber;
-    if (nextSupportState.inTransitionalDS) {
-      time_left_xy = curSupport.timeLimit - currentTime;
-      nextFootState.x(0) = state_.x(0);
-      nextFootState.y(0) = state_.y(0);
-      nextFootState.yaw(0) = state_.yaw(0);
-    } else if (time_spent_flying < raise_period + EPSILON) {
+  double raise_period = std::max(0.05, data_mpc_->period_mpcsample); // Time during which the horizontal displacement is blocked
+  double time_left_flying = 0.0;
+  double time_spent_flying = 0.0;
+  double halftime_rounded = std::ceil(static_cast<double>(data_mpc_->num_qpsamples_ss()) / 2.0) * data_mpc_->period_qpsample;
+  if (current_support.phase == SS) {
+    time_left_flying = current_support.time_limit - period_ds - currentTime;
+    time_spent_flying = currentTime - current_support.start_time;
+    int nbStepsPreviewed = solution.support_states_vec.back().stepNumber;
+    if (next_support.transitional_ds) {
+      time_left_xy = current_support.time_limit - currentTime;
+      goal_state.x(0) = state_.x(0);
+      goal_state.y(0) = state_.y(0);
+      goal_state.yaw(0) = state_.yaw(0);
+    } else if (time_spent_flying < raise_period - EPSILON) {
       time_left_xy = raise_period - time_spent_flying;
-      nextFootState.x(0) = state_.x(0);
-      nextFootState.y(0) = state_.y(0);
-      nextFootState.yaw(0) = state_.yaw(0);
+      goal_state.x(0) = state_.x(0);
+      goal_state.y(0) = state_.y(0);
+      goal_state.yaw(0) = state_.yaw(0);
     }  else if (time_left_flying < raise_period + EPSILON) {
       time_left_xy = time_left_flying;
-      nextFootState.x(0) = state_.x(0);
-      nextFootState.y(0) = state_.y(0);
-      nextFootState.yaw(0) = state_.yaw(0);
+      goal_state.x(0) = state_.x(0);
+      goal_state.y(0) = state_.y(0);
+      goal_state.yaw(0) = state_.yaw(0);
     } else {
       time_left_xy = time_left_flying - raise_period;
-      int nbPreviewedSteps = solution.supportStates_vec.back().stepNumber;
+      int nbPreviewedSteps = solution.support_states_vec.back().stepNumber;
       if (nbPreviewedSteps > 0) {
-        nextFootState.x(0) = solution.qpSolution(2 * data_mpc_->nbsamples_qp);
-        nextFootState.y(0) = solution.qpSolution(2 * data_mpc_->nbsamples_qp + nbStepsPreviewed);
-        nextFootState.yaw(0) = solution.supportOrientations_vec[0];
+        goal_state.x(0) = solution.qpSolution(2 * data_mpc_->nbsamples_qp);
+        goal_state.y(0) = solution.qpSolution(2 * data_mpc_->nbsamples_qp + nbStepsPreviewed);
+        goal_state.yaw(0) = solution.supportOrientations_vec[0];
       } else {
-        nextFootState.x(0) = state_.x(0);
-        nextFootState.y(0) = state_.y(0);
-        nextFootState.yaw(0) = state_.yaw(0);
+        goal_state.x(0) = state_.x(0);
+        goal_state.y(0) = state_.y(0);
+        goal_state.yaw(0) = state_.yaw(0);
       }
     }
-    if (time_left_flying - (data_mpc_->period_ss() / 2.0) > data_mpc_->period_actsample) {
-      nextFootState.z(0) = robotData_->freeFlyingFootMaxHeight;
-      time_left_z = time_left_flying - (data_mpc_->period_ss() / 2.0) ;
-    } else if (time_left_flying < (data_mpc_->period_ss() / 2.0) && time_left_flying > EPSILON) { // Half-time passed
+    // Vertical trajectory
+    if (time_left_flying - halftime_rounded > data_mpc_->period_actsample) {
+      goal_state.z(0) = robotData_->freeFlyingFootMaxHeight;
+      time_left_z = time_left_flying - halftime_rounded;
+    } else if (time_left_flying < halftime_rounded && time_left_flying > EPSILON) { // Half-time passed
       time_left_z = time_left_flying;
     } else {
       // time_left_z stays 1
     }
   }
 
-  InterpolatePolynomial(solution, X, nbsamples, time_left_xy, state_.x, nextFootState.x);
-  InterpolatePolynomial(solution, Y, nbsamples, time_left_xy, state_.y, nextFootState.y);
-  InterpolatePolynomial(solution, Z, nbsamples, time_left_z, state_.z, nextFootState.z);
-  InterpolatePolynomial(solution, Yaw, nbsamples, time_left_xy, state_.yaw, nextFootState.yaw);
+  InterpolatePolynomial(solution, X, nbsamples, time_left_xy, state_.x, goal_state.x);
+  InterpolatePolynomial(solution, Y, nbsamples, time_left_xy, state_.y, goal_state.y);
+  InterpolatePolynomial(solution, Z, nbsamples, time_left_z, state_.z, goal_state.z);
+  InterpolatePolynomial(solution, Yaw, nbsamples, time_left_xy, state_.yaw, goal_state.yaw);
 
 }
 
@@ -109,8 +113,8 @@ VectorXd &FootBody::getFootVector(MPCSolution &solution, Axis axis, unsigned der
 }
 
 void FootBody::InterpolatePolynomial(MPCSolution &solution, Axis axis, int nbsamples, double T, 
-                                                    const Eigen::Vector3d &init_state_vec,
-                                                    const Eigen::Vector3d &final_state_vec) 
+                                     const Eigen::Vector3d &init_state_vec,
+                                     const Eigen::Vector3d &final_state_vec) 
 {
   VectorXd &FootTrajState = getFootVector(solution, axis, 0);
   VectorXd &FootTrajVel   = getFootVector(solution, axis, 1);
@@ -122,13 +126,13 @@ void FootBody::InterpolatePolynomial(MPCSolution &solution, Axis axis, int nbsam
     FootTrajAcc.resize(nbsamples);
   }
 
-  if (solution.supportStates_vec[0].foot == footType_) {
+  if (solution.support_states_vec[0].foot == footType_) {
     FootTrajState.fill(init_state_vec(0));
     FootTrajVel.fill(0.0);
     FootTrajAcc.fill(0.0);
 
   } else {
-    if (solution.supportStates_vec[0].phase == DS) {
+    if (solution.support_states_vec[0].phase == DS) {
       FootTrajState.fill(init_state_vec(0));
       FootTrajVel.fill(0.0);
       FootTrajAcc.fill(0.0);

@@ -18,8 +18,8 @@ using namespace MPCWalkgen;
 using namespace Eigen;
 
 
-MPCWalkgen::WalkgenAbstract* MPCWalkgen::createWalkgen(MPCWalkgen::QPSolverType solvertype) {
-  MPCWalkgen::WalkgenAbstract* zmpVra = new MPCWalkgen::Walkgen(solvertype);
+MPCWalkgen::WalkgenAbstract* MPCWalkgen::createWalkgen() {
+  MPCWalkgen::WalkgenAbstract* zmpVra = new MPCWalkgen::Walkgen();
   return zmpVra;
 }
 
@@ -27,7 +27,7 @@ MPCWalkgen::WalkgenAbstract* MPCWalkgen::createWalkgen(MPCWalkgen::QPSolverType 
 
 
 // Implementation of the private interface
-Walkgen::Walkgen(::MPCWalkgen::QPSolverType solvertype)
+Walkgen::Walkgen()
 : WalkgenAbstract()
 ,data_mpc_()
 ,solver_(0x0)
@@ -48,21 +48,6 @@ Walkgen::Walkgen(::MPCWalkgen::QPSolverType solvertype)
 ,currentTime_(0)
 ,currentRealTime_(0)
 {
-  int nb_steps_max = 2;
-  solver_ = createQPSolver(solvertype,
-    2 * (data_mpc_.nbsamples_qp + nb_steps_max), 
-    5 * nb_steps_max
-    );
-
-  orientPrw_ = new OrientationsPreview();
-
-  interpolation_ = new Interpolation();
-
-  robot_ = new RigidBodySystem(&data_mpc_);
-
-  preview_ = new QPPreview(&velRef_, robot_, &data_mpc_);
-
-  generator_= new QPGenerator(preview_, solver_, &velRef_, &ponderation_, robot_, &data_mpc_);
 
 }
 
@@ -88,17 +73,10 @@ Walkgen::~Walkgen(){
 
 }
 
-void Walkgen::init(const RobotData &data_robot, const MPCData &mpcData) {
+void Walkgen::Init(const RobotData &data_robot, const MPCData &mpcData) {
 
   data_mpc_ = mpcData;
   robotData_ = data_robot;
-
-  init();
-
-}
-
-void Walkgen::init() {
-  robot_->Init(robotData_, interpolation_);
 
   // Check if sampling periods are defined correctly
   assert(data_mpc_.period_actsample > 0);
@@ -107,10 +85,34 @@ void Walkgen::init() {
   assert(data_mpc_.nbqpsamples_step <= data_mpc_.nbsamples_qp);
   assert(data_mpc_.nbqpsamples_dsss <= data_mpc_.nbsamples_qp);
 
-  solution_.com_act.resize(data_mpc_.nbSamplesControl());
-  solution_.cop_act.resize(data_mpc_.nbSamplesControl());
-  solution_.com_prw.resize(data_mpc_.nbFeedbackSamplesStandard());
-  solution_.cop_prw.resize(data_mpc_.nbFeedbackSamplesStandard());
+  Init();
+
+}
+
+void Walkgen::Init() {
+  //TODO: Cleaning is necessary
+  int num_steps_max = data_mpc_.num_steps_max();
+  int num_constr_step = 5;
+  solver_ = createQPSolver(data_mpc_.solver,
+    2 * (data_mpc_.nbsamples_qp + num_steps_max), 
+    num_constr_step * num_steps_max  );
+
+  orientPrw_ = new OrientationsPreview();
+
+  interpolation_ = new Interpolation();
+
+  robot_ = new RigidBodySystem(&data_mpc_);
+
+  preview_ = new QPPreview(&velRef_, robot_, &data_mpc_);
+
+  generator_= new QPGenerator(preview_, solver_, &velRef_, &ponderation_, robot_, &data_mpc_);
+
+  robot_->Init(robotData_, interpolation_);
+
+  solution_.com_act.resize(data_mpc_.num_samples_act());
+  solution_.cop_act.resize(data_mpc_.num_samples_act());
+  solution_.com_prw.resize(data_mpc_.nbsamples_qp);
+  solution_.cop_prw.resize(data_mpc_.nbsamples_qp);
 
   // Redistribute the X,Y vectors of variables inside the optimization problems
   VectorXi order(solver_->nbvar_max());
@@ -125,7 +127,7 @@ void Walkgen::init() {
 
   solver_->varOrder(order);
 
-  orientPrw_->init(data_mpc_, robotData_);
+  orientPrw_->Init(data_mpc_, robotData_);
 
   generator_->precomputeObjective();
 
@@ -210,11 +212,11 @@ void Walkgen::BuildProblem() {
   solution_.reset();
   velRef_ = newVelRef_;
   if (isNewCurrentSupport_){
-    robot_->currentSupport(newCurrentSupport_);
+    robot_->current_support(newCurrentSupport_);
     isNewCurrentSupport_ = false;
   }
 
-  if (robot_->currentSupport().phase == SS && robot_->currentSupport().nbStepsLeft == 0) {
+  if (robot_->current_support().phase == SS && robot_->current_support().nbStepsLeft == 0) {
     velRef_.local.x.fill(0);
     velRef_.local.y.fill(0);
     velRef_.local.yaw.fill(0);//TODO: Bullshit
@@ -266,20 +268,20 @@ void Walkgen::ResetOutputIndex() {
 }
 
 void Walkgen::IncrementOutputIndex() {
-  if (output_index_ < data_mpc_.nbSamplesControl() - 1) {
+  if (output_index_ < data_mpc_.num_samples_act() - 1) {
     output_index_++;
   }
 }
 
 void Walkgen::UpdateOutput() {
   output_.com.x = solution_.com_act.pos.x_vec[output_index_];
-  output_.com.y =   solution_.com_act.pos.y_vec[output_index_];
+  output_.com.y = solution_.com_act.pos.y_vec[output_index_];
   output_.com.z = robot_->body(COM)->state().z(0);
-  output_.com.dx =   solution_.com_act.vel.x_vec[output_index_];
-  output_.com.dy =   solution_.com_act.vel.y_vec[output_index_];
+  output_.com.dx = solution_.com_act.vel.x_vec[output_index_];
+  output_.com.dy = solution_.com_act.vel.y_vec[output_index_];
   output_.com.dz = robot_->body(COM)->state().z(1);
-  output_.com.ddx =   solution_.com_act.acc.x_vec[output_index_];
-  output_.com.ddy =   solution_.com_act.acc.y_vec[output_index_];
+  output_.com.ddx = solution_.com_act.acc.x_vec[output_index_];
+  output_.com.ddy = solution_.com_act.acc.y_vec[output_index_];
   output_.com.ddz = robot_->body(COM)->state().z(2);
 
   output_.cop.x =   solution_.cop_act.pos.x_vec[output_index_];
@@ -326,7 +328,7 @@ void Walkgen::reference(Eigen::VectorXd dx, Eigen::VectorXd dy, Eigen::VectorXd 
 
 
 const SupportState &Walkgen::currentSupportState() const {
-  return robot_->currentSupport(); }
+  return robot_->current_support(); }
 
 
 const BodyState &Walkgen::bodyState(BodyType body)const{
