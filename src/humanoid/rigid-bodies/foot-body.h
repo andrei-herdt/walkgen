@@ -19,8 +19,8 @@
 namespace MPCWalkgen{
     class FootBody:public RigidBody{
     public:
-      FootBody(const MPCData * generalData,
-               const RobotData * robotData, Foot type);
+      FootBody(const MPCData * data_mpc,
+               const RobotData * data_robot, Foot type);
       virtual ~FootBody();
 
       virtual void Interpolate(MPCSolution &solution, double currentTime, const Reference &velRef);
@@ -32,9 +32,9 @@ namespace MPCWalkgen{
     private:
       Eigen::VectorXd &getFootVector(MPCSolution &solution, Axis axis, unsigned derivative);
 
-      void computeFootInterpolationByPolynomial(MPCSolution &solution, Axis axis, int nbSampling,
-                                                const Eigen::Vector3d &FootCurrentState,
-                                                double T, const Eigen::Vector3d &nextSupportFootState);
+      void InterpolatePolynomial(MPCSolution &solution, Axis axis, int nbSampling, double T, 
+                                                const Eigen::Vector3d &state_vec,
+                                                const Eigen::Vector3d &nextSupportFootState);
 
     private:
       Foot footType_;

@@ -25,7 +25,7 @@ namespace MPCWalkgen{
     class RigidBodySystem{
 
     public:
-      RigidBodySystem(const MPCData *generalData);
+      RigidBodySystem(const MPCData *data_mpc);
       ~RigidBodySystem();
 
       void Init(const RobotData &data_robot, const Interpolation *interpolation);

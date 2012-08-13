@@ -33,7 +33,7 @@ namespace MPCWalkgen{
     Walkgen(::MPCWalkgen::QPSolverType solvertype);
     ~Walkgen();
 
-    virtual void init(const RobotData &robotData, const MPCData &mpcData);
+    virtual void init(const RobotData &data_robot, const MPCData &mpcData);
 
     virtual void init();
 
@@ -75,7 +75,7 @@ namespace MPCWalkgen{
     void SetCounters(double time);
 
   private:
-    MPCData generalData_;
+    MPCData data_mpc_;
     RobotData robotData_;
 
     ::MPCWalkgen::QPSolver *solver_;

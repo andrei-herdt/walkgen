@@ -29,7 +29,7 @@ MPCWalkgen::WalkgenAbstract* MPCWalkgen::createWalkgen(MPCWalkgen::QPSolverType 
 // Implementation of the private interface
 Walkgen::Walkgen(::MPCWalkgen::QPSolverType solvertype)
 : WalkgenAbstract()
-,generalData_()
+,data_mpc_()
 ,solver_(0x0)
 ,generator_(0x0)
 ,preview_(0x0)
@@ -50,7 +50,7 @@ Walkgen::Walkgen(::MPCWalkgen::QPSolverType solvertype)
 {
   int nb_steps_max = 2;
   solver_ = createQPSolver(solvertype,
-    2 * (generalData_.nbsamples_qp + nb_steps_max), 
+    2 * (data_mpc_.nbsamples_qp + nb_steps_max), 
     5 * nb_steps_max
     );
 
@@ -58,11 +58,11 @@ Walkgen::Walkgen(::MPCWalkgen::QPSolverType solvertype)
 
   interpolation_ = new Interpolation();
 
-  robot_ = new RigidBodySystem(&generalData_);
+  robot_ = new RigidBodySystem(&data_mpc_);
 
-  preview_ = new QPPreview(&velRef_, robot_, &generalData_);
+  preview_ = new QPPreview(&velRef_, robot_, &data_mpc_);
 
-  generator_= new QPGenerator(preview_, solver_, &velRef_, &ponderation_, robot_, &generalData_);
+  generator_= new QPGenerator(preview_, solver_, &velRef_, &ponderation_, robot_, &data_mpc_);
 
 }
 
@@ -88,10 +88,10 @@ Walkgen::~Walkgen(){
 
 }
 
-void Walkgen::init(const RobotData &robotData, const MPCData &mpcData) {
+void Walkgen::init(const RobotData &data_robot, const MPCData &mpcData) {
 
-  generalData_ = mpcData;
-  robotData_ = robotData;
+  data_mpc_ = mpcData;
+  robotData_ = data_robot;
 
   init();
 
@@ -101,31 +101,31 @@ void Walkgen::init() {
   robot_->Init(robotData_, interpolation_);
 
   // Check if sampling periods are defined correctly
-  assert(generalData_.period_actsample > 0);
-  assert(generalData_.period_mpcsample >= generalData_.period_actsample);
-  assert(generalData_.period_qpsample >= generalData_.period_mpcsample);
-  assert(generalData_.nbqpsamples_step <= generalData_.nbsamples_qp);
-  assert(generalData_.nbqpsamples_dsss <= generalData_.nbsamples_qp);
+  assert(data_mpc_.period_actsample > 0);
+  assert(data_mpc_.period_mpcsample >= data_mpc_.period_actsample);
+  assert(data_mpc_.period_qpsample >= data_mpc_.period_mpcsample);
+  assert(data_mpc_.nbqpsamples_step <= data_mpc_.nbsamples_qp);
+  assert(data_mpc_.nbqpsamples_dsss <= data_mpc_.nbsamples_qp);
 
-  solution_.com_act.resize(generalData_.nbSamplesControl());
-  solution_.cop_act.resize(generalData_.nbSamplesControl());
-  solution_.com_prw.resize(generalData_.nbFeedbackSamplesStandard());
-  solution_.cop_prw.resize(generalData_.nbFeedbackSamplesStandard());
+  solution_.com_act.resize(data_mpc_.nbSamplesControl());
+  solution_.cop_act.resize(data_mpc_.nbSamplesControl());
+  solution_.com_prw.resize(data_mpc_.nbFeedbackSamplesStandard());
+  solution_.cop_prw.resize(data_mpc_.nbFeedbackSamplesStandard());
 
   // Redistribute the X,Y vectors of variables inside the optimization problems
   VectorXi order(solver_->nbvar_max());
-  for (int i = 0; i < generalData_.nbsamples_qp; ++i) {// 0,2,4,1,3,5 (CoM)
+  for (int i = 0; i < data_mpc_.nbsamples_qp; ++i) {// 0,2,4,1,3,5 (CoM)
     order(i) = 2*i;
-    order(i + generalData_.nbsamples_qp) = 2*i+1;
+    order(i + data_mpc_.nbsamples_qp) = 2*i+1;
   }
 
-  for (int i = 2*generalData_.nbsamples_qp; i < solver_->nbvar_max(); ++i) {// 6,7,8 (Feet)
+  for (int i = 2*data_mpc_.nbsamples_qp; i < solver_->nbvar_max(); ++i) {// 6,7,8 (Feet)
     order(i) = i;
   }
 
   solver_->varOrder(order);
 
-  orientPrw_->init(generalData_, robotData_);
+  orientPrw_->init(data_mpc_, robotData_);
 
   generator_->precomputeObjective();
 
@@ -146,8 +146,8 @@ void Walkgen::init() {
 
   ponderation_.activePonderation = 0;
 
-  velRef_.resize(generalData_.nbsamples_qp);
-  newVelRef_.resize(generalData_.nbsamples_qp);
+  velRef_.resize(data_mpc_.nbsamples_qp);
+  newVelRef_.resize(data_mpc_.nbsamples_qp);
 
   BuildProblem();
 
@@ -155,7 +155,7 @@ void Walkgen::init() {
 }
 
 const MPCSolution &Walkgen::online(){
-  currentRealTime_ += generalData_.period_mpcsample;
+  currentRealTime_ += data_mpc_.period_mpcsample;
   return online(currentRealTime_);
 }
 
@@ -163,12 +163,12 @@ const MPCSolution &Walkgen::online(double time){
   currentTime_ = time;
 
   if (time  > next_computation_ - EPSILON) {
-    next_computation_ += generalData_.period_mpcsample;
+    next_computation_ += data_mpc_.period_mpcsample;
     if (time > next_computation_ - EPSILON) {   
       ResetCounters(time);
     }
     if(time  > first_sample_time_ - EPSILON){
-      first_sample_time_ += generalData_.period_qpsample;
+      first_sample_time_ += data_mpc_.period_qpsample;
       if (time > first_sample_time_ - EPSILON) {
         ResetCounters(time);
       }
@@ -179,13 +179,13 @@ const MPCSolution &Walkgen::online(double time){
 
     solver_->solve(solution_.qpSolution, solution_.constraints,
       solution_.initialSolution, solution_.initialConstraints,
-      generalData_.warmstart);
+      data_mpc_.warmstart);
 
     GenerateTrajectories();
   }
 
   if (time > next_act_sample_ - EPSILON) {
-    next_act_sample_ += generalData_.period_actsample;
+    next_act_sample_ += data_mpc_.period_actsample;
 
     IncrementOutputIndex();
     UpdateOutput();
@@ -198,9 +198,9 @@ void Walkgen::SetCounters(double time) {
 
 }
 void Walkgen::ResetCounters(double time) {
-  first_sample_time_ = time + generalData_.period_qpsample;
-  next_computation_ = time + generalData_.period_mpcsample;
-  next_act_sample_ = time + generalData_.period_actsample;
+  first_sample_time_ = time + data_mpc_.period_qpsample;
+  next_computation_ = time + data_mpc_.period_mpcsample;
+  next_act_sample_ = time + data_mpc_.period_actsample;
 }
 
 void Walkgen::BuildProblem() {
@@ -235,7 +235,7 @@ void Walkgen::BuildProblem() {
   preview_->previewSupportStates(firstSamplingPeriod, solution_);
 
   orientPrw_->preview_orientations( currentTime_, velRef_, 
-    generalData_.nbqpsamples_step * generalData_.period_qpsample,
+    data_mpc_.nbqpsamples_step * data_mpc_.period_qpsample,
     robot_->body(LEFT_FOOT)->state(), robot_->body(RIGHT_FOOT)->state(),
     solution_ );
   preview_->computeRotationMatrix(solution_);
@@ -266,7 +266,7 @@ void Walkgen::ResetOutputIndex() {
 }
 
 void Walkgen::IncrementOutputIndex() {
-  if (output_index_ < generalData_.nbSamplesControl() - 1) {
+  if (output_index_ < data_mpc_.nbSamplesControl() - 1) {
     output_index_++;
   }
 }

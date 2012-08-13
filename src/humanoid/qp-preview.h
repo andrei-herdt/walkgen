@@ -28,7 +28,7 @@ namespace MPCWalkgen{
       static const double EPS_;
 
     public:
-      QPPreview(Reference * velRef, RigidBodySystem * robot, const MPCData * generalData);
+      QPPreview(Reference * velRef, RigidBodySystem * robot, const MPCData * data_mpc);
 
       ~QPPreview();
 
@@ -52,7 +52,7 @@ namespace MPCWalkgen{
 
     private:
       RigidBodySystem * robot_;
-      const MPCData * generalData_;
+      const MPCData * data_mpc_;
       StateFSM * statesolver_;	//TODO: Name statesolver is bad
 
       SelectionMatrices selectionMatrices_;
@@ -62,7 +62,7 @@ namespace MPCWalkgen{
     };
 }
 
-/*! \fn MPCWalkgen::QPPreview::QPPreview(VelReference * velRef, RigidBodySystem * robot, const MPCData * generalData)
+/*! \fn MPCWalkgen::QPPreview::QPPreview(VelReference * velRef, RigidBodySystem * robot, const MPCData * data_mpc)
 * \brief Constructor
 */
 

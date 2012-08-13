@@ -179,7 +179,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 
     MPCData mpcData;
     mpcData.period_qpsample = 0.1;
-    mpcData.period_mpcsample = 0.001;
+    mpcData.period_mpcsample = 0.1;
     mpcData.period_actsample = 0.001;
     mpcData.ponderation.JerkMin[0] = 0.00001;
     mpcData.ponderation.JerkMin[1] = 0.00001;
@@ -263,8 +263,8 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
   MPCSolution solution;
   solution = walk->online(t);
 
-  // Realize these motions:
-  // ----------------------
+  // Assign to the output:
+  // ---------------------
   com[0] = walk->output().com.x;
   com[1] = walk->output().com.y;
   com[2] = walk->output().com.z;
@@ -305,8 +305,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
   ddp_right[2] = walk->output().right_foot.ddz;
   ddp_right[3] = walk->output().right_foot.ddyaw;
 
-  // Previewed motions:
-  // ------------------
+  // Previewed motions
   int nbsamples = solution.supportStates_vec.size() - 1;
   for (int sample = 0; sample < nbsamples; ++sample) {
     // CoM:

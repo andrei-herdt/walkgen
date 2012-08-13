@@ -39,9 +39,9 @@ namespace MPCWalkgen{
       virtual ~WalkgenAbstract() =0;
 
       /// \brief Initialize the system
-      /// \param[in] robotData: data relative to the robot
+      /// \param[in] data_robot: data relative to the robot
       /// \param[in] mpcData: data relative to the qp solver
-      virtual void init(const RobotData &robotData, const MPCData &mpcData) = 0;
+      virtual void init(const RobotData &data_robot, const MPCData &mpcData) = 0;
       virtual void init() = 0;
 
       /// \brief Call method to handle on-line generation of ZMP reference trajectory.

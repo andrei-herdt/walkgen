@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.252"
+    ComputedModelVersion    "1.256"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Sat Aug 11 18:44:12 2012"
+  LastModifiedDate	  "Mon Aug 13 10:32:30 2012"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:252>"
+  ModelVersionFormat	  "1.%<AutoIncrement:256>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -611,7 +611,7 @@ Model {
       FunctionWithSeparateData off
       System {
 	Name			"MPCSimulation"
-	Location		[848, 74, 1594, 860]
+	Location		[792, 74, 1594, 860]
 	Open			on
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200

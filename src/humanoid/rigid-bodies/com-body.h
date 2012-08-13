@@ -17,7 +17,7 @@ namespace MPCWalkgen{
 
   class CoMBody:public RigidBody{
   public:
-    CoMBody(const MPCData *generalData, const RobotData *robotData);
+    CoMBody(const MPCData *data_mpc, const RobotData *data_robot);
     virtual ~CoMBody();
 
     virtual void Interpolate(MPCSolution &solution, double currentTime, const Reference &velRef);

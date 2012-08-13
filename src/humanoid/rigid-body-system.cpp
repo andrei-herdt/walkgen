@@ -100,7 +100,7 @@ void RigidBodySystem::setSelectionNumber(double firstSamplingPeriod){
   foot_right_->setSelectionNumber(firstSamplingPeriod);
 }
 
-RigidBody * RigidBodySystem::body(BodyType type){
+RigidBody *RigidBodySystem::body(BodyType type){
   switch(type){
     case COM:
       return com_;
@@ -111,7 +111,7 @@ RigidBody * RigidBodySystem::body(BodyType type){
   }
 }
 
-const RigidBody * RigidBodySystem::body(BodyType type) const{
+const RigidBody *RigidBodySystem::body(BodyType type) const{
   switch(type){
     case COM:
       return com_;

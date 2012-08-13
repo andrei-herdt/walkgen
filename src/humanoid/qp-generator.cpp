@@ -14,13 +14,13 @@ using namespace Eigen;
 
 QPGenerator::QPGenerator(QPPreview *preview, QPSolver *solver,
                          Reference *velRef, QPPonderation *ponderation,
-                         RigidBodySystem *robot, const MPCData *generalData)
+                         RigidBodySystem *robot, const MPCData *data_mpc)
                          :preview_(preview)
                          ,solver_(solver)
                          ,robot_(robot)
                          ,velRef_(velRef)
                          ,ponderation_(ponderation)
-                         ,generalData_(generalData)
+                         ,data_mpc_(data_mpc)
                          ,tmp_vec_(1)
                          ,tmp_vec2_(1)
                          ,tmp_mat_(1,1)
@@ -33,7 +33,7 @@ QPGenerator::~QPGenerator(){}
 void QPGenerator::precomputeObjective(){
   // TODO: Document this function
   int nbUsedPonderations = ponderation_->JerkMin.size(); //
-  int size = generalData_->nbFeedbackSamplesStandard();
+  int size = data_mpc_->nbFeedbackSamplesStandard();
   Qconst_.resize(size*nbUsedPonderations);
   QconstN_.resize(size*nbUsedPonderations);
   choleskyConst_.resize(size*nbUsedPonderations);
@@ -41,7 +41,7 @@ void QPGenerator::precomputeObjective(){
   pconstVc_.resize(size*nbUsedPonderations);
   pconstRef_.resize(size*nbUsedPonderations);
 
-  int nbsamples = generalData_->nbsamples_qp;
+  int nbsamples = data_mpc_->nbsamples_qp;
   //MatrixXd pondFactor = MatrixXd::Identity(nbsamples,nbsamples);
   MatrixXd G(nbsamples,nbsamples);
 
@@ -56,17 +56,17 @@ void QPGenerator::precomputeObjective(){
   chol.colOrder(order);
 
   for (int i = 0; i < nbUsedPonderations; ++i) {
-    for (double period_first = generalData_->period_mpcsample;
-      period_first < generalData_->period_qpsample+EPSILON;
-      period_first += generalData_->period_mpcsample) {
-        int nb = (int)round(period_first / generalData_->period_mpcsample)-1;
+    for (double period_first = data_mpc_->period_mpcsample;
+      period_first < data_mpc_->period_qpsample+EPSILON;
+      period_first += data_mpc_->period_mpcsample) {
+        int nb = (int)round(period_first / data_mpc_->period_mpcsample)-1;
         nb += i*size;
         robot_->setSelectionNumber(period_first);
         // TODO: Get access to entire vector and do all operations here
         const LinearDynamicsMatrices &CoPDynamics = robot_->body(COM)->dynamics_qp().cop;
         const LinearDynamicsMatrices &VelDynamics = robot_->body(COM)->dynamics_qp().vel;
 
-        double firstIterationWeight = period_first / generalData_->period_qpsample;
+        double firstIterationWeight = period_first / data_mpc_->period_qpsample;
 
         tmp_mat_.noalias() = CoPDynamics.UInvT*VelDynamics.UT/**pondFactor*/*VelDynamics.U*CoPDynamics.UInv;
         tmp_mat2_.noalias() = CoPDynamics.UInvT/**pondFactor*/*CoPDynamics.UInv;
@@ -99,7 +99,7 @@ void QPGenerator::BuildProblem(MPCSolution &solution) {
 
   // DIMENSION OF QP:
   // ----------------
-  int nbvars = 2 * generalData_->nbsamples_qp +				// CoM
+  int nbvars = 2 * data_mpc_->nbsamples_qp +				// CoM
     2 * solution.supportStates_vec.back().stepNumber;	// Foot placement
   int nbcstr = 5 * solution.supportStates_vec.back().stepNumber;	// Foot placement
   solver_->nbvar(nbvars);
@@ -107,7 +107,7 @@ void QPGenerator::BuildProblem(MPCSolution &solution) {
 
   buildObjective(solution);
   buildConstraints(solution);
-  if (generalData_->warmstart)
+  if (data_mpc_->warmstart)
     computeWarmStart(solution);//TODO: Weird to modify the solution
 
 }
@@ -115,8 +115,8 @@ void QPGenerator::BuildProblem(MPCSolution &solution) {
 void QPGenerator::buildObjective(const MPCSolution &solution) {
 
   // Choose the precomputed element depending on the nb of "feedback-recomputations" until new qp-sample
-  int precomputedMatrixNumber = generalData_->nbFeedbackSamplesLeft(solution.supportStates_vec[1].previousSamplingPeriod);
-  precomputedMatrixNumber += ponderation_->activePonderation * generalData_->nbFeedbackSamplesStandard();
+  int precomputedMatrixNumber = data_mpc_->nbFeedbackSamplesLeft(solution.supportStates_vec[1].previousSamplingPeriod);
+  precomputedMatrixNumber += ponderation_->activePonderation * data_mpc_->nbFeedbackSamplesStandard();
 
   const BodyState &CoM = robot_->body(COM)->state();
   const SelectionMatrices &state = preview_->selectionMatrices();
@@ -126,7 +126,7 @@ void QPGenerator::buildObjective(const MPCSolution &solution) {
   QPMatrix &Q = solver_->matrix(matrixQ);
 
   int nbsteps_previewed = solution.supportStates_vec.back().stepNumber;
-  int nbsamples = generalData_->nbsamples_qp;
+  int nbsamples = data_mpc_->nbsamples_qp;
 
   //solver_->nbvar(2*nbsamples + 2*nbsteps_previewed);
   //solver_->nbCtr(1); 
@@ -221,11 +221,11 @@ void QPGenerator::computeWarmStart(MPCSolution &solution){
   // Initialize:
   // -----------
   int nbSteps = solution.supportStates_vec.back().stepNumber;
-  int nbStepsMax = generalData_->nbsamples_qp;
+  int nbStepsMax = data_mpc_->nbsamples_qp;
 
   int nbFC = 5;// Number of foot constraints per step TODO: can be read?
-  int nbSamples = generalData_->nbsamples_qp;
-  solution.initialSolution.resize(4*nbSamples + 4*nbSteps);//TODO: 2*nbSamples+2*nbSteps
+  int nbsamples = data_mpc_->nbsamples_qp;
+  solution.initialSolution.resize(4*nbsamples + 4*nbSteps);//TODO: 2*nbsamples+2*nbSteps
   //TODO: resize necessary?
 
   // Preview active set:
@@ -237,22 +237,22 @@ void QPGenerator::computeWarmStart(MPCSolution &solution){
   if (fabs(TimeFactor-1.) < EPSILON) {
     shiftCtr = 1;//if sampleWeight == 1
   }
-  if (size >= 2*nbSamples){//TODO: Verification wouldn't be necessary without copying
+  if (size >= 2*nbsamples){//TODO: Verification wouldn't be necessary without copying
     // Shift active set by
-    solution.initialConstraints.segment(0,         nbSamples-1) = initialConstraintTmp.segment(shiftCtr,    nbSamples-1);
-    solution.initialConstraints.segment(nbSamples, nbSamples-1) = initialConstraintTmp.segment(shiftCtr+nbSamples, nbSamples-1);
+    solution.initialConstraints.segment(0,         nbsamples-1) = initialConstraintTmp.segment(shiftCtr,    nbsamples-1);
+    solution.initialConstraints.segment(nbsamples, nbsamples-1) = initialConstraintTmp.segment(shiftCtr+nbsamples, nbsamples-1);
 
     // New final ZMP elements are old final elements
-    solution.initialConstraints(  nbSamples-1) = initialConstraintTmp(  nbSamples-1);
-    solution.initialConstraints(2*nbSamples-1) = initialConstraintTmp(2*nbSamples-1);
+    solution.initialConstraints(  nbsamples-1) = initialConstraintTmp(  nbsamples-1);
+    solution.initialConstraints(2*nbsamples-1) = initialConstraintTmp(2*nbsamples-1);
 
     // Foot constraints are not shifted
-    solution.initialConstraints.segment(2*nbSamples          , nbFC*nbSteps)=
-      initialConstraintTmp.segment (2*nbSamples          , nbFC*nbSteps);
-    solution.initialConstraints.segment(2*nbSamples+nbFC*nbSteps, nbFC*(nbStepsMax-nbSteps))=
-      initialConstraintTmp.segment (2*nbSamples+nbFC*nbSteps, nbFC*(nbStepsMax-nbSteps));
+    solution.initialConstraints.segment(2*nbsamples          , nbFC*nbSteps)=
+      initialConstraintTmp.segment (2*nbsamples          , nbFC*nbSteps);
+    solution.initialConstraints.segment(2*nbsamples+nbFC*nbSteps, nbFC*(nbStepsMax-nbSteps))=
+      initialConstraintTmp.segment (2*nbsamples+nbFC*nbSteps, nbFC*(nbStepsMax-nbSteps));
   } else {
-    solution.initialConstraints = VectorXi::Zero(2*nbSamples+(4+nbFC)*nbStepsMax);//TODO: Why this value?
+    solution.initialConstraints = VectorXi::Zero(2*nbsamples+(4+nbFC)*nbStepsMax);//TODO: Why this value?
   }
 
   //TODO: Checked until here.
@@ -271,7 +271,7 @@ void QPGenerator::computeWarmStart(MPCSolution &solution){
 
   double shiftx,shifty;
   bool noActiveConstraints;
-  for (int i = 0; i<nbSamples; i++){
+  for (int i = 0; i<nbsamples; i++){
     // Get COP convex hull for current support
     robot_->convexHull(COPFeasibilityEdges, CoPHull, *prwSS_it, false);
 
@@ -287,9 +287,9 @@ void QPGenerator::computeWarmStart(MPCSolution &solution){
       shiftx=shifty=0;
       noActiveConstraints=true;
       for(int k=0;k<nbFC;++k){
-        if (solution.initialConstraints(k+2*nbSamples+j*nbFC)!=0){
+        if (solution.initialConstraints(k+2*nbsamples+j*nbFC)!=0){
           int k2=(k+1)%5; // k(4) = k(0)
-          if (solution.initialConstraints(k2+2*nbSamples+j*nbFC)!=0){
+          if (solution.initialConstraints(k2+2*nbsamples+j*nbFC)!=0){
             shiftx=FootFeasibilityEdges.x(k2);
             shifty=FootFeasibilityEdges.y(k2);
           }else{
@@ -309,8 +309,8 @@ void QPGenerator::computeWarmStart(MPCSolution &solution){
       currentSupport.y += shifty;
 
       // Set the new position into initial solution vector
-      solution.initialSolution(2*nbSamples+j) = currentSupport.x;
-      solution.initialSolution(2*nbSamples+nbSteps+j) = currentSupport.y;
+      solution.initialSolution(2*nbsamples+j) = currentSupport.x;
+      solution.initialSolution(2*nbsamples+nbSteps+j) = currentSupport.y;
       ++j;
     }
     // Place the ZMP on active constraints
@@ -319,34 +319,34 @@ void QPGenerator::computeWarmStart(MPCSolution &solution){
     int k1=-1;
     int k2=-1;
     if (solution.initialConstraints(0+i*2)==1){
-      if (solution.initialConstraints(nbSamples+i*2)==1){
+      if (solution.initialConstraints(nbsamples+i*2)==1){
         k2=1;
         noActiveConstraints=false;
-      }else if (solution.initialConstraints(nbSamples+i*2)==2){
+      }else if (solution.initialConstraints(nbsamples+i*2)==2){
         k2=0;
         noActiveConstraints=false;
-      }else if (solution.initialConstraints(nbSamples+i*2)==0){
+      }else if (solution.initialConstraints(nbsamples+i*2)==0){
         k1=0;
         k2=1;
         noActiveConstraints=false;
       }
     }else if (solution.initialConstraints(0+i*2)==2){
-      if (solution.initialConstraints(nbSamples+i*2)==1){
+      if (solution.initialConstraints(nbsamples+i*2)==1){
         k2=2;
         noActiveConstraints=false;
-      }else if (solution.initialConstraints(nbSamples+i*2)==2){
+      }else if (solution.initialConstraints(nbsamples+i*2)==2){
         k2=3;
         noActiveConstraints=false;
-      }else if (solution.initialConstraints(nbSamples+i*2)==0){
+      }else if (solution.initialConstraints(nbsamples+i*2)==0){
         k1=3;
         k2=2;
         noActiveConstraints=false;
       }
-    }else if (solution.initialConstraints(nbSamples+i*2)==1){
+    }else if (solution.initialConstraints(nbsamples+i*2)==1){
       k1=2;
       k2=1;
       noActiveConstraints=false;
-    }else if (solution.initialConstraints(nbSamples+i*2)==2){
+    }else if (solution.initialConstraints(nbsamples+i*2)==2){
       k1=0;
       k2=3;
       noActiveConstraints=false;
@@ -363,7 +363,7 @@ void QPGenerator::computeWarmStart(MPCSolution &solution){
     }
 
     solution.initialSolution(i) = shiftx;
-    solution.initialSolution(nbSamples+i) = shifty;
+    solution.initialSolution(nbsamples+i) = shifty;
     ++prwSS_it;
 
   }
@@ -372,13 +372,13 @@ void QPGenerator::computeWarmStart(MPCSolution &solution){
 
 void QPGenerator::computeReferenceVector(const MPCSolution &solution){
 
-  if (velRef_->global.x.rows() != generalData_->nbsamples_qp){
-    velRef_->global.x.resize(generalData_->nbsamples_qp);
-    velRef_->global.y.resize(generalData_->nbsamples_qp);
+  if (velRef_->global.x.rows() != data_mpc_->nbsamples_qp){
+    velRef_->global.x.resize(data_mpc_->nbsamples_qp);
+    velRef_->global.y.resize(data_mpc_->nbsamples_qp);
   }
 
   double YawTrunk;
-  for (int i=0;i<generalData_->nbsamples_qp;++i){
+  for (int i=0;i<data_mpc_->nbsamples_qp;++i){
     YawTrunk = solution.supportStates_vec[i+1].yaw;
     velRef_->global.x(i) = velRef_->local.x(i)*cos(YawTrunk)-velRef_->local.y(i)*sin(YawTrunk);
     velRef_->global.y(i) = velRef_->local.x(i)*sin(YawTrunk)+velRef_->local.y(i)*cos(YawTrunk);
@@ -387,7 +387,7 @@ void QPGenerator::computeReferenceVector(const MPCSolution &solution){
 }
 
 void QPGenerator::ConvertCopToJerk(MPCSolution &solution){
-  int nbsamples = generalData_->nbsamples_qp;
+  int nbsamples = data_mpc_->nbsamples_qp;
 
   const SelectionMatrices &select = preview_->selectionMatrices();
   const MatrixXd &rot_mat = preview_->rotationMatrix();
@@ -401,7 +401,7 @@ void QPGenerator::ConvertCopToJerk(MPCSolution &solution){
 
 
   int nbsamples_interp = 1;
-  if (generalData_->interpolate_preview == true) {
+  if (data_mpc_->interpolate_preview == true) {
     nbsamples_interp = nbsamples;
   }
 
@@ -482,7 +482,7 @@ void QPGenerator::buildInequalitiesFeet(const MPCSolution &solution){
 
   std::vector<SupportState>::const_iterator prwSS_it = solution.supportStates_vec.begin();
   ++prwSS_it;//Point at the first previewed instant
-  for( int i = 0; i < generalData_->nbsamples_qp; ++i ){
+  for( int i = 0; i < data_mpc_->nbsamples_qp; ++i ){
     //foot positioning constraints
     if( prwSS_it->stateChanged && prwSS_it->stepNumber > 0 && prwSS_it->phase != DS){
 
@@ -505,7 +505,7 @@ void QPGenerator::buildConstraintsFeet(const MPCSolution &solution){
 
   int nbsteps_previewed = solution.supportStates_vec.back().stepNumber;
   const SelectionMatrices &select = preview_->selectionMatrices();
-  int nbsamples = generalData_->nbsamples_qp;
+  int nbsamples = data_mpc_->nbsamples_qp;
 
   tmp_mat_.noalias() = feetInequalities_.DX * select.Vf;
   solver_->matrix(matrixA).addTerm(tmp_mat_,  0,  2 * nbsamples);
@@ -524,7 +524,7 @@ void QPGenerator::buildConstraintsFeet(const MPCSolution &solution){
 
 void QPGenerator::buildConstraintsCOP(const MPCSolution &solution) {
 
-  int nbsamples = generalData_->nbsamples_qp;
+  int nbsamples = data_mpc_->nbsamples_qp;
   std::vector<SupportState>::const_iterator prwSS_it = solution.supportStates_vec.begin();
 
   robot_->convexHull(hull, CoPHull, *prwSS_it, false, false);
@@ -556,171 +556,3 @@ void QPGenerator::buildConstraintsCOP(const MPCSolution &solution) {
 
 
 }
-
-
-
-void QPGenerator::display(const MPCSolution &solution, const std::string &filename) const
-{
-  int nbsamples = generalData_->nbsamples_qp;
-
-  const SelectionMatrices &select = preview_->selectionMatrices();
-  const MatrixXd &rot = preview_->rotationMatrix();
-  const BodyState &CoM = robot_->body(COM)->state();
-  const LinearDynamicsMatrices &CoP = robot_->body(COM)->dynamics_qp().cop;
-  int nbSteps =  solution.supportStates_vec.back().stepNumber;
-
-  const VectorXd &sol_x_vec = solution.qpSolution.segment(0, nbsamples);
-  const VectorXd &sol_y_vec = solution.qpSolution.segment(nbsamples, nbsamples);
-
-  const VectorXd px = solution.qpSolution.segment(2*nbsamples,         nbSteps);
-  const VectorXd py = solution.qpSolution.segment(2*nbsamples+nbSteps, nbSteps);
-
-  VectorXd Vpx;
-  VectorXd Vpy;
-  if (nbSteps > 0){
-    Vpx =select.V*px;
-    Vpy =select.V*py;
-  } else {
-    Vpx=VectorXd::Zero(nbsamples);
-    Vpy=VectorXd::Zero(nbsamples);
-  }
-
-  VectorXd zx(nbsamples);
-  zx = rot.block(0,0,nbsamples,nbsamples)*sol_x_vec -rot.block(0,nbsamples,nbsamples,nbsamples)*sol_y_vec;
-  zx += Vpx+select.VcX;
-
-  VectorXd zy(nbsamples);
-  zy = rot.block(nbsamples,nbsamples,nbsamples,nbsamples)*sol_y_vec -rot.block(nbsamples,0,nbsamples,nbsamples)*sol_x_vec;
-  zy += Vpy+select.VcY;
-
-  VectorXd X;
-  VectorXd Y;
-  zx -= CoP.S * CoM.x;
-  X  =  CoP.UInv *zx;
-
-  zy -= CoP.S *CoM.y ;
-  Y  =  CoP.UInv *zy;
-
-
-
-  std::ofstream data(filename.c_str());
-  if (!data)
-  {
-    std::cerr << "Unable to open " << filename << std::endl;
-    return;
-  }
-
-  int nbSamples = generalData_->nbsamples_qp;
-
-  VectorXd ZX(nbSamples);
-  VectorXd ZY(nbSamples);
-  VectorXd CX(nbSamples);
-  VectorXd CY(nbSamples);
-
-
-
-  const LinearDynamicsMatrices &CoMPos = robot_->body(COM)->dynamics_qp().pos;
-
-
-  // Compute previewed ZMP
-  ZX=CoP.S *CoM.x + CoP.U*X;
-  ZY=CoP.S *CoM.y + CoP.U*Y;
-
-  CX = CoMPos.S*CoM.x + CoMPos.U*X;
-  CY = CoMPos.S*CoM.y + CoMPos.U*Y;
-
-  //display previewed ZMP
-
-  for(int i=0;i<generalData_->nbsamples_qp;++i){
-    data << "TRAJ\t1\t\t0\t1\t1\t\t" << ZX(i) << "\t" << ZY(i) << "\t0\n";
-  }
-
-  //display previewed COM
-
-  for(int i=0;i<generalData_->nbsamples_qp;++i){
-    data << "TRAJ\t2\t\t1\t0\t0\t\t" << CX(i) << "\t" << CY(i) << "\t0\n";
-  }
-
-
-
-  SupportState currentSupport = solution.supportStates_vec.front();
-  std::vector<SupportState>::const_iterator prwSS_it = solution.supportStates_vec.begin();
-
-
-  int j = 0, b = 0;
-
-
-  double Xfoot, Yfoot;
-
-  //display current COP constraint
-  ConvexHull COPFeasibilityEdges = robot_->convexHull(CoPHull, *prwSS_it, false);
-
-  for (int k=0; k<4; ++k) {
-    data << "BOUND\t-1\t\t0.1\t0.8\t0.1\t\t" <<
-      COPFeasibilityEdges.x[k]+currentSupport.x << "\t" <<
-      COPFeasibilityEdges.y[k]+currentSupport.y << "\t0\n";
-  }
-  data << "BOUND\t-1\t\t0.1\t0.8\t0.1\t\t" <<
-    COPFeasibilityEdges.x[0]+currentSupport.x << "\t" <<
-    COPFeasibilityEdges.y[0]+currentSupport.y << "\t0\n";
-
-  //display current feet positions
-  data << "POINT\t-1\t\t0.1\t0.8\t0.1\t\t" <<
-    currentSupport.x << "\t" <<
-    currentSupport.y << "\t0\n";
-  ++b;
-
-  prwSS_it++;
-
-  for(int i=0; i<generalData_->nbsamples_qp; i++)
-  {
-
-    //display constraints
-    if (prwSS_it->stateChanged){
-
-      COPFeasibilityEdges = robot_->convexHull(CoPHull, *prwSS_it, false);
-      ConvexHull FootFeasibilityEdges = robot_->convexHull(FootHull, *prwSS_it, false);
-
-      if (prwSS_it->stepNumber == 0) {
-        Xfoot=solution.supportStates_vec[0].x;
-        Yfoot=solution.supportStates_vec[0].y;
-      } else {
-
-        Xfoot=solution.qpSolution(2*generalData_->nbsamples_qp+j);
-        Yfoot=solution.qpSolution(2*generalData_->nbsamples_qp+nbSteps+j);
-        if (j+1<nbSteps) {
-          j++;
-        }
-      }
-
-      if (prwSS_it->inTransitionalDS){
-        Xfoot=solution.supportStates_vec[1].x;
-        Yfoot=solution.supportStates_vec[1].y;
-      }
-
-      //display COP constraints
-      for (int k=0; k<4; ++k) {
-        data << "BOUND\t" << b << "\t\t0.5\t0.5\t0.5\t\t" <<
-          COPFeasibilityEdges.x[k]+Xfoot << "\t" <<
-          COPFeasibilityEdges.y[k]+Yfoot << "\t0\n";
-      }
-
-      //display feet constraints
-      for (int k=0; k<5; ++k) {
-        data << "BOUND\t" << b+10000 << "\t\t0.5\t0.5\t0.5\t\t" <<
-          FootFeasibilityEdges.x[k]+Xfoot << "\t" <<
-          FootFeasibilityEdges.y[k]+Yfoot << "\t0\n";
-      }
-
-      //display feet positions
-      data << "POINT\t" << b+100000 << "\t\t1\t0\t0\t\t" <<
-        Xfoot << "\t" <<
-        Yfoot << "\t0\n";
-      ++b;
-    }
-    prwSS_it++;
-
-  }
-  data.close();
-}
-

@@ -17,9 +17,9 @@ Interpolation::~Interpolation(){}
 void Interpolation::computeInterpolationByJerk(VectorXd &solutionX, VectorXd &solutionY, const BodyState &state,
                                                const LinearDynamicsMatrices &dyn, double jerkX, double jerkY) const
 {
-  int nbSamples = dyn.U.cols();
-  VectorXd UX = VectorXd::Constant(nbSamples, jerkX);
-  VectorXd UY = VectorXd::Constant(nbSamples, jerkY);
+  int nbsamples = dyn.U.cols();
+  VectorXd UX = VectorXd::Constant(nbsamples, jerkX);
+  VectorXd UY = VectorXd::Constant(nbsamples, jerkY);
 
   solutionX = dyn.S * state.x + dyn.U * UX;
   solutionY = dyn.S * state.y + dyn.U * UY;
@@ -45,10 +45,10 @@ void Interpolation::Interpolate(VectorXd &solution_vec, const LinearDynamicsMatr
 void Interpolation::computeInterpolationByJerk(VectorXd &solution, const VectorXd &state,
                                                const LinearDynamicsMatrices &dyn, double jerk) const
 {
-  int nbSamples = dyn.U.cols();
-  VectorXd U = VectorXd::Constant(nbSamples, jerk);
+  int nbsamples = dyn.U.cols();
+  VectorXd U = VectorXd::Constant(nbsamples, jerk);
 
-  solution = dyn.S*state + dyn.U*U;
+  solution = dyn.S * state + dyn.U * U;
 }
 
 
