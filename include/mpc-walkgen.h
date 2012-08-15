@@ -4,3 +4,4 @@
 #include <mpc-walkgen/api.h>
 #include <mpc-walkgen/walkgen-abstract.h>
 #include <mpc-walkgen/sharedpgtypes.h>
+#include <mpc-walkgen/rigid-body-system.h>

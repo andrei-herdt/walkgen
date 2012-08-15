@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.266"
+    ComputedModelVersion    "1.269"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Wed Aug 15 19:46:15 2012"
+  LastModifiedDate	  "Wed Aug 15 20:29:56 2012"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:266>"
+  ModelVersionFormat	  "1.%<AutoIncrement:269>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -586,7 +586,7 @@ Model {
   }
   System {
     Name		    "walkgen"
-    Location		    [848, 74, 1594, 876]
+    Location		    [1319, 74, 1594, 375]
     Open		    on
     ModelBrowserVisibility  off
     ModelBrowserWidth	    200
@@ -601,17 +601,25 @@ Model {
     ZoomFactor		    "152"
     ReportName		    "simulink-default.rpt"
     Block {
+      BlockType		      Step
+      Name		      "Activate"
+      Position		      [88, 30, 102, 50]
+      Orientation	      "down"
+      NamePlacement	      "alternate"
+      Time		      "3"
+      SampleTime	      "0.005"
+    }
+    Block {
       BlockType		      SubSystem
-      Name		      "MPCSimulation"
+      Name		      "Simulation"
       Ports		      [0, 0, 1]
-      Position		      [244, 44, 317, 104]
-      Orientation	      "up"
+      Position		      [65, 83, 125, 156]
       MinAlgLoopOccurrences   off
       RTWSystemCode	      "Auto"
       FunctionWithSeparateData off
       System {
-	Name			"MPCSimulation"
-	Location		[792, 74, 1594, 860]
+	Name			"Simulation"
+	Location		[792, 74, 1594, 832]
 	Open			on
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
@@ -628,7 +636,7 @@ Model {
 	  BlockType		  EnablePort
 	  Name			  "Enable"
 	  Ports			  []
-	  Position		  [285, 15, 305, 35]
+	  Position		  [275, 15, 295, 35]
 	}
 	Block {
 	  BlockType		  BusCreator
@@ -885,7 +893,7 @@ Model {
 	  Ports			  [1]
 	  Position		  [570, 239, 600, 271]
 	  Floating		  off
-	  Location		  [85, 45, 1601, 899]
+	  Location		  [79, 40, 1595, 894]
 	  Open			  off
 	  NumInputPorts		  "1"
 	  List {
@@ -902,7 +910,7 @@ Model {
 	  Ports			  [1]
 	  Position		  [570, 179, 600, 211]
 	  Floating		  off
-	  Location		  [85, 45, 1601, 899]
+	  Location		  [79, 40, 1595, 894]
 	  Open			  off
 	  NumInputPorts		  "1"
 	  List {
@@ -1257,17 +1265,10 @@ Model {
 	}
       }
     }
-    Block {
-      BlockType		      Step
-      Name		      "Step"
-      Position		      [155, 60, 185, 90]
-      Time		      "3"
-      SampleTime	      "0.005"
-    }
     Line {
-      SrcBlock		      "Step"
+      SrcBlock		      "Activate"
       SrcPort		      1
-      DstBlock		      "MPCSimulation"
+      DstBlock		      "Simulation"
       DstPort		      enable
     }
   }

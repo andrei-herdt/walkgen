@@ -1,4 +1,4 @@
-#include <walkgen-abstract.h>
+#include <mpc-walkgen/walkgen.h>
 
 #include <cmath>
 #include <cstdio>
@@ -8,15 +8,6 @@
 #include <vector>
 #include <algorithm>
 #include <stdio.h>
-
-
-#if _SECURE_SCL
-//#error MOEP
-#endif
-
-#if _HAS_ITERATOR_DEBUGGING
-//#error MOEP2
-#endif
 
 using namespace Eigen;
 using namespace MPCWalkgen;
@@ -72,6 +63,7 @@ int main() {
   HipYawData rightHipYaw = leftHipYaw;
 
   MPCData mpcData;
+  mpcData.solver = QPOASES;
 
   RobotData robotData(leftFoot, rightFoot, leftHipYaw, rightHipYaw, 0.0);
 
@@ -116,8 +108,7 @@ int main() {
 
   // Create and initialize generator:
   // -------------------------------
-  WalkgenAbstract * walk = createWalkgen(QPOASES);
-
+  WalkgenAbstract * walk = createWalkgen();
   walk->Init(robotData, mpcData);
   //	const RigidBodySystem *robot = walk->robot();// Not used yet
 

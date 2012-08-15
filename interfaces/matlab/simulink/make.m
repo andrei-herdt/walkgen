@@ -41,7 +41,7 @@ path(path, [pwd,'/',MPC_WALKGEN_LIBRARY_PATH]);
 copyfile([MPC_WALKGEN_LIBRARY_PATH,'\mpc-walkgen.dll'],[pwd,'/mpc-walkgen.dll']);
 copyfile([MPC_WALKGEN_LIBRARY_PATH,'\mpc-walkgen.lib'],[pwd,'/mpc-walkgen.lib']);
 %% Clear
-clear MPC_WALKGEN_PATH IFLAGS CPPFLAGS MPC_WALKGEN_OBJECTS DEBUGFLAGS NAME
+clear EIGEN_PATH MPC_WALKGEN_PATH MPC_WALKGEN_LIBRARY_PATH IFLAGS CPPFLAGS MPC_WALKGEN_OBJECTS DEBUGFLAGS NAME
 %%
 %%	end of file
 %%
