@@ -58,7 +58,7 @@ endif()
 # addSolverToHeader. If the solver support is enabled, add it to the variables
 # used for header generation:
 #  - set the MPC_WALKGEN_WITH_${solver} variable
-#  - add an enum entry to the _QPSOLVERTYPE_ENUM variable
+#  - add an enum entry to the _QPSOLVER_ENUM variable
 #
 # arguments:
 #  - solver:     name of the solver
@@ -67,13 +67,13 @@ macro(addSolverToEnum solver value)
   if(WITH_${solver})
       # Let mpc-walkgen and its users know that the solver support is built-in.
       set(MPC_WALKGEN_WITH_${solver} ON)
-    if(_QPSOLVERTYPE_ENUM)
+    if(_QPSOLVER_ENUM)
       # add a line to the enum, except for the very first line
-      SET(_QPSOLVERTYPE_ENUM "${_QPSOLVERTYPE_ENUM},\n")
+      SET(_QPSOLVER_ENUM "${_QPSOLVER_ENUM},\n")
     endif()
     # add the enum entry
-    SET(_QPSOLVERTYPE_ENUM "${_QPSOLVERTYPE_ENUM}\t\tQPSOLVERTYPE_${solver}")
-    SET(_QPSOLVERTYPE_ENUM "${_QPSOLVERTYPE_ENUM} = ${value}")
+    SET(_QPSOLVER_ENUM "${_QPSOLVER_ENUM}\t\tQPSOLVER_${solver}")
+    SET(_QPSOLVER_ENUM "${_QPSolver_ENUM} = ${value}")
   endif()
 endmacro()
 addSolverToEnum("LSSOL" "0")
@@ -82,12 +82,10 @@ CONFIG_FILES(include/mpc-walkgen/common/qp-solver-type.h)
 
 # Define the set of headers to be installed
 SET(${PROJECT_NAME}_HEADERS
-  include/mpc-walkgen/common/api.h
-  ${CMAKE_BINARY_DIR}/include/mpc-walkgen/common/qp-solver-type.h
-  include/mpc-walkgen/common/sharedpgtypes.h
+  include/mpc-walkgen/sharedpgtypes.h
 
-  include/mpc-walkgen/humanoid/walkgen-abstract.h
-  include/mpc-walkgen/humanoid/sharedpgtypes.h
+  include/mpc-walkgen/walkgen-abstract.h
+  include/mpc-walkgen/sharedpgtypes.h
 )
 
 SET(mpc-walkgen_SRC
@@ -103,8 +101,8 @@ SET(mpc-walkgen_SRC
   src/common/qp-matrix.h
   src/common/qp-solver.cpp
   src/common/qp-solver.h
-  src/common/qp-solvers/lssol-solver.h
-  src/common/qp-solvers/qpoases-solver.h
+  src/common/qp-solvers/lssol-parser.h
+  src/common/qp-solvers/qpoases-parser.h
   src/common/qp-vector.cpp
   src/common/qp-vector.h
   src/common/tools.cpp
@@ -136,15 +134,15 @@ SET(mpc-walkgen_SRC
   src/humanoid/walkgen-abstract.cpp
 )
 
-if(WITH_LSSOL)
+# if(WITH_LSSOL)
   list(APPEND mpc-walkgen_SRC
-    src/common/qp-solvers/lssol-solver.cpp
+    src/common/qp-solvers/lssol-parser.cpp
   )
-endif()
+# endif()
 
 if(WITH_QPOASES)
   list(APPEND mpc-walkgen_SRC
-    src/common/qp-solvers/qpoases-solver.cpp
+    src/common/qp-solvers/qpoases-parser.cpp
   )
 endif()
 

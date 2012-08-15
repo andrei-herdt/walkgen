@@ -9,9 +9,6 @@
 ///\author	Herdt Andrei
 ///\author	Lafaye Jory
 ///\author      Keith François
-///\version	1.2
-///\date	27/04/12
-///
 ////////////////////////////////////////////////////////////////////////////////
 
 
@@ -19,7 +16,7 @@
 
 #include <iostream>
 
-#include <mpc-walkgen/common/sharedpgtypes.h>
+#include <mpc-walkgen/sharedpgtypes.h>
 
 namespace MPCWalkgen{
 

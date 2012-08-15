@@ -17,7 +17,7 @@
 
 #include <Eigen/Dense>
 
-#include <mpc-walkgen/humanoid/sharedpgtypes.h>
+#include <mpc-walkgen/sharedpgtypes.h>
 #include "../common/types.h"
 
 namespace MPCWalkgen{

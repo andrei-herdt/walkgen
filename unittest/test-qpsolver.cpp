@@ -14,7 +14,6 @@
 
 #include "../src/common/qp-solver.h"
 #include "../src/humanoid/types.h"
-#include <mpc-walkgen/common/qp-solver-type.h>
 
 using namespace Eigen;
 using namespace MPCWalkgen;
@@ -97,7 +96,7 @@ int main()
 	QPSolver * solver = NULL;
 #ifdef MPC_WALKGEN_WITH_QPOASES
 	std::cout << "Testing qpOASES " << std::endl;
-	solver = createQPSolver(QPSOLVERTYPE_QPOASES, 2 , 3);
+	solver = createQPSolver(QPOASES, 2 , 3);
 	success = testQP(*solver) && success;
 	if (solver) {
 		delete solver;
@@ -106,7 +105,7 @@ int main()
 
 #ifdef MPC_WALKGEN_WITH_LSSOL
 	std::cout << "Testing LSSOL " << std::endl;
-	solver = createQPSolver(QPSOLVERTYPE_LSSOL, 2 , 3);
+	solver = createQPSolver(LSSOL, 2 , 3);
 	success = testQP(*solver) && success;
 	if (solver) {
 		delete solver;

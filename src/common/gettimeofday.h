@@ -4,7 +4,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 ///
-///\file	qpoases-solver.h
+///\file	qpoases-parser.h
 ///\brief	GetTimeOfDay portability
 ///\author	Keith François
 ///\version	1.2

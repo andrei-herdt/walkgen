@@ -9,7 +9,6 @@
 #include <fstream>
 
 #include "../src/common/qp-solver.h"
-#include <mpc-walkgen/common/qp-solver-type.h>
 
 using namespace Eigen;
 using namespace MPCWalkgen;
@@ -291,7 +290,7 @@ int main()
 
 #ifdef MPC_WALKGEN_WITH_QPOASES
 	std::cout << "bench-qpsolver test qpOASES " << std::endl;
-	solver = createQPSolver(QPSOLVERTYPE_QPOASES, 6+fDofWb, fNconstraints);
+	solver = createQPSolver(QPOASES, 6+fDofWb, fNconstraints);
 	success = testBenchmarkQP(*solver, fDofWb, fNconstraints) && success;
 	if (solver) {
 		delete solver;
@@ -300,7 +299,7 @@ int main()
 
 #ifdef MPC_WALKGEN_WITH_LSSOL
 	std::cout << "bench-qpsolver test LSSOL " << std::endl;
-	solver = createQPSolver(QPSOLVERTYPE_LSSOL, 6+fDofWb, fNconstraints);
+	solver = createQPSolver(LSSOL, 6+fDofWb, fNconstraints);
 	success = testBenchmarkQP(*solver, fDofWb, fNconstraints) && success;
 	if (solver) {
 		delete solver;

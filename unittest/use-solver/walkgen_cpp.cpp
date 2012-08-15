@@ -6,9 +6,8 @@ using namespace std;
 // **** To build this mex function use: mex sfun_cppcount_cpp.cpp ****
 // *******************************************************************
 
-#include "../../src/humanoid/rigid-body-system.h"
-#include <mpc-walkgen/humanoid/walkgen-abstract.h>
-#include <mpc-walkgen/common/qp-solver-type.h>
+#include "../../src/humanoid/rigid-body-system.h"// TODO: This does not belong to the API
+#include <mpc-walkgen/walkgen-abstract.h>
 
 using namespace Eigen;
 using namespace MPCWalkgen;
@@ -134,7 +133,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
   InputRealPtrsType left_yaw        = ssGetInputPortRealSignalPtrs(S, 4);
   InputRealPtrsType right_yaw       = ssGetInputPortRealSignalPtrs(S, 5);
   InputRealPtrsType foot_geometry   = ssGetInputPortRealSignalPtrs(S, 6);
-  InputRealPtrsType closed_loop_in     = ssGetInputPortRealSignalPtrs(S, 7);
+  InputRealPtrsType closed_loop_in  = ssGetInputPortRealSignalPtrs(S, 7);
   InputRealPtrsType cop_in          = ssGetInputPortRealSignalPtrs(S, 8);
 
   real_T *com            = ssGetOutputPortRealSignal(S, 0);
@@ -192,6 +191,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
     mpcData.ponderation.JerkMin[1] = 0.00001;
     mpcData.warmstart = true;
     mpcData.interpolate_preview = true;
+    mpcData.solver = QPOASES;
 
 
     RobotData robot_data(leftFoot, rightFoot, leftHipYaw, rightHipYaw, 0.0);

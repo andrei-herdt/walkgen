@@ -1,4 +1,4 @@
-#include <mpc-walkgen/humanoid/walkgen-abstract.h>
+#include <mpc-walkgen/walkgen-abstract.h>
 
 using namespace MPCWalkgen;
 

@@ -116,7 +116,7 @@ int main() {
 
   // Create and initialize generator:
   // -------------------------------
-  WalkgenAbstract * walk = createWalkgen(CURRENT_QPSOLVERTYPE);
+  WalkgenAbstract * walk = createWalkgen(QPOASES);
 
   walk->Init(robotData, mpcData);
   //	const RigidBodySystem *robot = walk->robot();// Not used yet

@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.259"
+    ComputedModelVersion    "1.261"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Mon Aug 13 12:22:18 2012"
+  LastModifiedDate	  "Wed Aug 15 14:53:53 2012"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:259>"
+  ModelVersionFormat	  "1.%<AutoIncrement:261>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -849,7 +849,7 @@ Model {
 	  Ports			  [1]
 	  Position		  [570, 69, 600, 101]
 	  Floating		  off
-	  Location		  [86, 40, 1595, 891]
+	  Location		  [85, 45, 1601, 899]
 	  Open			  off
 	  NumInputPorts		  "1"
 	  List {
@@ -868,7 +868,7 @@ Model {
 	  Ports			  [1]
 	  Position		  [570, 129, 600, 161]
 	  Floating		  off
-	  Location		  [86, 40, 1595, 894]
+	  Location		  [85, 45, 1601, 899]
 	  Open			  off
 	  NumInputPorts		  "1"
 	  List {
@@ -885,7 +885,7 @@ Model {
 	  Ports			  [1]
 	  Position		  [570, 239, 600, 271]
 	  Floating		  off
-	  Location		  [86, 40, 1595, 891]
+	  Location		  [85, 45, 1601, 899]
 	  Open			  off
 	  NumInputPorts		  "1"
 	  List {
@@ -902,7 +902,7 @@ Model {
 	  Ports			  [1]
 	  Position		  [570, 179, 600, 211]
 	  Floating		  off
-	  Location		  [86, 40, 1595, 894]
+	  Location		  [85, 45, 1601, 899]
 	  Open			  off
 	  NumInputPorts		  "1"
 	  List {
@@ -1030,13 +1030,13 @@ Model {
 	  SrcPort		  1
 	  Points		  [35, 0]
 	  Branch {
-	    Points		    [25, 0]
-	    DstBlock		    "Bus\nCreator"
+	    Points		    [0, -10]
+	    DstBlock		    "Scope"
 	    DstPort		    1
 	  }
 	  Branch {
-	    Points		    [0, -10]
-	    DstBlock		    "Scope"
+	    Points		    [0, 15]
+	    DstBlock		    "Bus\nCreator"
 	    DstPort		    1
 	  }
 	}
@@ -1175,7 +1175,7 @@ Model {
 	  SrcPort		  8
 	  Points		  [45, 0]
 	  Branch {
-	    Points		    [20, 0]
+	    Points		    [-5, 0; 0, 15]
 	    DstBlock		    "Bus\nCreator2"
 	    DstPort		    1
 	  }
@@ -1251,6 +1251,9 @@ Model {
 	  SrcPort		  14
 	  DstBlock		  "To Workspace7"
 	  DstPort		  1
+	}
+	Annotation {
+	  Position		  [265, 507]
 	}
       }
     }

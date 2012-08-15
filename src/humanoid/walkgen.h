@@ -13,7 +13,7 @@
 ///
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <mpc-walkgen/humanoid/walkgen-abstract.h>
+#include <mpc-walkgen/walkgen-abstract.h>
 #include "types.h"
 
 namespace MPCWalkgen{

@@ -6,7 +6,6 @@
 
 #include "../src/humanoid/types.h"
 #include "../src/common/qp-solver.h"
-#include <mpc-walkgen/common/qp-solver-type.h>
 
 using namespace Eigen;
 using namespace MPCWalkgen;
@@ -73,7 +72,7 @@ int main()
 
 #ifdef MPC_WALKGEN_WITH_QPOASES
   std::cout << "bench-qpsolver test qpOASES " << std::endl;
-  QPSolver * qp1 = createQPSolver(QPSOLVERTYPE_QPOASES, nbvar, nbcstr);
+  QPSolver * qp1 = createQPSolver(QPOASES, nbvar, nbcstr);
   Eigen::VectorXd qp1Solution = test_all_solvers(*qp1, nbvar, nbcstr);
   bool success1 = ((qp1Solution - solution).norm() < 1e-5);
   std::cout << "Solution QPOASES ("<< success1 <<"): " << qp1Solution.transpose() << std::endl;
@@ -85,7 +84,7 @@ int main()
 
 #ifdef MPC_WALKGEN_WITH_LSSOL
   std::cout << "bench-qpsolver test LSSOL " << std::endl;
-  QPSolver * qp2 = createQPSolver(QPSOLVERTYPE_LSSOL, nbvar, nbcstr);
+  QPSolver * qp2 = createQPSolver(LSSOL, nbvar, nbcstr);
   Eigen::VectorXd qp2Solution = test_all_solvers(*qp2, nbvar, nbcstr);
   bool success2 = ((qp2Solution - solution).norm() < 1e-5);
   std::cout << "Solution LSSOL ("<< success2 <<") : " << qp2Solution.transpose() << std::endl;
