@@ -11,10 +11,10 @@
 ///\author      Keith François
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <Eigen/Dense>
-#include <vector>
 #include <mpc-walkgen/api.h>
 
+#include <Eigen/Dense>
+#include <vector>
 
 namespace MPCWalkgen{
 

@@ -9,10 +9,9 @@
 ///\author	Herdt Andrei
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <mpc-walkgen/sharedpgtypes.h>//TODO: Why is this included?
 
 #include <Eigen/Dense>
-
-#include <mpc-walkgen/sharedpgtypes.h>//TODO: Why is this included?
 
 namespace MPCWalkgen{
 

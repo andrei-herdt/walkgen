@@ -1,20 +1,12 @@
-/* Copyright 2003-2004 The MathWorks, Inc. */
-#include <iostream>
-#include <stdio.h>
-using namespace std;
-// *******************************************************************
-// **** To build this mex function use: mex sfun_cppcount_cpp.cpp ****
-// *******************************************************************
+#define S_FUNCTION_LEVEL 2
+#define S_FUNCTION_NAME  walkgen-sfun
 
+#include <mpc-walkgen/walkgen.h>
 #include <mpc-walkgen/rigid-body-system.h>// TODO: This does not belong to the API
-#include <walkgen-abstract.h>
 
 using namespace Eigen;
 using namespace MPCWalkgen;
-
-
-#define S_FUNCTION_LEVEL 2
-#define S_FUNCTION_NAME  walkgen_cpp
+using namespace std;
 
 // Need to include simstruc.h for the definition of the SimStruct and
 // its associated macro definitions.
