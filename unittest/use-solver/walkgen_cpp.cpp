@@ -6,7 +6,7 @@ using namespace std;
 // **** To build this mex function use: mex sfun_cppcount_cpp.cpp ****
 // *******************************************************************
 
-#include "../../src/humanoid/rigid-body-system.h"// TODO: This does not belong to the API
+#include <mpc-walkgen/rigid-body-system.h>// TODO: This does not belong to the API
 #include <walkgen-abstract.h>
 
 using namespace Eigen;

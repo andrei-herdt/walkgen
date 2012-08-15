@@ -62,62 +62,52 @@ SET(${PROJECT_NAME}_HEADERS
 )
 
 SET(mpc-walkgen_SRC
-  src/common/types.cpp
-  src/common/types.h
-  src/common/gettimeofday.cpp
-  src/common/gettimeofday.h
-  src/common/interpolation.cpp
-  src/common/interpolation.h
-  src/common/mpc-debug.cpp
-  src/common/mpc-debug.h
-  src/common/qp-matrix.cpp
-  src/common/qp-matrix.h
-  src/common/qp-solver.cpp
-  src/common/qp-solver.h
-  src/common/qp-solvers/lssol-parser.h
-  src/common/qp-solvers/qpoases-parser.h
-  src/common/qp-vector.cpp
-  src/common/qp-vector.h
-  src/common/tools.cpp
-  src/common/tools.h
-  src/common/tools-inl.h
-  src/common/sharedpgtypes.cpp
-
-  src/humanoid/orientations-preview.cpp
-  src/humanoid/orientations-preview.h
-  src/humanoid/qp-generator.cpp
-  src/humanoid/qp-generator.h
-  src/humanoid/qp-preview.cpp
-  src/humanoid/qp-preview.h
-  src/humanoid/rigid-bodies/com-body.cpp
-  src/humanoid/rigid-bodies/com-body.h
-  src/humanoid/rigid-bodies/foot-body.cpp
-  src/humanoid/rigid-bodies/foot-body.h
-  src/humanoid/rigid-body.cpp
-  src/humanoid/rigid-body.h
-  src/humanoid/rigid-body-system.cpp
-  src/humanoid/rigid-body-system.h
-  src/humanoid/state-fsm.cpp
-  src/humanoid/state-fsm.h
-  src/humanoid/types.cpp
-  src/humanoid/types.h
-  src/humanoid/walkgen.cpp
-  src/humanoid/walkgen.h
-  src/humanoid/sharedpgtypes.cpp
-  src/humanoid/walkgen-abstract.cpp
+  src/types.cpp
+  include/mpc-walkgen/types.h
+  src/gettimeofday.cpp
+  include/mpc-walkgen/gettimeofday.h
+  src/interpolation.cpp
+  include/mpc-walkgen/interpolation.h
+  src/mpc-debug.cpp
+  include/mpc-walkgen/mpc-debug.h
+  src/qp-matrix.cpp
+  include/mpc-walkgen/qp-matrix.h
+  src/qp-solver.cpp
+  include/mpc-walkgen/qp-solver.h
+  src/lssol-parser.cpp
+  include/mpc-walkgen/lssol-parser.h
+  src/qpoases-parser.cpp
+  include/mpc-walkgen/qpoases-parser.h
+  src/qp-vector.cpp
+  include/mpc-walkgen/qp-vector.h
+  src/tools.cpp
+  include/mpc-walkgen/tools.h
+  include/mpc-walkgen/tools-inl.h
+  src/sharedpgtypes.cpp
+  include/mpc-walkgen/sharedpgtypes.h
+  src/orientations-preview.cpp
+  include/mpc-walkgen/orientations-preview.h
+  src/qp-generator.cpp
+  include/mpc-walkgen/qp-generator.h
+  src/qp-preview.cpp
+  include/mpc-walkgen/qp-preview.h
+  src/com-body.cpp
+  include/mpc-walkgen/com-body.h
+  src/foot-body.cpp
+  include/mpc-walkgen/foot-body.h
+  src/rigid-body.cpp
+  include/mpc-walkgen/rigid-body.h
+  src/rigid-body-system.cpp
+  include/mpc-walkgen/rigid-body-system.h
+  src/state-fsm.cpp
+  include/mpc-walkgen/state-fsm.h
+  src/types.cpp
+  include/mpc-walkgen/types.h
+  src/walkgen.cpp
+  include/mpc-walkgen/walkgen.h
+  src/sharedpgtypes.cpp
+  src/walkgen-abstract.cpp
 )
-
-# if(WITH_LSSOL)
-  list(APPEND mpc-walkgen_SRC
-    src/common/qp-solvers/lssol-parser.cpp
-  )
-# endif()
-
-if(WITH_QPOASES)
-  list(APPEND mpc-walkgen_SRC
-    src/common/qp-solvers/qpoases-parser.cpp
-  )
-endif()
 
 INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}/include)
 
