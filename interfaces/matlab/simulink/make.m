@@ -24,21 +24,24 @@ else
 	CPPFLAGS  = [IFLAGS, '-v', ' ' ]; %% -D__NO_COPYRIGHT__ -D__SUPPRESSANYOUTPUT__
 end
 
-MPC_WALKGEN_OBJECTS = ['mpc-walkgen.lib ', ' '];
+MPC_WALKGEN_OBJECTS = [MPC_WALKGEN_LIBRARY_PATH,'mpc-walkgen.lib ', ' '];
 
 DEBUGFLAGS = ['-D_DEBUG -g',' '];
 %DEBUGFLAGS = ' -g CXXDEBUGFLAGS=''$CXXDEBUGFLAGS -Wall -pedantic -Wshadow'' ';
 
-NAME = 'walkgen-sfun';
+NAME = 'walkgen_sfun';
 %% Compile
-eval(['mex -output ', NAME, ' ', CPPFLAGS, DEBUGFLAGS, [NAME,'.cpp ',MPC_WALKGEN_LIBRARY_PATH,MPC_WALKGEN_OBJECTS]]);
+eval(['mex -output ', NAME, ' ', CPPFLAGS, DEBUGFLAGS, [NAME,'.cpp ',MPC_WALKGEN_OBJECTS]]);
 disp([NAME, '.', eval('mexext'), ' successfully created!']);
-					
-path(path, pwd);
 
+%% Set path and copy libraries
+path(path, pwd);
+path(path, [pwd,'/',MPC_WALKGEN_LIBRARY_PATH]);
+% Necessary right now
+copyfile([MPC_WALKGEN_LIBRARY_PATH,'\mpc-walkgen.dll'],[pwd,'/mpc-walkgen.dll']);
+copyfile([MPC_WALKGEN_LIBRARY_PATH,'\mpc-walkgen.lib'],[pwd,'/mpc-walkgen.lib']);
 %% Clear
 clear MPC_WALKGEN_PATH IFLAGS CPPFLAGS MPC_WALKGEN_OBJECTS DEBUGFLAGS NAME
-
 %%
 %%	end of file
 %%

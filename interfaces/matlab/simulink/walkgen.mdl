@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.263"
+    ComputedModelVersion    "1.266"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Wed Aug 15 18:46:18 2012"
+  LastModifiedDate	  "Wed Aug 15 19:46:15 2012"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:263>"
+  ModelVersionFormat	  "1.%<AutoIncrement:266>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -787,7 +787,7 @@ Model {
 	  Name			  "S-Function"
 	  Ports			  [9, 14]
 	  Position		  [240, 83, 330, 432]
-	  FunctionName		  "walkgen-sfun"
+	  FunctionName		  "walkgen_sfun"
 	  Port {
 	    PortNumber		    1
 	    Name		    "com"
