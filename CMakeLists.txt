@@ -55,35 +55,8 @@ if(WITH_QPOASES)
   endif()
 endif()
 
-# addSolverToHeader. If the solver support is enabled, add it to the variables
-# used for header generation:
-#  - set the MPC_WALKGEN_WITH_${solver} variable
-#  - add an enum entry to the _QPSOLVER_ENUM variable
-#
-# arguments:
-#  - solver:     name of the solver
-#  - value:      value associated to the enum entry
-macro(addSolverToEnum solver value)
-  if(WITH_${solver})
-      # Let mpc-walkgen and its users know that the solver support is built-in.
-      set(MPC_WALKGEN_WITH_${solver} ON)
-    if(_QPSOLVER_ENUM)
-      # add a line to the enum, except for the very first line
-      SET(_QPSOLVER_ENUM "${_QPSOLVER_ENUM},\n")
-    endif()
-    # add the enum entry
-    SET(_QPSOLVER_ENUM "${_QPSOLVER_ENUM}\t\tQPSOLVER_${solver}")
-    SET(_QPSOLVER_ENUM "${_QPSolver_ENUM} = ${value}")
-  endif()
-endmacro()
-addSolverToEnum("LSSOL" "0")
-addSolverToEnum("QPOASES" "1")
-CONFIG_FILES(include/mpc-walkgen/common/qp-solver-type.h)
-
 # Define the set of headers to be installed
 SET(${PROJECT_NAME}_HEADERS
-  include/mpc-walkgen/sharedpgtypes.h
-
   include/mpc-walkgen/walkgen-abstract.h
   include/mpc-walkgen/sharedpgtypes.h
 )

@@ -18,7 +18,7 @@ void BodyState::reset(){
   pitch.fill(0);
   roll.fill(0);
 }
-
+ 
 FootData::FootData()
 : soleWidth(0)
 , soleHeight(0)

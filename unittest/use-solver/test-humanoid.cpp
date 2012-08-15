@@ -1,4 +1,4 @@
-#include <mpc-walkgen/humanoid/walkgen-abstract.h>
+#include <walkgen-abstract.h>
 
 #include <cmath>
 #include <cstdio>

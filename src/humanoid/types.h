@@ -17,7 +17,7 @@
 
 #include <Eigen/Dense>
 
-#include <mpc-walkgen/sharedpgtypes.h>
+#include <mpc-walkgen/sharedpgtypes.h>//TODO: Why is this included?
 #include "../common/types.h"
 
 namespace MPCWalkgen{

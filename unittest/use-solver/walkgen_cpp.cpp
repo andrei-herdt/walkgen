@@ -7,7 +7,7 @@ using namespace std;
 // *******************************************************************
 
 #include "../../src/humanoid/rigid-body-system.h"// TODO: This does not belong to the API
-#include <mpc-walkgen/walkgen-abstract.h>
+#include <walkgen-abstract.h>
 
 using namespace Eigen;
 using namespace MPCWalkgen;

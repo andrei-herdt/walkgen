@@ -16,7 +16,7 @@
 
 #include <iostream>
 
-#include <mpc-walkgen/sharedpgtypes.h>
+#include <mpc-walkgen.h>
 
 namespace MPCWalkgen{
 
