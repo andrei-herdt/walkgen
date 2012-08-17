@@ -145,7 +145,6 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
   real_T *resolution_data= ssGetOutputPortRealSignal(S, 14);
 
   WalkgenAbstract *walk = (WalkgenAbstract *)ssGetPWorkValue(S, 0);
-  RigidBodySystem *robot = walk->robot();
 
   // Initialization:
   // ---------------
@@ -249,14 +248,15 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
   // INPUT:
   // ------
   walk->reference(*vel_ref[0], *vel_ref[1], *vel_ref[2]);
-  double gravity = 9.81;
+  double kGravity = 9.81;
+  RigidBodySystem *robot = walk->robot();
   if (*closed_loop_in[0] > 0.5) {// TODO: Is there a better way for switching
     robot->com()->state().x[0] = *com_in[0];
     robot->com()->state().y[0] = *com_in[1];
     robot->com()->state().x[1] = *com_in[3];
     robot->com()->state().y[1] = *com_in[4];
-    robot->com()->state().x[2] = gravity / *com_in[2] * (*com_in[0] - *cop_in[0]);
-    robot->com()->state().y[2] = gravity / *com_in[2] * (*com_in[1] - *cop_in[1]);
+    robot->com()->state().x[2] = kGravity / *com_in[2] * (*com_in[0] - *cop_in[0]);
+    robot->com()->state().y[2] = kGravity / *com_in[2] * (*com_in[1] - *cop_in[1]);
   }
 
   //std::cout<<"Before online()"<<std::endl;

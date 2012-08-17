@@ -12,7 +12,7 @@ end
 
 %% Set flags
 MPC_WALKGEN_PATH = '../../../';
-MPC_WALKGEN_LIBRARY_PATH = [MPC_WALKGEN_PATH,'build-new/Debug/'];
+%MPC_WALKGEN_LIBRARY_PATH = [MPC_WALKGEN_PATH,'build-new/Debug/'];
 %MPC_WALKGEN_LIBRARY_PATH = [MPC_WALKGEN_PATH,'build-new/Release/'];
 EIGEN_PATH = [MPC_WALKGEN_PATH,'deps/eigen/'];
 QPOASES_PATH = [MPC_WALKGEN_PATH,'deps/qpOASES-3.0beta_git/include/'];
@@ -56,7 +56,7 @@ QPOASES_OBJECTS = [	QPOASES_LIB_PATH, 'BLASReplacement.lib ',...
     QPOASES_LIB_PATH, 'libqpOASES.lib ',...
     QPOASES_LIB_PATH, 'libqpOASESextras.lib ',' ' ];
 
-%DEBUGFLAGS = ['-D_DEBUG -g',' '];
+% DEBUGFLAGS = ['-D_DEBUG -g',' '];
 DEBUGFLAGS = ' ';
 %DEBUGFLAGS = ' -g CXXDEBUGFLAGS=''$CXXDEBUGFLAGS -Wall -pedantic -Wshadow'' ';
 
@@ -67,7 +67,7 @@ disp([NAME, '.', eval('mexext'), ' successfully created!']);
 
 %% Set path and copy libraries
 path(path, pwd);
-path(path, [pwd,'/',MPC_WALKGEN_LIBRARY_PATH]);
+%path(path, [pwd,'/',MPC_WALKGEN_LIBRARY_PATH]);
 % Copy libraries
 %copyfile([MPC_WALKGEN_LIBRARY_PATH,'\mpc-walkgen.dll'],[pwd,'/mpc-walkgen.dll']);
 %copyfile([MPC_WALKGEN_LIBRARY_PATH,'\mpc-walkgen.lib'],[pwd,'/mpc-walkgen.lib']);
