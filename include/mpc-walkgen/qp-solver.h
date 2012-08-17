@@ -29,11 +29,8 @@ namespace MPCWalkgen{
     virtual void Init() = 0;
 
     void reset();
-    virtual void solve(Eigen::VectorXd &qpSolution,
-      Eigen::VectorXi &constraints,
-      Eigen::VectorXd &initialSolution,
-      Eigen::VectorXi &initialConstraints,
-      bool warmstart) = 0;
+    virtual void Solve(MPCSolution &solution_data,
+      bool warmstart, bool analyze_resolution) = 0;
 
     void DumpProblem(const char *filename); 
  
@@ -55,7 +52,7 @@ namespace MPCWalkgen{
     void varOrder(const Eigen::VectorXi &order);
     void ctrOrder(const Eigen::VectorXi &order);
 
-    virtual Solver name() const = 0;
+    virtual SolverName name() const = 0;
 
     virtual bool useCholesky() const = 0;
     virtual void useCholesky(bool) = 0;
@@ -88,7 +85,7 @@ namespace MPCWalkgen{
     Eigen::VectorXi constr_indices_vec_;
   };
 
-  QPSolver* createQPSolver(Solver name, int nbvar_max, int nbcstr_max);
+  QPSolver* createQPSolver(SolverName name, int nbvar_max, int nbcstr_max);
 }
 
 #endif // MPC_WALKGEN_QP_SOLVER_H

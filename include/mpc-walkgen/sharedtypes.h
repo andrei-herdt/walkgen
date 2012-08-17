@@ -1,15 +1,8 @@
 #pragma once
-#ifndef MPC_WALKGEN_SHAREDPGTYPE_H
-#define  MPC_WALKGEN_SHAREDPGTYPE_H
+#ifndef MPC_WALKGEN_SHAREDTYPES_H
+#define  MPC_WALKGEN_SHAREDTYPES_H
 
-////////////////////////////////////////////////////////////////////////////////
-///
-///\file	api.h
-///\brief	Definition of humanoid types
 ///\author  Herdt Andrei
-///\author	Lafaye Jory
-///\author      Keith François
-////////////////////////////////////////////////////////////////////////////////
 
 #include <mpc-walkgen/api.h>
 
@@ -20,29 +13,15 @@ namespace MPCWalkgen{
 
   /// \name Enum types
   /// \{
-  enum Phase{
-    SS, DS
-  };
+  enum Phase{  SS, DS };
 
-  enum Foot{
-    LEFT, RIGHT
-  };
+  enum Foot{ LEFT, RIGHT };
 
-  enum BodyType{
-    LEFT_FOOT, RIGHT_FOOT, COM
-  };
+  enum BodyType{ LEFT_FOOT, RIGHT_FOOT, COM  };
 
-  enum Solver {
-    QPOASES,
-    LSSOL
-  };
+  enum SolverName { QPOASES, LSSOL };
 
-  enum Axis {
-    X,
-    Y,
-    Z,
-    Yaw
-  };
+  enum Axis { X,  Y, Z, Yaw };
   /// \}
 
   /// \name Structures
@@ -164,10 +143,12 @@ namespace MPCWalkgen{
     /// \brief Interpolate not only the control (first element) but the whole preview vector
     bool interpolate_preview;
 
+    bool analyze_resolution;
+
 
     QPPonderation ponderation;
 
-    Solver solver;
+    SolverName solver;
 
     /// \brief Compute the number of recomputations left until next sample
     int nbFeedbackSamplesLeft(double firstSamplingPeriod) const;
@@ -225,6 +206,16 @@ namespace MPCWalkgen{
     void resize(int size);
   };
 
+  struct ResolutionData { 
+    int num_iterations;
+    //int active_set;
+    
+    double objective_value;
+    double resolution_time;
+
+    ResolutionData();
+  };
+
   struct MPC_WALKGEN_API MPCSolution {
 
     Eigen::VectorXd qpSolution;
@@ -232,6 +223,8 @@ namespace MPCWalkgen{
 
     Eigen::VectorXi constraints;
     Eigen::VectorXi initialConstraints;
+
+    ResolutionData resolution_data;
 
     /// \brief True if a new trajectory is computed in online loop
     bool newTraj;
@@ -291,4 +284,4 @@ namespace MPCWalkgen{
 }
 
 
-#endif // MPC_WALKGEN_SHAREDPGTYPE_H
+#endif // MPC_WALKGEN_SHAREDTYPES_H

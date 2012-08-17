@@ -4,7 +4,6 @@
 #include <mpc-walkgen/tools.h>
 
 using namespace MPCWalkgen;
-
 using namespace Eigen;
 
 QPGenerator::QPGenerator(QPPreview *preview, QPSolver *solver,

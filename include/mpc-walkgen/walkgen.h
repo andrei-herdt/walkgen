@@ -31,12 +31,11 @@ namespace MPCWalkgen{
     Walkgen();
     ~Walkgen();
 
-    virtual void Init(const RobotData &data_robot, const MPCData &mpcData);
+    virtual void Init(const RobotData &data_robot, const MPCData &mpc_data);
 
     virtual void Init();
 
     virtual const MPCSolution &online(double time);
-
     virtual const MPCSolution &online();
 
   public:
@@ -51,16 +50,12 @@ namespace MPCWalkgen{
       isNewCurrentSupport_ = true;
     }
 
-    virtual const BodyState &bodyState(BodyType body)const;
+    virtual const BodyState &bodyState(BodyType body) const;
     virtual void bodyState(BodyType body, const BodyState &state);
+    virtual const ControlOutput &output() const { return output_; };
+    virtual RigidBodySystem *robot() { return robot_; };
 
-    virtual const ControlOutput &output() {
-      return output_;
-    };
-
-    virtual RigidBodySystem *robot() {
-      return robot_;
-    }
+    virtual const QPSolver *solver() const { return solver_; };
     // \}
 
   private:

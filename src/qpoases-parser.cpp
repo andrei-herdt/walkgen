@@ -1,7 +1,6 @@
 #include <mpc-walkgen/qpoases-parser.h>
 
 #include <iostream>
-#include <windows.h> 
 
 using namespace MPCWalkgen;
 using namespace Eigen;
@@ -37,32 +36,29 @@ void QPOasesParser::Init() {
 
 }
 
-void QPOasesParser::solve(VectorXd &solution,
-                          VectorXi &constraints,
-                          VectorXd &initialSolution,
-                          VectorXi &initialConstraints,
-                          bool warmstart) 
+void QPOasesParser::Solve(MPCSolution &solution_data,
+                          bool warmstart, bool analyze_resolution) 
 {
 
   qp_->setPrintLevel(qpOASES::PL_NONE);
 
   if (warmstart) {
-    reorderInitialSolution(initialSolution, initialConstraints);
-    solution = initialSolution;
-    constraints = initialConstraints;
+    reorderInitialSolution(solution_data.initialSolution, solution_data.initialConstraints);
+    solution_data.qpSolution = solution_data.initialSolution;
+    solution_data.constraints = solution_data.initialConstraints;
     for (int i = 0; i < num_vars_; ++i) {
-      if (constraints(i) == 0) {//TODO: replace 0,1,-1 by ST_INACTIVE/ST_LOWER/ST_UPPER
+      if (solution_data.constraints(i) == 0) {//TODO: replace 0,1,-1 by ST_INACTIVE/ST_LOWER/ST_UPPER
         bounds_init_vec_->setupBound(i, qpOASES::ST_INACTIVE);
-      }else if (constraints(i) == 1) {
+      }else if (solution_data.constraints(i) == 1) {
         bounds_init_vec_->setupBound(i, qpOASES::ST_LOWER);
       }else{
         bounds_init_vec_->setupBound(i, qpOASES::ST_UPPER);
       }
     }
     for (int i = num_vars_; i < num_vars_ + num_constr_; ++i) {
-      if (constraints(i) == 0) {
+      if (solution_data.constraints(i) == 0) {
         cstr_init_vec_->setupConstraint(i, qpOASES::ST_INACTIVE);
-      } else if (constraints(i) == 1) {
+      } else if (solution_data.constraints(i) == 1) {
         cstr_init_vec_->setupConstraint(i, qpOASES::ST_LOWER);
       } else {
         cstr_init_vec_->setupConstraint(i, qpOASES::ST_UPPER);
@@ -72,33 +68,24 @@ void QPOasesParser::solve(VectorXd &solution,
   } else {
     //		cstr_init_vec_->setupAllInactive();
     //		bounds_init_vec_->setupAllFree();
-    if (solution.rows() != num_vars_) {
-      solution.setZero(num_vars_);
+    if (solution_data.qpSolution.rows() != num_vars_) {
+      solution_data.qpSolution.setZero(num_vars_);
     } else {
-      solution.fill(0);
+      solution_data.qpSolution.fill(0);
     }
-    if (constraints.rows() != num_vars_ + num_constr_) {
-      constraints.setZero(num_vars_ + num_constr_);
+    if (solution_data.constraints.rows() != num_vars_ + num_constr_) {
+      solution_data.constraints.setZero(num_vars_ + num_constr_);
     } else {
-      constraints.fill(0);
+      solution_data.constraints.fill(0);
     }
   }
 
-  //Variablen 
-  LONGLONG g_Frequency, g_CurentCount, g_LastCount; 
+  if (analyze_resolution == true) {
+    debug_.GetFrequency();
+    debug_.StartCounting();
+  }
 
-  //Frequenz holen 
-  if (!QueryPerformanceFrequency((LARGE_INTEGER*)&g_Frequency)) 
-    std::cout << "Performance Counter nicht vorhanden" << std::endl; 
-
-  //1. Messung 
-  QueryPerformanceCounter((LARGE_INTEGER*)&g_CurentCount); 
-
-  //DumpProblem("problem_in_solve.dat");
-  //qpOASES::Options myoptions;
-  //myoptions.printLevel = qpOASES::PL_HIGH;
-  //	qp_->setOptions(myoptions);
-  int nWSR = 100;
+  int nWSR = 3;// TODO: Move to MPCData
   if (warmstart) {
     qp_->hotstart(hessian_mat_().data(), gradient_vec_().data(), cstr_mat_().data(),
       var_l_bounds_vec_().data(), var_u_bounds_vec_().data(),
@@ -111,18 +98,17 @@ void QPOasesParser::solve(VectorXd &solution,
       nWSR, NULL);
   }
 
+  if (analyze_resolution == true) {
+    debug_.StopCounting();
+    solution_data.resolution_data.resolution_time = debug_.GetTime();
+    solution_data.resolution_data.num_iterations = nWSR;
+  }
+
   qp_->getPrimalSolution(solution_vec_);
   for (int i = 0; i < num_vars_; ++i) {
-    solution(i) = solution_vec_[i];
+    solution_data.qpSolution(i) = solution_vec_[i];
   }
-  qp_->printProperties();
-
-  //2. Messung 
-  QueryPerformanceCounter((LARGE_INTEGER*)&g_LastCount); 
-
-  double dTimeDiff = (((double)(g_LastCount-g_CurentCount))/((double)g_Frequency));  
-
-  std::cout << "Zeit: " << dTimeDiff << "at: "  << std::endl<< std::endl<< std::endl<< std::endl; 
+  //qp_->printProperties();
 
   /////// TODO: checked until here
   qpOASES::Constraints ctr;
@@ -131,29 +117,23 @@ void QPOasesParser::solve(VectorXd &solution,
   qp_->getBounds(bounds);
   for (int i=0; i < num_vars_; ++i) {
     if (bounds.getStatus(i) == qpOASES::ST_LOWER) {
-      constraints(i) = 1;
+      solution_data.constraints(i) = 1;
     } else if (bounds.getStatus(i) == qpOASES::ST_UPPER) {
-      constraints(i) = 2;
+      solution_data.constraints(i) = 2;
     } else {
-      constraints(i) = 0;
+      solution_data.constraints(i) = 0;
     }
   }
   for (int i = 0; i < num_constr_; ++i) {
     if (ctr.getStatus(i) == qpOASES::ST_LOWER) {
-      constraints(i + num_vars_) = 1;
+      solution_data.constraints(i + num_vars_) = 1;
     }else if (ctr.getStatus(i) == qpOASES::ST_UPPER) {
-      constraints(i + num_vars_) = 2;
+      solution_data.constraints(i + num_vars_) = 2;
     }else{
-      constraints(i + num_vars_) = 0;
+      solution_data.constraints(i + num_vars_) = 0;
     }
   }
 
-  reorderSolution(solution, constraints, initialConstraints);
-
-  // RESET 
-  //bounds_init_vec_->print();
-
-  //cstr_init_vec_->fill(0);
-
+  reorderSolution(solution_data.qpSolution, solution_data.constraints, solution_data.initialConstraints);
 }
 

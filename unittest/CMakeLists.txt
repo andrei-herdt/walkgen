@@ -9,7 +9,7 @@ set(humanoid_SRC
   ../src/qp-matrix.cpp
   ../src/qp-vector.cpp
   ../src/types.cpp
-  ../src/sharedpgtypes.cpp
+  ../src/sharedtypes.cpp
   ../src/walkgen-abstract.cpp
   ../src/lssol-parser.cpp
   ../src/qpoases-parser.cpp)

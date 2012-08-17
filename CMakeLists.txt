@@ -58,7 +58,7 @@ endif()
 # Define the set of headers to be installed
 SET(${PROJECT_NAME}_HEADERS
   include/mpc-walkgen/walkgen-abstract.h
-  include/mpc-walkgen/sharedpgtypes.h
+  include/mpc-walkgen/sharedtypes.h
 )
 
 SET(mpc-walkgen_SRC
@@ -83,8 +83,8 @@ SET(mpc-walkgen_SRC
   src/tools.cpp
   include/mpc-walkgen/tools.h
   include/mpc-walkgen/tools-inl.h
-  src/sharedpgtypes.cpp
-  include/mpc-walkgen/sharedpgtypes.h
+  src/sharedtypes.cpp
+  include/mpc-walkgen/sharedtypes.h
   src/orientations-preview.cpp
   include/mpc-walkgen/orientations-preview.h
   src/qp-generator.cpp
@@ -105,7 +105,7 @@ SET(mpc-walkgen_SRC
   include/mpc-walkgen/types.h
   src/walkgen.cpp
   include/mpc-walkgen/walkgen.h
-  src/sharedpgtypes.cpp
+  src/sharedtypes.cpp
   src/walkgen-abstract.cpp
 )
 

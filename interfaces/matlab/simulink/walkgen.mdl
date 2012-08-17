@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.269"
+    ComputedModelVersion    "1.283"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Wed Aug 15 20:29:56 2012"
+  LastModifiedDate	  "Fri Aug 17 10:42:21 2012"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:269>"
+  ModelVersionFormat	  "1.%<AutoIncrement:283>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -544,6 +544,39 @@ Model {
       MinMaxOverflowLogging   "UseLocalSettings"
     }
     Block {
+      BlockType		      Sum
+      IconShape		      "rectangular"
+      Inputs		      "++"
+      CollapseMode	      "All dimensions"
+      CollapseDim	      "1"
+      InputSameDT	      on
+      OutMin		      "[]"
+      OutMax		      "[]"
+      OutDataTypeMode	      "Same as first input"
+      OutDataType	      "fixdt(1,16,0)"
+      OutScaling	      "[]"
+      LockScale		      off
+      RndMeth		      "Floor"
+      SaturateOnIntegerOverflow	on
+      SampleTime	      "-1"
+    }
+    Block {
+      BlockType		      Switch
+      Criteria		      "u2 >= Threshold"
+      Threshold		      "0"
+      InputSameDT	      on
+      OutMin		      "[]"
+      OutMax		      "[]"
+      OutDataTypeMode	      "Inherit via internal rule"
+      OutDataType	      "fixdt(1,16,0)"
+      OutScaling	      "[]"
+      LockScale		      off
+      RndMeth		      "Floor"
+      SaturateOnIntegerOverflow	on
+      ZeroCross		      on
+      SampleTime	      "-1"
+    }
+    Block {
       BlockType		      ToWorkspace
       VariableName	      "simulink_output"
       MaxDataPoints	      "1000"
@@ -606,14 +639,14 @@ Model {
       Position		      [88, 30, 102, 50]
       Orientation	      "down"
       NamePlacement	      "alternate"
-      Time		      "3"
-      SampleTime	      "0.005"
+      Time		      "0"
+      SampleTime	      "0.001"
     }
     Block {
       BlockType		      SubSystem
       Name		      "Simulation"
       Ports		      [0, 0, 1]
-      Position		      [65, 83, 125, 156]
+      Position		      [65, 98, 125, 171]
       MinAlgLoopOccurrences   off
       RTWSystemCode	      "Auto"
       FunctionWithSeparateData off
@@ -631,18 +664,32 @@ Model {
 	TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
 	TiledPageScale		1
 	ShowPageBoundaries	off
-	ZoomFactor		"125"
+	ZoomFactor		"100"
 	Block {
 	  BlockType		  EnablePort
 	  Name			  "Enable"
 	  Ports			  []
-	  Position		  [275, 15, 295, 35]
+	  Position		  [365, 240, 390, 260]
+	}
+	Block {
+	  BlockType		  Step
+	  Name			  "Activate"
+	  Position		  [110, 208, 130, 222]
+	  Time			  "3"
+	  SampleTime		  "0.001"
+	}
+	Block {
+	  BlockType		  Step
+	  Name			  "Activate1"
+	  Position		  [100, 128, 120, 142]
+	  Time			  "7"
+	  SampleTime		  "0.001"
 	}
 	Block {
 	  BlockType		  BusCreator
 	  Name			  "Bus\nCreator"
 	  Ports			  [3, 1]
-	  Position		  [410, 101, 415, 139]
+	  Position		  [500, 301, 505, 339]
 	  ShowName		  off
 	  Inputs		  "3"
 	  DisplayOption		  "bar"
@@ -651,7 +698,7 @@ Model {
 	  BlockType		  BusCreator
 	  Name			  "Bus\nCreator1"
 	  Ports			  [3, 1]
-	  Position		  [415, 201, 420, 239]
+	  Position		  [505, 401, 510, 439]
 	  ShowName		  off
 	  Inputs		  "3"
 	  DisplayOption		  "bar"
@@ -660,7 +707,7 @@ Model {
 	  BlockType		  BusCreator
 	  Name			  "Bus\nCreator2"
 	  Ports			  [3, 1]
-	  Position		  [415, 276, 420, 314]
+	  Position		  [505, 476, 510, 514]
 	  ShowName		  off
 	  Inputs		  "3"
 	  DisplayOption		  "bar"
@@ -668,7 +715,7 @@ Model {
 	Block {
 	  BlockType		  Constant
 	  Name			  "Constant1"
-	  Position		  [55, 170, 165, 190]
+	  Position		  [145, 380, 255, 400]
 	  ShowName		  off
 	  FontName		  "Arial"
 	  FontSize		  8
@@ -685,12 +732,23 @@ Model {
 	}
 	Block {
 	  BlockType		  Constant
-	  Name			  "Constant2"
-	  Position		  [55, 92, 165, 108]
+	  Name			  "Constant10"
+	  Position		  [50, 107, 160, 123]
 	  ShowName		  off
 	  FontName		  "Arial"
 	  FontSize		  8
-	  Value			  "[0.05, 0.0, 0.0]"
+	  Value			  "[0.0, 0.0, 0.3]"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	}
+	Block {
+	  BlockType		  Constant
+	  Name			  "Constant2"
+	  Position		  [60, 232, 170, 248]
+	  ShowName		  off
+	  FontName		  "Arial"
+	  FontSize		  8
+	  Value			  "[0.0, 0.0, 0.0]"
 	  OutDataType		  "sfix(16)"
 	  OutScaling		  "2^0"
 	  Port {
@@ -703,7 +761,7 @@ Model {
 	Block {
 	  BlockType		  Constant
 	  Name			  "Constant3"
-	  Position		  [55, 210, 165, 230]
+	  Position		  [145, 420, 255, 440]
 	  ShowName		  off
 	  FontName		  "Arial"
 	  FontSize		  8
@@ -721,7 +779,7 @@ Model {
 	Block {
 	  BlockType		  Constant
 	  Name			  "Constant4"
-	  Position		  [55, 250, 165, 270]
+	  Position		  [145, 460, 255, 480]
 	  ShowName		  off
 	  FontName		  "Arial"
 	  FontSize		  8
@@ -739,7 +797,7 @@ Model {
 	Block {
 	  BlockType		  Constant
 	  Name			  "Constant5"
-	  Position		  [15, 130, 165, 150]
+	  Position		  [105, 340, 255, 360]
 	  ShowName		  off
 	  FontName		  "Arial"
 	  FontSize		  8
@@ -757,7 +815,7 @@ Model {
 	Block {
 	  BlockType		  Constant
 	  Name			  "Constant6"
-	  Position		  [55, 290, 165, 310]
+	  Position		  [145, 500, 255, 520]
 	  ShowName		  off
 	  FontName		  "Arial"
 	  FontSize		  8
@@ -775,7 +833,7 @@ Model {
 	Block {
 	  BlockType		  Constant
 	  Name			  "Constant7"
-	  Position		  [55, 330, 165, 350]
+	  Position		  [145, 540, 255, 560]
 	  ShowName		  off
 	  FontName		  "Arial"
 	  FontSize		  8
@@ -791,10 +849,38 @@ Model {
 	  }
 	}
 	Block {
+	  BlockType		  Constant
+	  Name			  "Constant8"
+	  Position		  [60, 187, 170, 203]
+	  ShowName		  off
+	  FontName		  "Arial"
+	  FontSize		  8
+	  Value			  "[0.1, 0.0, 0.0]"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	}
+	Block {
+	  BlockType		  Constant
+	  Name			  "Constant9"
+	  Position		  [50, 152, 160, 168]
+	  ShowName		  off
+	  FontName		  "Arial"
+	  FontSize		  8
+	  Value			  "[0.0, 0.0, 0.0]"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "vel_ref"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
 	  BlockType		  "S-Function"
 	  Name			  "S-Function"
-	  Ports			  [9, 14]
-	  Position		  [240, 83, 330, 432]
+	  Ports			  [9, 15]
+	  Position		  [330, 283, 420, 657]
 	  FunctionName		  "walkgen_sfun"
 	  Port {
 	    PortNumber		    1
@@ -855,9 +941,9 @@ Model {
 	  BlockType		  Scope
 	  Name			  "Scope"
 	  Ports			  [1]
-	  Position		  [570, 69, 600, 101]
+	  Position		  [660, 279, 690, 311]
 	  Floating		  off
-	  Location		  [79, 40, 1595, 894]
+	  Location		  [79, 40, 1595, 891]
 	  Open			  off
 	  NumInputPorts		  "1"
 	  List {
@@ -874,7 +960,7 @@ Model {
 	  BlockType		  Scope
 	  Name			  "Scope1"
 	  Ports			  [1]
-	  Position		  [570, 129, 600, 161]
+	  Position		  [660, 329, 690, 361]
 	  Floating		  off
 	  Location		  [79, 40, 1595, 894]
 	  Open			  off
@@ -891,7 +977,7 @@ Model {
 	  BlockType		  Scope
 	  Name			  "Scope2"
 	  Ports			  [1]
-	  Position		  [570, 239, 600, 271]
+	  Position		  [660, 454, 690, 486]
 	  Floating		  off
 	  Location		  [79, 40, 1595, 894]
 	  Open			  off
@@ -908,7 +994,7 @@ Model {
 	  BlockType		  Scope
 	  Name			  "Scope3"
 	  Ports			  [1]
-	  Position		  [570, 179, 600, 211]
+	  Position		  [660, 379, 690, 411]
 	  Floating		  off
 	  Location		  [79, 40, 1595, 894]
 	  Open			  off
@@ -922,9 +1008,44 @@ Model {
 	  SampleTime		  "0"
 	}
 	Block {
+	  BlockType		  Sum
+	  Name			  "Sum"
+	  Ports			  [2, 1]
+	  Position		  [245, 175, 265, 195]
+	  ShowName		  off
+	  IconShape		  "round"
+	  Inputs		  "|++"
+	  CollapseMode		  "All dimensions"
+	  InputSameDT		  off
+	  OutDataTypeMode	  "Inherit via internal rule"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  Switch
+	  Name			  "Switch"
+	  Position		  [200, 200, 230, 230]
+	  Threshold		  "0.5"
+	  InputSameDT		  off
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
+	  BlockType		  Switch
+	  Name			  "Switch1"
+	  Position		  [190, 120, 220, 150]
+	  Threshold		  "0.5"
+	  InputSameDT		  off
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  SaturateOnIntegerOverflow off
+	}
+	Block {
 	  BlockType		  ToWorkspace
 	  Name			  "To Workspace"
-	  Position		  [450, 110, 500, 130]
+	  Position		  [540, 310, 590, 330]
 	  ShowName		  off
 	  VariableName		  "com"
 	  MaxDataPoints		  "inf"
@@ -934,7 +1055,7 @@ Model {
 	Block {
 	  BlockType		  ToWorkspace
 	  Name			  "To Workspace1"
-	  Position		  [450, 160, 500, 180]
+	  Position		  [540, 360, 590, 380]
 	  ShowName		  off
 	  VariableName		  "cop"
 	  MaxDataPoints		  "inf"
@@ -944,7 +1065,7 @@ Model {
 	Block {
 	  BlockType		  ToWorkspace
 	  Name			  "To Workspace2"
-	  Position		  [450, 210, 500, 230]
+	  Position		  [540, 410, 590, 430]
 	  ShowName		  off
 	  VariableName		  "left_foot"
 	  MaxDataPoints		  "inf"
@@ -954,7 +1075,7 @@ Model {
 	Block {
 	  BlockType		  ToWorkspace
 	  Name			  "To Workspace3"
-	  Position		  [450, 285, 500, 305]
+	  Position		  [540, 485, 590, 505]
 	  ShowName		  off
 	  VariableName		  "right_foot"
 	  MaxDataPoints		  "inf"
@@ -964,7 +1085,7 @@ Model {
 	Block {
 	  BlockType		  ToWorkspace
 	  Name			  "To Workspace4"
-	  Position		  [450, 335, 525, 355]
+	  Position		  [540, 535, 615, 555]
 	  ShowName		  off
 	  VariableName		  "next_foot"
 	  MaxDataPoints		  "inf"
@@ -974,7 +1095,7 @@ Model {
 	Block {
 	  BlockType		  ToWorkspace
 	  Name			  "To Workspace5"
-	  Position		  [450, 360, 525, 380]
+	  Position		  [540, 560, 615, 580]
 	  ShowName		  off
 	  VariableName		  "com_prw"
 	  MaxDataPoints		  "inf"
@@ -984,7 +1105,7 @@ Model {
 	Block {
 	  BlockType		  ToWorkspace
 	  Name			  "To Workspace6"
-	  Position		  [450, 385, 525, 405]
+	  Position		  [540, 585, 615, 605]
 	  ShowName		  off
 	  VariableName		  "cop_prw"
 	  MaxDataPoints		  "inf"
@@ -994,7 +1115,7 @@ Model {
 	Block {
 	  BlockType		  ToWorkspace
 	  Name			  "To Workspace7"
-	  Position		  [450, 410, 525, 430]
+	  Position		  [540, 610, 615, 630]
 	  ShowName		  off
 	  VariableName		  "support"
 	  MaxDataPoints		  "inf"
@@ -1002,9 +1123,19 @@ Model {
 	  SaveFormat		  "Structure With Time"
 	}
 	Block {
+	  BlockType		  ToWorkspace
+	  Name			  "To Workspace8"
+	  Position		  [540, 635, 615, 655]
+	  ShowName		  off
+	  VariableName		  "resolution_data"
+	  MaxDataPoints		  "inf"
+	  SampleTime		  "-1"
+	  SaveFormat		  "Structure With Time"
+	}
+	Block {
 	  BlockType		  Constant
 	  Name			  "closed_loop"
-	  Position		  [145, 370, 165, 390]
+	  Position		  [235, 580, 255, 600]
 	  ShowName		  off
 	  Value			  "0"
 	  OutDataType		  "sfix(16)"
@@ -1019,7 +1150,7 @@ Model {
 	Block {
 	  BlockType		  Constant
 	  Name			  "cop_real"
-	  Position		  [105, 409, 165, 431]
+	  Position		  [195, 619, 255, 641]
 	  ShowName		  off
 	  Value			  "[0,0]"
 	  OutDataType		  "sfix(16)"
@@ -1038,7 +1169,6 @@ Model {
 	  SrcPort		  1
 	  Points		  [35, 0]
 	  Branch {
-	    Points		    [0, -10]
 	    DstBlock		    "Scope"
 	    DstPort		    1
 	  }
@@ -1103,14 +1233,6 @@ Model {
 	  SrcBlock		  "Bus\nCreator1"
 	  SrcPort		  1
 	  DstBlock		  "To Workspace2"
-	  DstPort		  1
-	}
-	Line {
-	  Name			  "vel_ref"
-	  Labels		  [0, 0]
-	  SrcBlock		  "Constant2"
-	  SrcPort		  1
-	  DstBlock		  "S-Function"
 	  DstPort		  1
 	}
 	Line {
@@ -1181,14 +1303,13 @@ Model {
 	  Labels		  [0, 0]
 	  SrcBlock		  "S-Function"
 	  SrcPort		  8
-	  Points		  [45, 0]
+	  Points		  [35, 0]
 	  Branch {
-	    Points		    [-5, 0; 0, 15]
+	    Points		    [0, 15]
 	    DstBlock		    "Bus\nCreator2"
 	    DstPort		    1
 	  }
 	  Branch {
-	    Points		    [0, -15]
 	    DstBlock		    "Scope2"
 	    DstPort		    1
 	  }
@@ -1260,8 +1381,76 @@ Model {
 	  DstBlock		  "To Workspace7"
 	  DstPort		  1
 	}
-	Annotation {
-	  Position		  [265, 507]
+	Line {
+	  SrcBlock		  "S-Function"
+	  SrcPort		  15
+	  DstBlock		  "To Workspace8"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Sum"
+	  SrcPort		  1
+	  Points		  [0, 125]
+	  DstBlock		  "S-Function"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Constant8"
+	  SrcPort		  1
+	  Points		  [0, 10]
+	  DstBlock		  "Switch"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "vel_ref"
+	  Labels		  [0, 0]
+	  SrcBlock		  "Constant2"
+	  SrcPort		  1
+	  Points		  [0, -15]
+	  DstBlock		  "Switch"
+	  DstPort		  3
+	}
+	Line {
+	  SrcBlock		  "Activate"
+	  SrcPort		  1
+	  DstBlock		  "Switch"
+	  DstPort		  2
+	}
+	Line {
+	  SrcBlock		  "Switch"
+	  SrcPort		  1
+	  Points		  [20, 0]
+	  DstBlock		  "Sum"
+	  DstPort		  2
+	}
+	Line {
+	  SrcBlock		  "Constant10"
+	  SrcPort		  1
+	  Points		  [0, 10]
+	  DstBlock		  "Switch1"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "vel_ref"
+	  Labels		  [0, 0]
+	  SrcBlock		  "Constant9"
+	  SrcPort		  1
+	  Points		  [0, -15]
+	  DstBlock		  "Switch1"
+	  DstPort		  3
+	}
+	Line {
+	  SrcBlock		  "Activate1"
+	  SrcPort		  1
+	  DstBlock		  "Switch1"
+	  DstPort		  2
+	}
+	Line {
+	  SrcBlock		  "Switch1"
+	  SrcPort		  1
+	  Points		  [0, 50]
+	  DstBlock		  "Sum"
+	  DstPort		  1
 	}
       }
     }
@@ -1270,6 +1459,9 @@ Model {
       SrcPort		      1
       DstBlock		      "Simulation"
       DstPort		      enable
+    }
+    Annotation {
+      Position		      [101, 125]
     }
   }
 }

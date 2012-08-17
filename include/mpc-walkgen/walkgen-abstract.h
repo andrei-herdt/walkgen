@@ -1,3 +1,7 @@
+#pragma once
+#ifndef MPC_WALKGEN_WALKGEN_ABSTRACT_H
+#define MPC_WALKGEN_WALKGEN_ABSTRACT_H
+
 ////////////////////////////////////////////////////////////////////////////////
 ///
 ///\file	walkgen-abstract.h
@@ -5,17 +9,14 @@
 ///\author      Keith François
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <mpc-walkgen/sharedtypes.h>
 
-#pragma once
-#ifndef MPC_WALKGEN_WALKGEN_ABSTRACT_H
-#define MPC_WALKGEN_WALKGEN_ABSTRACT_H
-
-#include <mpc-walkgen/sharedpgtypes.h>
 #include <Eigen/Core>
 
 namespace MPCWalkgen{
 
     class RigidBodySystem;
+    class QPSolver;
 
     class  WalkgenAbstract
     {
@@ -30,8 +31,8 @@ namespace MPCWalkgen{
 
       /// \brief Initialize the system
       /// \param[in] data_robot: data relative to the robot
-      /// \param[in] mpcData: data relative to the qp solver
-      virtual void Init(const RobotData &data_robot, const MPCData &mpcData) = 0;
+      /// \param[in] mpc_data: data relative to the qp solver
+      virtual void Init(const RobotData &data_robot, const MPCData &mpc_data) = 0;
       virtual void Init() = 0;
 
       /// \brief Call method to handle on-line generation of ZMP reference trajectory.
@@ -53,12 +54,13 @@ namespace MPCWalkgen{
       virtual const SupportState &currentSupportState() const = 0;
       virtual void currentSupportState(const SupportState &newSupportState)=0;
 
-      virtual const BodyState &bodyState(BodyType body)const = 0;
+      virtual const BodyState &bodyState(BodyType body) const = 0;
       virtual void bodyState(BodyType body, const BodyState &state) = 0;
 
-      virtual const ControlOutput &output() = 0;
+      virtual const ControlOutput &output() const = 0;
 
       virtual RigidBodySystem *robot() = 0;
+      virtual const QPSolver *solver() const = 0;
       /// \}
 
     };

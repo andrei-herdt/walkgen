@@ -1,10 +1,11 @@
-#include <mpc-walkgen/sharedpgtypes.h>
+#include <mpc-walkgen/sharedtypes.h>
 #include <mpc-walkgen/tools.h>
+
 #include <iostream>
 #include <cassert>
+
 using namespace std;
 using namespace MPCWalkgen;
-
 
 BodyState::BodyState(){
   reset();
@@ -18,7 +19,7 @@ void BodyState::reset(){
   pitch.fill(0);
   roll.fill(0);
 }
- 
+
 FootData::FootData()
 : soleWidth(0)
 , soleHeight(0)
@@ -41,6 +42,12 @@ HipYawData::HipYawData()
 
 HipYawData::~HipYawData() {}
 
+ResolutionData::ResolutionData():
+num_iterations(-1),
+objective_value(-1),
+resolution_time(-1)
+{}
+
 MPCSolution::MPCSolution()
 :state_vec(3)
 {}
@@ -54,6 +61,9 @@ MPCSolution& MPCSolution::operator = (MPCSolution const &rhs){
 
   constraints = rhs.constraints;
   initialConstraints = rhs.initialConstraints;
+
+  resolution_data = rhs.resolution_data;
+
   /// \brief True if a new trajectory is computed in online loop
   newTraj = rhs.newTraj;
 

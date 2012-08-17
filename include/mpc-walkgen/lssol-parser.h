@@ -9,8 +9,9 @@
 ///
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <Eigen/Dense>
 #include <mpc-walkgen/qp-solver.h>
+
+#include <Eigen/Dense>
 
 namespace MPCWalkgen{
 
@@ -21,14 +22,11 @@ namespace MPCWalkgen{
 
     virtual void Init();
 
-    virtual void solve(Eigen::VectorXd &qpSolution,
-      Eigen::VectorXi &constraints,
-      Eigen::VectorXd &initialSolution,
-      Eigen::VectorXi &initialConstraints,
-      bool warmstart);
+    virtual void Solve(MPCSolution &solution_data,
+      bool warmstart, bool analyze);
 
     // accessors
-    inline Solver name() const
+    inline SolverName name() const
     { return LSSOL; }
     inline bool useCholesky() const
     { return useCholesky_; }

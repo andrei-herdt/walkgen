@@ -1,6 +1,6 @@
 #pragma once
-#ifndef MPC_WALKGEN_QPOASES_SOLVER_H
-#define MPC_WALKGEN_QPOASES_SOLVER_H
+#ifndef MPC_WALKGEN_QPOASES_PARSER_H
+#define MPC_WALKGEN_QPOASES_PARSER_H
 
 ////////////////////////////////////////////////////////////////////////////////
 ///
@@ -12,13 +12,14 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <mpc-walkgen/qp-solver.h>
+#include <mpc-walkgen/mpc-debug.h>
 
-# include <qpOASES/SQProblem.hpp>
+# include <qpOASES.hpp>
 #include <Eigen/Dense>
 
-namespace qpOASES{
-  class QProblem;//TODO: ?
-}
+//namespace qpOASES{
+//  class QProblem;//TODO: ?
+//}
 
 namespace MPCWalkgen{
 
@@ -28,15 +29,14 @@ namespace MPCWalkgen{
 			virtual ~QPOasesParser();
 
 			virtual void Init();
-
-			virtual void solve(Eigen::VectorXd &qpSolution,
-					   Eigen::VectorXi &constraints,
-					   Eigen::VectorXd &initialSolution,
-					   Eigen::VectorXi &initialConstraints,
-					   bool warmstart);
+ 
+			virtual void Solve(MPCSolution &solutin_data,
+					   bool warmstart, bool analyze_resolution);
 
 			// accessors
-			inline Solver name() const
+      inline qpOASES::SQProblem *solver() const
+      { return qp_; }
+			inline SolverName name() const
 			{ return QPOASES; }
 			inline bool useCholesky() const
 			{ return false; }
@@ -49,8 +49,10 @@ namespace MPCWalkgen{
 			qpOASES::Constraints *cstr_init_vec_;
 			qpOASES::Bounds *bounds_init_vec_;
 
+      MPCDebug debug_;
+
 	};
 
 }
 
-#endif // MPC_WALKGEN_QPOASES_SOLVER_H
+#endif // MPC_WALKGEN_QPOASES_PARSER_H

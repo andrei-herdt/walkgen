@@ -32,13 +32,10 @@ LSSOLParser::~LSSOLParser(){}
 
 void LSSOLParser::Init() {}
 
-void LSSOLParser::solve(VectorXd & qpSolution,
-			VectorXi & constraints,
-			VectorXd & initialSolution,
-			VectorXi & initialConstraints,
-			bool useWarmStart){
+void LSSOLParser::Solve(MPCSolution &solution_data,
+			bool useWarmStart, bool analyze){
  
-	reorderInitialSolution(initialSolution, initialConstraints);
+	reorderInitialSolution(solution_data.initialSolution, solution_data.initialConstraints);
 
 
 	// Pile up XL and BL
@@ -50,18 +47,18 @@ void LSSOLParser::solve(VectorXd & qpSolution,
 	bu_.segment(num_vars_, num_constr_) = constr_u_bounds_vec_().block(0,0,num_constr_,1);
 
 	if (useWarmStart){
-		qpSolution = initialSolution;
-		constraints = initialConstraints;
+		solution_data.qpSolution = solution_data.initialSolution;
+		solution_data.constraints = solution_data.initialConstraints;
 	}else{
-		if (qpSolution.rows() != num_vars_){
-			qpSolution.setZero(num_vars_);
+		if (solution_data.qpSolution.rows() != num_vars_){
+			solution_data.qpSolution.setZero(num_vars_);
 		}else{
-			qpSolution.fill(0);
+			solution_data.qpSolution.fill(0);
 		}
-		if (constraints.rows()!=num_vars_ + num_constr_){
-			constraints.setZero(num_vars_ + num_constr_);
+		if (solution_data.constraints.rows()!=num_vars_ + num_constr_){
+			solution_data.constraints.setZero(num_vars_ + num_constr_);
 		}else{
-			constraints.fill(0);
+			solution_data.constraints.fill(0);
 		}
 	}
 
@@ -74,7 +71,7 @@ void LSSOLParser::solve(VectorXd & qpSolution,
 	assert(bl_.size() >= num_vars_ + num_constr_);
 	assert(bu_.size() >= num_vars_ + num_constr_);
 	assert(gradient_vec_().size() >= num_vars_);
-	assert(constraints.size() >= num_vars_ + num_constr_);
+	assert(solution_data.constraints.size() >= num_vars_ + num_constr_);
 	assert(leniw_>=num_vars_);
 	assert((num_constr_ > 0)  || (lenw_ >=10*num_vars_));
 	assert((num_constr_ == 0) || (lenw_ >=2*num_vars_*num_vars_ + 10*num_vars_+ 6*num_constr_));
@@ -83,10 +80,10 @@ void LSSOLParser::solve(VectorXd & qpSolution,
 //	lssol_(&num_vars_, &num_vars_,
 //			&num_constr_, &num_constr_, &num_vars_,
 //			matrixA_().data(), bl_.data(), bu_.data(),gradient_vec_().data(),
-//			constraints.data(), kx_.data(), qpSolution.data(),
+//			solution_data.constraints.data(), kx_.data(), solution_data.qpSolution.data(),
 //			matrixQ_.cholesky().data(), bb_.data(), &inform_, &iter_, &obj_, lambda_.data(),
 //			iwar_.data(), &leniw_, war_.data(), &lenw_);
 
 
-	reorderSolution(qpSolution, constraints, initialConstraints);
+	reorderSolution(solution_data.qpSolution, solution_data.constraints, solution_data.initialConstraints);
 }

@@ -73,9 +73,9 @@ Walkgen::~Walkgen(){
 
 }
 
-void Walkgen::Init(const RobotData &data_robot, const MPCData &mpcData) {
+void Walkgen::Init(const RobotData &data_robot, const MPCData &mpc_data) {
 
-  data_mpc_ = mpcData;
+  data_mpc_ = mpc_data;
   robotData_ = data_robot;
 
   // Check if sampling periods are defined correctly
@@ -179,9 +179,8 @@ const MPCSolution &Walkgen::online(double time){
 
     BuildProblem();
 
-    solver_->solve(solution_.qpSolution, solution_.constraints,
-      solution_.initialSolution, solution_.initialConstraints,
-      data_mpc_.warmstart);
+    solver_->Solve(solution_,
+      data_mpc_.warmstart, data_mpc_.analyze_resolution);
 
     GenerateTrajectories();
   }

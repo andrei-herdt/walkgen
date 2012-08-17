@@ -1,4 +1,4 @@
-figure
+figure;
 %% Previewed
 nbsamples = 16;
 di = 10;
@@ -24,11 +24,11 @@ lines_real_cop_y = plot(cop.time(1:di:length(com.time),1), cop.signals.values(1:
 %% Legend
 subplot(1,2,1);
 legend([lines_prw_com_x, lines_prw_cop_x, lines_real_com_x, lines_real_cop_x], 'com_{prw}^x','cop_{prw}^x','com_{real}^x','cop_{real}^x');
-xlabel('Time [s]')
-ylabel('X [m]')
+xlabel('Time [s]');
+ylabel('X [m]');
 title('CoM Positions (previewed and realized)');
 subplot(1,2,2);
 legend([lines_prw_com_y, lines_prw_cop_y, lines_real_com_y, lines_real_cop_y], 'com_{prw}^y','cop_{prw}^y','com_{real}^y','cop_{real}^y');
-xlabel('Time [s]')
-ylabel('Y [m]')
+xlabel('Time [s]');
+ylabel('Y [m]');
 title('CoM Positions (previewed and realized)');
