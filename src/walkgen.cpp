@@ -93,7 +93,7 @@ void Walkgen::Init() {
   //TODO: Cleaning is necessary
   int num_steps_max = data_mpc_.num_steps_max();
   int num_constr_step = 5;
-  solver_ = createQPSolver(data_mpc_.solver,
+  solver_ = createQPSolver(data_mpc_.solver.name,
     2 * (data_mpc_.nbsamples_qp + num_steps_max), 
     num_constr_step * num_steps_max  );
 
@@ -179,8 +179,7 @@ const MPCSolution &Walkgen::online(double time){
 
     BuildProblem();
 
-    solver_->Solve(solution_,
-      data_mpc_.warmstart, data_mpc_.analyze_resolution);
+    solver_->Solve(solution_, data_mpc_.warmstart, data_mpc_.solver.analysis);
 
     GenerateTrajectories();
   }

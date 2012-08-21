@@ -120,6 +120,12 @@ namespace MPCWalkgen{
     void computeLinearSystem(const Foot &foot);
   };
 
+  struct SolverData {
+    SolverName name;
+    int num_wsrec;  // Maximal number of working set recomputations
+    bool analysis;
+  };
+
   struct MPC_WALKGEN_API MPCData {
     // The following parameters are fixed once and for all at initialization
     /// \brief Sampling period considered in the QP
@@ -143,12 +149,9 @@ namespace MPCWalkgen{
     /// \brief Interpolate not only the control (first element) but the whole preview vector
     bool interpolate_preview;
 
-    bool analyze_resolution;
-
-
     QPPonderation ponderation;
 
-    SolverName solver;
+    SolverData solver;
 
     /// \brief Compute the number of recomputations left until next sample
     int nbFeedbackSamplesLeft(double firstSamplingPeriod) const;
@@ -206,15 +209,19 @@ namespace MPCWalkgen{
     void resize(int size);
   };
 
-  struct ResolutionData { 
+
+  struct SolutionAnalysis { 
     int num_iterations;
     //int active_set;
-    
+
     double objective_value;
     double resolution_time;
+    double max_kkt_violation; //Maximum violation of the KKT optimality conditions
 
-    ResolutionData();
+
+    SolutionAnalysis();
   };
+
 
   struct MPC_WALKGEN_API MPCSolution {
 
@@ -223,8 +230,6 @@ namespace MPCWalkgen{
 
     Eigen::VectorXi constraints;
     Eigen::VectorXi initialConstraints;
-
-    ResolutionData resolution_data;
 
     /// \brief True if a new trajectory is computed in online loop
     bool newTraj;
@@ -243,6 +248,8 @@ namespace MPCWalkgen{
 
     Motion com_prw, cop_prw, foot_left_prw, foot_right_prw; 
     Motion com_act, cop_act, foot_left_act, foot_right_act; 
+
+    SolutionAnalysis analysis;
 
     struct State {
       Eigen::VectorXd CoMTrajX_;

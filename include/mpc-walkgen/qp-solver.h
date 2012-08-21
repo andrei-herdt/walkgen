@@ -30,7 +30,7 @@ namespace MPCWalkgen{
 
     void reset();
     virtual void Solve(MPCSolution &solution_data,
-      bool warmstart, bool analyze_resolution) = 0;
+      bool warmstart, bool analysis) = 0;
 
     void DumpProblem(const char *filename); 
  

@@ -31,7 +31,7 @@ namespace MPCWalkgen{
 			virtual void Init();
  
 			virtual void Solve(MPCSolution &solutin_data,
-					   bool warmstart, bool analyze_resolution);
+					   bool warmstart, bool analysis);
 
 			// accessors
       inline qpOASES::SQProblem *solver() const

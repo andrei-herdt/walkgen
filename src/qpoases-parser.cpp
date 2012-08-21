@@ -37,7 +37,7 @@ void QPOasesParser::Init() {
 }
 
 void QPOasesParser::Solve(MPCSolution &solution_data,
-                          bool warmstart, bool analyze_resolution) 
+                          bool warmstart, bool analysis) 
 {
 
   qp_->setPrintLevel(qpOASES::PL_NONE);
