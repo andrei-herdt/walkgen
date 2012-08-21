@@ -12,9 +12,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <mpc-walkgen/qp-solver.h>
-#include <mpc-walkgen/mpc-debug.h>
+//#include <mpc-walkgen/mpc-debug.h>
 
-# include <qpOASES.hpp>
+#include <qpOASES.hpp>
 #include <Eigen/Dense>
 
 //namespace qpOASES{
@@ -49,7 +49,7 @@ namespace MPCWalkgen{
 			qpOASES::Constraints *cstr_init_vec_;
 			qpOASES::Bounds *bounds_init_vec_;
 
-      MPCDebug debug_;
+      //MPCDebug debug_;
 
 	};
 
