@@ -14,6 +14,7 @@ end
 MPC_WALKGEN_PATH = '../../../';
 %MPC_WALKGEN_LIBRARY_PATH = [MPC_WALKGEN_PATH,'build-new/Debug/'];
 %MPC_WALKGEN_LIBRARY_PATH = [MPC_WALKGEN_PATH,'build-new/Release/'];
+%MPC_WALKGEN_LIBRARY_PATH = [MPC_WALKGEN_PATH,'build-new/Release/'];
 %EIGEN_PATH = [MPC_WALKGEN_PATH,'deps/eigen/'];
 EIGEN_PATH = 'Z:\f_soft\foreign_packages\Eigen\3.0.1\include\';
 %QPOASES_PATH = [MPC_WALKGEN_PATH,'deps/qpOASES-3.0beta_git/include/'];
@@ -27,9 +28,12 @@ IFLAGS  = ['-I. -I', MPC_WALKGEN_PATH, 'include',' -I',EIGEN_PATH,' -I',QPOASES_
 if (ispc == 0)
     %CPPFLAGS  = [ IFLAGS, '-D__cpluplus -D__MATLAB__ -O -DLINUX', ' ' ]; %% -D__NO_COPYRIGHT__ -D__SUPPRESSANYOUTPUT__
 else
-    CPPFLAGS  = [IFLAGS, '-v', ' -DWIN32',' -D__NO_COPYRIGHT__',' -D__SUPPRESSANYOUTPUT__', ' ' ]; %% -D__NO_COPYRIGHT__ -D__SUPPRESSANYOUTPUT__
+    %CPPFLAGS  = [IFLAGS, '-v', ' -DWIN32',' -D__NO_COPYRIGHT__',' -D__SUPPRESSANYOUTPUT__', ' ' ]; %% -D__NO_COPYRIGHT__ -D__SUPPRESSANYOUTPUT__
+    CPPFLAGS  = [IFLAGS, ' -Wall', ' -pedantic', ' -Wshadow', ' -Wfloat-equal', ' -O3', ' -finline-functions', ' -D__VXWORKS__', ' ' ];
     %CPPFLAGS = [IFLAGS, ' -pedantic', ' -Wshadow', ' -O3', ' -finline-functions', ' -DLINUX', ' -D__NO_COPYRIGHT__'];
     %CPPFLAGS  = [IFLAGS, ' ' ];
+     
+
 end
 
 %MPC_WALKGEN_OBJECTS = [MPC_WALKGEN_LIBRARY_PATH,'mpc-walkgen.lib ', ' '];
@@ -60,7 +64,7 @@ QPOASES_OBJECTS = [	QPOASES_LIB_PATH, 'BLASReplacement.lib ',...
     QPOASES_LIB_PATH, 'libqpOASES.lib ',...
     QPOASES_LIB_PATH, 'libqpOASESextras.lib ',' ' ];
 
-%DEBUGFLAGS = ['-D_DEBUG -g',' '];
+% DEBUGFLAGS = ['-D_DEBUG -g',' '];
 DEBUGFLAGS = ' ';
 %DEBUGFLAGS = ' -g CXXDEBUGFLAGS=''$CXXDEBUGFLAGS -Wall -pedantic -Wshadow'' ';
 
@@ -71,7 +75,7 @@ disp([NAME, '.', eval('mexext'), ' successfully created!']);
 
 %% Set path and copy libraries
 path(path, pwd);
-path(path, [pwd,'/',MPC_WALKGEN_LIBRARY_PATH]);
+%path(path, [pwd,'/',MPC_WALKGEN_LIBRARY_PATH]);
 % Copy libraries
 %copyfile([MPC_WALKGEN_LIBRARY_PATH,'\mpc-walkgen.dll'],[pwd,'/mpc-walkgen.dll']);
 %copyfile([MPC_WALKGEN_LIBRARY_PATH,'\mpc-walkgen.lib'],[pwd,'/mpc-walkgen.lib']);

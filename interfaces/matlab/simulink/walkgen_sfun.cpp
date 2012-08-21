@@ -76,7 +76,7 @@ static void mdlInitializeSizes(SimStruct *S)
   ssSetOutputPortWidth(S, 12, 3 * nbsamples);//cop_prw (sample_instants, x, y)
 
   ssSetOutputPortWidth(S, 13, 1);//support
-  ssSetOutputPortWidth(S, 14, 2);//resolution_data
+  ssSetOutputPortWidth(S, 14, 2);//analysis
 
   ssSetNumSampleTimes(S, 1);
   // Reserve place for C++ object
@@ -146,10 +146,9 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
   real_T *com_prw        = ssGetOutputPortRealSignal(S, 11);
   real_T *cop_prw        = ssGetOutputPortRealSignal(S, 12);
   real_T *support        = ssGetOutputPortRealSignal(S, 13);
-  real_T *resolution_data= ssGetOutputPortRealSignal(S, 14);
+  real_T *analysis       = ssGetOutputPortRealSignal(S, 14);
 
   WalkgenAbstract *walk = (WalkgenAbstract *)ssGetPWorkValue(S, 0);
-  RigidBodySystem *robot = walk->robot();
 
   // Initialization:
   // ---------------
@@ -184,13 +183,13 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
     mpc_data.period_qpsample = 0.1;
     mpc_data.period_mpcsample = 0.001;
     mpc_data.period_actsample = 0.001;
-    mpc_data.ponderation.JerkMin[0] = 0.001;
-    mpc_data.ponderation.JerkMin[1] = 0.001;
+    mpc_data.ponderation.JerkMin[0] = 0.00001;
+    mpc_data.ponderation.JerkMin[1] = 0.00001;
     mpc_data.warmstart = true;
     mpc_data.interpolate_preview = true;
-    mpc_data.analyze_resolution = true;
-    mpc_data.solver = QPOASES;
-    //TODO: mpc_data.num_max_wsr = 10;
+    mpc_data.solver.analysis = true;
+    mpc_data.solver.name = QPOASES;
+    mpc_data.solver.num_wsrec = 100; // Not registered yet
 
     RobotData robot_data(leftFoot, rightFoot, leftHipYaw, rightHipYaw, 0.0);
 
@@ -253,17 +252,17 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
   // INPUT:
   // ------
   walk->reference(*vel_ref[0], *vel_ref[1], *vel_ref[2]);
-  double gravity = 9.81;
+  double kGravity = 9.81;
+  RigidBodySystem *robot = walk->robot();
   if (*closed_loop_in[0] > 0.5) {// TODO: Is there a better way for switching
     robot->com()->state().x[0] = *com_in[0];
     robot->com()->state().y[0] = *com_in[1];
     robot->com()->state().x[1] = *com_in[3];
     robot->com()->state().y[1] = *com_in[4];
-    robot->com()->state().x[2] = gravity / *com_in[2] * (*com_in[0] - *cop_in[0]);
-    robot->com()->state().y[2] = gravity / *com_in[2] * (*com_in[1] - *cop_in[1]);
+    robot->com()->state().x[2] = kGravity / *com_in[2] * (*com_in[0] - *cop_in[0]);
+    robot->com()->state().y[2] = kGravity / *com_in[2] * (*com_in[1] - *cop_in[1]);
   }
 
-  //std::cout<<"Before online()"<<std::endl;
   // Run simulation:
   // ---------------
   double time = ssGetT(S);
@@ -345,9 +344,9 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
     support[0] = 0.0;
   }
 
-  // Resolution data
-  resolution_data[0] = solution.resolution_data.resolution_time;
-  resolution_data[1] = solution.resolution_data.num_iterations;
+  // Analysis
+  analysis[0] = solution.analysis.resolution_time;
+  analysis[1] = solution.analysis.num_iterations;
 
 
 }
