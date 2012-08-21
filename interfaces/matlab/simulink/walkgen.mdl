@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.285"
+    ComputedModelVersion    "1.286"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Fri Aug 17 11:42:00 2012"
+  LastModifiedDate	  "Fri Aug 17 19:04:38 2012"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:285>"
+  ModelVersionFormat	  "1.%<AutoIncrement:286>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -646,7 +646,7 @@ Model {
       BlockType		      SubSystem
       Name		      "Simulation"
       Ports		      [0, 0, 1]
-      Position		      [65, 98, 125, 171]
+      Position		      [65, 78, 125, 151]
       MinAlgLoopOccurrences   off
       RTWSystemCode	      "Auto"
       FunctionWithSeparateData off

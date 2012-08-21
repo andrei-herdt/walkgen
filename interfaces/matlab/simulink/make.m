@@ -24,8 +24,11 @@ IFLAGS  = ['-I. -I',MPC_WALKGEN_PATH,'include',' -I',EIGEN_PATH,' -I',QPOASES_PA
 if ( ispc == 0 )
     %CPPFLAGS  = [ IFLAGS, '-D__cpluplus -D__MATLAB__ -O -DLINUX', ' ' ]; %% -D__NO_COPYRIGHT__ -D__SUPPRESSANYOUTPUT__
 else
-    CPPFLAGS  = [IFLAGS, '-v', ' -DWIN32',' -D__NO_COPYRIGHT__',' -D__SUPPRESSANYOUTPUT__', ' ' ]; %% -D__NO_COPYRIGHT__ -D__SUPPRESSANYOUTPUT__
+    %CPPFLAGS  = [IFLAGS, '-v', ' -DWIN32',' -D__NO_COPYRIGHT__',' -D__SUPPRESSANYOUTPUT__', ' ' ]; %% -D__NO_COPYRIGHT__ -D__SUPPRESSANYOUTPUT__
+    CPPFLAGS  = [IFLAGS, ' -Wall', ' -pedantic', ' -Wshadow', ' -Wfloat-equal', ' -O3', ' -finline-functions', ' -D__VXWORKS__', ' ' ];
     %CPPFLAGS  = [IFLAGS, ' ' ];
+     
+
 end
 
 %MPC_WALKGEN_OBJECTS = [MPC_WALKGEN_LIBRARY_PATH,'mpc-walkgen.lib ', ' '];
