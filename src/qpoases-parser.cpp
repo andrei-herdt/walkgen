@@ -80,10 +80,10 @@ void QPOasesParser::Solve(MPCSolution &solution_data,
     }
   }
 
-  if (analyze_resolution == true) {
-    debug_.GetFrequency();
-    debug_.StartCounting();
-  }
+//  if (analyze_resolution == true) {
+//    debug_.GetFrequency();
+//    debug_.StartCounting();
+//  }
 
   int nWSR = 3;// TODO: Move to MPCData
   if (warmstart) {
@@ -98,11 +98,11 @@ void QPOasesParser::Solve(MPCSolution &solution_data,
       nWSR, NULL);
   }
 
-  if (analyze_resolution == true) {
-    debug_.StopCounting();
-    solution_data.resolution_data.resolution_time = debug_.GetTime();
-    solution_data.resolution_data.num_iterations = nWSR;
-  }
+//  if (analyze_resolution == true) {
+//    debug_.StopCounting();
+//    solution_data.resolution_data.resolution_time = debug_.GetTime();
+//    solution_data.resolution_data.num_iterations = nWSR;
+//  }
 
   qp_->getPrimalSolution(solution_vec_);
   for (int i = 0; i < num_vars_; ++i) {

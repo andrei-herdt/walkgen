@@ -14,6 +14,7 @@ MPCDebug::MPCDebug(bool enable)
 
 MPCDebug::~MPCDebug(){}
 
+/*
 void MPCDebug::GetFrequency() {
   QueryPerformanceFrequency((LARGE_INTEGER*)&frequency_);
 }
@@ -29,7 +30,7 @@ void MPCDebug::StopCounting() {
 double MPCDebug::GetTime() {
   return (((double)(last_counter_ - first_counter_)) / ((double)frequency_)); 
 }
-
+*/
 void MPCDebug::getTime(int id, bool start){
   if (enable_){
     struct timeval t;
