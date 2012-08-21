@@ -1,12 +1,16 @@
+#include <mpc-walkgen.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define S_FUNCTION_LEVEL 2
 #define S_FUNCTION_NAME  walkgen_sfun
 
-#include <mpc-walkgen.h>
-
 #include "simstruc.h"
 
-#include <iostream>
-#include "mex.h"
+//#include <iostream>
+//#include "mex.h"
 
 using namespace Eigen;
 using namespace MPCWalkgen;
@@ -365,4 +369,8 @@ static void mdlTerminate(SimStruct *S)
 #include "simulink.c"      /* MEX-file interface mechanism */
 #else
 #include "cg_sfun.h"       /* Code generation registration function */
+#endif
+
+#ifdef __cplusplus
+}
 #endif

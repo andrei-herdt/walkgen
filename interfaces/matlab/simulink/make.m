@@ -12,19 +12,23 @@ end
 
 %% Set flags
 MPC_WALKGEN_PATH = '../../../';
-MPC_WALKGEN_LIBRARY_PATH = [MPC_WALKGEN_PATH,'build-new/Debug/'];
+%MPC_WALKGEN_LIBRARY_PATH = [MPC_WALKGEN_PATH,'build-new/Debug/'];
 %MPC_WALKGEN_LIBRARY_PATH = [MPC_WALKGEN_PATH,'build-new/Release/'];
-EIGEN_PATH = [MPC_WALKGEN_PATH,'deps/eigen/'];
-QPOASES_PATH = [MPC_WALKGEN_PATH,'deps/qpOASES-3.0beta_git/include/'];
-QPOASES_LIB_PATH = [MPC_WALKGEN_PATH,'deps/qpOASES-3.0beta_git/src/'];
+%EIGEN_PATH = [MPC_WALKGEN_PATH,'deps/eigen/'];
+EIGEN_PATH = 'Z:\f_soft\foreign_packages\Eigen\3.0.1\include\';
+%QPOASES_PATH = [MPC_WALKGEN_PATH,'deps/qpOASES-3.0beta_git/include/'];
+QPOASES_PATH = [MPC_WALKGEN_PATH, '../qpOASES-3.0/include/'];
+%QPOASES_LIB_PATH = [MPC_WALKGEN_PATH,'deps/qpOASES-3.0beta_git/src/'];
+QPOASES_LIB_PATH = [MPC_WALKGEN_PATH, '../qpOASES-3.0/src/'];
 
 %IFLAGS  = ['-I. -I',MPC_WALKGEN_PATH,'include',' -I',EIGEN_PATH,' -I',QPOASES_PATH,' -L',MPC_WALKGEN_LIBRARY_PATH,' ' ];
-IFLAGS  = ['-I. -I',MPC_WALKGEN_PATH,'include',' -I',EIGEN_PATH,' -I',QPOASES_PATH,' ' ];
+IFLAGS  = ['-I. -I', MPC_WALKGEN_PATH, 'include',' -I',EIGEN_PATH,' -I',QPOASES_PATH,' ' ];
 
-if ( ispc == 0 )
+if (ispc == 0)
     %CPPFLAGS  = [ IFLAGS, '-D__cpluplus -D__MATLAB__ -O -DLINUX', ' ' ]; %% -D__NO_COPYRIGHT__ -D__SUPPRESSANYOUTPUT__
 else
     CPPFLAGS  = [IFLAGS, '-v', ' -DWIN32',' -D__NO_COPYRIGHT__',' -D__SUPPRESSANYOUTPUT__', ' ' ]; %% -D__NO_COPYRIGHT__ -D__SUPPRESSANYOUTPUT__
+    %CPPFLAGS = [IFLAGS, ' -pedantic', ' -Wshadow', ' -O3', ' -finline-functions', ' -DLINUX', ' -D__NO_COPYRIGHT__'];
     %CPPFLAGS  = [IFLAGS, ' ' ];
 end
 
@@ -72,4 +76,4 @@ path(path, [pwd,'/',MPC_WALKGEN_LIBRARY_PATH]);
 %copyfile([MPC_WALKGEN_LIBRARY_PATH,'\mpc-walkgen.dll'],[pwd,'/mpc-walkgen.dll']);
 %copyfile([MPC_WALKGEN_LIBRARY_PATH,'\mpc-walkgen.lib'],[pwd,'/mpc-walkgen.lib']);
 %% Clear
-clear EIGEN_PATH QPOASES_PATH QPOASES_LIB_PATH MPC_WALKGEN_PATH MPC_WALKGEN_LIBRARY_PATH IFLAGS CPPFLAGS MPC_WALKGEN_OBJECTS DEBUGFLAGS NAME
+clear EIGEN_PATH QPOASES_PATH QPOASES_LIB_PATH MPC_WALKGEN_PATH MPC_WALKGEN_LIBRARY_PATH IFLAGS CPPFLAGS MPC_WALKGEN_OBJECTS DEBUGFLAGS NAME QPOASES_OBJECTS
