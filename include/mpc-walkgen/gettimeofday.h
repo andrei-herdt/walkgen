@@ -27,8 +27,8 @@ struct timezone
 
 int gettimeofday(struct timeval *tv, struct timezone *tz);
 
-#  else // WIN32
-#   error "gettimeof day does not seem to be supported on your platform."
+//#  else // WIN32
+//#   error "gettimeof day does not seem to be supported on your platform."
 #  endif // WIN32
 # endif //! HAVE_SYS_TIME_H
 #endif // MPC_WALKGEN_GETTIMEOFDAY_H

@@ -8,9 +8,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <map>
-#ifdef WIN32
-#include <windows.h> 
-#endif // WIN32
+//#include <windows.h> 
 
 namespace MPCWalkgen{
 
@@ -27,10 +25,10 @@ namespace MPCWalkgen{
     double computeInterval(int id, TimeUnit unit = us);
     int nbIntervals(int id);
 
-    void GetFrequency();
-    void StartCounting();
-    void StopCounting();
-    double GetTime();
+    //void GetFrequency();
+    //void StartCounting();
+    //void StopCounting();
+    //double GetTime();
 
     void reset(int id);
     void reset();
@@ -40,7 +38,7 @@ namespace MPCWalkgen{
     std::map<int,double> endTime_;
     std::map<int,int> nbCount_;
 
-    LONGLONG frequency_, first_counter_, last_counter_;
+    //LONGLONG frequency_, first_counter_, last_counter_;
 
     bool enable_;
 
