@@ -42,7 +42,7 @@ HipYawData::HipYawData()
 
 HipYawData::~HipYawData() {}
 
-ResolutionData::ResolutionData():
+SolutionAnalysis::SolutionAnalysis():
 num_iterations(-1),
 objective_value(-1),
 resolution_time(-1)
@@ -62,7 +62,7 @@ MPCSolution& MPCSolution::operator = (MPCSolution const &rhs){
   constraints = rhs.constraints;
   initialConstraints = rhs.initialConstraints;
 
-  resolution_data = rhs.resolution_data;
+  analysis = rhs.analysis;
 
   /// \brief True if a new trajectory is computed in online loop
   newTraj = rhs.newTraj;
@@ -114,8 +114,7 @@ MPCData::MPCData()
 ,warmstart(false)
 ,interpolate_preview(false)
 ,ponderation(2)
-,solver(QPOASES){
-}
+{}
 
 MPCData::~MPCData(){}
 

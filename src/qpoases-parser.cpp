@@ -37,7 +37,7 @@ void QPOasesParser::Init() {
 }
 
 void QPOasesParser::Solve(MPCSolution &solution_data,
-                          bool warmstart, bool analyze_resolution) 
+                          bool warmstart, bool analysis) 
 {
 
   qp_->setPrintLevel(qpOASES::PL_NONE);
@@ -80,7 +80,7 @@ void QPOasesParser::Solve(MPCSolution &solution_data,
     }
   }
 
-  if (analyze_resolution == true) {
+  if (analysis == true) {
     debug_.GetFrequency();
     debug_.StartCounting();
   }
@@ -98,10 +98,10 @@ void QPOasesParser::Solve(MPCSolution &solution_data,
       nWSR, NULL);
   }
 
-  if (analyze_resolution == true) {
+  if (analysis == true) {
     debug_.StopCounting();
-    solution_data.resolution_data.resolution_time = debug_.GetTime();
-    solution_data.resolution_data.num_iterations = nWSR;
+    solution_data.analysis.resolution_time = debug_.GetTime();
+    solution_data.analysis.num_iterations = nWSR;
   }
 
   qp_->getPrimalSolution(solution_vec_);
