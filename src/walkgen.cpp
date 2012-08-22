@@ -219,7 +219,9 @@ void Walkgen::BuildProblem() {
     velRef_.local.y.fill(0);
     velRef_.local.yaw.fill(0);//TODO: Bullshit
   }
-  if (velRef_.local.yaw(0) == 0 && velRef_.local.x(0) == 0 && velRef_.local.y(0) == 0) {
+  if (fabs(velRef_.local.yaw(0)) < EPSILON && 
+      fabs(velRef_.local.x(0)) < EPSILON && 
+      fabs(velRef_.local.y(0)) < EPSILON) {
     ponderation_.activePonderation = 1;
   } else {
     ponderation_.activePonderation = 0;

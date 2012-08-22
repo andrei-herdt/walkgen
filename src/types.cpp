@@ -70,7 +70,7 @@ void ConvexHull::resize(int size){
 }
 
 void ConvexHull::rotate(double yaw) {
-  if (yaw == 0)
+  if (fabs(yaw) < EPSILON)
     return;
 
   double xOld, yOld;

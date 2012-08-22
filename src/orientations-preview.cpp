@@ -2,7 +2,7 @@
  * Copyright 2010, 
  *
  * Andrei   Herdt
-/*
+*
  * orientations-preview.cpp
  */
 
@@ -198,7 +198,7 @@ void OrientationsPreview::preview_orientations(double Time,
           PreviewedTrunkAngleEnd = PreviewedTrunkAngleEnd + SSPeriod_*TrunkStateT_.yaw[1];
           PreviousSupportAngle = PreviewedSupportAngle;
 
-          if(PreviewedSupportFoot == 1)
+          if(static_cast<int>(PreviewedSupportFoot) == 1)
             CurrentLeftFootAngle = PreviewedSupportAngle;
           else
             CurrentRightFootAngle = PreviewedSupportAngle;
@@ -296,11 +296,12 @@ OrientationsPreview::verify_velocity_hip_joint(double Time,
     double CurrentLeftFootVelocity, double CurrentRightFootVelocity)
 {
   double CurrentAngle;
-  if(PreviewedSupportFoot==1)
+  if (static_cast<int>(PreviewedSupportFoot) == 1) {
     CurrentAngle = CurrentLeftFootAngle;
-  else
+  } else {
     CurrentAngle = CurrentRightFootAngle;
-
+  }
+    
   // Parameters
   double a,b,c,d,T;
 
@@ -323,7 +324,7 @@ OrientationsPreview::verify_velocity_hip_joint(double Time,
       T = CurrentSupport.time_limit-Time-T_;
       //Previewed polynome
       a = CurrentAngle;
-      if(PreviewedSupportFoot==1)
+      if(static_cast<int>(PreviewedSupportFoot) == 1)
         b = CurrentLeftFootVelocity;
       else
         b = CurrentRightFootVelocity;

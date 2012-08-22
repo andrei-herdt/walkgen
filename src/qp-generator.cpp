@@ -60,7 +60,7 @@ void QPGenerator::precomputeObjective(){
         const LinearDynamicsMatrices &CoPDynamics = robot_->body(COM)->dynamics_qp().cop;
         const LinearDynamicsMatrices &VelDynamics = robot_->body(COM)->dynamics_qp().vel;
 
-        double firstIterationWeight = period_first / data_mpc_->period_qpsample;
+        //double firstIterationWeight = period_first / data_mpc_->period_qpsample;
 
         tmp_mat_.noalias() = CoPDynamics.UInvT*VelDynamics.UT/**pondFactor*/*VelDynamics.U*CoPDynamics.UInv;
         tmp_mat2_.noalias() = CoPDynamics.UInvT/**pondFactor*/*CoPDynamics.UInv;

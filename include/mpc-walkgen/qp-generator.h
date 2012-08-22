@@ -8,10 +8,7 @@
 ///\author	Herdt Andrei
 ////////////////////////////////////////////////////////////////////////////////
 
-
-
 #include <mpc-walkgen/types.h>
-
 #include <mpc-walkgen/qp-solver.h>
 #include <mpc-walkgen/qp-preview.h>
 

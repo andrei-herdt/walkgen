@@ -19,7 +19,7 @@
 inline double round( double d )
 {	return floor( d + 0.5 );	}
 
-
+const static double kEps = 0.000001;
 
 namespace MPCWalkgen{
 	void inverse(const Eigen::MatrixXd &X, Eigen::MatrixXd &Xinv, double eps=1e-8);

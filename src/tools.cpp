@@ -1,16 +1,14 @@
 #include <mpc-walkgen/tools.h>
 
-#include <iostream>
 #include <Eigen/SVD>
 #include <Eigen/LU>
 
+#include <iostream>
 #ifdef WIN32
 # include <cmath>
 #endif
 
 using namespace Eigen;
-
-
 
 void MPCWalkgen::inverse(const MatrixXd &A, MatrixXd &Ap, double eps) {
 	FullPivLU<MatrixXd> lu(A);
@@ -28,12 +26,12 @@ void MPCWalkgen::inverse(const MatrixXd &A, MatrixXd &Ap, double eps) {
 // Every elmt is supposed to be 0, execpted the diagonal.
 bool MPCWalkgen::isSparseRotationMatrix (const MatrixXd &rot1)
 {
-	int N = rot1.rows() / 2;
+	int N = rot1.rows() / 2;//TODO: Safe?
 	bool solution = true;
-	for (int i=0; i<2*N; ++i)
-		for (int j=0; j<2*N; ++j)
-			solution = solution && ( rot1(i,j) == 0
-					|| (i==j) || (i==j+N) || (i+N==j) );
+	for (int i = 0; i < 2 * N; ++i)
+		for (int j = 0; j < 2 * N; ++j)
+			solution = solution && ( fabs(rot1(i,j)) < kEps
+					|| (i == j) || (i == j+N) || (i + N == j) );
 	return solution;
 }
 
@@ -45,7 +43,7 @@ bool MPCWalkgen::isDiagonalRotationMatrix(const Eigen::MatrixXd &rot)
 		for (int j=0; j<rot.cols(); ++j)
 		{
 			// the only non null elements should be on the diagonal.
-			if (rot(i,j) != 0)
+			if (fabs(rot(i,j)) > kEps)
 			{
 				int halfi = 2* static_cast <int>(floor (i/2.) );
 				int halfj = 2* static_cast <int>(floor (j/2.) );
@@ -61,7 +59,7 @@ bool MPCWalkgen::isUpperTriangular(const Eigen::MatrixXd &m)
 {
 	for (int i=0; i<m.rows(); ++i)
 		for (int j=0; j<i; ++j)
-			if (m(i,j) != 0)
+			if (fabs(m(i,j)) > kEps)
 				return false;
 
 	return true;
@@ -77,7 +75,7 @@ bool MPCWalkgen::hasCholeskyForm(const Eigen::MatrixXd &m)
 	// (a)
 	for (int i=0; i<m.rows(); ++i)
 		for (int j=0; j<i; ++j)
-			if (m(i,j) != 0)
+			if (fabs(m(i,j)) > kEps)
 				return false;
 
 
@@ -85,19 +83,19 @@ bool MPCWalkgen::hasCholeskyForm(const Eigen::MatrixXd &m)
 
 	// (b)
 	for (int i=0; i<n2; ++i)
-		if( m(2*i+1,2*i+1) != m(2*i,2*i))
+		if( fabs(m(2*i+1,2*i+1) - m(2*i,2*i)) < kEps)
 			return false;
 
 	// (c)
 	for (int i=0; i<n2; ++i)
 		for (int j=0; j<n2; ++j)
-			if ( m(2*i+1,2*j) != 0)
+			if ( fabs(m(2*i+1,2*j)) > kEps)
 				return false;
 
 	// (d)
 	for (int i=0; i<n2; ++i)
 		for (int j=0; j<n2; ++j)
-			if( m(2*i,2*j+1) != 0)
+			if( fabs(m(2*i,2*j+1)) > kEps)
 				return false;
 
 	return true;
