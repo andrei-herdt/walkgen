@@ -5,8 +5,8 @@
 using namespace MPCWalkgen;
 using namespace Eigen;
 
-RigidBodySystem::RigidBodySystem(const MPCData *data_mpc)
-:data_mpc_(data_mpc)
+RigidBodySystem::RigidBodySystem(const MPCData *mpc_parameters)
+:mpc_parameters_(mpc_parameters)
 ,data_robot_() {
 
 }
@@ -25,9 +25,9 @@ RigidBodySystem::~RigidBodySystem() {
 void RigidBodySystem::Init(const RobotData &data_robot, const Interpolation *interpolation) {//TODO: Remove object data_robot
   data_robot_ = data_robot;
 
-  com_ = new CoMBody(data_mpc_, &data_robot_);
-  foot_left_ = new FootBody(data_mpc_, &data_robot_, LEFT);
-  foot_right_ = new FootBody(data_mpc_, &data_robot_, RIGHT);
+  com_ = new CoMBody(mpc_parameters_, &data_robot_);
+  foot_left_ = new FootBody(mpc_parameters_, &data_robot_, LEFT);
+  foot_right_ = new FootBody(mpc_parameters_, &data_robot_, RIGHT);
 
   currentSupport_.phase = DS;
   currentSupport_.foot = LEFT;
@@ -58,7 +58,7 @@ void RigidBodySystem::interpolateBodies(MPCSolution &solution, double currentTim
 void RigidBodySystem::UpdateState(const MPCSolution &solution) {
   BodyState foot_left, foot_right, com;
   // TODO: State updates can/should be done locally in RigidBody
-  int next_sample = data_mpc_->num_samples_act() - 1;
+  int next_sample = mpc_parameters_->num_samples_act() - 1;
   for (int i = 0; i < 3; ++i){
     const MPCSolution::State &currentState = solution.state_vec[i];
     foot_left.x(i) = currentState.leftFootTrajX_(next_sample);

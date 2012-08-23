@@ -23,7 +23,7 @@ namespace MPCWalkgen{
   class QPSolver{
 
   public:
-    QPSolver(int nbvar_max, int nbcstr_max);
+    QPSolver(const SolverData *parameters, int nbvar_max, int nbcstr_max);
     virtual ~QPSolver() = 0;
 
     virtual void Init() = 0;
@@ -83,9 +83,11 @@ namespace MPCWalkgen{
 
     Eigen::VectorXi var_indices_vec_;
     Eigen::VectorXi constr_indices_vec_;
+
+    const SolverData *parameters_;
   };
 
-  QPSolver* createQPSolver(SolverName name, int nbvar_max, int nbcstr_max);
+  QPSolver* createQPSolver(const SolverData &parameters, int nbvar_max, int nbcstr_max);
 }
 
 #endif // MPC_WALKGEN_QP_SOLVER_H

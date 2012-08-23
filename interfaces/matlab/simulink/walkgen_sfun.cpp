@@ -189,7 +189,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
     mpc_data.interpolate_preview = true;
     mpc_data.solver.analysis = true;
     mpc_data.solver.name = QPOASES;
-    mpc_data.solver.num_wsrec = 100; // Not registered yet
+    mpc_data.solver.num_wsrec = 100;
 
     RobotData robot_data(leftFoot, rightFoot, leftHipYaw, rightHipYaw, 0.0);
 

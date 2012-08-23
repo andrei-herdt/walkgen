@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.287"
+    ComputedModelVersion    "1.289"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Thu Aug 23 13:08:19 2012"
+  LastModifiedDate	  "Thu Aug 23 15:08:00 2012"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:287>"
+  ModelVersionFormat	  "1.%<AutoIncrement:289>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -689,7 +689,7 @@ Model {
 	  BlockType		  BusCreator
 	  Name			  "Bus\nCreator"
 	  Ports			  [3, 1]
-	  Position		  [500, 301, 505, 339]
+	  Position		  [505, 301, 510, 339]
 	  ShowName		  off
 	  Inputs		  "3"
 	  DisplayOption		  "bar"

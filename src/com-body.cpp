@@ -6,9 +6,9 @@ using namespace MPCWalkgen;
 using namespace Eigen;
 
 
-CoMBody::CoMBody(const MPCData *data_mpc,
+CoMBody::CoMBody(const MPCData *mpc_parameters,
                  const RobotData *data_robot)
-                 :RigidBody(data_mpc, data_robot)
+                 :RigidBody(mpc_parameters, data_robot)
 {}
 //TODO: Can CoMBody be merged with FootBody?
 CoMBody::~CoMBody(){}
@@ -148,9 +148,9 @@ void CoMBody::ComputeDynamicsMatrices(LinearDynamicsMatrices &dyn,
 void CoMBody::interpolateTrunkOrientation(MPCSolution &solution,
                                           double /*currentTime*/, const Reference &velRef) 
 {
-  double T = data_mpc_->nbqpsamples_step * data_mpc_->period_qpsample;
+  double T = mpc_parameters_->nbqpsamples_step * mpc_parameters_->period_qpsample;
 
-  int nbSampling = data_mpc_->num_samples_act();
+  int nbSampling = mpc_parameters_->num_samples_act();
 
   if (solution.state_vec[0].trunkYaw_.rows() != nbSampling){
     for (int i = 0; i < 3; ++i) {
@@ -173,7 +173,7 @@ void CoMBody::interpolateTrunkOrientation(MPCSolution &solution,
   Eigen::Matrix<double,6,1> factor;
   interpolation_.computePolynomialNormalisedFactors(factor, state().yaw, nextTrunkState, T);
   for (int i=0; i < nbSampling; ++i) {
-    double ti = (i+1)*data_mpc_->period_actsample;
+    double ti = (i+1)*mpc_parameters_->period_actsample;
 
     solution.state_vec[0].trunkYaw_(i) = p(factor, ti/T);
     solution.state_vec[1].trunkYaw_(i) = dp(factor, ti/T)/T;

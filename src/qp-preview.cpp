@@ -8,14 +8,14 @@ using namespace Eigen;
 const double QPPreview::EPS_ = 1e-6;
 
 //TODO:change name QPPreview to Preview
-QPPreview::QPPreview(Reference * velRef, RigidBodySystem * robot, const MPCData * data_mpc)
+QPPreview::QPPreview(Reference * velRef, RigidBodySystem * robot, const MPCData * mpc_parameters)
   :robot_(robot)
-  ,data_mpc_(data_mpc)
-  ,selectionMatrices_(*data_mpc)
-  ,rotationMatrix_ (Eigen::MatrixXd::Zero(2*data_mpc_->nbsamples_qp, 2*data_mpc_->nbsamples_qp))
-  ,rotationMatrix2_(Eigen::MatrixXd::Zero(2*data_mpc_->nbsamples_qp, 2*data_mpc_->nbsamples_qp)) {
+  ,mpc_parameters_(mpc_parameters)
+  ,selectionMatrices_(*mpc_parameters)
+  ,rotationMatrix_ (Eigen::MatrixXd::Zero(2*mpc_parameters_->nbsamples_qp, 2*mpc_parameters_->nbsamples_qp))
+  ,rotationMatrix2_(Eigen::MatrixXd::Zero(2*mpc_parameters_->nbsamples_qp, 2*mpc_parameters_->nbsamples_qp)) {
 
-  statesolver_ = new StateFSM(velRef, data_mpc);
+  statesolver_ = new StateFSM(velRef, mpc_parameters);
 }
 
 QPPreview::~QPPreview()
@@ -26,14 +26,14 @@ QPPreview::~QPPreview()
 void QPPreview::previewSamplingTimes(double currenttime, 
                                      double firstSamplingPeriod, MPCSolution &solution) {
 
-  solution.samplingTimes_vec.resize(data_mpc_->nbsamples_qp + 1, 0);
+  solution.samplingTimes_vec.resize(mpc_parameters_->nbsamples_qp + 1, 0);
   std::fill(solution.samplingTimes_vec.begin(), solution.samplingTimes_vec.end(), 0);
   // As for now, only the first sampling period varies
   solution.samplingTimes_vec[0] = currenttime;
-  solution.samplingTimes_vec[1] = solution.samplingTimes_vec[0] + firstSamplingPeriod;// data_mpc_->QPSamplingPeriod;////// //
-  for (int sample = 2; sample < data_mpc_->nbsamples_qp + 1; sample++) {
+  solution.samplingTimes_vec[1] = solution.samplingTimes_vec[0] + firstSamplingPeriod;// mpc_parameters_->QPSamplingPeriod;////// //
+  for (int sample = 2; sample < mpc_parameters_->nbsamples_qp + 1; sample++) {
       solution.samplingTimes_vec[sample] += solution.samplingTimes_vec[sample - 1] +
-          data_mpc_->period_qpsample;
+          mpc_parameters_->period_qpsample;
     }
 
 }
@@ -65,7 +65,7 @@ void QPPreview::previewSupportStates(double firstSamplingPeriod, MPCSolution &so
   // initialize the previewed support state before previewing
   SupportState previewed_support = current_support;//TODO: Replace =operator by CopyFrom or give to constructor
   previewed_support.stepNumber = 0;
-  for (int sample = 1; sample <= data_mpc_->nbsamples_qp; sample++) {
+  for (int sample = 1; sample <= mpc_parameters_->nbsamples_qp; sample++) {
       statesolver_->setSupportState(sample, solution.samplingTimes_vec, previewed_support);
       // special treatment for the first instant of transitionalDS
       previewed_support.transitional_ds = false;
@@ -93,7 +93,7 @@ void QPPreview::previewSupportStates(double firstSamplingPeriod, MPCSolution &so
           previewed_support.previousSamplingPeriod = firstSamplingPeriod;
           previewed_support.sampleWeight = 1;
         } else {
-          previewed_support.previousSamplingPeriod = data_mpc_->period_qpsample;
+          previewed_support.previousSamplingPeriod = mpc_parameters_->period_qpsample;
           previewed_support.sampleWeight = 1;
         }
       solution.support_states_vec.push_back(previewed_support);
@@ -106,7 +106,7 @@ void QPPreview::previewSupportStates(double firstSamplingPeriod, MPCSolution &so
 //  The indexes not given are supposed to be zero and are not reset
 //  to reduce computation time.
 void QPPreview::computeRotationMatrix(MPCSolution &solution){
-  int N = data_mpc_->nbsamples_qp;
+  int N = mpc_parameters_->nbsamples_qp;
 
   // check that the elements not on the diagonal are null
   assert(isSparseRotationMatrix(rotationMatrix_) && "The matrix rotationMatrix_ is not 2.2 block diagonal");
@@ -133,8 +133,8 @@ void QPPreview::buildSelectionMatrices(MPCSolution &solution){
   const int &NbPrwSteps = solution.support_states_vec.back().stepNumber;
 
   if (selectionMatrices_.V.cols() != NbPrwSteps){
-      selectionMatrices_.V.resize(data_mpc_->nbsamples_qp,NbPrwSteps);
-      selectionMatrices_.VT.resize(NbPrwSteps, data_mpc_->nbsamples_qp);
+      selectionMatrices_.V.resize(mpc_parameters_->nbsamples_qp,NbPrwSteps);
+      selectionMatrices_.VT.resize(NbPrwSteps, mpc_parameters_->nbsamples_qp);
       selectionMatrices_.VcfX.resize(NbPrwSteps);
       selectionMatrices_.VcfY.resize(NbPrwSteps);
       selectionMatrices_.Vf.resize(NbPrwSteps, NbPrwSteps);
@@ -153,7 +153,7 @@ void QPPreview::buildSelectionMatrices(MPCSolution &solution){
   std::vector<SupportState>::iterator SS_it;
   SS_it = solution.support_states_vec.begin();//points at the cur. sup. st.
   ++SS_it;
-  for (int i=0; i<data_mpc_->nbsamples_qp; i++){
+  for (int i=0; i<mpc_parameters_->nbsamples_qp; i++){
       if (SS_it->stepNumber>0){
           selectionMatrices_.V(i,SS_it->stepNumber-1) = selectionMatrices_.VT(SS_it->stepNumber-1,i) = 1.0;
           if (SS_it->stepNumber==1 && SS_it->state_changed && SS_it->phase == SS) {

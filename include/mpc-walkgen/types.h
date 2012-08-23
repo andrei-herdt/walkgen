@@ -88,7 +88,7 @@ namespace MPCWalkgen{
     Eigen::VectorXd VcfX;
     Eigen::VectorXd VcfY;
 
-    SelectionMatrices(const MPCData &data_mpc);
+    SelectionMatrices(const MPCData &mpc_parameters);
   };
 
 

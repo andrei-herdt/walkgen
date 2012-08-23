@@ -6,8 +6,8 @@ using namespace MPCWalkgen;
 using namespace Eigen;
 
 
-QPOasesParser::QPOasesParser(int nbvars, int nbcstr)
-:QPSolver(nbvars, nbcstr) {
+QPOasesParser::QPOasesParser(const SolverData *parameters, int nbvars, int nbcstr)
+:QPSolver(parameters, nbvars, nbcstr) {
   qp_ = new qpOASES::SQProblem(nbvars, nbcstr);
   solution_vec_ = new double[nbvars];
   cstr_init_vec_ = new  qpOASES::Constraints(nbcstr);
@@ -85,17 +85,17 @@ void QPOasesParser::Solve(MPCSolution &solution_data,
 //    debug_.StartCounting();
 //  }
 
-  int nWSR = 3;// TODO: Move to MPCData
+  int num_wsr = parameters_->num_wsrec; //num_wsr has to be non-const
   if (warmstart) {
     qp_->hotstart(hessian_mat_().data(), gradient_vec_().data(), cstr_mat_().data(),
       var_l_bounds_vec_().data(), var_u_bounds_vec_().data(),
       constr_l_bounds_vec_().data(), constr_u_bounds_vec_().data(),
-      nWSR, NULL);
+      num_wsr, NULL);
   } else {
     qp_->hotstart(hessian_mat_().data(), gradient_vec_().data(), cstr_mat_().data(),
       var_l_bounds_vec_().data(), var_u_bounds_vec_().data(),
       constr_l_bounds_vec_().data(), constr_u_bounds_vec_().data(),
-      nWSR, NULL);
+      num_wsr, NULL);
   }
 
 //  if (analyze_resolution == true) {

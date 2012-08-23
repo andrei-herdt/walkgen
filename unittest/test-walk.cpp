@@ -62,8 +62,8 @@ int main() {
   leftHipYaw.upperAccelerationBound = 0.1;
   HipYawData rightHipYaw = leftHipYaw;
 
-  MPCData mpc_data;
-  mpc_data.solver = QPOASES;
+  MPCData mpc_parameters;
+  mpc_parameters.solver.name = QPOASES;
 
   RobotData robotData(leftFoot, rightFoot, leftHipYaw, rightHipYaw, 0.0);
 
@@ -109,7 +109,7 @@ int main() {
   // Create and initialize generator:
   // -------------------------------
   WalkgenAbstract * walk = createWalkgen();
-  walk->Init(robotData, mpc_data);
+  walk->Init(robotData, mpc_parameters);
   //	const RigidBodySystem *robot = walk->robot();// Not used yet
 
   // Run:

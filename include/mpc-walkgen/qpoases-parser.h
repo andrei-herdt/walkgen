@@ -17,15 +17,11 @@
 #include <qpOASES.hpp>
 #include <Eigen/Dense>
 
-//namespace qpOASES{
-//  class QProblem;//TODO: ?
-//}
-
 namespace MPCWalkgen{
 
-	class QPOasesParser:public QPSolver{
+	class QPOasesParser : public QPSolver{
 		public:
-			QPOasesParser(int nbvar_max, int nbcstr_max);
+			QPOasesParser(const SolverData *paremeters, int nbvar_max, int nbcstr_max);
 			virtual ~QPOasesParser();
 
 			virtual void Init();

@@ -19,7 +19,7 @@
 namespace MPCWalkgen{
     class FootBody:public RigidBody{
     public:
-      FootBody(const MPCData * data_mpc,
+      FootBody(const MPCData * mpc_parameters,
                const RobotData * data_robot, Foot type);
       virtual ~FootBody();
 

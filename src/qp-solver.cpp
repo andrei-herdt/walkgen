@@ -6,7 +6,7 @@
 using namespace MPCWalkgen;
 using namespace Eigen;
 
-QPSolver::QPSolver(int nbvar_max, int nbcstr_max)
+QPSolver::QPSolver(const SolverData *parameters, int nbvar_max, int nbcstr_max)
 :hessian_mat_(nbvar_max, nbvar_max)
 ,gradient_vec_(nbvar_max)
 ,cstr_mat_(nbcstr_max, nbvar_max)
@@ -20,7 +20,8 @@ QPSolver::QPSolver(int nbvar_max, int nbcstr_max)
 ,num_constr_(0)
 ,num_constr_max_(nbcstr_max)
 ,var_indices_vec_(nbvar_max)
-,constr_indices_vec_(nbvar_max + nbcstr_max) {
+,constr_indices_vec_(nbvar_max + nbcstr_max)
+,parameters_(parameters) {
   for (int i = 0; i < nbvar_max; ++i) {
     var_indices_vec_(i) = i;
   }
@@ -142,13 +143,13 @@ void QPSolver::DumpProblem(const char *filename) {
 # include <mpc-walkgen/qpoases-parser.h>
 # include <mpc-walkgen/lssol-parser.h>
 
-QPSolver *MPCWalkgen::createQPSolver(SolverName name, int num_vars, int num_constr) 
+QPSolver *MPCWalkgen::createQPSolver(const SolverData &parameters, int num_vars, int num_constr) 
 {
   QPSolver *solver = NULL;
-  if (name == LSSOL) {
-    solver = new LSSOLParser(num_vars, num_constr);
-  } else if (name == QPOASES) {
-    solver = new QPOasesParser(num_vars, num_constr);
+  if (parameters.name == LSSOL) {
+    solver = new LSSOLParser(&parameters, num_vars, num_constr);
+  } else if (parameters.name == QPOASES) {
+    solver = new QPOasesParser(&parameters, num_vars, num_constr);
   }
   return solver;
 }

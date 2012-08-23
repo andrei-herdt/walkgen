@@ -29,7 +29,7 @@ MPCWalkgen::WalkgenAbstract* MPCWalkgen::createWalkgen() {
 // Implementation of the private interface
 Walkgen::Walkgen()
 : WalkgenAbstract()
-,data_mpc_()
+,mpc_parameters_()
 ,solver_(0x0)
 ,generator_(0x0)
 ,preview_(0x0)
@@ -73,17 +73,17 @@ Walkgen::~Walkgen(){
 
 }
 
-void Walkgen::Init(const RobotData &data_robot, const MPCData &mpc_data) {
+void Walkgen::Init(const RobotData &data_robot, const MPCData &mpc_parameters) {
 
-  data_mpc_ = mpc_data;
+  mpc_parameters_ = mpc_parameters;
   robotData_ = data_robot;
 
   // Check if sampling periods are defined correctly
-  assert(data_mpc_.period_actsample > 0);
-  assert(data_mpc_.period_mpcsample >= data_mpc_.period_actsample);
-  assert(data_mpc_.period_qpsample >= data_mpc_.period_mpcsample);
-  assert(data_mpc_.nbqpsamples_step <= data_mpc_.nbsamples_qp);
-  assert(data_mpc_.nbqpsamples_dsss <= data_mpc_.nbsamples_qp);
+  assert(mpc_parameters_.period_actsample > 0);
+  assert(mpc_parameters_.period_mpcsample >= mpc_parameters_.period_actsample);
+  assert(mpc_parameters_.period_qpsample >= mpc_parameters_.period_mpcsample);
+  assert(mpc_parameters_.nbqpsamples_step <= mpc_parameters_.nbsamples_qp);
+  assert(mpc_parameters_.nbqpsamples_dsss <= mpc_parameters_.nbsamples_qp);
 
   Init();
 
@@ -91,43 +91,43 @@ void Walkgen::Init(const RobotData &data_robot, const MPCData &mpc_data) {
 
 void Walkgen::Init() {
   //TODO: Cleaning is necessary
-  int num_steps_max = data_mpc_.num_steps_max();
-  int num_constr_step = 5;
-  solver_ = createQPSolver(data_mpc_.solver.name,
-    2 * (data_mpc_.nbsamples_qp + num_steps_max), 
-    num_constr_step * num_steps_max  );
+  int num_constr_step = 5;// TODO: Move this to MPCParameters
+  int num_steps_max = mpc_parameters_.num_steps_max();
+  int num_vars_max = 2 * (mpc_parameters_.nbsamples_qp + num_steps_max);
+  int num_constr_max = num_constr_step * num_steps_max;
+  solver_ = createQPSolver(mpc_parameters_.solver, num_vars_max,  num_constr_max );
 
   orientPrw_ = new OrientationsPreview();
 
   interpolation_ = new Interpolation();
 
-  robot_ = new RigidBodySystem(&data_mpc_);
+  robot_ = new RigidBodySystem(&mpc_parameters_);
 
-  preview_ = new QPPreview(&velRef_, robot_, &data_mpc_);
+  preview_ = new QPPreview(&velRef_, robot_, &mpc_parameters_);
 
-  generator_= new QPGenerator(preview_, solver_, &velRef_, &ponderation_, robot_, &data_mpc_);
+  generator_= new QPGenerator(preview_, solver_, &velRef_, &ponderation_, robot_, &mpc_parameters_);
 
   robot_->Init(robotData_, interpolation_);
 
-  solution_.com_act.resize(data_mpc_.num_samples_act());
-  solution_.cop_act.resize(data_mpc_.num_samples_act());
-  solution_.com_prw.resize(data_mpc_.nbsamples_qp);
-  solution_.cop_prw.resize(data_mpc_.nbsamples_qp);
+  solution_.com_act.resize(mpc_parameters_.num_samples_act());
+  solution_.cop_act.resize(mpc_parameters_.num_samples_act());
+  solution_.com_prw.resize(mpc_parameters_.nbsamples_qp);
+  solution_.cop_prw.resize(mpc_parameters_.nbsamples_qp);
 
   // Redistribute the X,Y vectors of variables inside the optimization problems
   VectorXi order(solver_->nbvar_max());
-  for (int i = 0; i < data_mpc_.nbsamples_qp; ++i) {// 0,2,4,1,3,5 (CoM)
+  for (int i = 0; i < mpc_parameters_.nbsamples_qp; ++i) {// 0,2,4,1,3,5 (CoM)
     order(i) = 2*i;
-    order(i + data_mpc_.nbsamples_qp) = 2*i+1;
+    order(i + mpc_parameters_.nbsamples_qp) = 2*i+1;
   }
 
-  for (int i = 2*data_mpc_.nbsamples_qp; i < solver_->nbvar_max(); ++i) {// 6,7,8 (Feet)
+  for (int i = 2*mpc_parameters_.nbsamples_qp; i < solver_->nbvar_max(); ++i) {// 6,7,8 (Feet)
     order(i) = i;
   }
 
   solver_->varOrder(order);
 
-  orientPrw_->Init(data_mpc_, robotData_);
+  orientPrw_->Init(mpc_parameters_, robotData_);
 
   generator_->precomputeObjective();
 
@@ -148,8 +148,8 @@ void Walkgen::Init() {
 
   ponderation_.activePonderation = 0;
 
-  velRef_.resize(data_mpc_.nbsamples_qp);
-  newVelRef_.resize(data_mpc_.nbsamples_qp);
+  velRef_.resize(mpc_parameters_.nbsamples_qp);
+  newVelRef_.resize(mpc_parameters_.nbsamples_qp);
 
   BuildProblem();
 
@@ -157,7 +157,7 @@ void Walkgen::Init() {
 }
 
 const MPCSolution &Walkgen::online(){
-  currentRealTime_ += data_mpc_.period_mpcsample;
+  currentRealTime_ += mpc_parameters_.period_mpcsample;
   return online(currentRealTime_);
 }
 
@@ -165,12 +165,12 @@ const MPCSolution &Walkgen::online(double time){
   currentTime_ = time;
 
   if (time  > next_computation_ - EPSILON) {
-    next_computation_ += data_mpc_.period_mpcsample;
+    next_computation_ += mpc_parameters_.period_mpcsample;
     if (time > next_computation_ - EPSILON) {   
       ResetCounters(time);
     }
     if(time  > first_sample_time_ - EPSILON){
-      first_sample_time_ += data_mpc_.period_qpsample;
+      first_sample_time_ += mpc_parameters_.period_qpsample;
       if (time > first_sample_time_ - EPSILON) {
         ResetCounters(time);
       }
@@ -179,13 +179,13 @@ const MPCSolution &Walkgen::online(double time){
 
     BuildProblem();
 
-    solver_->Solve(solution_, data_mpc_.warmstart, data_mpc_.solver.analysis);
+    solver_->Solve(solution_, mpc_parameters_.warmstart, mpc_parameters_.solver.analysis);
 
     GenerateTrajectories();
   }
 
   if (time > next_act_sample_ - EPSILON) {
-    next_act_sample_ += data_mpc_.period_actsample;
+    next_act_sample_ += mpc_parameters_.period_actsample;
 
     IncrementOutputIndex();
     UpdateOutput();
@@ -198,9 +198,9 @@ void Walkgen::SetCounters(double time) {
 
 }
 void Walkgen::ResetCounters(double time) {
-  first_sample_time_ = time + data_mpc_.period_qpsample;
-  next_computation_ = time + data_mpc_.period_mpcsample;
-  next_act_sample_ = time + data_mpc_.period_actsample;
+  first_sample_time_ = time + mpc_parameters_.period_qpsample;
+  next_computation_ = time + mpc_parameters_.period_mpcsample;
+  next_act_sample_ = time + mpc_parameters_.period_actsample;
 }
 
 void Walkgen::BuildProblem() {
@@ -237,7 +237,7 @@ void Walkgen::BuildProblem() {
   preview_->previewSupportStates(firstSamplingPeriod, solution_);
 
   orientPrw_->preview_orientations( currentTime_, velRef_, 
-    data_mpc_.nbqpsamples_step * data_mpc_.period_qpsample,
+    mpc_parameters_.nbqpsamples_step * mpc_parameters_.period_qpsample,
     robot_->body(LEFT_FOOT)->state(), robot_->body(RIGHT_FOOT)->state(),
     solution_ );
   preview_->computeRotationMatrix(solution_);
@@ -268,7 +268,7 @@ void Walkgen::ResetOutputIndex() {
 }
 
 void Walkgen::IncrementOutputIndex() {
-  if (output_index_ < data_mpc_.num_samples_act() - 1) {
+  if (output_index_ < mpc_parameters_.num_samples_act() - 1) {
     output_index_++;
   }
 }

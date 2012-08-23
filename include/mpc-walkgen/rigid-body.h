@@ -19,7 +19,7 @@ namespace MPCWalkgen{
   class RigidBody{
 
   public:
-    RigidBody(const MPCData *data_mpc,
+    RigidBody(const MPCData *mpc_parameters,
       const RobotData *data_robot);
     virtual ~RigidBody();
 
@@ -46,7 +46,7 @@ namespace MPCWalkgen{
 
 
   protected:
-    const MPCData *data_mpc_;
+    const MPCData *mpc_parameters_;
     const RobotData *robotData_;
     Interpolation interpolation_;
 

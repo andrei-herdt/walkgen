@@ -17,7 +17,7 @@ namespace MPCWalkgen{
 
   class LSSOLParser:public QPSolver{
   public:
-    LSSOLParser(int num_vars, int num_constr);
+    LSSOLParser(const SolverData *parameters, int num_vars, int num_constr);
     virtual ~LSSOLParser();
 
     virtual void Init();
