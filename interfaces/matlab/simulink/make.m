@@ -12,31 +12,27 @@ end
 
 %% Set flags
 MPC_WALKGEN_PATH = '../../../';
+EIGEN_PATH = [MPC_WALKGEN_PATH,'deps/eigen/'];
+QPOASES_PATH = [MPC_WALKGEN_PATH,'deps/qpOASES-3.0beta_git/include/'];
+QPOASES_LIB_PATH = [MPC_WALKGEN_PATH,'deps/qpOASES-3.0beta_git/src/'];
 %MPC_WALKGEN_LIBRARY_PATH = [MPC_WALKGEN_PATH,'build-new/Debug/'];
-%MPC_WALKGEN_LIBRARY_PATH = [MPC_WALKGEN_PATH,'build-new/Release/'];
-%MPC_WALKGEN_LIBRARY_PATH = [MPC_WALKGEN_PATH,'build-new/Release/'];
-%EIGEN_PATH = [MPC_WALKGEN_PATH,'deps/eigen/'];
-EIGEN_PATH = 'Z:\f_soft\foreign_packages\Eigen\3.0.1\include\';
-%QPOASES_PATH = [MPC_WALKGEN_PATH,'deps/qpOASES-3.0beta_git/include/'];
-QPOASES_PATH = [MPC_WALKGEN_PATH, '../qpOASES-3.0/include/'];
-%QPOASES_LIB_PATH = [MPC_WALKGEN_PATH,'deps/qpOASES-3.0beta_git/src/'];
-QPOASES_LIB_PATH = [MPC_WALKGEN_PATH, '../qpOASES-3.0/src/'];
+%EIGEN_PATH = 'Z:\f_soft\foreign_packages\Eigen\3.0.1\include\';
+%QPOASES_PATH = [MPC_WALKGEN_PATH, '../qpOASES-3.0/include/'];
+%QPOASES_LIB_PATH = [MPC_WALKGEN_PATH, '../qpOASES-3.0/src/'];
 
-%IFLAGS  = ['-I. -I',MPC_WALKGEN_PATH,'include',' -I',EIGEN_PATH,' -I',QPOASES_PATH,' -L',MPC_WALKGEN_LIBRARY_PATH,' ' ];
 IFLAGS  = ['-I. -I', MPC_WALKGEN_PATH, 'include',' -I',EIGEN_PATH,' -I',QPOASES_PATH,' ' ];
+%IFLAGS  = ['-I. -I',MPC_WALKGEN_PATH,'include',' -I',EIGEN_PATH,'-I',QPOASES_PATH,' -L',MPC_WALKGEN_LIBRARY_PATH,' ' ];
 
 if (ispc == 0)
     %CPPFLAGS  = [ IFLAGS, '-D__cpluplus -D__MATLAB__ -O -DLINUX', ' ' ]; %% -D__NO_COPYRIGHT__ -D__SUPPRESSANYOUTPUT__
 else
-    %CPPFLAGS  = [IFLAGS, '-v', ' -DWIN32',' -D__NO_COPYRIGHT__',' -D__SUPPRESSANYOUTPUT__', ' ' ]; %% -D__NO_COPYRIGHT__ -D__SUPPRESSANYOUTPUT__
-    CPPFLAGS  = [IFLAGS, ' -Wall', ' -pedantic', ' -Wshadow', ' -Wfloat-equal', ' -O3', ' -finline-functions', ' -D__VXWORKS__', ' ' ];
+     CPPFLAGS  = [IFLAGS, '-v', ' -DWIN32',' -D__NO_COPYRIGHT__',' -D__SUPPRESSANYOUTPUT__', ' ' ]; %% -D__NO_COPYRIGHT__ -D__SUPPRESSANYOUTPUT__
     %CPPFLAGS = [IFLAGS, ' -pedantic', ' -Wshadow', ' -O3', ' -finline-functions', ' -DLINUX', ' -D__NO_COPYRIGHT__'];
     %CPPFLAGS  = [IFLAGS, ' ' ];
      
 
 end
 
-%MPC_WALKGEN_OBJECTS = [MPC_WALKGEN_LIBRARY_PATH,'mpc-walkgen.lib ', ' '];
 MPC_WALKGEN_OBJECTS =	[	MPC_WALKGEN_PATH, 'src/com-body.cpp ',...
     MPC_WALKGEN_PATH, 'src/foot-body.cpp ',...
     MPC_WALKGEN_PATH, 'src/gettimeofday.cpp ',...
@@ -58,14 +54,15 @@ MPC_WALKGEN_OBJECTS =	[	MPC_WALKGEN_PATH, 'src/com-body.cpp ',...
     MPC_WALKGEN_PATH, 'src/types.cpp ',...
     MPC_WALKGEN_PATH, 'src/walkgen-abstract.cpp ',...
     MPC_WALKGEN_PATH, 'src/walkgen.cpp ', ' ' ];
+%MPC_WALKGEN_OBJECTS = [MPC_WALKGEN_LIBRARY_PATH,'mpc-walkgen.lib ', ' '];
 
 QPOASES_OBJECTS = [	QPOASES_LIB_PATH, 'BLASReplacement.lib ',...
     QPOASES_LIB_PATH, 'LAPACKReplacement.lib ',...
     QPOASES_LIB_PATH, 'libqpOASES.lib ',...
     QPOASES_LIB_PATH, 'libqpOASESextras.lib ',' ' ];
 
-% DEBUGFLAGS = ['-D_DEBUG -g',' '];
 DEBUGFLAGS = ' ';
+% DEBUGFLAGS = ['-D_DEBUG -g',' '];
 %DEBUGFLAGS = ' -g CXXDEBUGFLAGS=''$CXXDEBUGFLAGS -Wall -pedantic -Wshadow'' ';
 
 NAME = 'walkgen_sfun';

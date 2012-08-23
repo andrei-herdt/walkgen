@@ -32,3 +32,6 @@ legend([lines_prw_com_y, lines_prw_cop_y, lines_real_com_y, lines_real_cop_y], '
 xlabel('Time [s]');
 ylabel('Y [m]');
 title('CoM Positions (previewed and realized)');
+
+%% Clear
+clear lines_prw_com_x lines_prw_cop_x lines_prw_com_y lines_prw_cop_y lines_real_com_x lines_real_cop_x lines_real_com_y lines_real_cop_y
