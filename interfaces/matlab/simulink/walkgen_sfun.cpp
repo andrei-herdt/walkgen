@@ -26,7 +26,7 @@ using namespace std;
 static void mdlInitializeSizes(SimStruct *S)
 {
   // No expected parameters
-  ssSetNumSFcnParams(S, 0);
+  ssSetNumSFcnParams(S, 7);
 
   // Parameter mismatch will be reported by Simulink
   if (ssGetNumSFcnParams(S) != ssGetSFcnParamsCount(S)) {
@@ -147,7 +147,15 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
   real_T *cop_prw        = ssGetOutputPortRealSignal(S, 12);
   real_T *support        = ssGetOutputPortRealSignal(S, 13);
   real_T *analysis       = ssGetOutputPortRealSignal(S, 14);
-
+  
+  const int num_samples_horizon            = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 0)));
+  const int num_samples_step               = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 1)));
+  const int num_samples_dsss               = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 2)));
+  const int num_steps_ssds                 = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 3)));
+  const double sample_period_qp      = *mxGetPr(ssGetSFcnParam(S, 4));
+  const double sample_period_first   = *mxGetPr(ssGetSFcnParam(S, 5));
+  const double sample_period_act     = *mxGetPr(ssGetSFcnParam(S, 6));
+    
   WalkgenAbstract *walk = (WalkgenAbstract *)ssGetPWorkValue(S, 0);
 
   // Initialization:
@@ -176,20 +184,20 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
     HipYawData rightHipYaw = leftHipYaw;
 
     MPCData mpc_data;
-    mpc_data.nbsamples_qp = 16;
-    mpc_data.nbqpsamples_step = 8;
-    mpc_data.nbqpsamples_dsss = 8;
-    mpc_data.nbsteps_ssds = 2;
-    mpc_data.period_qpsample = 0.1;
-    mpc_data.period_mpcsample = 0.001;
-    mpc_data.period_actsample = 0.001;
+    mpc_data.nbsamples_qp       = num_samples_horizon;//12;
+    mpc_data.nbqpsamples_step   = num_samples_step;//8;
+    mpc_data.nbqpsamples_dsss   = num_samples_dsss;//8;
+    mpc_data.nbsteps_ssds       = num_steps_ssds;//2;
+    mpc_data.period_qpsample    = sample_period_qp;//0.1;
+    mpc_data.period_mpcsample   = sample_period_first;//0.001;
+    mpc_data.period_actsample   = sample_period_act;//0.001;
     mpc_data.ponderation.JerkMin[0] = 0.00001;
     mpc_data.ponderation.JerkMin[1] = 0.00001;
     mpc_data.warmstart = true;
     mpc_data.interpolate_preview = true;
     mpc_data.solver.analysis = true;
     mpc_data.solver.name = QPOASES;
-    mpc_data.solver.num_wsrec = 100;
+    mpc_data.solver.num_wsrec = 2;
 
     RobotData robot_data(leftFoot, rightFoot, leftHipYaw, rightHipYaw, 0.0);
 
