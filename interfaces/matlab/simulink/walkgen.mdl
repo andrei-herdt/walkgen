@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.289"
+    ComputedModelVersion    "1.305"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Thu Aug 23 15:08:00 2012"
+  LastModifiedDate	  "Fri Aug 24 13:57:13 2012"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:289>"
+  ModelVersionFormat	  "1.%<AutoIncrement:305>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -488,10 +488,51 @@ Model {
       NonVirtualBus	      off
     }
     Block {
+      BlockType		      BusSelector
+      OutputAsBus	      off
+    }
+    Block {
       BlockType		      EnablePort
       StatesWhenEnabling      "held"
       ShowOutputPort	      off
       ZeroCross		      on
+    }
+    Block {
+      BlockType		      Inport
+      Port		      "1"
+      UseBusObject	      off
+      BusObject		      "BusObject"
+      BusOutputAsStruct	      off
+      PortDimensions	      "-1"
+      SampleTime	      "-1"
+      OutMin		      "[]"
+      OutMax		      "[]"
+      DataType		      "auto"
+      OutDataType	      "fixdt(1,16,0)"
+      OutScaling	      "[]"
+      SignalType	      "auto"
+      SamplingMode	      "auto"
+      LatchByDelayingOutsideSignal off
+      LatchByCopyingInsideSignal off
+      Interpolate	      on
+    }
+    Block {
+      BlockType		      Outport
+      Port		      "1"
+      UseBusObject	      off
+      BusObject		      "BusObject"
+      BusOutputAsStruct	      off
+      PortDimensions	      "-1"
+      SampleTime	      "-1"
+      OutMin		      "[]"
+      OutMax		      "[]"
+      DataType		      "auto"
+      OutDataType	      "fixdt(1,16,0)"
+      OutScaling	      "[]"
+      SignalType	      "auto"
+      SamplingMode	      "auto"
+      OutputWhenDisabled      "held"
+      InitialOutput	      "[]"
     }
     Block {
       BlockType		      Scope
@@ -652,7 +693,7 @@ Model {
       FunctionWithSeparateData off
       System {
 	Name			"Simulation"
-	Location		[792, 74, 1594, 832]
+	Location		[848, 74, 1594, 876]
 	Open			on
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
@@ -669,135 +710,789 @@ Model {
 	  BlockType		  EnablePort
 	  Name			  "Enable"
 	  Ports			  []
-	  Position		  [365, 240, 390, 260]
+	  Position		  [335, 20, 360, 40]
 	}
 	Block {
 	  BlockType		  Step
-	  Name			  "Activate"
-	  Position		  [110, 208, 130, 222]
+	  Name			  "Activate2"
+	  Position		  [90, 173, 110, 187]
 	  Time			  "3"
 	  SampleTime		  "0.001"
 	}
 	Block {
 	  BlockType		  Step
-	  Name			  "Activate1"
-	  Position		  [100, 128, 120, 142]
+	  Name			  "Activate3"
+	  Position		  [80, 93, 100, 107]
 	  Time			  "7"
 	  SampleTime		  "0.001"
 	}
 	Block {
+	  BlockType		  SubSystem
+	  Name			  "Atomic Walkgen"
+	  Ports			  [4, 2]
+	  Position		  [295, 63, 400, 772]
+	  TreatAsAtomicUnit	  on
+	  MinAlgLoopOccurrences	  off
+	  RTWSystemCode		  "Auto"
+	  FunctionWithSeparateData off
+	  System {
+	    Name		    "Atomic Walkgen"
+	    Location		    [403, 74, 1582, 876]
+	    Open		    off
+	    ModelBrowserVisibility  off
+	    ModelBrowserWidth	    200
+	    ScreenColor		    "white"
+	    PaperOrientation	    "landscape"
+	    PaperPositionMode	    "auto"
+	    PaperType		    "A4"
+	    PaperUnits		    "centimeters"
+	    TiledPaperMargins	    [0.500000, 0.500000, 0.500000, 0.500000]
+	    TiledPageScale	    1
+	    ShowPageBoundaries	    off
+	    ZoomFactor		    "100"
+	    Block {
+	      BlockType		      Inport
+	      Name		      "reference"
+	      Position		      [55, 188, 85, 202]
+	      IconDisplay	      "Port number"
+	      OutDataType	      "sfix(16)"
+	      OutScaling	      "2^0"
+	    }
+	    Block {
+	      BlockType		      Inport
+	      Name		      "state"
+	      Position		      [55, 238, 85, 252]
+	      Port		      "2"
+	      IconDisplay	      "Port number"
+	      OutDataType	      "sfix(16)"
+	      OutScaling	      "2^0"
+	    }
+	    Block {
+	      BlockType		      Inport
+	      Name		      "init"
+	      Position		      [55, 348, 85, 362]
+	      Port		      "3"
+	      IconDisplay	      "Port number"
+	      OutDataType	      "sfix(16)"
+	      OutScaling	      "2^0"
+	    }
+	    Block {
+	      BlockType		      Inport
+	      Name		      "options"
+	      Position		      [60, 468, 90, 482]
+	      Port		      "4"
+	      IconDisplay	      "Port number"
+	      OutDataType	      "sfix(16)"
+	      OutScaling	      "2^0"
+	    }
+	    Block {
+	      BlockType		      BusCreator
+	      Name		      "Bus\nCreator"
+	      Ports		      [4, 1]
+	      Position		      [845, 237, 850, 283]
+	      ShowName		      off
+	      DisplayOption	      "bar"
+	    }
+	    Block {
+	      BlockType		      BusCreator
+	      Name		      "Bus\nCreator1"
+	      Ports		      [5, 1]
+	      Position		      [680, 419, 685, 541]
+	      ShowName		      off
+	      Inputs		      "5"
+	      DisplayOption	      "bar"
+	      Port {
+		PortNumber		1
+		Name			"preview"
+		PropagatedSignals	"next_foot, com_prw, cop_prw, support, resolution_data"
+		RTWStorageClass		"Auto"
+		DataLoggingNameMode	"SignalName"
+	      }
+	    }
+	    Block {
+	      BlockType		      BusCreator
+	      Name		      "Bus\nCreator2"
+	      Ports		      [3, 1]
+	      Position		      [565, 186, 570, 224]
+	      ShowName		      off
+	      Inputs		      "3"
+	      DisplayOption	      "bar"
+	      Port {
+		PortNumber		1
+		Name			"com"
+		PropagatedSignals	"com, dcom, ddcom"
+		RTWStorageClass		"Auto"
+		DataLoggingNameMode	"SignalName"
+	      }
+	    }
+	    Block {
+	      BlockType		      BusCreator
+	      Name		      "Bus\nCreator3"
+	      Ports		      [3, 1]
+	      Position		      [565, 286, 570, 324]
+	      ShowName		      off
+	      Inputs		      "3"
+	      DisplayOption	      "bar"
+	      Port {
+		PortNumber		1
+		Name			"left_foot"
+		PropagatedSignals	"p_left, dp_left, ddp_left"
+		RTWStorageClass		"Auto"
+		DataLoggingNameMode	"SignalName"
+	      }
+	    }
+	    Block {
+	      BlockType		      BusCreator
+	      Name		      "Bus\nCreator4"
+	      Ports		      [3, 1]
+	      Position		      [570, 361, 575, 399]
+	      ShowName		      off
+	      Inputs		      "3"
+	      DisplayOption	      "bar"
+	      Port {
+		PortNumber		1
+		Name			"right_foot"
+		PropagatedSignals	"p_right, dp_right, ddp_right"
+		RTWStorageClass		"Auto"
+		DataLoggingNameMode	"SignalName"
+	      }
+	    }
+	    Block {
+	      BlockType		      BusSelector
+	      Name		      "Bus\nSelector1"
+	      Ports		      [1, 2]
+	      Position		      [110, 226, 115, 264]
+	      ShowName		      off
+	      OutputSignals	      "com,cop"
+	      Port {
+		PortNumber		1
+		Name			"<com>"
+		RTWStorageClass		"Auto"
+		DataLoggingNameMode	"SignalName"
+	      }
+	      Port {
+		PortNumber		2
+		Name			"<cop>"
+		RTWStorageClass		"Auto"
+		DataLoggingNameMode	"SignalName"
+	      }
+	    }
+	    Block {
+	      BlockType		      BusSelector
+	      Name		      "Bus\nSelector2"
+	      Ports		      [1, 5]
+	      Position		      [245, 258, 250, 452]
+	      ShowName		      off
+	      OutputSignals	      "left_ankle,right_ankle,left_yaw,right_yaw,foot_geometry"
+	      Port {
+		PortNumber		1
+		Name			"<left_ankle>"
+		RTWStorageClass		"Auto"
+		DataLoggingNameMode	"SignalName"
+	      }
+	      Port {
+		PortNumber		2
+		Name			"<right_ankle>"
+		RTWStorageClass		"Auto"
+		DataLoggingNameMode	"SignalName"
+	      }
+	      Port {
+		PortNumber		3
+		Name			"<left_yaw>"
+		RTWStorageClass		"Auto"
+		DataLoggingNameMode	"SignalName"
+	      }
+	      Port {
+		PortNumber		4
+		Name			"<right_yaw>"
+		RTWStorageClass		"Auto"
+		DataLoggingNameMode	"SignalName"
+	      }
+	      Port {
+		PortNumber		5
+		Name			"<foot_geometry>"
+		RTWStorageClass		"Auto"
+		DataLoggingNameMode	"SignalName"
+	      }
+	    }
+	    Block {
+	      BlockType		      "S-Function"
+	      Name		      "S-Function"
+	      Ports		      [9, 15]
+	      Position		      [375, 168, 465, 542]
+	      FunctionName	      "walkgen_sfun"
+	      Parameters	      "12, 8, 8, 2, 0.1, 0.001, 0.001"
+	      Port {
+		PortNumber		1
+		Name			"com"
+		RTWStorageClass		"Auto"
+		DataLoggingNameMode	"SignalName"
+	      }
+	      Port {
+		PortNumber		2
+		Name			"dcom"
+		RTWStorageClass		"Auto"
+		DataLoggingNameMode	"SignalName"
+	      }
+	      Port {
+		PortNumber		3
+		Name			"ddcom"
+		RTWStorageClass		"Auto"
+		DataLoggingNameMode	"SignalName"
+	      }
+	      Port {
+		PortNumber		4
+		Name			"cop"
+		RTWStorageClass		"Auto"
+		DataLoggingNameMode	"SignalName"
+	      }
+	      Port {
+		PortNumber		5
+		Name			"p_left"
+		RTWStorageClass		"Auto"
+		DataLoggingNameMode	"SignalName"
+	      }
+	      Port {
+		PortNumber		6
+		Name			"dp_left"
+		RTWStorageClass		"Auto"
+		DataLoggingNameMode	"SignalName"
+	      }
+	      Port {
+		PortNumber		7
+		Name			"ddp_left"
+		RTWStorageClass		"Auto"
+		DataLoggingNameMode	"SignalName"
+	      }
+	      Port {
+		PortNumber		8
+		Name			"p_right"
+		RTWStorageClass		"Auto"
+		DataLoggingNameMode	"SignalName"
+	      }
+	      Port {
+		PortNumber		9
+		Name			"dp_right"
+		RTWStorageClass		"Auto"
+		DataLoggingNameMode	"SignalName"
+	      }
+	      Port {
+		PortNumber		10
+		Name			"ddp_right"
+		RTWStorageClass		"Auto"
+		DataLoggingNameMode	"SignalName"
+	      }
+	      Port {
+		PortNumber		11
+		Name			"next_foot"
+		RTWStorageClass		"Auto"
+		DataLoggingNameMode	"SignalName"
+	      }
+	      Port {
+		PortNumber		12
+		Name			"com_prw"
+		RTWStorageClass		"Auto"
+		DataLoggingNameMode	"SignalName"
+	      }
+	      Port {
+		PortNumber		13
+		Name			"cop_prw"
+		RTWStorageClass		"Auto"
+		DataLoggingNameMode	"SignalName"
+	      }
+	      Port {
+		PortNumber		14
+		Name			"support"
+		RTWStorageClass		"Auto"
+		DataLoggingNameMode	"SignalName"
+	      }
+	      Port {
+		PortNumber		15
+		Name			"resolution_data"
+		RTWStorageClass		"Auto"
+		DataLoggingNameMode	"SignalName"
+	      }
+	    }
+	    Block {
+	      BlockType		      Scope
+	      Name		      "Scope"
+	      Ports		      [1]
+	      Position		      [505, 140, 525, 160]
+	      Orientation	      "up"
+	      ShowName		      off
+	      Floating		      off
+	      Location		      [79, 40, 1595, 891]
+	      Open		      off
+	      NumInputPorts	      "1"
+	      List {
+		ListType		AxesTitles
+		axes1			"%<SignalLabel>"
+	      }
+	      TimeRange		      "0.007766893178016154"
+	      YMin		      "0.05"
+	      YMax		      "0.95"
+	      SaveName		      "ScopeData4"
+	      DataFormat	      "StructureWithTime"
+	      SampleTime	      "0"
+	    }
+	    Block {
+	      BlockType		      Scope
+	      Name		      "Scope1"
+	      Ports		      [1]
+	      Position		      [529, 220, 551, 240]
+	      Orientation	      "up"
+	      NamePlacement	      "alternate"
+	      ShowName		      off
+	      Floating		      off
+	      Location		      [79, 40, 1595, 894]
+	      Open		      off
+	      NumInputPorts	      "1"
+	      List {
+		ListType		AxesTitles
+		axes1			"%<SignalLabel>"
+	      }
+	      SaveName		      "ScopeData5"
+	      DataFormat	      "StructureWithTime"
+	      SampleTime	      "0"
+	    }
+	    Block {
+	      BlockType		      Scope
+	      Name		      "Scope2"
+	      Ports		      [1]
+	      Position		      [595, 264, 615, 286]
+	      ShowName		      off
+	      Floating		      off
+	      Location		      [79, 40, 1595, 894]
+	      Open		      off
+	      NumInputPorts	      "1"
+	      List {
+		ListType		AxesTitles
+		axes1			"%<SignalLabel>"
+	      }
+	      SaveName		      "ScopeData6"
+	      DataFormat	      "StructureWithTime"
+	      SampleTime	      "0"
+	    }
+	    Block {
+	      BlockType		      Scope
+	      Name		      "Scope3"
+	      Ports		      [1]
+	      Position		      [595, 335, 615, 355]
+	      ShowName		      off
+	      Floating		      off
+	      Location		      [79, 40, 1595, 894]
+	      Open		      off
+	      NumInputPorts	      "1"
+	      List {
+		ListType		AxesTitles
+		axes1			"%<SignalLabel>"
+	      }
+	      SaveName		      "ScopeData7"
+	      DataFormat	      "StructureWithTime"
+	      SampleTime	      "0"
+	    }
+	    Block {
+	      BlockType		      Outport
+	      Name		      "command"
+	      Position		      [885, 253, 915, 267]
+	      IconDisplay	      "Port number"
+	      OutDataType	      "sfix(16)"
+	      OutScaling	      "2^0"
+	    }
+	    Block {
+	      BlockType		      Outport
+	      Name		      "preview"
+	      Position		      [885, 473, 915, 487]
+	      Port		      "2"
+	      IconDisplay	      "Port number"
+	      OutDataType	      "sfix(16)"
+	      OutScaling	      "2^0"
+	    }
+	    Line {
+	      Name		      "preview"
+	      Labels		      [0, 0]
+	      SrcBlock		      "Bus\nCreator1"
+	      SrcPort		      1
+	      Points		      [0, -5; 180, 0]
+	      DstBlock		      "preview"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "Bus\nCreator"
+	      SrcPort		      1
+	      DstBlock		      "command"
+	      DstPort		      1
+	    }
+	    Line {
+	      Name		      "com"
+	      Labels		      [0, 0]
+	      SrcBlock		      "S-Function"
+	      SrcPort		      1
+	      Points		      [45, 0]
+	      Branch {
+		Points			[5, 0; 0, 15]
+		DstBlock		"Bus\nCreator2"
+		DstPort			1
+	      }
+	      Branch {
+		DstBlock		"Scope"
+		DstPort			1
+	      }
+	    }
+	    Line {
+	      Name		      "cop"
+	      Labels		      [0, 0]
+	      SrcBlock		      "S-Function"
+	      SrcPort		      4
+	      Points		      [70, 0]
+	      Branch {
+		DstBlock		"Bus\nCreator"
+		DstPort			2
+	      }
+	      Branch {
+		DstBlock		"Scope1"
+		DstPort			1
+	      }
+	    }
+	    Line {
+	      Name		      "right_foot"
+	      Labels		      [0, 0]
+	      SrcBlock		      "Bus\nCreator4"
+	      SrcPort		      1
+	      Points		      [215, 0; 0, -105]
+	      DstBlock		      "Bus\nCreator"
+	      DstPort		      4
+	    }
+	    Line {
+	      Name		      "dp_right"
+	      Labels		      [0, 0]
+	      SrcBlock		      "S-Function"
+	      SrcPort		      9
+	      DstBlock		      "Bus\nCreator4"
+	      DstPort		      2
+	    }
+	    Line {
+	      Name		      "com"
+	      Labels		      [0, 0]
+	      SrcBlock		      "Bus\nCreator2"
+	      SrcPort		      1
+	      Points		      [180, 0; 0, 40]
+	      DstBlock		      "Bus\nCreator"
+	      DstPort		      1
+	    }
+	    Line {
+	      Name		      "dcom"
+	      Labels		      [0, 0]
+	      SrcBlock		      "S-Function"
+	      SrcPort		      2
+	      DstBlock		      "Bus\nCreator2"
+	      DstPort		      2
+	    }
+	    Line {
+	      Name		      "ddcom"
+	      Labels		      [0, 0]
+	      SrcBlock		      "S-Function"
+	      SrcPort		      3
+	      Points		      [50, 0; 0, -15]
+	      DstBlock		      "Bus\nCreator2"
+	      DstPort		      3
+	    }
+	    Line {
+	      Name		      "left_foot"
+	      Labels		      [0, 0]
+	      SrcBlock		      "Bus\nCreator3"
+	      SrcPort		      1
+	      Points		      [180, 0; 0, -40]
+	      DstBlock		      "Bus\nCreator"
+	      DstPort		      3
+	    }
+	    Line {
+	      Name		      "ddp_right"
+	      Labels		      [0, 0]
+	      SrcBlock		      "S-Function"
+	      SrcPort		      10
+	      Points		      [35, 0; 0, -15]
+	      DstBlock		      "Bus\nCreator4"
+	      DstPort		      3
+	    }
+	    Line {
+	      Name		      "p_right"
+	      Labels		      [0, 0]
+	      SrcBlock		      "S-Function"
+	      SrcPort		      8
+	      Points		      [35, 0; 0, 15; 50, 0]
+	      Branch {
+		Points			[-5, 0; 0, -25]
+		DstBlock		"Scope3"
+		DstPort			1
+	      }
+	      Branch {
+		DstBlock		"Bus\nCreator4"
+		DstPort			1
+	      }
+	    }
+	    Line {
+	      Name		      "p_left"
+	      Labels		      [0, 0]
+	      SrcBlock		      "S-Function"
+	      SrcPort		      5
+	      Points		      [30, 0; 0, 15; 45, 0]
+	      Branch {
+		DstBlock		"Bus\nCreator3"
+		DstPort			1
+	      }
+	      Branch {
+		Points			[0, -20]
+		DstBlock		"Scope2"
+		DstPort			1
+	      }
+	    }
+	    Line {
+	      Name		      "dp_left"
+	      Labels		      [0, 0]
+	      SrcBlock		      "S-Function"
+	      SrcPort		      6
+	      DstBlock		      "Bus\nCreator3"
+	      DstPort		      2
+	    }
+	    Line {
+	      Name		      "ddp_left"
+	      Labels		      [0, 0]
+	      SrcBlock		      "S-Function"
+	      SrcPort		      7
+	      Points		      [40, 0; 0, -15]
+	      DstBlock		      "Bus\nCreator3"
+	      DstPort		      3
+	    }
+	    Line {
+	      Name		      "next_foot"
+	      Labels		      [0, 0]
+	      SrcBlock		      "S-Function"
+	      SrcPort		      11
+	      DstBlock		      "Bus\nCreator1"
+	      DstPort		      1
+	    }
+	    Line {
+	      Name		      "com_prw"
+	      Labels		      [0, 0]
+	      SrcBlock		      "S-Function"
+	      SrcPort		      12
+	      DstBlock		      "Bus\nCreator1"
+	      DstPort		      2
+	    }
+	    Line {
+	      Name		      "cop_prw"
+	      Labels		      [0, 0]
+	      SrcBlock		      "S-Function"
+	      SrcPort		      13
+	      DstBlock		      "Bus\nCreator1"
+	      DstPort		      3
+	    }
+	    Line {
+	      Name		      "support"
+	      Labels		      [0, 0]
+	      SrcBlock		      "S-Function"
+	      SrcPort		      14
+	      DstBlock		      "Bus\nCreator1"
+	      DstPort		      4
+	    }
+	    Line {
+	      Name		      "resolution_data"
+	      Labels		      [0, 0]
+	      SrcBlock		      "S-Function"
+	      SrcPort		      15
+	      DstBlock		      "Bus\nCreator1"
+	      DstPort		      5
+	    }
+	    Line {
+	      SrcBlock		      "reference"
+	      SrcPort		      1
+	      DstBlock		      "S-Function"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "state"
+	      SrcPort		      1
+	      DstBlock		      "Bus\nSelector1"
+	      DstPort		      1
+	    }
+	    Line {
+	      Name		      "<com>"
+	      Labels		      [0, 0]
+	      SrcBlock		      "Bus\nSelector1"
+	      SrcPort		      1
+	      DstBlock		      "S-Function"
+	      DstPort		      2
+	    }
+	    Line {
+	      Name		      "<cop>"
+	      Labels		      [0, 0]
+	      SrcBlock		      "Bus\nSelector1"
+	      SrcPort		      2
+	      Points		      [25, 0; 0, 260]
+	      DstBlock		      "S-Function"
+	      DstPort		      9
+	    }
+	    Line {
+	      SrcBlock		      "init"
+	      SrcPort		      1
+	      DstBlock		      "Bus\nSelector2"
+	      DstPort		      1
+	    }
+	    Line {
+	      Name		      "<left_ankle>"
+	      Labels		      [0, 0]
+	      SrcBlock		      "Bus\nSelector2"
+	      SrcPort		      1
+	      DstBlock		      "S-Function"
+	      DstPort		      3
+	    }
+	    Line {
+	      Name		      "<right_ankle>"
+	      Labels		      [0, 0]
+	      SrcBlock		      "Bus\nSelector2"
+	      SrcPort		      2
+	      DstBlock		      "S-Function"
+	      DstPort		      4
+	    }
+	    Line {
+	      Name		      "<left_yaw>"
+	      Labels		      [0, 0]
+	      SrcBlock		      "Bus\nSelector2"
+	      SrcPort		      3
+	      DstBlock		      "S-Function"
+	      DstPort		      5
+	    }
+	    Line {
+	      Name		      "<right_yaw>"
+	      Labels		      [0, 0]
+	      SrcBlock		      "Bus\nSelector2"
+	      SrcPort		      4
+	      DstBlock		      "S-Function"
+	      DstPort		      6
+	    }
+	    Line {
+	      Name		      "<foot_geometry>"
+	      Labels		      [0, 0]
+	      SrcBlock		      "Bus\nSelector2"
+	      SrcPort		      5
+	      DstBlock		      "S-Function"
+	      DstPort		      7
+	    }
+	    Line {
+	      SrcBlock		      "options"
+	      SrcPort		      1
+	      DstBlock		      "S-Function"
+	      DstPort		      8
+	    }
+	  }
+	}
+	Block {
 	  BlockType		  BusCreator
-	  Name			  "Bus\nCreator"
-	  Ports			  [3, 1]
-	  Position		  [505, 301, 510, 339]
+	  Name			  "Bus\nCreator3"
+	  Ports			  [2, 1]
+	  Position		  [240, 311, 245, 349]
 	  ShowName		  off
-	  Inputs		  "3"
+	  Inputs		  "2"
 	  DisplayOption		  "bar"
+	  Port {
+	    PortNumber		    1
+	    Name		    "state"
+	    PropagatedSignals	    "com, cop"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
 	}
 	Block {
 	  BlockType		  BusCreator
-	  Name			  "Bus\nCreator1"
-	  Ports			  [3, 1]
-	  Position		  [505, 401, 510, 439]
+	  Name			  "Bus\nCreator4"
+	  Ports			  [5, 1]
+	  Position		  [245, 486, 250, 524]
 	  ShowName		  off
-	  Inputs		  "3"
+	  Inputs		  "5"
 	  DisplayOption		  "bar"
-	}
-	Block {
-	  BlockType		  BusCreator
-	  Name			  "Bus\nCreator2"
-	  Ports			  [3, 1]
-	  Position		  [505, 476, 510, 514]
-	  ShowName		  off
-	  Inputs		  "3"
-	  DisplayOption		  "bar"
-	}
-	Block {
-	  BlockType		  Constant
-	  Name			  "Constant1"
-	  Position		  [145, 380, 255, 400]
-	  ShowName		  off
-	  FontName		  "Arial"
-	  FontSize		  8
-	  FontWeight		  "bold"
-	  Value			  "[-0.035, 0.22, 0.0]"
-	  OutDataType		  "sfix(16)"
-	  OutScaling		  "2^0"
 	  Port {
 	    PortNumber		    1
-	    Name		    "left_ankle"
+	    Name		    "init"
+	    PropagatedSignals	    "left_ankle, right_ankle, left_yaw, right_yaw, foot_geometry"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  BusSelector
+	  Name			  "Bus\nSelector"
+	  Ports			  [1, 5]
+	  Position		  [505, 535, 510, 655]
+	  ShowName		  off
+	  OutputSignals		  "next_foot,com_prw,cop_prw,support,resolution_data"
+	  Port {
+	    PortNumber		    1
+	    Name		    "<next_foot>"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	  Port {
+	    PortNumber		    2
+	    Name		    "<com_prw>"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	  Port {
+	    PortNumber		    3
+	    Name		    "<cop_prw>"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	  Port {
+	    PortNumber		    4
+	    Name		    "<support>"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	  Port {
+	    PortNumber		    5
+	    Name		    "<resolution_data>"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  BusSelector
+	  Name			  "Bus\nSelector1"
+	  Ports			  [1, 4]
+	  Position		  [505, 180, 510, 300]
+	  ShowName		  off
+	  OutputSignals		  "com,cop,left_foot,right_foot"
+	  Port {
+	    PortNumber		    1
+	    Name		    "<com>"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	  Port {
+	    PortNumber		    2
+	    Name		    "<cop>"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	  Port {
+	    PortNumber		    3
+	    Name		    "<left_foot>"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	  Port {
+	    PortNumber		    4
+	    Name		    "<right_foot>"
 	    RTWStorageClass	    "Auto"
 	    DataLoggingNameMode	    "SignalName"
 	  }
 	}
 	Block {
 	  BlockType		  Constant
-	  Name			  "Constant10"
-	  Position		  [50, 107, 160, 123]
-	  ShowName		  off
-	  FontName		  "Arial"
-	  FontSize		  8
-	  Value			  "[0.0, 0.0, 0.3]"
-	  OutDataType		  "sfix(16)"
-	  OutScaling		  "2^0"
-	}
-	Block {
-	  BlockType		  Constant
-	  Name			  "Constant2"
-	  Position		  [60, 232, 170, 248]
-	  ShowName		  off
-	  FontName		  "Arial"
-	  FontSize		  8
-	  Value			  "[0.0, 0.0, 0.0]"
-	  OutDataType		  "sfix(16)"
-	  OutScaling		  "2^0"
-	  Port {
-	    PortNumber		    1
-	    Name		    "vel_ref"
-	    RTWStorageClass	    "Auto"
-	    DataLoggingNameMode	    "SignalName"
-	  }
-	}
-	Block {
-	  BlockType		  Constant
-	  Name			  "Constant3"
-	  Position		  [145, 420, 255, 440]
-	  ShowName		  off
-	  FontName		  "Arial"
-	  FontSize		  8
-	  FontWeight		  "bold"
-	  Value			  "[-0.035, -0.0059, 0.0]"
-	  OutDataType		  "sfix(16)"
-	  OutScaling		  "2^0"
-	  Port {
-	    PortNumber		    1
-	    Name		    "right_ankle"
-	    RTWStorageClass	    "Auto"
-	    DataLoggingNameMode	    "SignalName"
-	  }
-	}
-	Block {
-	  BlockType		  Constant
-	  Name			  "Constant4"
-	  Position		  [145, 460, 255, 480]
-	  ShowName		  off
-	  FontName		  "Arial"
-	  FontSize		  8
-	  FontWeight		  "bold"
-	  Value			  "0.0"
-	  OutDataType		  "sfix(16)"
-	  OutScaling		  "2^0"
-	  Port {
-	    PortNumber		    1
-	    Name		    "left_yaw"
-	    RTWStorageClass	    "Auto"
-	    DataLoggingNameMode	    "SignalName"
-	  }
-	}
-	Block {
-	  BlockType		  Constant
-	  Name			  "Constant5"
-	  Position		  [105, 340, 255, 360]
+	  Name			  "Constant11"
+	  Position		  [35, 310, 185, 330]
 	  ShowName		  off
 	  FontName		  "Arial"
 	  FontSize		  8
@@ -814,8 +1509,118 @@ Model {
 	}
 	Block {
 	  BlockType		  Constant
-	  Name			  "Constant6"
-	  Position		  [145, 500, 255, 520]
+	  Name			  "Constant12"
+	  Position		  [30, 72, 140, 88]
+	  ShowName		  off
+	  FontName		  "Arial"
+	  FontSize		  8
+	  Value			  "[0.0, 0.0, 0.3]"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	}
+	Block {
+	  BlockType		  Constant
+	  Name			  "Constant13"
+	  Position		  [40, 197, 150, 213]
+	  ShowName		  off
+	  FontName		  "Arial"
+	  FontSize		  8
+	  Value			  "[0.0, 0.0, 0.0]"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "vel_ref"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Constant
+	  Name			  "Constant14"
+	  Position		  [40, 152, 150, 168]
+	  ShowName		  off
+	  FontName		  "Arial"
+	  FontSize		  8
+	  Value			  "[0.1, 0.0, 0.0]"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	}
+	Block {
+	  BlockType		  Constant
+	  Name			  "Constant15"
+	  Position		  [30, 117, 140, 133]
+	  ShowName		  off
+	  FontName		  "Arial"
+	  FontSize		  8
+	  Value			  "[0.0, 0.0, 0.0]"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "vel_ref"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Constant
+	  Name			  "Constant17"
+	  Position		  [35, 445, 145, 465]
+	  ShowName		  off
+	  FontName		  "Arial"
+	  FontSize		  8
+	  FontWeight		  "bold"
+	  Value			  "[-0.035, 0.22, 0.0]"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "left_ankle"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Constant
+	  Name			  "Constant18"
+	  Position		  [35, 470, 145, 490]
+	  ShowName		  off
+	  FontName		  "Arial"
+	  FontSize		  8
+	  FontWeight		  "bold"
+	  Value			  "[-0.035, -0.0059, 0.0]"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "right_ankle"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Constant
+	  Name			  "Constant19"
+	  Position		  [35, 495, 145, 515]
+	  ShowName		  off
+	  FontName		  "Arial"
+	  FontSize		  8
+	  FontWeight		  "bold"
+	  Value			  "0.0"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "left_yaw"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Constant
+	  Name			  "Constant20"
+	  Position		  [35, 520, 145, 540]
 	  ShowName		  off
 	  FontName		  "Arial"
 	  FontSize		  8
@@ -832,8 +1637,8 @@ Model {
 	}
 	Block {
 	  BlockType		  Constant
-	  Name			  "Constant7"
-	  Position		  [145, 540, 255, 560]
+	  Name			  "Constant21"
+	  Position		  [35, 545, 145, 565]
 	  ShowName		  off
 	  FontName		  "Arial"
 	  FontSize		  8
@@ -849,169 +1654,10 @@ Model {
 	  }
 	}
 	Block {
-	  BlockType		  Constant
-	  Name			  "Constant8"
-	  Position		  [60, 187, 170, 203]
-	  ShowName		  off
-	  FontName		  "Arial"
-	  FontSize		  8
-	  Value			  "[0.1, 0.0, 0.0]"
-	  OutDataType		  "sfix(16)"
-	  OutScaling		  "2^0"
-	}
-	Block {
-	  BlockType		  Constant
-	  Name			  "Constant9"
-	  Position		  [50, 152, 160, 168]
-	  ShowName		  off
-	  FontName		  "Arial"
-	  FontSize		  8
-	  Value			  "[0.0, 0.0, 0.0]"
-	  OutDataType		  "sfix(16)"
-	  OutScaling		  "2^0"
-	  Port {
-	    PortNumber		    1
-	    Name		    "vel_ref"
-	    RTWStorageClass	    "Auto"
-	    DataLoggingNameMode	    "SignalName"
-	  }
-	}
-	Block {
-	  BlockType		  "S-Function"
-	  Name			  "S-Function"
-	  Ports			  [9, 15]
-	  Position		  [330, 283, 420, 657]
-	  FunctionName		  "walkgen_sfun"
-	  Port {
-	    PortNumber		    1
-	    Name		    "com"
-	    RTWStorageClass	    "Auto"
-	    DataLoggingNameMode	    "SignalName"
-	  }
-	  Port {
-	    PortNumber		    2
-	    Name		    "dcom"
-	    RTWStorageClass	    "Auto"
-	    DataLoggingNameMode	    "SignalName"
-	  }
-	  Port {
-	    PortNumber		    3
-	    Name		    "ddcom"
-	    RTWStorageClass	    "Auto"
-	    DataLoggingNameMode	    "SignalName"
-	  }
-	  Port {
-	    PortNumber		    5
-	    Name		    "p_left"
-	    RTWStorageClass	    "Auto"
-	    DataLoggingNameMode	    "SignalName"
-	  }
-	  Port {
-	    PortNumber		    6
-	    Name		    "dp_left"
-	    RTWStorageClass	    "Auto"
-	    DataLoggingNameMode	    "SignalName"
-	  }
-	  Port {
-	    PortNumber		    7
-	    Name		    "ddp_left"
-	    RTWStorageClass	    "Auto"
-	    DataLoggingNameMode	    "SignalName"
-	  }
-	  Port {
-	    PortNumber		    8
-	    Name		    "p_right"
-	    RTWStorageClass	    "Auto"
-	    DataLoggingNameMode	    "SignalName"
-	  }
-	  Port {
-	    PortNumber		    9
-	    Name		    "dp_right"
-	    RTWStorageClass	    "Auto"
-	    DataLoggingNameMode	    "SignalName"
-	  }
-	  Port {
-	    PortNumber		    10
-	    Name		    "ddp_right"
-	    RTWStorageClass	    "Auto"
-	    DataLoggingNameMode	    "SignalName"
-	  }
-	}
-	Block {
-	  BlockType		  Scope
-	  Name			  "Scope"
-	  Ports			  [1]
-	  Position		  [660, 279, 690, 311]
-	  Floating		  off
-	  Location		  [79, 40, 1595, 891]
-	  Open			  off
-	  NumInputPorts		  "1"
-	  List {
-	    ListType		    AxesTitles
-	    axes1		    "%<SignalLabel>"
-	  }
-	  TimeRange		  "0.007766893178016154"
-	  YMin			  "0.05"
-	  YMax			  "0.95"
-	  DataFormat		  "StructureWithTime"
-	  SampleTime		  "0"
-	}
-	Block {
-	  BlockType		  Scope
-	  Name			  "Scope1"
-	  Ports			  [1]
-	  Position		  [660, 329, 690, 361]
-	  Floating		  off
-	  Location		  [79, 40, 1595, 894]
-	  Open			  off
-	  NumInputPorts		  "1"
-	  List {
-	    ListType		    AxesTitles
-	    axes1		    "%<SignalLabel>"
-	  }
-	  SaveName		  "ScopeData1"
-	  DataFormat		  "StructureWithTime"
-	  SampleTime		  "0"
-	}
-	Block {
-	  BlockType		  Scope
-	  Name			  "Scope2"
-	  Ports			  [1]
-	  Position		  [660, 454, 690, 486]
-	  Floating		  off
-	  Location		  [79, 40, 1595, 894]
-	  Open			  off
-	  NumInputPorts		  "1"
-	  List {
-	    ListType		    AxesTitles
-	    axes1		    "%<SignalLabel>"
-	  }
-	  SaveName		  "ScopeData2"
-	  DataFormat		  "StructureWithTime"
-	  SampleTime		  "0"
-	}
-	Block {
-	  BlockType		  Scope
-	  Name			  "Scope3"
-	  Ports			  [1]
-	  Position		  [660, 379, 690, 411]
-	  Floating		  off
-	  Location		  [79, 40, 1595, 894]
-	  Open			  off
-	  NumInputPorts		  "1"
-	  List {
-	    ListType		    AxesTitles
-	    axes1		    "%<SignalLabel>"
-	  }
-	  SaveName		  "ScopeData3"
-	  DataFormat		  "StructureWithTime"
-	  SampleTime		  "0"
-	}
-	Block {
 	  BlockType		  Sum
-	  Name			  "Sum"
+	  Name			  "Sum1"
 	  Ports			  [2, 1]
-	  Position		  [245, 175, 265, 195]
+	  Position		  [225, 145, 245, 165]
 	  ShowName		  off
 	  IconShape		  "round"
 	  Inputs		  "|++"
@@ -1030,8 +1676,8 @@ Model {
 	}
 	Block {
 	  BlockType		  Switch
-	  Name			  "Switch"
-	  Position		  [200, 200, 230, 230]
+	  Name			  "Switch2"
+	  Position		  [180, 165, 210, 195]
 	  Threshold		  "0.5"
 	  InputSameDT		  off
 	  OutDataType		  "sfix(16)"
@@ -1040,8 +1686,8 @@ Model {
 	}
 	Block {
 	  BlockType		  Switch
-	  Name			  "Switch1"
-	  Position		  [190, 120, 220, 150]
+	  Name			  "Switch3"
+	  Position		  [170, 85, 200, 115]
 	  Threshold		  "0.5"
 	  InputSameDT		  off
 	  OutDataType		  "sfix(16)"
@@ -1050,58 +1696,8 @@ Model {
 	}
 	Block {
 	  BlockType		  ToWorkspace
-	  Name			  "To Workspace"
-	  Position		  [540, 310, 590, 330]
-	  ShowName		  off
-	  VariableName		  "com"
-	  MaxDataPoints		  "inf"
-	  SampleTime		  "-1"
-	  SaveFormat		  "Structure With Time"
-	}
-	Block {
-	  BlockType		  ToWorkspace
-	  Name			  "To Workspace1"
-	  Position		  [540, 360, 590, 380]
-	  ShowName		  off
-	  VariableName		  "cop"
-	  MaxDataPoints		  "inf"
-	  SampleTime		  "-1"
-	  SaveFormat		  "Structure With Time"
-	}
-	Block {
-	  BlockType		  ToWorkspace
-	  Name			  "To Workspace2"
-	  Position		  [540, 410, 590, 430]
-	  ShowName		  off
-	  VariableName		  "left_foot"
-	  MaxDataPoints		  "inf"
-	  SampleTime		  "-1"
-	  SaveFormat		  "Structure With Time"
-	}
-	Block {
-	  BlockType		  ToWorkspace
-	  Name			  "To Workspace3"
-	  Position		  [540, 485, 590, 505]
-	  ShowName		  off
-	  VariableName		  "right_foot"
-	  MaxDataPoints		  "inf"
-	  SampleTime		  "-1"
-	  SaveFormat		  "Structure With Time"
-	}
-	Block {
-	  BlockType		  ToWorkspace
-	  Name			  "To Workspace4"
-	  Position		  [540, 535, 615, 555]
-	  ShowName		  off
-	  VariableName		  "next_foot"
-	  MaxDataPoints		  "inf"
-	  SampleTime		  "-1"
-	  SaveFormat		  "Structure With Time"
-	}
-	Block {
-	  BlockType		  ToWorkspace
-	  Name			  "To Workspace5"
-	  Position		  [540, 560, 615, 580]
+	  Name			  "To Workspace10"
+	  Position		  [605, 560, 680, 580]
 	  ShowName		  off
 	  VariableName		  "com_prw"
 	  MaxDataPoints		  "inf"
@@ -1110,8 +1706,8 @@ Model {
 	}
 	Block {
 	  BlockType		  ToWorkspace
-	  Name			  "To Workspace6"
-	  Position		  [540, 585, 615, 605]
+	  Name			  "To Workspace11"
+	  Position		  [605, 585, 680, 605]
 	  ShowName		  off
 	  VariableName		  "cop_prw"
 	  MaxDataPoints		  "inf"
@@ -1120,8 +1716,8 @@ Model {
 	}
 	Block {
 	  BlockType		  ToWorkspace
-	  Name			  "To Workspace7"
-	  Position		  [540, 610, 615, 630]
+	  Name			  "To Workspace12"
+	  Position		  [605, 610, 680, 630]
 	  ShowName		  off
 	  VariableName		  "support"
 	  MaxDataPoints		  "inf"
@@ -1130,8 +1726,8 @@ Model {
 	}
 	Block {
 	  BlockType		  ToWorkspace
-	  Name			  "To Workspace8"
-	  Position		  [540, 635, 615, 655]
+	  Name			  "To Workspace13"
+	  Position		  [605, 635, 680, 655]
 	  ShowName		  off
 	  VariableName		  "resolution_data"
 	  MaxDataPoints		  "inf"
@@ -1139,9 +1735,59 @@ Model {
 	  SaveFormat		  "Structure With Time"
 	}
 	Block {
+	  BlockType		  ToWorkspace
+	  Name			  "To Workspace14"
+	  Position		  [600, 185, 650, 205]
+	  ShowName		  off
+	  VariableName		  "com"
+	  MaxDataPoints		  "inf"
+	  SampleTime		  "-1"
+	  SaveFormat		  "Structure With Time"
+	}
+	Block {
+	  BlockType		  ToWorkspace
+	  Name			  "To Workspace15"
+	  Position		  [600, 215, 650, 235]
+	  ShowName		  off
+	  VariableName		  "cop"
+	  MaxDataPoints		  "inf"
+	  SampleTime		  "-1"
+	  SaveFormat		  "Structure With Time"
+	}
+	Block {
+	  BlockType		  ToWorkspace
+	  Name			  "To Workspace16"
+	  Position		  [600, 245, 650, 265]
+	  ShowName		  off
+	  VariableName		  "left_foot"
+	  MaxDataPoints		  "inf"
+	  SampleTime		  "-1"
+	  SaveFormat		  "Structure With Time"
+	}
+	Block {
+	  BlockType		  ToWorkspace
+	  Name			  "To Workspace17"
+	  Position		  [600, 275, 650, 295]
+	  ShowName		  off
+	  VariableName		  "right_foot"
+	  MaxDataPoints		  "inf"
+	  SampleTime		  "-1"
+	  SaveFormat		  "Structure With Time"
+	}
+	Block {
+	  BlockType		  ToWorkspace
+	  Name			  "To Workspace9"
+	  Position		  [605, 535, 680, 555]
+	  ShowName		  off
+	  VariableName		  "next_foot"
+	  MaxDataPoints		  "inf"
+	  SampleTime		  "-1"
+	  SaveFormat		  "Structure With Time"
+	}
+	Block {
 	  BlockType		  Constant
-	  Name			  "closed_loop"
-	  Position		  [235, 580, 255, 600]
+	  Name			  "closed_loop1"
+	  Position		  [120, 670, 140, 690]
 	  ShowName		  off
 	  Value			  "0"
 	  OutDataType		  "sfix(16)"
@@ -1155,8 +1801,8 @@ Model {
 	}
 	Block {
 	  BlockType		  Constant
-	  Name			  "cop_real"
-	  Position		  [195, 619, 255, 641]
+	  Name			  "cop_real1"
+	  Position		  [130, 332, 185, 348]
 	  ShowName		  off
 	  Value			  "[0,0]"
 	  OutDataType		  "sfix(16)"
@@ -1169,295 +1815,236 @@ Model {
 	  }
 	}
 	Line {
-	  Name			  "com"
+	  Name			  "state"
 	  Labels		  [0, 0]
-	  SrcBlock		  "S-Function"
+	  SrcBlock		  "Bus\nCreator3"
 	  SrcPort		  1
-	  Points		  [35, 0]
-	  Branch {
-	    DstBlock		    "Scope"
-	    DstPort		    1
-	  }
-	  Branch {
-	    Points		    [0, 15]
-	    DstBlock		    "Bus\nCreator"
-	    DstPort		    1
-	  }
-	}
-	Line {
-	  SrcBlock		  "S-Function"
-	  SrcPort		  4
-	  Points		  [45, 0]
-	  Branch {
-	    DstBlock		    "To Workspace1"
-	    DstPort		    1
-	  }
-	  Branch {
-	    Points		    [0, -25]
-	    DstBlock		    "Scope1"
-	    DstPort		    1
-	  }
-	}
-	Line {
-	  SrcBlock		  "Bus\nCreator2"
-	  SrcPort		  1
-	  DstBlock		  "To Workspace3"
-	  DstPort		  1
-	}
-	Line {
-	  Name			  "dp_right"
-	  Labels		  [0, 0]
-	  SrcBlock		  "S-Function"
-	  SrcPort		  9
-	  DstBlock		  "Bus\nCreator2"
+	  DstBlock		  "Atomic Walkgen"
 	  DstPort		  2
 	}
 	Line {
-	  SrcBlock		  "Bus\nCreator"
+	  Name			  "init"
+	  Labels		  [0, 0]
+	  SrcBlock		  "Bus\nCreator4"
 	  SrcPort		  1
-	  DstBlock		  "To Workspace"
-	  DstPort		  1
-	}
-	Line {
-	  Name			  "dcom"
-	  Labels		  [0, 0]
-	  SrcBlock		  "S-Function"
-	  SrcPort		  2
-	  DstBlock		  "Bus\nCreator"
-	  DstPort		  2
-	}
-	Line {
-	  Name			  "ddcom"
-	  Labels		  [0, 0]
-	  SrcBlock		  "S-Function"
-	  SrcPort		  3
-	  Points		  [35, 0; 0, -15]
-	  DstBlock		  "Bus\nCreator"
+	  DstBlock		  "Atomic Walkgen"
 	  DstPort		  3
-	}
-	Line {
-	  SrcBlock		  "Bus\nCreator1"
-	  SrcPort		  1
-	  DstBlock		  "To Workspace2"
-	  DstPort		  1
-	}
-	Line {
-	  Name			  "com"
-	  Labels		  [0, 0]
-	  SrcBlock		  "Constant5"
-	  SrcPort		  1
-	  DstBlock		  "S-Function"
-	  DstPort		  2
 	}
 	Line {
 	  Name			  "left_ankle"
 	  Labels		  [0, 0]
-	  SrcBlock		  "Constant1"
+	  SrcBlock		  "Constant17"
 	  SrcPort		  1
-	  DstBlock		  "S-Function"
-	  DstPort		  3
+	  Points		  [80, 0]
+	  DstBlock		  "Bus\nCreator4"
+	  DstPort		  1
 	}
 	Line {
 	  Name			  "right_ankle"
 	  Labels		  [0, 0]
-	  SrcBlock		  "Constant3"
+	  SrcBlock		  "Constant18"
 	  SrcPort		  1
-	  DstBlock		  "S-Function"
-	  DstPort		  4
+	  Points		  [60, 0; 0, 20]
+	  DstBlock		  "Bus\nCreator4"
+	  DstPort		  2
 	}
 	Line {
 	  Name			  "left_yaw"
 	  Labels		  [0, 0]
-	  SrcBlock		  "Constant4"
+	  SrcBlock		  "Constant19"
 	  SrcPort		  1
-	  DstBlock		  "S-Function"
-	  DstPort		  5
+	  DstBlock		  "Bus\nCreator4"
+	  DstPort		  3
 	}
 	Line {
 	  Name			  "right_yaw"
 	  Labels		  [0, 0]
-	  SrcBlock		  "Constant6"
+	  SrcBlock		  "Constant20"
 	  SrcPort		  1
-	  DstBlock		  "S-Function"
-	  DstPort		  6
+	  Points		  [60, 0; 0, -20]
+	  DstBlock		  "Bus\nCreator4"
+	  DstPort		  4
 	}
 	Line {
 	  Name			  "foot_geometry"
 	  Labels		  [0, 0]
-	  SrcBlock		  "Constant7"
+	  SrcBlock		  "Constant21"
 	  SrcPort		  1
-	  DstBlock		  "S-Function"
-	  DstPort		  7
+	  Points		  [80, 0]
+	  DstBlock		  "Bus\nCreator4"
+	  DstPort		  5
 	}
 	Line {
-	  SrcBlock		  "S-Function"
-	  SrcPort		  11
-	  DstBlock		  "To Workspace4"
-	  DstPort		  1
-	}
-	Line {
-	  Name			  "ddp_right"
+	  Name			  "com"
 	  Labels		  [0, 0]
-	  SrcBlock		  "S-Function"
-	  SrcPort		  10
-	  Points		  [35, 0; 0, -15]
-	  DstBlock		  "Bus\nCreator2"
-	  DstPort		  3
-	}
-	Line {
-	  Name			  "p_right"
-	  Labels		  [0, 0]
-	  SrcBlock		  "S-Function"
-	  SrcPort		  8
-	  Points		  [35, 0]
-	  Branch {
-	    Points		    [0, 15]
-	    DstBlock		    "Bus\nCreator2"
-	    DstPort		    1
-	  }
-	  Branch {
-	    DstBlock		    "Scope2"
-	    DstPort		    1
-	  }
-	}
-	Line {
-	  Name			  "p_left"
-	  Labels		  [0, 0]
-	  SrcBlock		  "S-Function"
-	  SrcPort		  5
-	  Points		  [35, 0]
-	  Branch {
-	    DstBlock		    "Scope3"
-	    DstPort		    1
-	  }
-	  Branch {
-	    Points		    [0, 15]
-	    DstBlock		    "Bus\nCreator1"
-	    DstPort		    1
-	  }
-	}
-	Line {
-	  Name			  "dp_left"
-	  Labels		  [0, 0]
-	  SrcBlock		  "S-Function"
-	  SrcPort		  6
-	  DstBlock		  "Bus\nCreator1"
-	  DstPort		  2
-	}
-	Line {
-	  Name			  "ddp_left"
-	  Labels		  [0, 0]
-	  SrcBlock		  "S-Function"
-	  SrcPort		  7
-	  Points		  [40, 0; 0, -15]
-	  DstBlock		  "Bus\nCreator1"
-	  DstPort		  3
-	}
-	Line {
-	  SrcBlock		  "S-Function"
-	  SrcPort		  12
-	  DstBlock		  "To Workspace5"
-	  DstPort		  1
-	}
-	Line {
-	  Name			  "closed_loop"
-	  Labels		  [0, 0]
-	  SrcBlock		  "closed_loop"
+	  SrcBlock		  "Constant11"
 	  SrcPort		  1
-	  DstBlock		  "S-Function"
-	  DstPort		  8
+	  DstBlock		  "Bus\nCreator3"
+	  DstPort		  1
 	}
 	Line {
 	  Name			  "cop"
 	  Labels		  [0, 0]
-	  SrcBlock		  "cop_real"
+	  SrcBlock		  "cop_real1"
 	  SrcPort		  1
-	  DstBlock		  "S-Function"
-	  DstPort		  9
+	  DstBlock		  "Bus\nCreator3"
+	  DstPort		  2
 	}
 	Line {
-	  SrcBlock		  "S-Function"
-	  SrcPort		  13
-	  DstBlock		  "To Workspace6"
-	  DstPort		  1
-	}
-	Line {
-	  SrcBlock		  "S-Function"
-	  SrcPort		  14
-	  DstBlock		  "To Workspace7"
-	  DstPort		  1
-	}
-	Line {
-	  SrcBlock		  "S-Function"
-	  SrcPort		  15
-	  DstBlock		  "To Workspace8"
-	  DstPort		  1
+	  Name			  "closed_loop"
+	  Labels		  [0, 0]
+	  SrcBlock		  "closed_loop1"
+	  SrcPort		  1
+	  DstBlock		  "Atomic Walkgen"
+	  DstPort		  4
 	}
 	Line {
 	  Name			  "vel_ref"
 	  Labels		  [0, 0]
-	  SrcBlock		  "Sum"
+	  SrcBlock		  "Sum1"
 	  SrcPort		  1
-	  Points		  [0, 125]
-	  DstBlock		  "S-Function"
+	  DstBlock		  "Atomic Walkgen"
 	  DstPort		  1
 	}
 	Line {
-	  SrcBlock		  "Constant8"
+	  SrcBlock		  "Constant14"
 	  SrcPort		  1
 	  Points		  [0, 10]
-	  DstBlock		  "Switch"
+	  DstBlock		  "Switch2"
 	  DstPort		  1
 	}
 	Line {
 	  Name			  "vel_ref"
 	  Labels		  [0, 0]
-	  SrcBlock		  "Constant2"
+	  SrcBlock		  "Constant13"
 	  SrcPort		  1
 	  Points		  [0, -15]
-	  DstBlock		  "Switch"
+	  DstBlock		  "Switch2"
 	  DstPort		  3
 	}
 	Line {
-	  SrcBlock		  "Activate"
+	  SrcBlock		  "Activate2"
 	  SrcPort		  1
-	  DstBlock		  "Switch"
+	  DstBlock		  "Switch2"
 	  DstPort		  2
 	}
 	Line {
-	  SrcBlock		  "Switch"
+	  SrcBlock		  "Switch2"
 	  SrcPort		  1
-	  Points		  [20, 0]
-	  DstBlock		  "Sum"
+	  DstBlock		  "Sum1"
 	  DstPort		  2
 	}
 	Line {
-	  SrcBlock		  "Constant10"
+	  SrcBlock		  "Constant12"
 	  SrcPort		  1
 	  Points		  [0, 10]
-	  DstBlock		  "Switch1"
+	  DstBlock		  "Switch3"
 	  DstPort		  1
 	}
 	Line {
 	  Name			  "vel_ref"
 	  Labels		  [0, 0]
-	  SrcBlock		  "Constant9"
+	  SrcBlock		  "Constant15"
 	  SrcPort		  1
 	  Points		  [0, -15]
-	  DstBlock		  "Switch1"
+	  DstBlock		  "Switch3"
 	  DstPort		  3
 	}
 	Line {
-	  SrcBlock		  "Activate1"
+	  SrcBlock		  "Activate3"
 	  SrcPort		  1
-	  DstBlock		  "Switch1"
+	  DstBlock		  "Switch3"
 	  DstPort		  2
 	}
 	Line {
-	  SrcBlock		  "Switch1"
+	  SrcBlock		  "Switch3"
 	  SrcPort		  1
-	  Points		  [0, 50]
-	  DstBlock		  "Sum"
+	  Points		  [0, 55]
+	  DstBlock		  "Sum1"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Atomic Walkgen"
+	  SrcPort		  2
+	  DstBlock		  "Bus\nSelector"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "<next_foot>"
+	  Labels		  [0, 0]
+	  SrcBlock		  "Bus\nSelector"
+	  SrcPort		  1
+	  DstBlock		  "To Workspace9"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "<com_prw>"
+	  Labels		  [0, 0]
+	  SrcBlock		  "Bus\nSelector"
+	  SrcPort		  2
+	  DstBlock		  "To Workspace10"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "<cop_prw>"
+	  Labels		  [0, 0]
+	  SrcBlock		  "Bus\nSelector"
+	  SrcPort		  3
+	  DstBlock		  "To Workspace11"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "<support>"
+	  Labels		  [0, 0]
+	  SrcBlock		  "Bus\nSelector"
+	  SrcPort		  4
+	  DstBlock		  "To Workspace12"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "<resolution_data>"
+	  Labels		  [0, 0]
+	  SrcBlock		  "Bus\nSelector"
+	  SrcPort		  5
+	  DstBlock		  "To Workspace13"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Atomic Walkgen"
+	  SrcPort		  1
+	  DstBlock		  "Bus\nSelector1"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "<com>"
+	  Labels		  [0, 0]
+	  SrcBlock		  "Bus\nSelector1"
+	  SrcPort		  1
+	  DstBlock		  "To Workspace14"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "<cop>"
+	  Labels		  [0, 0]
+	  SrcBlock		  "Bus\nSelector1"
+	  SrcPort		  2
+	  DstBlock		  "To Workspace15"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "<left_foot>"
+	  Labels		  [0, 0]
+	  SrcBlock		  "Bus\nSelector1"
+	  SrcPort		  3
+	  DstBlock		  "To Workspace16"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "<right_foot>"
+	  Labels		  [0, 0]
+	  SrcBlock		  "Bus\nSelector1"
+	  SrcPort		  4
+	  DstBlock		  "To Workspace17"
 	  DstPort		  1
 	}
       }
