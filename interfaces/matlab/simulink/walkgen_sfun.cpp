@@ -9,6 +9,9 @@ extern "C" {
 
 #include "simstruc.h"
 
+//#include <iostream>
+//#include "mex.h"
+
 using namespace Eigen;
 using namespace MPCWalkgen;
 using namespace std;
@@ -144,6 +147,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
   real_T *cop_prw        = ssGetOutputPortRealSignal(S, 12);
   real_T *support        = ssGetOutputPortRealSignal(S, 13);
   real_T *analysis       = ssGetOutputPortRealSignal(S, 14);
+
   
   const int num_samples_horizon      = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 0)));
   const int num_samples_step         = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 1)));
