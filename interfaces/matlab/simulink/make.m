@@ -26,7 +26,7 @@ IFLAGS  = ['-I. -I', MPC_WALKGEN_PATH, 'include',' -I',EIGEN_PATH,' -I',QPOASES_
 if (ispc == 0)
     %CPPFLAGS  = [ IFLAGS, '-D__cpluplus -D__MATLAB__ -O -DLINUX', ' ' ]; %% -D__NO_COPYRIGHT__ -D__SUPPRESSANYOUTPUT__
 else
-     CPPFLAGS  = [IFLAGS, '-v', ' -DWIN32',' -D__NO_COPYRIGHT__',' -D__SUPPRESSANYOUTPUT__', ' ' ]; %% -D__NO_COPYRIGHT__ -D__SUPPRESSANYOUTPUT__
+     CPPFLAGS  = [IFLAGS, '-v', ' -D__WIN32__',' -D__NO_COPYRIGHT__',' -D__SUPPRESSANYOUTPUT__', ' ' ]; %% -D__NO_COPYRIGHT__ -D__SUPPRESSANYOUTPUT__
     %CPPFLAGS = [IFLAGS, ' -pedantic', ' -Wshadow', ' -O3', ' -finline-functions', ' -DLINUX', ' -D__NO_COPYRIGHT__'];
     %CPPFLAGS  = [IFLAGS, ' ' ];
      
