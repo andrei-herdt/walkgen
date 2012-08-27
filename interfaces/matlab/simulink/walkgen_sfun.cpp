@@ -9,9 +9,6 @@ extern "C" {
 
 #include "simstruc.h"
 
-//#include <iostream>
-//#include "mex.h"
-
 using namespace Eigen;
 using namespace MPCWalkgen;
 using namespace std;
@@ -76,11 +73,11 @@ static void mdlInitializeSizes(SimStruct *S)
   ssSetOutputPortWidth(S, 12, 3 * nbsamples);//cop_prw (sample_instants, x, y)
 
   ssSetOutputPortWidth(S, 13, 1);//support
-  ssSetOutputPortWidth(S, 14, 2);//analysis
+  ssSetOutputPortWidth(S, 14, 3);//analysis
 
   ssSetNumSampleTimes(S, 1);
   // Reserve place for C++ object
-  ssSetNumPWork(S, 2);
+  ssSetNumPWork(S, 1);
   ssSetNumIWork(S, 1);
 
   //    ssSetOptions(S,
@@ -110,8 +107,8 @@ static void mdlInitializeSampleTimes(SimStruct *S)
 #define MDL_START
 static void mdlStart(SimStruct *S)//TODO: mdlInitializeConditions if subsystem enabled
 {
-
   WalkgenAbstract *walk = createWalkgen();
+  walk->timer().GetFrequency(1.0);
   ssSetPWorkValue(S, 0, (void*)walk);
   ssSetIWorkValue(S, 0, 0);//MPCWalkgen not initialized
 
@@ -148,10 +145,10 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
   real_T *support        = ssGetOutputPortRealSignal(S, 13);
   real_T *analysis       = ssGetOutputPortRealSignal(S, 14);
   
-  const int num_samples_horizon            = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 0)));
-  const int num_samples_step               = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 1)));
-  const int num_samples_dsss               = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 2)));
-  const int num_steps_ssds                 = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 3)));
+  const int num_samples_horizon      = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 0)));
+  const int num_samples_step         = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 1)));
+  const int num_samples_dsss         = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 2)));
+  const int num_steps_ssds           = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 3)));
   const double sample_period_qp      = *mxGetPr(ssGetSFcnParam(S, 4));
   const double sample_period_first   = *mxGetPr(ssGetSFcnParam(S, 5));
   const double sample_period_act     = *mxGetPr(ssGetSFcnParam(S, 6));
@@ -184,13 +181,13 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
     HipYawData rightHipYaw = leftHipYaw;
 
     MPCData mpc_data;
-    mpc_data.nbsamples_qp       = num_samples_horizon;//12;
-    mpc_data.nbqpsamples_step   = num_samples_step;//8;
-    mpc_data.nbqpsamples_dsss   = num_samples_dsss;//8;
-    mpc_data.nbsteps_ssds       = num_steps_ssds;//2;
-    mpc_data.period_qpsample    = sample_period_qp;//0.1;
-    mpc_data.period_mpcsample   = sample_period_first;//0.001;
-    mpc_data.period_actsample   = sample_period_act;//0.001;
+    mpc_data.nbsamples_qp       = num_samples_horizon;
+    mpc_data.nbqpsamples_step   = num_samples_step;
+    mpc_data.nbqpsamples_dsss   = num_samples_dsss;
+    mpc_data.nbsteps_ssds       = num_steps_ssds;
+    mpc_data.period_qpsample    = sample_period_qp;
+    mpc_data.period_mpcsample   = sample_period_first;
+    mpc_data.period_actsample   = sample_period_act;
     mpc_data.ponderation.JerkMin[0] = 0.00001;
     mpc_data.ponderation.JerkMin[1] = 0.00001;
     mpc_data.warmstart = true;
@@ -275,8 +272,10 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
   // ---------------
   double time = ssGetT(S);
   MPCSolution solution;
+  walk->timer().StartCounting();
   solution = walk->online(time);
-
+  walk->timer().StopCounting();
+  
   // Assign to the output:
   // ---------------------
   com[0] = walk->output().com.x;
@@ -355,6 +354,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
   // Analysis
   analysis[0] = solution.analysis.resolution_time;
   analysis[1] = solution.analysis.num_iterations;
+  analysis[2] = walk->timer().GetTime();//
 
 
 }

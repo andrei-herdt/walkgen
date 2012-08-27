@@ -13,6 +13,7 @@
 
 #include <mpc-walkgen/walkgen-abstract.h>
 #include <mpc-walkgen/types.h>
+#include <mpc-walkgen/mpc-debug.h>
 
 namespace MPCWalkgen{
 
@@ -22,6 +23,7 @@ namespace MPCWalkgen{
   class QPPreview;
   class RigidBodySystem;
   class OrientationsPreview;
+  class MPCDebug;
 
   class Walkgen :
     public WalkgenAbstract
@@ -56,8 +58,10 @@ namespace MPCWalkgen{
     virtual RigidBodySystem *robot() { return robot_; };
 
     virtual const QPSolver *solver() const { return solver_; };
-    // \}
 
+    virtual MPCDebug &timer() {return timer_;};
+    // \}
+  
   private:
     void BuildProblem();
     void GenerateTrajectories();
@@ -104,6 +108,8 @@ namespace MPCWalkgen{
     /// \brief Synchronised time with QP sampling
     double currentTime_;
     double currentRealTime_;
+
+    MPCDebug timer_;
 
   };
 }

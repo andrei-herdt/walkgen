@@ -42,9 +42,9 @@ MPC_WALKGEN_OBJECTS = \
 	orientations-preview.${OBJEXT} \
 	lssol-parser.${OBJEXT} \
 	interpolation.${OBJEXT} \
-	gettimeofday.${OBJEXT} \
 	foot-body.${OBJEXT} \
-	com-body.${OBJEXT}
+	com-body.${OBJEXT} \
+	mpc-debug.${OBJEXT} \
 	
 QPOASES_OBJECTS = \
 	${SRC_QPOASES}/SQProblem.${OBJEXT} \
@@ -59,7 +59,6 @@ QPOASES_OBJECTS = \
 	${SRC_QPOASES}/Matrices.${OBJEXT} \
 	${SRC_QPOASES}/MessageHandling.${OBJEXT}
 	
-## mpc-debug.${OBJEXT} \
 
 all: lib-mpc-walkgen.${LIBEXT}
 
@@ -95,7 +94,8 @@ walkgen.${OBJEXT}:  walkgen.cpp \
 	${IDIR}/mpc-walkgen/interpolation.h \
 	${IDIR}/mpc-walkgen/tools.h \
 	${IDIR}/mpc-walkgen/tools-inl.h  \
-	${IDIR}/mpc-walkgen/rigid-body-system-inl.h 
+	${IDIR}/mpc-walkgen/rigid-body-system-inl.h \
+	${IDIR}/mpc-walkgen/mpc-debug.h 
 	@echo "Creating"  $@
 	${CPP} ${DEF_TARGET} -c ${IFLAGS} ${CPPFLAGS} walkgen.cpp
 
@@ -290,7 +290,12 @@ com-body.${OBJEXT}: com-body.cpp \
 	${IDIR}/mpc-walkgen/tools-inl.h  
 	@echo "Creating"  $@
 	${CPP} ${DEF_TARGET} -c ${IFLAGS} ${CPPFLAGS} com-body.cpp
-	
+
+mpc-debug.${OBJEXT}: mpc-debug.cpp \
+	${IDIR}/mpc-walkgen/mpc-debug.h 
+	@echo "Creating"  $@
+	${CPP} ${DEF_TARGET} -c ${IFLAGS} ${CPPFLAGS} mpc-debug.cpp
+
 clean:
 	${RM} -f *.${OBJEXT} *.${LIBEXT}
 

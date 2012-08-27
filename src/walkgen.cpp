@@ -6,7 +6,7 @@
 #include <mpc-walkgen/qp-preview.h>
 #include <mpc-walkgen/rigid-body-system.h>
 #include <mpc-walkgen/interpolation.h>
-//#include <mpc-walkgen/mpc-debug.h>
+#include <mpc-walkgen/mpc-debug.h>
  
 #include <iostream>
 //  #include <windows.h> 

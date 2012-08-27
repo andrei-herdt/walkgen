@@ -1,9 +1,21 @@
 #include <mpc-walkgen/mpc-debug.h>
-#include <mpc-walkgen/gettimeofday.h>
 
-#ifdef WIN32
+#ifdef __WIN32__
 # include <Windows.h>
-#endif // WIN32
+#elif defined __LINUX__
+#include <stdint.h>
+#include <unistd.h>
+#define UINT64 uint64_t
+#elif defined __VXWORKS__
+#include <vxWorks.h>
+#include <taskLib.h>
+#include <sysLib.h>
+#include <sched.h>
+#include <math.h>
+#include <stdint.h>
+#include <unistd.h>
+#define UINT64 uint64_t
+#endif // __WIN32__
 
 using namespace MPCWalkgen;
 
@@ -14,94 +26,48 @@ MPCDebug::MPCDebug(bool enable)
 
 MPCDebug::~MPCDebug(){}
 
-/*
-void MPCDebug::GetFrequency() {
+void MPCDebug::GetFrequency(double seconds) {
+#ifdef __WIN32__
   QueryPerformanceFrequency((LARGE_INTEGER*)&frequency_);
+#elif (defined __LINUX__ || defined __VXWORKS__) 
+  unsigned long long first_counter_ = __rdtsc();
+#ifdef __VXWORKS__
+ taskDelay(static_cast<int>(seconds * sysClkRateGet()));
+#elif __LINUX__
+  usleep(100);
+#endif
+  frequency_ = ( __rdtsc() - first_counter_ ) / seconds;
+  first_counter_ = __rdtsc();
+#endif
 }
 
 void MPCDebug::StartCounting() {
+#ifdef __WIN32__
   QueryPerformanceCounter((LARGE_INTEGER*)&first_counter_);
+#elif (defined __LINUX__ || defined __VXWORKS__) 
+  first_counter_ = __rdtsc();
+#endif
 }
 
 void MPCDebug::StopCounting() {
+#ifdef __WIN32__
   QueryPerformanceCounter((LARGE_INTEGER*)&last_counter_);
+#elif (defined __LINUX__ || defined __VXWORKS__) 
+  last_counter_ = __rdtsc();
+#endif
 }
 
 double MPCDebug::GetTime() {
-  return (((double)(last_counter_ - first_counter_)) / ((double)frequency_)); 
-}
-*/
-void MPCDebug::getTime(int id, bool start){
-  if (enable_){
-    struct timeval t;
-    gettimeofday(&t,0);
-    double time=t.tv_sec + 0.000001*t.tv_usec;
-    if (nbCount_.count(id)==0){
-      nbCount_[id]=0;
-      startTime_[id]=0;
-      endTime_[id]=0;
-    }
-    if (start){
-      startTime_[id]=startTime_[id]+time;
-    }else{
-      endTime_[id]=endTime_[id]+time;
-      nbCount_[id]=nbCount_[id]+1;
-    }
-  }
+  return( static_cast<double>(last_counter_ - first_counter_) / (static_cast<double>(frequency_)/1000000.0) );
 }
 
-
-double MPCDebug::computeInterval(int id, TimeUnit unit){
-  if (enable_){
-    switch(unit){
-      case us:
-        return 1000000*(endTime_[id]-startTime_[id])/nbCount_[id];
-        break;
-      case ms:
-        return 1000*(endTime_[id]-startTime_[id])/nbCount_[id];
-        break;
-      default:
-        return (endTime_[id]-startTime_[id])/nbCount_[id];
-        break;
-    }
-  }else{
-    return 0;
-  }
+//
+// private:
+//
+#if (defined __LINUX__ || defined __VXWORKS__) 
+unsigned long long  MPCDebug::__rdtsc( void ){
+	unsigned a, d;
+	__asm__ volatile("rdtsc" : "=a" (a), "=d" (d));
+	return ((UINT64)a) | (((UINT64)d) << 32);
 }
-
-int MPCDebug::nbIntervals(int id){
-  if (enable_){
-    if (nbCount_.count(id)==0){
-      nbCount_[id]=0;
-      startTime_[id]=0;
-      endTime_[id]=0;
-    }
-    return nbCount_[id];
-  }else{
-    return 0;
-  }
-}
-
-void MPCDebug::reset(int id){
-  if (enable_){
-    startTime_[id]=0;
-    endTime_[id]=0;
-    nbCount_[id]=0;
-  }
-}
-
-void MPCDebug::reset(){
-  if (enable_){
-    std::map<int,double> ::iterator it;
-    std::map<int,int> ::iterator it2;
-    for(it=startTime_.begin();it!=startTime_.end();++it){
-      (*it).second=0;
-    }
-    for(it=endTime_.begin();it!=endTime_.end();++it){
-      (*it).second=0;
-    }
-    for(it2=nbCount_.begin();it2!=nbCount_.end();++it2){
-      (*it2).second=0;
-    }
-  }
-}
+#endif

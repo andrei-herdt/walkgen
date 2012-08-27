@@ -8,37 +8,37 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <map>
-//#include <windows.h> 
+#ifdef WIN32
+#include <windows.h> 
+#endif
 
 namespace MPCWalkgen{
 
-  enum TimeUnit { us, ms, s };
+  //enum TimeUnit { us, ms, s };
 
-  class MPCDebug {
+class MPCDebug {
 
   public:
     MPCDebug();
     MPCDebug(bool enable);
     ~MPCDebug();
 
-    void getTime(int id, bool start);
-    double computeInterval(int id, TimeUnit unit = us);
-    int nbIntervals(int id);
-
-    //void GetFrequency();
-    //void StartCounting();
-    //void StopCounting();
-    //double GetTime();
-
-    void reset(int id);
-    void reset();
+    void GetFrequency(double seconds);
+    void StartCounting();
+    void StopCounting();
+    double GetTime();
 
   private:
-    std::map<int,double> startTime_;
-    std::map<int,double> endTime_;
-    std::map<int,int> nbCount_;
+#if (defined __LINUX__ || defined __VXWORKS__)
+  unsigned long long  __rdtsc( void );
+#endif
 
-    //LONGLONG frequency_, first_counter_, last_counter_;
+  private:
+#ifdef __WIN32__
+    LONGLONG frequency_, first_counter_, last_counter_;
+#elif (defined __LINUX__ || defined __VXWORKS__) 
+	  unsigned long long first_counter_, last_counter_, frequency_;
+#endif
 
     bool enable_;
 
