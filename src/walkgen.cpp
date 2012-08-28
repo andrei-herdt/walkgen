@@ -6,7 +6,7 @@
 #include <mpc-walkgen/qp-preview.h>
 #include <mpc-walkgen/rigid-body-system.h>
 #include <mpc-walkgen/interpolation.h>
-#include <mpc-walkgen/mpc-debug.h>
+#include <mpc-walkgen/stopwatch.h>
 
 #include <iostream>
 //  #include <windows.h> 
@@ -108,8 +108,8 @@ void Walkgen::Init() {
   generator_= new QPGenerator(preview_, solver_, &velRef_, &ponderation_, robot_, &mpc_parameters_);
 
   int num_max_timers = 20;
-  timer_ = new MPCDebug(num_max_timers);
-  timer_->GetFrequency(10000);
+  watch_ = new StopWatch(num_max_timers);
+  watch_->GetFrequency(10000);
 
   robot_->Init(robotData_, interpolation_);
 
@@ -168,9 +168,8 @@ const MPCSolution &Walkgen::online(){
 const MPCSolution &Walkgen::online(double time){
   currentTime_ = time;
 
-
   if (time  > next_computation_ - EPSILON) {
-    int first_timer = timer_->StartCounting();
+    int first_timer = watch_->StartCounting();
     next_computation_ += mpc_parameters_.period_mpcsample;
     if (time > next_computation_ - EPSILON) {   
       ResetCounters(time);
@@ -182,29 +181,29 @@ const MPCSolution &Walkgen::online(double time){
       }
     }
     ResetOutputIndex();
-    timer_->StopCounting(first_timer);
+    watch_->StopCounting(first_timer);
 
-    int time_build_problem = timer_->StartCounting();
+    int timer_build_problem = watch_->StartCounting();
     BuildProblem();
-    timer_->StopCounting(time_build_problem);
+    watch_->StopCounting(timer_build_problem);
 
-    int time_solve = timer_->StartCounting();
+    int timer_solve = watch_->StartCounting();
     solver_->Solve(solution_, mpc_parameters_.warmstart, mpc_parameters_.solver.analysis);
-    timer_->StopCounting(time_solve);
+    watch_->StopCounting(timer_solve);
 
-    int time_generate_traj = timer_->StartCounting();
+    int timer_generate_traj = watch_->StartCounting();
     GenerateTrajectories();
-    timer_->StopCounting(time_generate_traj);
+    watch_->StopCounting(timer_generate_traj);
   }
 
-  int time_update_output = timer_->StartCounting();
+  int timer_update_output = watch_->StartCounting();
   if (time > next_act_sample_ - EPSILON) {
     next_act_sample_ += mpc_parameters_.period_actsample;
 
     IncrementOutputIndex();
     UpdateOutput();
   }
-  timer_->StopCounting(time_update_output);
+  watch_->StopCounting(timer_update_output);
 
   return solution_;
 }

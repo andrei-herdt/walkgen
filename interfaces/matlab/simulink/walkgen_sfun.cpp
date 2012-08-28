@@ -247,9 +247,9 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
   // ---------------
   double curr_time = ssGetT(S);
   MPCSolution solution;
-  int time_online = walk->timer()->StartCounting();
+  int time_online = walk->watch()->StartCounting();
   solution = walk->online(curr_time);
-  walk->timer()->StopCounting(time_online);
+  walk->watch()->StopCounting(time_online);
   
   // Assign to the output:
   // ---------------------
@@ -331,9 +331,9 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
   // ---------
   analysis[0] = solution.analysis.resolution_time;
   analysis[1] = solution.analysis.num_iterations;
-  int num_counters = walk->timer()->GetNumCounters();
+  int num_counters = walk->watch()->GetNumCounters();
   for (int i = num_counters - 1; i >= 0; i--) {
-	  analysis[i + 2] = walk->timer()->GetLastMeasure();
+	  analysis[i + 2] = walk->watch()->GetLastMeasure();
   }
 
 }
