@@ -7,7 +7,7 @@
 #include <mpc-walkgen/rigid-body-system.h>
 #include <mpc-walkgen/interpolation.h>
 #include <mpc-walkgen/mpc-debug.h>
- 
+
 #include <iostream>
 //  #include <windows.h> 
 #include <Eigen/Dense>
@@ -164,7 +164,9 @@ const MPCSolution &Walkgen::online(){
 const MPCSolution &Walkgen::online(double time){
   currentTime_ = time;
 
+
   if (time  > next_computation_ - EPSILON) {
+    timer_.StartCounting();
     next_computation_ += mpc_parameters_.period_mpcsample;
     if (time > next_computation_ - EPSILON) {   
       ResetCounters(time);
@@ -176,20 +178,29 @@ const MPCSolution &Walkgen::online(double time){
       }
     }
     ResetOutputIndex();
+    timer_.StopCounting();
 
+    timer_.StartCounting();
     BuildProblem();
+    timer_.StopCounting();
 
+    timer_.StartCounting();
     solver_->Solve(solution_, mpc_parameters_.warmstart, mpc_parameters_.solver.analysis);
+    timer_.StopCounting();
 
+    timer_.StartCounting();
     GenerateTrajectories();
+    timer_.StopCounting();
   }
 
+  timer_.StartCounting();
   if (time > next_act_sample_ - EPSILON) {
     next_act_sample_ += mpc_parameters_.period_actsample;
 
     IncrementOutputIndex();
     UpdateOutput();
   }
+  timer_.StopCounting();
 
   return solution_;
 }
@@ -220,9 +231,9 @@ void Walkgen::BuildProblem() {
     velRef_.local.yaw.fill(0);//TODO: Bullshit
   }
   if (fabs(velRef_.local.yaw(0)) < EPSILON && 
-      fabs(velRef_.local.x(0)) < EPSILON && 
-      fabs(velRef_.local.y(0)) < EPSILON) {
-    ponderation_.activePonderation = 1;
+    fabs(velRef_.local.x(0)) < EPSILON && 
+    fabs(velRef_.local.y(0)) < EPSILON) {
+      ponderation_.activePonderation = 1;
   } else {
     ponderation_.activePonderation = 0;
   }

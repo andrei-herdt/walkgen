@@ -1,2 +1,4 @@
 make.m
 sfunction.info
+*.asv
+*.mexw32
