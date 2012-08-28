@@ -107,6 +107,10 @@ void Walkgen::Init() {
 
   generator_= new QPGenerator(preview_, solver_, &velRef_, &ponderation_, robot_, &mpc_parameters_);
 
+  int num_max_timers = 20;
+  timer_ = new MPCDebug(num_max_timers);
+  timer_->GetFrequency(10000);
+
   robot_->Init(robotData_, interpolation_);
 
   solution_.com_act.resize(mpc_parameters_.num_samples_act());
@@ -166,7 +170,7 @@ const MPCSolution &Walkgen::online(double time){
 
 
   if (time  > next_computation_ - EPSILON) {
-    timer_.StartCounting();
+    int first_timer = timer_->StartCounting();
     next_computation_ += mpc_parameters_.period_mpcsample;
     if (time > next_computation_ - EPSILON) {   
       ResetCounters(time);
@@ -178,29 +182,29 @@ const MPCSolution &Walkgen::online(double time){
       }
     }
     ResetOutputIndex();
-    timer_.StopCounting();
+    timer_->StopCounting(first_timer);
 
-    timer_.StartCounting();
+    int time_build_problem = timer_->StartCounting();
     BuildProblem();
-    timer_.StopCounting();
+    timer_->StopCounting(time_build_problem);
 
-    timer_.StartCounting();
+    int time_solve = timer_->StartCounting();
     solver_->Solve(solution_, mpc_parameters_.warmstart, mpc_parameters_.solver.analysis);
-    timer_.StopCounting();
+    timer_->StopCounting(time_solve);
 
-    timer_.StartCounting();
+    int time_generate_traj = timer_->StartCounting();
     GenerateTrajectories();
-    timer_.StopCounting();
+    timer_->StopCounting(time_generate_traj);
   }
 
-  timer_.StartCounting();
+  int time_update_output = timer_->StartCounting();
   if (time > next_act_sample_ - EPSILON) {
     next_act_sample_ += mpc_parameters_.period_actsample;
 
     IncrementOutputIndex();
     UpdateOutput();
   }
-  timer_.StopCounting();
+  timer_->StopCounting(time_update_output);
 
   return solution_;
 }

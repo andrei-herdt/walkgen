@@ -59,7 +59,7 @@ namespace MPCWalkgen{
 
     virtual const QPSolver *solver() const { return solver_; };
 
-    virtual MPCDebug &timer() {return timer_;};
+    virtual MPCDebug *timer() {return timer_;};
     // \}
   
   private:
@@ -82,8 +82,8 @@ namespace MPCWalkgen{
     RigidBodySystem *robot_;
 
     OrientationsPreview *orientPrw_;
-
-    //States com, left_foot, right_foot;//TODO: Where to put this?
+ 
+    MPCDebug *timer_;
 
     // \brief Contains pointers to trajectory values
     // an internal logic set the pointers the currently relevant indeces
@@ -108,9 +108,6 @@ namespace MPCWalkgen{
     /// \brief Synchronised time with QP sampling
     double currentTime_;
     double currentRealTime_;
-
-    MPCDebug timer_;
-
   };
 }
 

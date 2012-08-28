@@ -19,65 +19,92 @@
 
 using namespace MPCWalkgen;
 
-MPCDebug::MPCDebug()
+MPCDebug::MPCDebug(const int num_max_counters):
+curr_counter_index_(0),  
+num_max_counters_(num_max_counters)
 {
-	last_counter_vec_.reserve(20);
-	first_counter_vec_.reserve(20);
+  last_counter_vec_.reserve(num_max_counters);
+  first_counter_vec_.reserve(num_max_counters);
 }
 
 MPCDebug::~MPCDebug(){}
 
-void MPCDebug::GetFrequency(double seconds) {
+void MPCDebug::GetFrequency(unsigned long long mu_seconds) {
 #ifdef __WIN32__
-  QueryPerformanceFrequency((LARGE_INTEGER*)&frequency_);
+  QueryPerformanceFrequency(&frequency_);
 #elif (defined __LINUX__ || defined __VXWORKS__) 
   first_counter_vec_.push_back(__rdtsc());
 #ifdef __VXWORKS__
- taskDelay(static_cast<int>(seconds * sysClkRateGet()));
-#elif __LINUX__
-  usleep(100);
+  double seconds = static_cast<double>(mu_seconds) / 1000000.0;
+  taskDelay(static_cast<int>(seconds * sysClkRateGet()));
 #endif
-  frequency_ = static_cast<double>(__rdtsc() - first_counter_vec_.back()) / seconds;
+  frequency_ = (__rdtsc() - first_counter_vec_.back()) / mu_seconds;
   first_counter_vec_.pop_back();
 #endif
 }
 
-void MPCDebug::StartCounting() {
+int MPCDebug::StartCounting() {
+
+  if (curr_counter_index_ >= num_max_counters_) {
+    return -1;
+  }
+
+  first_counter_vec_.resize(curr_counter_index_ + 1);
+  last_counter_vec_.resize(curr_counter_index_ + 1);
 #ifdef __WIN32__
-	first_counter_vec_.push_back(0);
-  QueryPerformanceCounter((LARGE_INTEGER*)&first_counter_vec_.back());
+  QueryPerformanceCounter(&first_counter_vec_.back());
 #elif (defined __LINUX__ || defined __VXWORKS__) 
   first_counter_vec_.push_back(__rdtsc());
 #endif
+
+  return curr_counter_index_++;
 }
 
-void MPCDebug::StopCounting() {
+void MPCDebug::StopCounting(int counter_index) {
+  if (counter_index > -1 && counter_index <= curr_counter_index_) {
 #ifdef __WIN32__
-	last_counter_vec_.push_back(0);
-  QueryPerformanceCounter((LARGE_INTEGER*)&last_counter_vec_.back());
+    QueryPerformanceCounter(&last_counter_vec_[counter_index]);
 #elif (defined __LINUX__ || defined __VXWORKS__) 
-  last_counter_vec_.push_back(__rdtsc());
+    last_counter_vec_[counter_index] = __rdtsc();
 #endif
+  }
 }
 
-double MPCDebug::GetLastTimeValue() {
-	if (!last_counter_vec_.empty() && !first_counter_vec_.empty()) {
-		return( static_cast<double>(last_counter_vec_.back() - first_counter_vec_.back()) 
-			/ frequency_ * 1000000.0 );
-		last_counter_vec_.pop_back();
-		first_counter_vec_.pop_back();
-	} else {
-		return -1.0;
-	}
+double MPCDebug::GetLastMeasure() {
+  if (!last_counter_vec_.empty() && !first_counter_vec_.empty()) {
+    double start_time = 0.0;
+    double end_time = 0.0;
+#ifdef __WIN32__
+     start_time = first_counter_vec_.back().QuadPart * (1000000.0 / frequency_.QuadPart);
+     end_time = last_counter_vec_.back().QuadPart * (1000000.0 / frequency_.QuadPart);
+#elif (defined __LINUX__ || defined __VXWORKS__) 
+    start_time = static_cast<double>(first_counter_vec_.back()) / static_cast<double>(frequency_);
+    end_time = static_cast<double>(last_counter_vec_.back()) / static_cast<double>(frequency_);
+#endif
+    first_counter_vec_.pop_back();
+    last_counter_vec_.pop_back();
+    --curr_counter_index_;
+
+    return (end_time - start_time);
+  } else {
+    return -2.0;
+  }
 }
+
+void MPCDebug::Reset() {
+  curr_counter_index_ = 0;
+  first_counter_vec_.resize(0);
+  last_counter_vec_.resize(0);
+}
+
 
 //
-// private:
+// Private methods:
 //
 #if (defined __LINUX__ || defined __VXWORKS__) 
 unsigned long long  MPCDebug::__rdtsc( void ){
-	unsigned a, d;
-	__asm__ volatile("rdtsc" : "=a" (a), "=d" (d));
-	return ((UINT64)a) | (((UINT64)d) << 32);
+  unsigned a, d;
+  __asm__ volatile("rdtsc" : "=a" (a), "=d" (d));
+  return ((UINT64)a) | (((UINT64)d) << 32);
 }
 #endif

@@ -63,7 +63,7 @@ namespace MPCWalkgen{
       virtual RigidBodySystem *robot() = 0;
       virtual const QPSolver *solver() const = 0;
 
-      virtual MPCDebug &timer() = 0;
+      virtual MPCDebug *timer() = 0;
       /// \}
 
     };

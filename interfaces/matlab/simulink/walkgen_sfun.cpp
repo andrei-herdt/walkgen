@@ -9,9 +9,6 @@ extern "C" {
 
 #include "simstruc.h"
 
-//#include <iostream>
-//#include "mex.h"
-
 using namespace Eigen;
 using namespace MPCWalkgen;
 using namespace std;
@@ -19,10 +16,6 @@ using namespace std;
 #define IS_PARAM_DOUBLE(pVal) (mxIsNumeric(pVal) && !mxIsLogical(pVal) &&\
   !mxIsEmpty(pVal) && !mxIsSparse(pVal) && !mxIsComplex(pVal) && mxIsDouble(pVal))
 
-// Function: mdlInitializeSizes ===============================================
-// Abstract:
-//    The sizes information is used by Simulink to determine the S-function
-//    block's characteristics (number of inputs, outputs, states, etc.).
 static void mdlInitializeSizes(SimStruct *S)
 {
   // No expected parameters
@@ -35,16 +28,16 @@ static void mdlInitializeSizes(SimStruct *S)
 
   // Specify I/O
   if (!ssSetNumInputPorts(S, 9)) return;
-  ssSetInputPortWidth(S, 0, 3);//vel_ref
+  ssSetInputPortWidth(S, 0, 3);     //vel_ref
 
-  ssSetInputPortWidth(S, 1, 6);//com_in
-  ssSetInputPortWidth(S, 2, 3);//left_ankle_in
-  ssSetInputPortWidth(S, 3, 3);//right_ankle_in
-  ssSetInputPortWidth(S, 4, 1);//left_yaw
-  ssSetInputPortWidth(S, 5, 1);//right_yaw
-  ssSetInputPortWidth(S, 6, 4);//foot_geometry
-  ssSetInputPortWidth(S, 7, 1);//closed_loop
-  ssSetInputPortWidth(S, 8, 2);//cop
+  ssSetInputPortWidth(S, 1, 6);     //com_in
+  ssSetInputPortWidth(S, 2, 3);     //left_ankle_in
+  ssSetInputPortWidth(S, 3, 3);     //right_ankle_in
+  ssSetInputPortWidth(S, 4, 1);     //left_yaw
+  ssSetInputPortWidth(S, 5, 1);     //right_yaw
+  ssSetInputPortWidth(S, 6, 4);     //foot_geometry
+  ssSetInputPortWidth(S, 7, 1);     //closed_loop
+  ssSetInputPortWidth(S, 8, 2);     //cop
 
   ssSetInputPortDirectFeedThrough(S, 0, 1);
   ssSetInputPortDirectFeedThrough(S, 1, 1);
@@ -58,70 +51,47 @@ static void mdlInitializeSizes(SimStruct *S)
 
   if (!ssSetNumOutputPorts(S,15)) return;
   // Realized motions
-  ssSetOutputPortWidth(S, 0, 3);//com
-  ssSetOutputPortWidth(S, 1, 3);//dcom
-  ssSetOutputPortWidth(S, 2, 3);//ddcom
-  ssSetOutputPortWidth(S, 3, 2);//cop
-  ssSetOutputPortWidth(S, 4, 4);//p_left
-  ssSetOutputPortWidth(S, 5, 4);//dp_left
-  ssSetOutputPortWidth(S, 6, 4);//ddp_left
-  ssSetOutputPortWidth(S, 7, 4);//p_right
-  ssSetOutputPortWidth(S, 8, 4);//dp_right
-  ssSetOutputPortWidth(S, 9, 4);//ddp_right
+  ssSetOutputPortWidth(S, 0, 3);        //com
+  ssSetOutputPortWidth(S, 1, 3);        //dcom
+  ssSetOutputPortWidth(S, 2, 3);        //ddcom
+  ssSetOutputPortWidth(S, 3, 2);        //cop
+  ssSetOutputPortWidth(S, 4, 4);        //p_left
+  ssSetOutputPortWidth(S, 5, 4);        //dp_left
+  ssSetOutputPortWidth(S, 6, 4);        //ddp_left
+  ssSetOutputPortWidth(S, 7, 4);        //p_right
+  ssSetOutputPortWidth(S, 8, 4);        //dp_right
+  ssSetOutputPortWidth(S, 9, 4);        //ddp_right
   // Previewed motions:
   const int num_samples_horizon      = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 0)));
   const int num_samples_step         = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 1)));
   const int num_steps_max = num_samples_horizon / num_samples_step + 1;
-  ssSetOutputPortWidth(S, 10, num_steps_max);//first_foot_prw
-  ssSetOutputPortWidth(S, 11, 4 * num_samples_horizon);//com_prw (sample_instants, x, y, z)
-  ssSetOutputPortWidth(S, 12, 3 * num_samples_horizon);//cop_prw (sample_instants, x, y)
+  ssSetOutputPortWidth(S, 10, num_steps_max);               //first_foot_prw
+  ssSetOutputPortWidth(S, 11, 4 * num_samples_horizon);     //com_prw (sample_instants, x, y, z)
+  ssSetOutputPortWidth(S, 12, 3 * num_samples_horizon);     //cop_prw (sample_instants, x, y)
 
-  ssSetOutputPortWidth(S, 13, 1);//support
-  ssSetOutputPortWidth(S, 14, 20);//analysis
+  ssSetOutputPortWidth(S, 13, 1);       //support
+  ssSetOutputPortWidth(S, 14, 30);      //analysis
 
   ssSetNumSampleTimes(S, 1);
-  // Reserve place for C++ object
+
   ssSetNumPWork(S, 1);
   ssSetNumIWork(S, 1);
-
-  //    ssSetOptions(S,
-  //                 SS_OPTION_WORKS_WITH_CODE_REUSE |
-  //                 SS_OPTION_EXCEPTION_FREE_CODE);
-
 }
 
-
-// Function: mdlInitializeSampleTimes =========================================
-// Abstract:
-//   This function is used to specify the sample time(s) for your
-//   S-function. You must register the same number of sample times as
-//   specified in ssSetNumSampleTimes.
 static void mdlInitializeSampleTimes(SimStruct *S)
 {
   ssSetSampleTime(S, 0, 0.001);
-  //ssSetOffsetTime(S, 0, 0.0);
-  //ssSetModelReferenceSampleTimeDefaultInheritance(S); 
 }
 
-// Function: mdlStart =======================================================
-// Abstract:
-//   This function is called once at start of model execution. If you
-//   have states that should be initialized once, this is the place
-//   to do it.
 #define MDL_START
-static void mdlStart(SimStruct *S)//TODO: mdlInitializeConditions if subsystem enabled
+static void mdlStart(SimStruct *S)
 {
   WalkgenAbstract *walk = createWalkgen();
-  walk->timer().GetFrequency(1.0);
   ssSetPWorkValue(S, 0, (void*)walk);
-  ssSetIWorkValue(S, 0, 0);//MPCWalkgen not initialized
+  ssSetIWorkValue(S, 0, 0);     //MPCWalkgen not initialized
 
 }
 
-// Function: mdlOutputs =======================================================
-// Abstract:
-//   In this function, you compute the outputs of your S-function
-//   block. Generally outputs are placed in the output vector, ssGetY(S).
 static void mdlOutputs(SimStruct *S, int_T tid) {
   InputRealPtrsType vel_ref         = ssGetInputPortRealSignalPtrs(S, 0);
   InputRealPtrsType com_in          = ssGetInputPortRealSignalPtrs(S, 1);
@@ -166,13 +136,13 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 
     walk->reference(*vel_ref[0], *vel_ref[1], *vel_ref[2]);
 
-    FootData leftFoot;// TODO: Never used
+    FootData leftFoot;      // TODO: Never used
     double security_margin = 0.0;
-    leftFoot.anklePositionInLocalFrame << 0, 0, 0; //0, 0, 0.105;//TODO:Is not used
+    leftFoot.anklePositionInLocalFrame << 0, 0, 0;      //0, 0, 0.105;//TODO:Is not used
     leftFoot.soleHeight = *foot_geometry[2] - *foot_geometry[3] - security_margin;
     leftFoot.soleWidth = *foot_geometry[0] - *foot_geometry[1] - security_margin;
     FootData rightFoot;
-    rightFoot.anklePositionInLocalFrame << 0, 0, 0; //0, 0, 0.105;//TODO:Is not used
+    rightFoot.anklePositionInLocalFrame << 0, 0, 0;     //0, 0, 0.105;//TODO:Is not used
     rightFoot.soleHeight = *foot_geometry[2] - *foot_geometry[3] - security_margin;
     rightFoot.soleWidth = *foot_geometry[0] - *foot_geometry[1] - security_margin;
 
@@ -275,11 +245,11 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 
   // Run simulation:
   // ---------------
-  double time = ssGetT(S);
+  double curr_time = ssGetT(S);
   MPCSolution solution;
-  walk->timer().StartCounting();
-  solution = walk->online(time);
-  walk->timer().StopCounting();
+  int time_online = walk->timer()->StartCounting();
+  solution = walk->online(curr_time);
+  walk->timer()->StopCounting(time_online);
   
   // Assign to the output:
   // ---------------------
@@ -323,7 +293,8 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
   ddp_right[2] = walk->output().right_foot.ddz;
   ddp_right[3] = walk->output().right_foot.ddyaw;
 
-  // Previewed motions
+  // Previewed motions:
+  // ------------------
   int nbsamples = solution.support_states_vec.size() - 1;
   for (int sample = 0; sample < nbsamples; ++sample) {
     // CoM:
@@ -351,39 +322,34 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
   if (current_support.state_changed) {
     support[0] = current_support.start_time;
   } else if (next_support.transitional_ds) {
-    support[0] = current_support.time_limit - 0.1;// TODO: 0.1 is temporary solution
+    support[0] = current_support.time_limit - 0.1;  // TODO: 0.1 is temporary solution
   } else {
     support[0] = 0.0;
   }
 
-  // Analysis
+  // Analysis:
+  // ---------
   analysis[0] = solution.analysis.resolution_time;
   analysis[1] = solution.analysis.num_iterations;
-  int num_time_measures = walk->timer().GetNumMeasures();  
-  for (int i = 0; i < num_time_measures; i++) {
-	  analysis[i + 2] = walk->timer().GetLastTimeValue();
+  int num_counters = walk->timer()->GetNumCounters();
+  for (int i = num_counters - 1; i >= 0; i--) {
+	  analysis[i + 2] = walk->timer()->GetLastMeasure();
   }
-
 
 }
 
-// Function: mdlTerminate =====================================================
-// Abstract:
-//   In this function, you should perform any actions that are necessary
-//   at the termination of a simulation.  For example, if memory was
-//   allocated in mdlStart, this is the place to free it.
 static void mdlTerminate(SimStruct *S)
 {
   WalkgenAbstract *walk = static_cast<WalkgenAbstract *>(ssGetPWork(S)[0]);
   delete walk;
 }
 
-
-// Required S-function trailer
-#ifdef  MATLAB_MEX_FILE    /* Is this file being compiled as a MEX-file? */
-#include "simulink.c"      /* MEX-file interface mechanism */
+// Required S-function trailer:
+// ----------------------------
+#ifdef  MATLAB_MEX_FILE    // Is this file being compiled as a MEX-file? 
+#include "simulink.c"      // MEX-file interface mechanism 
 #else
-#include "cg_sfun.h"       /* Code generation registration function */
+#include "cg_sfun.h"       // Code generation registration function 
 #endif
 
 #ifdef __cplusplus

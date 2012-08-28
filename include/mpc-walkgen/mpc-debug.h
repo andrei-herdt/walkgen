@@ -16,34 +16,50 @@ namespace MPCWalkgen{
 
   //enum TimeUnit { us, ms, s };
 
-class MPCDebug {
+  class MPCDebug {
 
   public:
-    MPCDebug();
-    MPCDebug(bool enable);
+    MPCDebug(int num_max_measures);
     ~MPCDebug();
 
-    void GetFrequency(double seconds);
-    void StartCounting();
-    void StopCounting();
-    double GetLastTimeValue();
-	inline int GetNumMeasures() {return last_counter_vec_.size();};
+    void GetFrequency(unsigned long long mu_seconds);
+    
+    int StartCounting();
+    
+    /// \brief Stop counter associated with counter_index
+    void StopCounting(int counter_index);
 
+    /// \brief Give the latest measured time and decrease size of vector
+    double GetLastMeasure();
+    
+    inline int GetNumCounters() {return curr_counter_index_;};
+    
+    void Reset();
+
+    //
+    // Private methods:
+    //
   private:
 #if (defined __LINUX__ || defined __VXWORKS__)
-  unsigned long long  __rdtsc( void );
+    unsigned long long  __rdtsc( void );
 #endif
 
+    // 
+    // Private members:
+    //
   private:
 #ifdef __WIN32__
-	  double frequency_;
-	  std::vector<LONGLONG> last_counter_vec_;
-	  std::vector<LONGLONG> first_counter_vec_;
+    LARGE_INTEGER frequency_;
+    std::vector<LARGE_INTEGER> last_counter_vec_;
+    std::vector<LARGE_INTEGER> first_counter_vec_;
 #elif (defined __LINUX__ || defined __VXWORKS__) 
-	  double frequency_;
-	  std::vector<unsigned long long> last_counter_vec_;
-	  std::vector<unsigned long long> first_counter_vec_;
+    unsigned long long frequency_;
+    std::vector<unsigned long long> last_counter_vec_;
+    std::vector<unsigned long long> first_counter_vec_;
 #endif
+
+    int curr_counter_index_;
+    const int num_max_counters_;
 
   };
 
