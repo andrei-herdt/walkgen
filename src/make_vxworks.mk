@@ -42,7 +42,7 @@ LIBEXT = a
 EXE = 
 DEF_TARGET = -o $@
 
-CPPFLAGS = -Wall -Wfloat-equal -O3 -finline-functions -D__VXWORKS__
+CPPFLAGS = -g -Wall -Wfloat-equal -O3 -finline-functions -D__VXWORKS__
 #CPPFLAGS = -pg -g -D__DEBUG__
 
 MPC_WALKGEN_LIB         =  -L${SRCDIR} -lmpc_walkgen
