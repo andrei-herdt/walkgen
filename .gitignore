@@ -32,7 +32,7 @@ build/
 *build*
 CMakeLists.txt.user
 *.autosave
-
+*.info
 *.data
 *.ref
 /deps
