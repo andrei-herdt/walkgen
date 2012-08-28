@@ -7,10 +7,10 @@
 ///\file	mpc-debug.h
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <map>
 #ifdef __WIN32__
 #include <windows.h> 
 #endif
+#include <vector>
 
 namespace MPCWalkgen{
 
@@ -26,7 +26,8 @@ class MPCDebug {
     void GetFrequency(double seconds);
     void StartCounting();
     void StopCounting();
-    double GetTime();
+    double GetLastTimeValue();
+	inline int GetNumMeasures() {return last_counter_vec_.size();};
 
   private:
 #if (defined __LINUX__ || defined __VXWORKS__)
@@ -35,12 +36,14 @@ class MPCDebug {
 
   private:
 #ifdef __WIN32__
-    LONGLONG frequency_, first_counter_, last_counter_;
+	  double frequency_;
+	  std::vector<LONGLONG> last_counter_vec_;
+	  std::vector<LONGLONG> first_counter_vec_;
 #elif (defined __LINUX__ || defined __VXWORKS__) 
-	  unsigned long long first_counter_, last_counter_, frequency_;
+	  double frequency_;
+	  std::vector<unsigned long long> last_counter_vec_;
+	  std::vector<unsigned long long> first_counter_vec_;
 #endif
-
-    bool enable_;
 
   };
 

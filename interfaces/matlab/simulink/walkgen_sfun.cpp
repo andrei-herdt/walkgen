@@ -69,14 +69,15 @@ static void mdlInitializeSizes(SimStruct *S)
   ssSetOutputPortWidth(S, 8, 4);//dp_right
   ssSetOutputPortWidth(S, 9, 4);//ddp_right
   // Previewed motions:
-  int nbsamples = 16;
-  int nbsteps_max = 2;
-  ssSetOutputPortWidth(S, 10, nbsteps_max);//first_foot_prw
-  ssSetOutputPortWidth(S, 11, 4 * nbsamples);//com_prw (sample_instants, x, y, z)
-  ssSetOutputPortWidth(S, 12, 3 * nbsamples);//cop_prw (sample_instants, x, y)
+  const int num_samples_horizon      = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 0)));
+  const int num_samples_step         = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 1)));
+  const int num_steps_max = num_samples_horizon / num_samples_step + 1;
+  ssSetOutputPortWidth(S, 10, num_steps_max);//first_foot_prw
+  ssSetOutputPortWidth(S, 11, 4 * num_samples_horizon);//com_prw (sample_instants, x, y, z)
+  ssSetOutputPortWidth(S, 12, 3 * num_samples_horizon);//cop_prw (sample_instants, x, y)
 
   ssSetOutputPortWidth(S, 13, 1);//support
-  ssSetOutputPortWidth(S, 14, 3);//analysis
+  ssSetOutputPortWidth(S, 14, 20);//analysis
 
   ssSetNumSampleTimes(S, 1);
   // Reserve place for C++ object
@@ -358,7 +359,10 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
   // Analysis
   analysis[0] = solution.analysis.resolution_time;
   analysis[1] = solution.analysis.num_iterations;
-  analysis[2] = walk->timer().GetTime();//
+  int num_time_measures = walk->timer().GetNumMeasures();  
+  for (int i = 0; i < num_time_measures; i++) {
+	  analysis[i + 2] = walk->timer().GetLastTimeValue();
+  }
 
 
 }
