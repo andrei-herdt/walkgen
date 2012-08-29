@@ -33,8 +33,8 @@
 ##	definitions for compiling with gcc under vxworks
 ##
 
-CPP = /opt/vxworks/wrapper/linux/bin/vxworks6.7-x86-gcc4.x-g++
-AR  = /opt/vxworks/wrapper/linux/bin/vxworks6.7-x86-gcc4.x-ar
+CPP = /opt/vxworks/wrapper/linux/bin/vxworks6.9-x86-gcc4.x-g++
+AR  = /opt/vxworks/wrapper/linux/bin/vxworks6.9-x86-gcc4.x-ar
 RM  = rm
 
 OBJEXT = o
@@ -43,9 +43,9 @@ EXE =
 DEF_TARGET = -o $@
 
 CPPFLAGS = -g -Wall -Wfloat-equal -O3 -finline-functions -D__VXWORKS__
-#CPPFLAGS = -pg -g -D__DEBUG__
+#CPPFLAGS = -g -D__DEBUG__ -D__VXWORKS__
 
-MPC_WALKGEN_LIB         =  -L${SRCDIR} -lmpc_walkgen
+MPC_WALKGEN_LIB         =  -L${SRCDIR} -lmpc-walkgen
 
 
 ##

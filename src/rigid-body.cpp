@@ -3,7 +3,7 @@
 using namespace MPCWalkgen;
 
 
-RigidBody::RigidBody(const MPCData * mpc_parameters, const RobotData * data_robot)
+RigidBody::RigidBody(const MPCData *mpc_parameters, const RobotData *data_robot)
                      :mpc_parameters_(mpc_parameters)
                      ,robotData_(data_robot)
 {}

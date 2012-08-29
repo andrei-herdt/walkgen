@@ -147,7 +147,7 @@ namespace MPCWalkgen{
 
     bool warmstart;
     /// \brief Interpolate not only the control (first element) but the whole preview vector
-    bool interpolate_preview;
+    bool interpolate_whole_horizon;
 
     QPPonderation ponderation;
 

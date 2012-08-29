@@ -112,7 +112,7 @@ MPCData::MPCData()
 ,nbsteps_ssds(2)
 ,period_ds(1000000000.0)
 ,warmstart(false)
-,interpolate_preview(false)
+,interpolate_whole_horizon(false)
 ,ponderation(2)
 {}
 

@@ -395,7 +395,7 @@ void QPGenerator::ConvertCopToJerk(MPCSolution &solution){
 
 
   int nbsamples_interp = 1;
-  if (mpc_parameters_->interpolate_preview == true) {
+  if (mpc_parameters_->interpolate_whole_horizon == true) {
     nbsamples_interp = nbsamples;
   }
 

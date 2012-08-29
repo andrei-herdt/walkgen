@@ -43,22 +43,24 @@ void CoMBody::Interpolate(MPCSolution &solution, double currentTime, const Refer
   // QP sampling rate:
   // -----------------
   // Position:
-  interpolation_.Interpolate(solution.com_prw.pos.x_vec, dynamics_qp().pos, 
-    state_.x, solution.com_prw.jerk.x_vec);
-  interpolation_.Interpolate(solution.com_prw.pos.y_vec, dynamics_qp().pos, 
-    state_.y, solution.com_prw.jerk.y_vec);
-
-  // Velocity:
-  interpolation_.Interpolate(solution.com_prw.vel.x_vec, dynamics_qp().vel, 
-    state_.x, solution.com_prw.jerk.x_vec);
-  interpolation_.Interpolate(solution.com_prw.vel.y_vec, dynamics_qp().vel, 
-    state_.y, solution.com_prw.jerk.y_vec);
-
-  // Acceleration:
-  interpolation_.Interpolate(solution.com_prw.acc.x_vec, dynamics_qp().acc, 
-    state_.x, solution.com_prw.jerk.x_vec);
-  interpolation_.Interpolate(solution.com_prw.acc.y_vec, dynamics_qp().acc, 
-    state_.y, solution.com_prw.jerk.y_vec);
+  if (mpc_parameters_->interpolate_whole_horizon) {
+      interpolation_.Interpolate(solution.com_prw.pos.x_vec, dynamics_qp().pos,
+      state_.x, solution.com_prw.jerk.x_vec);
+      interpolation_.Interpolate(solution.com_prw.pos.y_vec, dynamics_qp().pos,
+      state_.y, solution.com_prw.jerk.y_vec);
+      
+      // Velocity:
+      interpolation_.Interpolate(solution.com_prw.vel.x_vec, dynamics_qp().vel,
+      state_.x, solution.com_prw.jerk.x_vec);
+      interpolation_.Interpolate(solution.com_prw.vel.y_vec, dynamics_qp().vel,
+      state_.y, solution.com_prw.jerk.y_vec);
+      
+      // Acceleration:
+      interpolation_.Interpolate(solution.com_prw.acc.x_vec, dynamics_qp().acc,
+      state_.x, solution.com_prw.jerk.x_vec);
+      interpolation_.Interpolate(solution.com_prw.acc.y_vec, dynamics_qp().acc,
+      state_.y, solution.com_prw.jerk.y_vec);
+  }
 
   interpolateTrunkOrientation(solution, currentTime, velRef);
 }

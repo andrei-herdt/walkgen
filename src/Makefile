@@ -8,20 +8,21 @@ SRCDIR = .
 # select your operating system here!
 # include make_linux.mk
 # include make_windows.mk
-include make_vxworks.mk
+ include make_vxworks.mk
+#include make_vxworks_intel.mk
 
 
 ##
 ##	flags
 ##
 IDIR        =  ../include/
-IDIR2		=	../../../../../f_soft/foreign_packages/Eigen/3.0.1/include/ 
+DIR_EIGEN   =	../../eigen-3.1.1/
 IDIR3		=	../../qpOASES-3.0/include/
 SRC_QPOASES =  ../../qpOASES-3.0/src/
 
 IFLAGS      =  -I. \
                -I${IDIR} \
-			   -I${IDIR2} \
+			   -I${DIR_EIGEN} \
 			   -I${IDIR3}
 
 MPC_WALKGEN_OBJECTS = \
@@ -44,7 +45,7 @@ MPC_WALKGEN_OBJECTS = \
 	interpolation.${OBJEXT} \
 	foot-body.${OBJEXT} \
 	com-body.${OBJEXT} \
-	mpc-debug.${OBJEXT} \
+	stopwatch.${OBJEXT} 
 	
 QPOASES_OBJECTS = \
 	${SRC_QPOASES}/SQProblem.${OBJEXT} \
@@ -60,10 +61,10 @@ QPOASES_OBJECTS = \
 	${SRC_QPOASES}/MessageHandling.${OBJEXT}
 	
 
-all: lib-mpc-walkgen.${LIBEXT}
+all: libmpc-walkgen.${LIBEXT}
 
 
-lib-mpc-walkgen.${LIBEXT}: ${MPC_WALKGEN_OBJECTS} \
+libmpc-walkgen.${LIBEXT}: ${MPC_WALKGEN_OBJECTS} \
 	${QPOASES_OBJECTS}
 	${AR} r $@ $?
 
@@ -95,7 +96,7 @@ walkgen.${OBJEXT}:  walkgen.cpp \
 	${IDIR}/mpc-walkgen/tools.h \
 	${IDIR}/mpc-walkgen/tools-inl.h  \
 	${IDIR}/mpc-walkgen/rigid-body-system-inl.h \
-	${IDIR}/mpc-walkgen/mpc-debug.h 
+	${IDIR}/mpc-walkgen/stopwatch.h 
 	@echo "Creating"  $@
 	${CPP} ${DEF_TARGET} -c ${IFLAGS} ${CPPFLAGS} walkgen.cpp
 
@@ -291,10 +292,10 @@ com-body.${OBJEXT}: com-body.cpp \
 	@echo "Creating"  $@
 	${CPP} ${DEF_TARGET} -c ${IFLAGS} ${CPPFLAGS} com-body.cpp
 
-mpc-debug.${OBJEXT}: mpc-debug.cpp \
-	${IDIR}/mpc-walkgen/mpc-debug.h 
+stopwatch.${OBJEXT}: stopwatch.cpp \
+	${IDIR}/mpc-walkgen/stopwatch.h 
 	@echo "Creating"  $@
-	${CPP} ${DEF_TARGET} -c ${IFLAGS} ${CPPFLAGS} mpc-debug.cpp
+	${CPP} ${DEF_TARGET} -c ${IFLAGS} ${CPPFLAGS} stopwatch.cpp
 
 clean:
 	${RM} -f *.${OBJEXT} *.${LIBEXT}
@@ -307,7 +308,7 @@ clobber: clean
 
 	
 shared:	${MPC_WALKGEN_OBJECTS}
-	${CPP} -shared -Wl,-soname,lib-mpc-walkgen.so -o lib-mpc-walkgen.so ${MPC_WALKGEN_OBJECTS} -lm
+	${CPP} -shared -Wl,-soname,libmpc-walkgen.so -o libmpc-walkgen.so ${MPC_WALKGEN_OBJECTS} -lm
 
 ##
 ##	end of file
