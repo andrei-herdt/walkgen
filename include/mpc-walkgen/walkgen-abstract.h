@@ -17,7 +17,7 @@ namespace MPCWalkgen{
 
     class RigidBodySystem;
     class QPSolver;
-    class MPCDebug;
+    class StopWatch;
 
     class  WalkgenAbstract
     {
@@ -63,7 +63,7 @@ namespace MPCWalkgen{
       virtual RigidBodySystem *robot() = 0;
       virtual const QPSolver *solver() const = 0;
 
-      virtual MPCDebug &timer() = 0;
+      virtual StopWatch *watch() = 0;
       /// \}
 
     };
