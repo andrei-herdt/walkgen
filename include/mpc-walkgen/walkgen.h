@@ -59,6 +59,7 @@ namespace MPCWalkgen{
     virtual const QPSolver *solver() const { return solver_; };
 
     virtual StopWatch *watch() {return watch_;};
+	virtual MPCSolution &solution() {return solution_;};
     // \}
   
   private:

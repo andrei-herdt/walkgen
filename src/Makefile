@@ -8,22 +8,22 @@ SRCDIR = .
 # select your operating system here!
 # include make_linux.mk
 # include make_windows.mk
- include make_vxworks.mk
-#include make_vxworks_intel.mk
+# include make_vxworks.mk
+include make_vxworks_intel.mk
 
 
 ##
 ##	flags
 ##
 IDIR        =  ../include/
-DIR_EIGEN   =	../../eigen-3.1.1/
-IDIR3		=	../../qpOASES-3.0/include/
-SRC_QPOASES =  ../../qpOASES-3.0/src/
+DIR_EIGEN   =	/home/f_legs/rtw_models/herdt/eigen-3.1.1/
+QPOASES_IDIR	=	/home/f_legs/rtw_models/herdt/qpOASES-3.0/include/
+QPOASES_SRCDIR	=	/home/f_legs/rtw_models/herdt/qpOASES-3.0/src/
 
 IFLAGS      =  -I. \
                -I${IDIR} \
 			   -I${DIR_EIGEN} \
-			   -I${IDIR3}
+			   -I${QPOASES_IDIR}
 
 MPC_WALKGEN_OBJECTS = \
 	walkgen-abstract.${OBJEXT} \
@@ -48,17 +48,17 @@ MPC_WALKGEN_OBJECTS = \
 	stopwatch.${OBJEXT} 
 	
 QPOASES_OBJECTS = \
-	${SRC_QPOASES}/SQProblem.${OBJEXT} \
-	${SRC_QPOASES}/QProblem.${OBJEXT} \
-	${SRC_QPOASES}/QProblemB.${OBJEXT} \
-	${SRC_QPOASES}/Bounds.${OBJEXT} \
-	${SRC_QPOASES}/Constraints.${OBJEXT} \
-	${SRC_QPOASES}/SubjectTo.${OBJEXT} \
-	${SRC_QPOASES}/Indexlist.${OBJEXT} \
-	${SRC_QPOASES}/Utils.${OBJEXT} \
-	${SRC_QPOASES}/Options.${OBJEXT} \
-	${SRC_QPOASES}/Matrices.${OBJEXT} \
-	${SRC_QPOASES}/MessageHandling.${OBJEXT}
+	${QPOASES_SRCDIR}/SQProblem.${OBJEXT} \
+	${QPOASES_SRCDIR}/QProblem.${OBJEXT} \
+	${QPOASES_SRCDIR}/QProblemB.${OBJEXT} \
+	${QPOASES_SRCDIR}/Bounds.${OBJEXT} \
+	${QPOASES_SRCDIR}/Constraints.${OBJEXT} \
+	${QPOASES_SRCDIR}/SubjectTo.${OBJEXT} \
+	${QPOASES_SRCDIR}/Indexlist.${OBJEXT} \
+	${QPOASES_SRCDIR}/Utils.${OBJEXT} \
+	${QPOASES_SRCDIR}/Options.${OBJEXT} \
+	${QPOASES_SRCDIR}/Matrices.${OBJEXT} \
+	${QPOASES_SRCDIR}/MessageHandling.${OBJEXT}
 	
 
 all: libmpc-walkgen.${LIBEXT}
@@ -189,20 +189,20 @@ qpoases-parser.${OBJEXT}: qpoases-parser.cpp \
 	${IDIR}/mpc-walkgen/types.h \
 	${IDIR}/mpc-walkgen/sharedtypes.h \
 	${IDIR}/mpc-walkgen/api.h \
-	${IDIR3}/qpOASES.hpp \
-	${IDIR3}/qpOASES/SQProblem.hpp \
-	${IDIR3}/qpOASES/QProblem.hpp \
-	${IDIR3}/qpOASES/QProblemB.hpp \
-	${IDIR3}/qpOASES/Bounds.hpp \
-	${IDIR3}/qpOASES/Constraints.hpp \
-	${IDIR3}/qpOASES/SubjectTo.hpp \
-	${IDIR3}/qpOASES/Indexlist.hpp \
-	${IDIR3}/qpOASES/Utils.hpp \
-	${IDIR3}/qpOASES/Constants.hpp \
-	${IDIR3}/qpOASES/Types.hpp \
-	${IDIR3}/qpOASES/Options.hpp \
-	${IDIR3}/qpOASES/Matrices.hpp \
-	${IDIR3}/qpOASES/MessageHandling.hpp
+	${QPOASES_IDIR}/qpOASES.hpp \
+	${QPOASES_IDIR}/qpOASES/SQProblem.hpp \
+	${QPOASES_IDIR}/qpOASES/QProblem.hpp \
+	${QPOASES_IDIR}/qpOASES/QProblemB.hpp \
+	${QPOASES_IDIR}/qpOASES/Bounds.hpp \
+	${QPOASES_IDIR}/qpOASES/Constraints.hpp \
+	${QPOASES_IDIR}/qpOASES/SubjectTo.hpp \
+	${QPOASES_IDIR}/qpOASES/Indexlist.hpp \
+	${QPOASES_IDIR}/qpOASES/Utils.hpp \
+	${QPOASES_IDIR}/qpOASES/Constants.hpp \
+	${QPOASES_IDIR}/qpOASES/Types.hpp \
+	${QPOASES_IDIR}/qpOASES/Options.hpp \
+	${QPOASES_IDIR}/qpOASES/Matrices.hpp \
+	${QPOASES_IDIR}/qpOASES/MessageHandling.hpp
 	@echo "Creating"  $@
 	${CPP} ${DEF_TARGET} -c ${IFLAGS} ${CPPFLAGS} qpoases-parser.cpp	
 	

@@ -18,6 +18,7 @@ int main(int argc, char *argv[]) {
     double sample_period_act = 0.001;
     
     if (argc == 8) {
+
         sscanf(argv[1], "%i", &num_samples_horizon);
         sscanf(argv[2], "%i", &num_samples_step);
         sscanf(argv[3], "%i", &num_samples_dsss);
@@ -28,7 +29,6 @@ int main(int argc, char *argv[]) {
     } else if (argc > 1) {
         std::cout<<"main() requires 8 or zero parameters! "<<std::endl;
     }
-    
     
     // Robot parameters:
     // -----------------
@@ -125,24 +125,24 @@ int main(int argc, char *argv[]) {
     // ---
     double velocity = 0.2;
     double curr_time = 0;
-    MPCSolution solution;
     walk->reference(velocity, 0, 0);
 	int num_iterations = 0;
     for (; curr_time < 2; curr_time += sample_period_act) {
         walk->watch()->Reset();
         int online_timer = walk->watch()->StartCounter();
-        MPCSolution solution = walk->online(curr_time);
+        walk->online(curr_time);
+		walk->watch()->StopLastCounter();
         walk->watch()->StopCounter(online_timer);
         
 		// Print time:
-        int num_counters = walk->watch()->GetNumCounters();
-        double passed_time = 0.0;
-        for (int i = num_counters - 1; i >= 1; i--) {
-            passed_time = walk->watch()->PopBackTime();
-            std::cout<<"num"<< i <<": " << passed_time << "   ";
-        }
-        passed_time = walk->watch()->PopBackTime();
-        std::cout << "total: " << passed_time  << std::endl;
+        //int num_counters = walk->watch()->GetNumCounters();
+        //double passed_time = 0.0;
+        //for (int i = num_counters - 1; i >= 1; i--) {
+        //    passed_time = walk->watch()->PopBackTime();
+         //   std::cout<<"num"<< i <<": " << passed_time << "   ";
+        //}
+        //passed_time = walk->watch()->PopBackTime();
+        //std::cout << "total: " << passed_time  << std::endl;
        
 		num_iterations++;
     }
@@ -165,6 +165,15 @@ int main(int argc, char *argv[]) {
          std::cout<<"num"<< counter <<": " << passed_time << "   ";
      }
      passed_time = walk->watch()->GetTotalTime(0) / num_iterations;
+     std::cout << "total: " << passed_time  << std::endl;
+
+	// Print mean time:
+	 std::cout << "Max [mus]: ----------------" << std::endl;
+     for (int counter = num_counters - 1; counter >= 1; counter--) {
+         passed_time = walk->watch()->GetMaxTime(counter);
+         std::cout<<"num"<< counter <<": " << passed_time << "   ";
+     }
+     passed_time = walk->watch()->GetMaxTime(0);
      std::cout << "total: " << passed_time  << std::endl;
 
     delete walk;

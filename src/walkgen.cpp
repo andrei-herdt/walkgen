@@ -109,7 +109,7 @@ void Walkgen::Init() {
 
   int num_max_timers = 20;
   watch_ = new StopWatch(num_max_timers);
-  watch_->GetFrequency(50);
+  watch_->GetFrequency(500);
 
   robot_->Init(robotData_, interpolation_);
 
@@ -204,6 +204,8 @@ const MPCSolution &Walkgen::online(double time){
     UpdateOutput();
   }
   watch_->StopCounter(timer_update_output);
+
+  watch_->StartCounter();
 
   return solution_;
 }
