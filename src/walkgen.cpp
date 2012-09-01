@@ -6,7 +6,7 @@
 #include <mpc-walkgen/qp-preview.h>
 #include <mpc-walkgen/rigid-body-system.h>
 #include <mpc-walkgen/interpolation.h>
-#include <mpc-walkgen/stopwatch.h>
+#include <mpc-walkgen/realclock.h>
 
 #include <iostream>
 //  #include <windows.h> 
@@ -48,7 +48,10 @@ Walkgen::Walkgen()
 ,currentTime_(0)
 ,currentRealTime_(0)
 {
-
+	// Setting the frequency is time demanding.
+	// Therefore this is done in the constructor.
+	clock_.ReserveMemory(20);
+	clock_.GetFrequency(1000);				// sleep
 }
 
 
@@ -70,7 +73,6 @@ Walkgen::~Walkgen(){
 
   if (interpolation_ != 0x0)
     delete interpolation_;
-
 }
 
 void Walkgen::Init(const RobotData &data_robot, const MPCData &mpc_parameters) {
@@ -106,10 +108,6 @@ void Walkgen::Init() {
   preview_ = new QPPreview(&velRef_, robot_, &mpc_parameters_);
 
   generator_= new QPGenerator(preview_, solver_, &velRef_, &ponderation_, robot_, &mpc_parameters_);
-
-  int num_max_timers = 20;
-  watch_ = new StopWatch(num_max_timers);
-  watch_->GetFrequency(500);
 
   robot_->Init(robotData_, interpolation_);
 
@@ -169,7 +167,7 @@ const MPCSolution &Walkgen::online(double time){
   currentTime_ = time;
 
   if (time  > next_computation_ - EPSILON) {
-    int first_timer = watch_->StartCounter();
+    //int first_timer = clock_.StartCounter();
     next_computation_ += mpc_parameters_.period_mpcsample;
     if (time > next_computation_ - EPSILON) {   
       ResetCounters(time);
@@ -181,31 +179,31 @@ const MPCSolution &Walkgen::online(double time){
       }
     }
     ResetOutputIndex();
-    watch_->StopCounter(first_timer);
+    //clock_.StopCounter(first_timer);
 
-    int timer_build_problem = watch_->StartCounter();
+    //int timer_build_problem = clock_.StartCounter();
     BuildProblem();
-    watch_->StopCounter(timer_build_problem);
+    //clock_.StopCounter(timer_build_problem);
 
-    int timer_solve = watch_->StartCounter();
+    //int timer_solve = clock_.StartCounter();
     solver_->Solve(solution_, mpc_parameters_.warmstart, mpc_parameters_.solver.analysis);
-    watch_->StopCounter(timer_solve);
+    //clock_.StopCounter(timer_solve);
 
-    int timer_generate_traj = watch_->StartCounter();
+    //int timer_generate_traj = clock_.StartCounter();
     GenerateTrajectories();
-    watch_->StopCounter(timer_generate_traj);
+    //clock_.StopCounter(timer_generate_traj);
   }
 
-  int timer_update_output = watch_->StartCounter();
+  //int timer_update_output = clock_.StartCounter();
   if (time > next_act_sample_ - EPSILON) {
     next_act_sample_ += mpc_parameters_.period_actsample;
 
     IncrementOutputIndex();
     UpdateOutput();
   }
-  watch_->StopCounter(timer_update_output);
+  //clock_.StopCounter(timer_update_output);
 
-  watch_->StartCounter();
+  //clock_.StartCounter();
 
   return solution_;
 }

@@ -87,6 +87,7 @@ static void mdlInitializeSampleTimes(SimStruct *S)
 static void mdlStart(SimStruct *S)
 {
   WalkgenAbstract *walk = createWalkgen();
+
   ssSetPWorkValue(S, 0, (void*)walk);
   ssSetIWorkValue(S, 0, 0);     //MPCWalkgen not initialized
 
@@ -163,13 +164,13 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
     mpc_data.period_qpsample    = sample_period_qp;
     mpc_data.period_mpcsample   = sample_period_first;
     mpc_data.period_actsample   = sample_period_act;
-    mpc_data.ponderation.JerkMin[0] = 0.00001;
-    mpc_data.ponderation.JerkMin[1] = 0.00001;
-    mpc_data.warmstart = true;
-    mpc_data.interpolate_preview = true;
-    mpc_data.solver.analysis = true;
-    mpc_data.solver.name = QPOASES;
-    mpc_data.solver.num_wsrec = 2;
+    mpc_data.ponderation.JerkMin[0] = 0.001;
+    mpc_data.ponderation.JerkMin[1] = 0.001;
+    mpc_data.warmstart					= false;
+    mpc_data.interpolate_whole_horizon	= false;
+    mpc_data.solver.analysis			= false;
+    mpc_data.solver.name				= QPOASES;
+    mpc_data.solver.num_wsrec			= 2;
 
     RobotData robot_data(leftFoot, rightFoot, leftHipYaw, rightHipYaw, 0.0);
 
@@ -246,10 +247,10 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
   // Run simulation:
   // ---------------
   double curr_time = ssGetT(S);
-  MPCSolution solution;
-  int time_online = walk->watch()->StartCounting();
-  solution = walk->online(curr_time);
-  walk->watch()->StopCounting(time_online);
+  walk->clock().ResetLocal();
+  int time_online = walk->clock().StartCounter();
+  const MPCSolution solution = walk->online(curr_time);
+  walk->clock().StopCounter(time_online);
   
   // Assign to the output:
   // ---------------------
@@ -317,8 +318,8 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
     first_foot_prw[1] = solution.support_states_vec.front().y;
   }
   // Change of the current support state (time instant)
-  SupportState &current_support = solution.support_states_vec.front();
-  SupportState &next_support = solution.support_states_vec[1];
+  const SupportState &current_support = solution.support_states_vec.front();
+  const SupportState &next_support = solution.support_states_vec[1];
   if (current_support.state_changed) {
     support[0] = current_support.start_time;
   } else if (next_support.transitional_ds) {
@@ -331,10 +332,10 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
   // ---------
   analysis[0] = solution.analysis.resolution_time;
   analysis[1] = solution.analysis.num_iterations;
-  int num_counters = walk->watch()->GetNumCounters();
-  for (int i = num_counters - 1; i >= 0; i--) {
-	  analysis[i + 2] = walk->watch()->GetLastMeasure();
-  }
+  int num_counters = walk->clock().GetNumCounters();
+  //for (int i = num_counters - 1; i >= 0; i--) {
+	  analysis[/*i + */2] = walk->clock().GetTime(time_online);
+  //}
 
 }
 

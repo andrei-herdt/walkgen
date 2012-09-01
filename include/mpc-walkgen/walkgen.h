@@ -13,6 +13,7 @@
 
 #include <mpc-walkgen/walkgen-abstract.h>
 #include <mpc-walkgen/types.h>
+#include <mpc-walkgen/realclock.h>
 
 namespace MPCWalkgen{
 
@@ -22,7 +23,7 @@ namespace MPCWalkgen{
   class QPPreview;
   class RigidBodySystem;
   class OrientationsPreview;
-  class StopWatch;
+  class RealClock;
 
   class Walkgen :
     public WalkgenAbstract
@@ -58,8 +59,8 @@ namespace MPCWalkgen{
 
     virtual const QPSolver *solver() const { return solver_; };
 
-    virtual StopWatch *watch() {return watch_;};
-	virtual MPCSolution &solution() {return solution_;};
+    virtual RealClock &clock() {return clock_;};
+	virtual MPCSolution solution() {return solution_;};
     // \}
   
   private:
@@ -83,7 +84,7 @@ namespace MPCWalkgen{
 
     OrientationsPreview *orientPrw_;
  
-    StopWatch *watch_;
+    RealClock clock_;
 
     // \brief Contains pointers to trajectory values
     // an internal logic set the pointers the currently relevant indeces

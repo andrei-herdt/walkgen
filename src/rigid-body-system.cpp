@@ -26,7 +26,7 @@ void RigidBodySystem::Init(const RobotData &data_robot, const Interpolation *int
   data_robot_ = data_robot;
 
   com_ = new CoMBody(mpc_parameters_, &data_robot_);
-  foot_left_ = new FootBody(mpc_parameters_, &data_robot_, LEFT);
+  foot_left_ = new FootBody(mpc_parameters_, &data_robot_,  LEFT);
   foot_right_ = new FootBody(mpc_parameters_, &data_robot_, RIGHT);
 
   currentSupport_.phase = DS;

@@ -2,10 +2,10 @@
 ##	Author:    Andrei Herdt (Joachim Ferreau)
 
 # select your operating system here!
-# include ../../src/make_linux.mk
+include ../../src/make_linux.mk
 # include ../../src/make_windows.mk
 # include ../../src/make_vxworks.mk
-include ../../src/make_vxworks_intel.mk
+# include ../../src/make_vxworks_intel.mk
 
 
 

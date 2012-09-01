@@ -4,12 +4,14 @@
 
 #include <mpc-walkgen.h>
 
+#include <iostream>
+
 using namespace Eigen;
 using namespace MPCWalkgen;
 
 int main(int argc, char *argv[]) {
     
-    int num_samples_horizon = 12;
+    int num_samples_horizon = 10;
     int num_samples_step = 8;
     int num_samples_dsss = 8;
     int num_steps_ssds = 2;
@@ -63,9 +65,9 @@ int main(int argc, char *argv[]) {
     mpc_parameters.period_actsample   = sample_period_act;
     mpc_parameters.ponderation.JerkMin[0]         = 0.001;
     mpc_parameters.ponderation.JerkMin[1]         = 0.001;
-    mpc_parameters.warmstart                      = true;
+    mpc_parameters.warmstart                      = false;
     mpc_parameters.interpolate_whole_horizon      = false;
-    mpc_parameters.solver.analysis                = true;
+    mpc_parameters.solver.analysis                = false;
     mpc_parameters.solver.name                    = QPOASES;
     mpc_parameters.solver.num_wsrec               = 2;
     
@@ -128,52 +130,52 @@ int main(int argc, char *argv[]) {
     walk->reference(velocity, 0, 0);
 	int num_iterations = 0;
     for (; curr_time < 2; curr_time += sample_period_act) {
-        walk->watch()->Reset();
-        int online_timer = walk->watch()->StartCounter();
+        walk->clock().ResetLocal();
+        int online_timer = walk->clock().StartCounter();
         walk->online(curr_time);
-		walk->watch()->StopLastCounter();
-        walk->watch()->StopCounter(online_timer);
-        
+		//walk->clock().StopLastCounter();
+        walk->clock().StopCounter(online_timer);
 		// Print time:
-        //int num_counters = walk->watch()->GetNumCounters();
+        //int num_counters = walk->clock().GetNumCounters();
         //double passed_time = 0.0;
         //for (int i = num_counters - 1; i >= 1; i--) {
-        //    passed_time = walk->watch()->PopBackTime();
+        //    passed_time = walk->clock().PopBackTime();
          //   std::cout<<"num"<< i <<": " << passed_time << "   ";
         //}
-        //passed_time = walk->watch()->PopBackTime();
+        //passed_time = walk->clock().PopBackTime();
         //std::cout << "total: " << passed_time  << std::endl;
        
 		num_iterations++;
     }
     
 	// Print total time:
-     int num_counters = walk->watch()->GetNumTotalCounters();
+
+     int num_counters = walk->clock().GetNumTotalCounters();
      double passed_time = 0.0;
 	 std::cout << "Total [mus]: ----------------" << std::endl;
      for (int counter = num_counters - 1; counter >= 1; counter--) {
-         passed_time = walk->watch()->GetTotalTime(counter);
+         passed_time = walk->clock().GetTotalTime(counter);
          std::cout<<"num"<< counter <<": " << passed_time << "   ";
      }
-     passed_time = walk->watch()->GetTotalTime(0);
+     passed_time = walk->clock().GetTotalTime(0);
      std::cout << "total: " << passed_time  << std::endl;
      
 	 // Print mean time:
 	 std::cout << "Mean [mus]: ----------------" << std::endl;
      for (int counter = num_counters - 1; counter >= 1; counter--) {
-         passed_time = walk->watch()->GetTotalTime(counter) / num_iterations;
+         passed_time = walk->clock().GetTotalTime(counter) / num_iterations;
          std::cout<<"num"<< counter <<": " << passed_time << "   ";
      }
-     passed_time = walk->watch()->GetTotalTime(0) / num_iterations;
+     passed_time = walk->clock().GetTotalTime(0) / num_iterations;
      std::cout << "total: " << passed_time  << std::endl;
 
 	// Print mean time:
 	 std::cout << "Max [mus]: ----------------" << std::endl;
      for (int counter = num_counters - 1; counter >= 1; counter--) {
-         passed_time = walk->watch()->GetMaxTime(counter);
+         passed_time = walk->clock().GetMaxTime(counter);
          std::cout<<"num"<< counter <<": " << passed_time << "   ";
      }
-     passed_time = walk->watch()->GetMaxTime(0);
+     passed_time = walk->clock().GetMaxTime(0);
      std::cout << "total: " << passed_time  << std::endl;
 
     delete walk;

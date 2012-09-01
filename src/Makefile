@@ -6,10 +6,10 @@
 SRCDIR = .
 
 # select your operating system here!
-# include make_linux.mk
+include make_linux.mk
 # include make_windows.mk
 # include make_vxworks.mk
-include make_vxworks_intel.mk
+# include make_vxworks_intel.mk
 
 
 ##
@@ -45,7 +45,7 @@ MPC_WALKGEN_OBJECTS = \
 	interpolation.${OBJEXT} \
 	foot-body.${OBJEXT} \
 	com-body.${OBJEXT} \
-	stopwatch.${OBJEXT} 
+	realclock.${OBJEXT} 
 	
 QPOASES_OBJECTS = \
 	${QPOASES_SRCDIR}/SQProblem.${OBJEXT} \
@@ -96,7 +96,7 @@ walkgen.${OBJEXT}:  walkgen.cpp \
 	${IDIR}/mpc-walkgen/tools.h \
 	${IDIR}/mpc-walkgen/tools-inl.h  \
 	${IDIR}/mpc-walkgen/rigid-body-system-inl.h \
-	${IDIR}/mpc-walkgen/stopwatch.h 
+	${IDIR}/mpc-walkgen/realclock.h 
 	@echo "Creating"  $@
 	${CPP} ${DEF_TARGET} -c ${IFLAGS} ${CPPFLAGS} walkgen.cpp
 
@@ -292,10 +292,10 @@ com-body.${OBJEXT}: com-body.cpp \
 	@echo "Creating"  $@
 	${CPP} ${DEF_TARGET} -c ${IFLAGS} ${CPPFLAGS} com-body.cpp
 
-stopwatch.${OBJEXT}: stopwatch.cpp \
-	${IDIR}/mpc-walkgen/stopwatch.h 
+realclock.${OBJEXT}: realclock.cpp \
+	${IDIR}/mpc-walkgen/realclock.h 
 	@echo "Creating"  $@
-	${CPP} ${DEF_TARGET} -c ${IFLAGS} ${CPPFLAGS} stopwatch.cpp
+	${CPP} ${DEF_TARGET} -c ${IFLAGS} ${CPPFLAGS} realclock.cpp
 
 clean:
 	${RM} -f *.${OBJEXT} *.${LIBEXT}

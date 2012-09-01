@@ -47,6 +47,34 @@ void QPMatrix::addTerm(const MatrixXd &mat,
                            }
                          }
                          cholesky_old_mat_ = true;
+// For matrices
+//  double * p = Array_p->Array_;
+//  boost_ublas::matrix<double>::const_iterator1 row_it = Mat.begin1();
+//  boost_ublas::matrix<double>::const_iterator2 col_it = Mat.begin2();
+//  double * p_it = &p[row+(col)*Array_p->NbRows_];
+//  for( unsigned j = 0; j < Mat.size2(); j++ )
+//    {
+//      row_it = col_it.begin();
+//      p_it = &p[row+(col+j)*Array_p->NbRows_];
+//      for( unsigned i = 0; i < Mat.size1(); i++ )
+//        {
+//          *p_it += *row_it;
+//          ++p_it;
+//          ++row_it;
+//        }
+//
+//      ++col_it;
+//    }
+
+// For vectors
+//						       for( unsigned i = 0; i < Vec.size(); i++ )
+//        {
+//          *p_it += *vec_it;
+//          ++vec_it;
+//          ++p_it;
+//      }
+
+
 }
 
 void QPMatrix::setTerm(const MatrixXd &mat,

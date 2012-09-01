@@ -62,8 +62,6 @@ MPCSolution& MPCSolution::operator = (MPCSolution const &rhs){
   constraints = rhs.constraints;
   initialConstraints = rhs.initialConstraints;
 
-  analysis = rhs.analysis;
-
   /// \brief True if a new trajectory is computed in online loop
   newTraj = rhs.newTraj;
 
@@ -84,9 +82,17 @@ MPCSolution& MPCSolution::operator = (MPCSolution const &rhs){
   foot_left_prw = rhs.foot_left_prw; 
   foot_right_prw = rhs.foot_right_prw; 
 
+  com_act = rhs.com_act;
+  cop_prw = rhs.cop_act; 
+  foot_left_act = rhs.foot_left_act; 
+  foot_right_act = rhs.foot_right_act; 
+
+  analysis = rhs.analysis;
+
   state_vec = rhs.state_vec;
   return(*this);
 }
+
 
 void MPCSolution::reset(){
   support_states_vec.resize(0);

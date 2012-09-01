@@ -101,8 +101,9 @@ void QPGenerator::BuildProblem(MPCSolution &solution) {
 
   buildObjective(solution);
   buildConstraints(solution);
-  if (mpc_parameters_->warmstart)
+  if (mpc_parameters_->warmstart) {
     computeWarmStart(solution);//TODO: Weird to modify the solution
+  }
 
 }
 
