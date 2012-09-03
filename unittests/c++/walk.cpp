@@ -129,27 +129,27 @@ int main(int argc, char *argv[]) {
     double curr_time = 0;
     walk->reference(velocity, 0, 0);
 	int num_iterations = 0;
-    for (; curr_time < 2; curr_time += sample_period_act) {
+    for (; curr_time < 5; curr_time += sample_period_act) {
         walk->clock().ResetLocal();
         int online_timer = walk->clock().StartCounter();
-        walk->online(curr_time);
-		//walk->clock().StopLastCounter();
+        const MPCSolution &solution = walk->online(curr_time);
+		walk->clock().StopLastCounter();
         walk->clock().StopCounter(online_timer);
 		// Print time:
-        //int num_counters = walk->clock().GetNumCounters();
-        //double passed_time = 0.0;
-        //for (int i = num_counters - 1; i >= 1; i--) {
-        //    passed_time = walk->clock().PopBackTime();
-         //   std::cout<<"num"<< i <<": " << passed_time << "   ";
-        //}
-        //passed_time = walk->clock().PopBackTime();
-        //std::cout << "total: " << passed_time  << std::endl;
-       
+		/*
+        int num_counters = walk->clock().GetNumCounters();
+        double passed_time = 0.0;
+        for (int i = num_counters - 1; i >= 1; i--) {
+            passed_time = walk->clock().PopBackTime();
+           std::cout<<"num"<< i <<": " << passed_time << "   ";
+        }
+        passed_time = walk->clock().PopBackTime();
+        std::cout << "total: " << passed_time  << std::endl;
+       */
 		num_iterations++;
     }
     
 	// Print total time:
-
      int num_counters = walk->clock().GetNumTotalCounters();
      double passed_time = 0.0;
 	 std::cout << "Total [mus]: ----------------" << std::endl;

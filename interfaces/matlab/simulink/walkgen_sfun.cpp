@@ -80,7 +80,7 @@ static void mdlInitializeSizes(SimStruct *S)
 
 static void mdlInitializeSampleTimes(SimStruct *S)
 {
-  ssSetSampleTime(S, 0, 0.001);
+  ssSetSampleTime(S, 0, 0.005);
 }
 
 #define MDL_START
@@ -249,7 +249,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
   double curr_time = ssGetT(S);
   walk->clock().ResetLocal();
   int time_online = walk->clock().StartCounter();
-  const MPCSolution solution = walk->online(curr_time);
+  const MPCSolution &solution = walk->online(curr_time);
   walk->clock().StopCounter(time_online);
   
   // Assign to the output:
@@ -336,6 +336,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
   //for (int i = num_counters - 1; i >= 0; i--) {
 	  analysis[/*i + */2] = walk->clock().GetTime(time_online);
   //}
+	  
 
 }
 

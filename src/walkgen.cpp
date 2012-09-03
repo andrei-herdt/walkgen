@@ -167,7 +167,7 @@ const MPCSolution &Walkgen::online(double time){
   currentTime_ = time;
 
   if (time  > next_computation_ - EPSILON) {
-    //int first_timer = clock_.StartCounter();
+    int first_timer = clock_.StartCounter();
     next_computation_ += mpc_parameters_.period_mpcsample;
     if (time > next_computation_ - EPSILON) {   
       ResetCounters(time);
@@ -179,31 +179,31 @@ const MPCSolution &Walkgen::online(double time){
       }
     }
     ResetOutputIndex();
-    //clock_.StopCounter(first_timer);
+    clock_.StopCounter(first_timer);
 
-    //int timer_build_problem = clock_.StartCounter();
+    int timer_build_problem = clock_.StartCounter();
     BuildProblem();
-    //clock_.StopCounter(timer_build_problem);
+    clock_.StopCounter(timer_build_problem);
 
-    //int timer_solve = clock_.StartCounter();
+    int timer_solve = clock_.StartCounter();
     solver_->Solve(solution_, mpc_parameters_.warmstart, mpc_parameters_.solver.analysis);
-    //clock_.StopCounter(timer_solve);
+    clock_.StopCounter(timer_solve);
 
-    //int timer_generate_traj = clock_.StartCounter();
+    int timer_generate_traj = clock_.StartCounter();
     GenerateTrajectories();
-    //clock_.StopCounter(timer_generate_traj);
+    clock_.StopCounter(timer_generate_traj);
   }
 
-  //int timer_update_output = clock_.StartCounter();
+  int timer_update_output = clock_.StartCounter();
   if (time > next_act_sample_ - EPSILON) {
     next_act_sample_ += mpc_parameters_.period_actsample;
 
     IncrementOutputIndex();
     UpdateOutput();
   }
-  //clock_.StopCounter(timer_update_output);
+  clock_.StopCounter(timer_update_output);
 
-  //clock_.StartCounter();
+  clock_.StartCounter();
 
   return solution_;
 }

@@ -60,7 +60,7 @@ namespace MPCWalkgen{
     virtual const QPSolver *solver() const { return solver_; };
 
     virtual RealClock &clock() {return clock_;};
-	virtual MPCSolution solution() {return solution_;};
+	virtual const MPCSolution &solution() {return solution_;};
     // \}
   
   private:

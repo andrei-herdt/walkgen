@@ -33,61 +33,70 @@ QPMatrix::QPMatrix(const int nbrows, const int nbcols)
 QPMatrix::~QPMatrix(){}
 
 void QPMatrix::addTerm(const MatrixXd &mat,
-                       const int row, const int col) {
+                       const int first_row, const int first_col) {
                          int nbrows = mat.rows();
                          int nbcols = mat.cols();
                          int newcol = 0;
                          int newrow = 0;
-                         for (int i = 0; i < nbrows; ++i) {
-                           newrow = row_indices_vec_(row + i);
-                           for (int j = 0; j < nbcols; ++j) {
-                             newcol = col_indices_vec_(col + j);
+                         //const double *mat_p = mat.data();
+                         for (int row = 0; row < nbrows; ++row) {
+                           newrow = row_indices_vec_(first_row + row);
+                           for (int col = 0; col < nbcols; ++col) {
+                             newcol = col_indices_vec_(first_col + col);
                              // row major!
-                             *(matrix_.data() + newcol + newrow * nbcols_) += mat(i, j);
+                             *(matrix_.data() + newcol + newrow * nbcols_) += mat(row,col);
+                             //++mat_p;
                            }
                          }
-                         cholesky_old_mat_ = true;
-// For matrices
-//  double * p = Array_p->Array_;
-//  boost_ublas::matrix<double>::const_iterator1 row_it = Mat.begin1();
-//  boost_ublas::matrix<double>::const_iterator2 col_it = Mat.begin2();
-//  double * p_it = &p[row+(col)*Array_p->NbRows_];
-//  for( unsigned j = 0; j < Mat.size2(); j++ )
-//    {
-//      row_it = col_it.begin();
-//      p_it = &p[row+(col+j)*Array_p->NbRows_];
-//      for( unsigned i = 0; i < Mat.size1(); i++ )
-//        {
-//          *p_it += *row_it;
-//          ++p_it;
-//          ++row_it;
-//        }
-//
-//      ++col_it;
-//    }
 
-// For vectors
-//						       for( unsigned i = 0; i < Vec.size(); i++ )
-//        {
-//          *p_it += *vec_it;
-//          ++vec_it;
-//          ++p_it;
-//      }
+                         /*   
+                         for (int row = 0; row < mat.rows(); ++row) {
+                         for (int col = 0; col < mat.cols(); ++col) {
+                         matrix_(row_indices_vec_(first_row+row), col_indices_vec_(first_col + col)) += mat(row,col);
+                         }
+                         }
+                         */				
+                         cholesky_old_mat_ = true;
+                         // For matrices
+                         //  double * p = Array_p->Array_;
+                         //  boost_ublas::matrix<double>::const_iterator1 row_it = Mat.begin1();
+                         //  boost_ublas::matrix<double>::const_iterator2 col_it = Mat.begin2();
+                         //  double * p_it = &p[first_row+(first_col)*Array_p->NbRows_];
+                         //  for( unsigned col = 0; col < Mat.size2(); col++ )
+                         //    {
+                         //      row_it = col_it.begin();
+                         //      p_it = &p[first_row+(first_col+col)*Array_p->NbRows_];
+                         //      for( unsigned row = 0; row < Mat.size1(); row++ )
+                         //        {
+                         //          *p_it += *row_it;
+                         //          ++p_it;
+                         //          ++row_it;
+                         //        }
+                         //
+                         //      ++col_it;
+                         //    }
+
+                         // For vectors
+                         //						       for( unsigned row = 0; row < Vec.size(); row++ )
+                         //        {
+                         //          *p_it += *vec_it;
+                         //          ++vec_it;
+                         //          ++p_it;
+                         //      }
 
 
 }
 
-void QPMatrix::setTerm(const MatrixXd &mat,
-                       const int row, const int col) {
-                         int nbrows = mat.rows();
-                         int nbcols = mat.cols();
-                         for (int i = 0; i < nbrows; ++i) {
-                           for (int j = 0; j < nbcols; ++j) {
-                             // row major!
-                             *(matrix_.data() + col_indices_vec_(col + j) + row_indices_vec_(row + i) * nbcols_) = mat(i, j);
-                           }
-                         }
-                         cholesky_old_mat_ = true;
+void QPMatrix::setTerm(const MatrixXd &mat, const int row, const int col) {
+  int nbrows = mat.rows();
+  int nbcols = mat.cols();
+  for (int i = 0; i < nbrows; ++i) {
+    for (int j = 0; j < nbcols; ++j) {
+      // row major!
+      *(matrix_.data() + col_indices_vec_(col + j) + row_indices_vec_(row + i) * nbcols_) = mat(i, j);
+    }
+  }
+  cholesky_old_mat_ = true;
 }
 
 void QPMatrix::setConstantPart(const MatrixXd &mat) {

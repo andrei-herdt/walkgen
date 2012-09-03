@@ -33,8 +33,8 @@
 ##	definitions for compiling with gcc under vxworks
 ##
 
-CPP = /opt/vxworks/wrapper/linux/bin/vxworks6.9-x86-gcc4.x-g++
-AR  = /opt/vxworks/wrapper/linux/bin/vxworks6.9-x86-gcc4.x-ar
+CPP = /home/f_legs/devel/new_wrapper/linux/bin/vxworks6.9-x86-gcc4.x-g++
+AR  = /home/f_legs/devel/new_wrapper/linux/bin/vxworks6.9-x86-gcc4.x-ar
 RM  = rm
 
 OBJEXT = o

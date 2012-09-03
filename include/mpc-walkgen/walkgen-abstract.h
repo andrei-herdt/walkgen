@@ -64,7 +64,7 @@ namespace MPCWalkgen{
       virtual const QPSolver *solver() const = 0;
 
       virtual RealClock &clock() = 0;
-	  virtual MPCSolution solution() = 0;
+	  virtual const MPCSolution &solution() = 0;
       /// \}
 
     };

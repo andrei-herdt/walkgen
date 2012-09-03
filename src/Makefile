@@ -6,9 +6,9 @@
 SRCDIR = .
 
 # select your operating system here!
-include make_linux.mk
+# include make_linux.mk
 # include make_windows.mk
-# include make_vxworks.mk
+include make_vxworks.mk
 # include make_vxworks_intel.mk
 
 
