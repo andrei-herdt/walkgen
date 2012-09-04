@@ -9,16 +9,16 @@ using namespace Eigen;
 
 
 
-QPVector::QPVector(const int nbrows)
-:constantPart_(nbrows)
-,vector_(nbrows)
-,nbrows_(nbrows)
-,rowOrder_(nbrows) {
+QPVector::QPVector(const int num_rows)
+:constantPart_(num_rows)
+,vector_(num_rows)
+,num_rows_(num_rows)
+,rowOrder_(num_rows) {
 
   constantPart_.setZero();
   vector_.setZero();
 
-  for (int i = 0; i < nbrows; ++i) {
+  for (int i = 0; i < num_rows; ++i) {
     rowOrder_(i) = i;
   }
 }
@@ -51,7 +51,7 @@ void QPVector::reset(){
 }
 
 void QPVector::resize(const int nbRows){
-  //nbrows_ = nbRows;
+  //num_rows_ = nbRows;
 }
 
 void QPVector::rowOrder(const Eigen::VectorXi &order){

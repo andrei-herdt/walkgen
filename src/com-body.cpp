@@ -136,7 +136,7 @@ void CoMBody::ComputeDynamicsMatrices(LinearDynamicsMatrices &dyn,
         }
 
       }
-      inverse(dyn.U,dyn.UInv);
+      inverse(dyn.U, dyn.UInv);
       dyn.UInvT=dyn.UInv.transpose();
       break;
 
