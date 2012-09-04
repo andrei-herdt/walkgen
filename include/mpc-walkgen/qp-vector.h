@@ -21,18 +21,18 @@ namespace MPCWalkgen{
 
   class QPVector{
   public:
-    QPVector(const int nbrows = 0);
+    QPVector(const int num_rows);
     ~QPVector();
 
-    void addTerm(const Eigen::VectorXd &vec, const int row = 0);
+    void addTerm(const Eigen::VectorXd &vec, const int row);
 
-    void setTerm(const Eigen::VectorXd &vec, const int row = 0);
+    void setTerm(const Eigen::VectorXd &vec, const int row);
 
     void setConstantPart(const Eigen::VectorXd &vec);
 
     void reset();
 
-    void resize(const int nbrows);
+    void resize(const int num_rows);
 
     void rowOrder(const Eigen::VectorXi &order);
 
@@ -41,13 +41,13 @@ namespace MPCWalkgen{
     }
     inline double &operator()(int row){return vector_(row);}
 
-    inline int nbrows() const	 {return nbrows_;}
+    inline int num_rows() const	 {return num_rows_;}
 
   private:
 
     Eigen::VectorXd constantPart_, vector_;
 
-    int nbrows_;
+    int num_rows_;
 
     Eigen::VectorXi rowOrder_;
   };

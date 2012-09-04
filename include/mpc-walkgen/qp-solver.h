@@ -49,7 +49,8 @@ namespace MPCWalkgen{
     inline void nbcstr_max(const int nbcstr) {num_constr_max_ = nbcstr;}
     inline int nbcstr_max() const {return num_constr_max_;}
 
-    void varOrder(const Eigen::VectorXi &order);
+
+    void SetVarOrder(const Eigen::VectorXi &order);
     void ctrOrder(const Eigen::VectorXi &order);
 
     virtual SolverName name() const = 0;
