@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.306"
+    ComputedModelVersion    "1.319"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Mon Sep 03 20:40:59 2012"
+  LastModifiedDate	  "Tue Sep 04 11:08:22 2012"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:306>"
+  ModelVersionFormat	  "1.%<AutoIncrement:319>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -535,6 +535,13 @@ Model {
       InitialOutput	      "[]"
     }
     Block {
+      BlockType		      RateTransition
+      Integrity		      on
+      Deterministic	      on
+      X0		      "0"
+      OutPortSampleTime	      "-1"
+    }
+    Block {
       BlockType		      Scope
       ModelBased	      off
       TickLabels	      "OneTimeTick"
@@ -693,8 +700,8 @@ Model {
       FunctionWithSeparateData off
       System {
 	Name			"Simulation"
-	Location		[848, 74, 1594, 876]
-	Open			off
+	Location		[848, 74, 1594, 860]
+	Open			on
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
 	ScreenColor		"white"
@@ -710,7 +717,7 @@ Model {
 	  BlockType		  EnablePort
 	  Name			  "Enable"
 	  Ports			  []
-	  Position		  [335, 20, 360, 40]
+	  Position		  [430, 20, 455, 40]
 	}
 	Block {
 	  BlockType		  Step
@@ -730,15 +737,16 @@ Model {
 	  BlockType		  SubSystem
 	  Name			  "Atomic Walkgen"
 	  Ports			  [4, 2]
-	  Position		  [295, 63, 400, 772]
+	  Position		  [390, 63, 495, 772]
 	  TreatAsAtomicUnit	  on
 	  MinAlgLoopOccurrences	  off
+	  SystemSampleTime	  "0.005"
 	  RTWSystemCode		  "Auto"
 	  FunctionWithSeparateData off
 	  System {
 	    Name		    "Atomic Walkgen"
 	    Location		    [403, 74, 1582, 876]
-	    Open		    on
+	    Open		    off
 	    ModelBrowserVisibility  off
 	    ModelBrowserWidth	    200
 	    ScreenColor		    "white"
@@ -916,12 +924,24 @@ Model {
 	      }
 	    }
 	    Block {
+	      BlockType		      RateTransition
+	      Name		      "Protected RT1"
+	      Position		      [890, 250, 910, 270]
+	      Deterministic	      off
+	    }
+	    Block {
+	      BlockType		      RateTransition
+	      Name		      "Protected RT2"
+	      Position		      [810, 465, 830, 485]
+	      Deterministic	      off
+	    }
+	    Block {
 	      BlockType		      "S-Function"
 	      Name		      "S-Function"
 	      Ports		      [9, 15]
 	      Position		      [375, 168, 465, 542]
 	      FunctionName	      "walkgen_sfun"
-	      Parameters	      "12, 8, 8, 2, 0.1, 0.005, 0.005"
+	      Parameters	      "10, 8, 8, 2, 0.1, 0.005, 0.005"
 	      Port {
 		PortNumber		1
 		Name			"com"
@@ -1021,7 +1041,7 @@ Model {
 	      Orientation	      "up"
 	      ShowName		      off
 	      Floating		      off
-	      Location		      [79, 40, 1595, 891]
+	      Location		      [79, 49, 1595, 900]
 	      Open		      off
 	      NumInputPorts	      "1"
 	      List {
@@ -1094,7 +1114,7 @@ Model {
 	    Block {
 	      BlockType		      Outport
 	      Name		      "command"
-	      Position		      [885, 253, 915, 267]
+	      Position		      [950, 253, 980, 267]
 	      IconDisplay	      "Port number"
 	      OutDataType	      "sfix(16)"
 	      OutScaling	      "2^0"
@@ -1102,7 +1122,7 @@ Model {
 	    Block {
 	      BlockType		      Outport
 	      Name		      "preview"
-	      Position		      [885, 473, 915, 487]
+	      Position		      [950, 468, 980, 482]
 	      Port		      "2"
 	      IconDisplay	      "Port number"
 	      OutDataType	      "sfix(16)"
@@ -1113,14 +1133,14 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "Bus\nCreator1"
 	      SrcPort		      1
-	      Points		      [0, -5; 180, 0]
-	      DstBlock		      "preview"
+	      Points		      [0, -5]
+	      DstBlock		      "Protected RT2"
 	      DstPort		      1
 	    }
 	    Line {
 	      SrcBlock		      "Bus\nCreator"
 	      SrcPort		      1
-	      DstBlock		      "command"
+	      DstBlock		      "Protected RT1"
 	      DstPort		      1
 	    }
 	    Line {
@@ -1146,12 +1166,12 @@ Model {
 	      SrcPort		      4
 	      Points		      [70, 0]
 	      Branch {
-		DstBlock		"Bus\nCreator"
-		DstPort			2
-	      }
-	      Branch {
 		DstBlock		"Scope1"
 		DstPort			1
+	      }
+	      Branch {
+		DstBlock		"Bus\nCreator"
+		DstPort			2
 	      }
 	    }
 	    Line {
@@ -1385,6 +1405,18 @@ Model {
 	      DstBlock		      "S-Function"
 	      DstPort		      8
 	    }
+	    Line {
+	      SrcBlock		      "Protected RT2"
+	      SrcPort		      1
+	      DstBlock		      "preview"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "Protected RT1"
+	      SrcPort		      1
+	      DstBlock		      "command"
+	      DstPort		      1
+	    }
 	  }
 	}
 	Block {
@@ -1423,7 +1455,7 @@ Model {
 	  BlockType		  BusSelector
 	  Name			  "Bus\nSelector"
 	  Ports			  [1, 5]
-	  Position		  [505, 535, 510, 655]
+	  Position		  [570, 535, 575, 655]
 	  ShowName		  off
 	  OutputSignals		  "next_foot,com_prw,cop_prw,support,resolution_data"
 	  Port {
@@ -1461,7 +1493,7 @@ Model {
 	  BlockType		  BusSelector
 	  Name			  "Bus\nSelector1"
 	  Ports			  [1, 4]
-	  Position		  [505, 180, 510, 300]
+	  Position		  [570, 180, 575, 300]
 	  ShowName		  off
 	  OutputSignals		  "com,cop,left_foot,right_foot"
 	  Port {
@@ -1654,6 +1686,30 @@ Model {
 	  }
 	}
 	Block {
+	  BlockType		  RateTransition
+	  Name			  "Protected RT2"
+	  Position		  [300, 145, 320, 165]
+	  Deterministic		  off
+	}
+	Block {
+	  BlockType		  RateTransition
+	  Name			  "Protected RT3"
+	  Position		  [305, 320, 325, 340]
+	  Deterministic		  off
+	}
+	Block {
+	  BlockType		  RateTransition
+	  Name			  "Protected RT4"
+	  Position		  [310, 495, 330, 515]
+	  Deterministic		  off
+	}
+	Block {
+	  BlockType		  RateTransition
+	  Name			  "Protected RT5"
+	  Position		  [300, 670, 320, 690]
+	  Deterministic		  off
+	}
+	Block {
 	  BlockType		  Sum
 	  Name			  "Sum1"
 	  Ports			  [2, 1]
@@ -1697,7 +1753,7 @@ Model {
 	Block {
 	  BlockType		  ToWorkspace
 	  Name			  "To Workspace10"
-	  Position		  [605, 560, 680, 580]
+	  Position		  [670, 560, 745, 580]
 	  ShowName		  off
 	  VariableName		  "com_prw"
 	  MaxDataPoints		  "inf"
@@ -1707,7 +1763,7 @@ Model {
 	Block {
 	  BlockType		  ToWorkspace
 	  Name			  "To Workspace11"
-	  Position		  [605, 585, 680, 605]
+	  Position		  [670, 585, 745, 605]
 	  ShowName		  off
 	  VariableName		  "cop_prw"
 	  MaxDataPoints		  "inf"
@@ -1717,7 +1773,7 @@ Model {
 	Block {
 	  BlockType		  ToWorkspace
 	  Name			  "To Workspace12"
-	  Position		  [605, 610, 680, 630]
+	  Position		  [670, 610, 745, 630]
 	  ShowName		  off
 	  VariableName		  "support"
 	  MaxDataPoints		  "inf"
@@ -1727,7 +1783,7 @@ Model {
 	Block {
 	  BlockType		  ToWorkspace
 	  Name			  "To Workspace13"
-	  Position		  [605, 635, 680, 655]
+	  Position		  [670, 635, 745, 655]
 	  ShowName		  off
 	  VariableName		  "resolution_data"
 	  MaxDataPoints		  "inf"
@@ -1737,7 +1793,7 @@ Model {
 	Block {
 	  BlockType		  ToWorkspace
 	  Name			  "To Workspace14"
-	  Position		  [600, 185, 650, 205]
+	  Position		  [665, 185, 715, 205]
 	  ShowName		  off
 	  VariableName		  "com"
 	  MaxDataPoints		  "inf"
@@ -1747,7 +1803,7 @@ Model {
 	Block {
 	  BlockType		  ToWorkspace
 	  Name			  "To Workspace15"
-	  Position		  [600, 215, 650, 235]
+	  Position		  [665, 215, 715, 235]
 	  ShowName		  off
 	  VariableName		  "cop"
 	  MaxDataPoints		  "inf"
@@ -1757,7 +1813,7 @@ Model {
 	Block {
 	  BlockType		  ToWorkspace
 	  Name			  "To Workspace16"
-	  Position		  [600, 245, 650, 265]
+	  Position		  [665, 245, 715, 265]
 	  ShowName		  off
 	  VariableName		  "left_foot"
 	  MaxDataPoints		  "inf"
@@ -1767,7 +1823,7 @@ Model {
 	Block {
 	  BlockType		  ToWorkspace
 	  Name			  "To Workspace17"
-	  Position		  [600, 275, 650, 295]
+	  Position		  [665, 275, 715, 295]
 	  ShowName		  off
 	  VariableName		  "right_foot"
 	  MaxDataPoints		  "inf"
@@ -1777,7 +1833,7 @@ Model {
 	Block {
 	  BlockType		  ToWorkspace
 	  Name			  "To Workspace9"
-	  Position		  [605, 535, 680, 555]
+	  Position		  [670, 535, 745, 555]
 	  ShowName		  off
 	  VariableName		  "next_foot"
 	  MaxDataPoints		  "inf"
@@ -1819,16 +1875,16 @@ Model {
 	  Labels		  [0, 0]
 	  SrcBlock		  "Bus\nCreator3"
 	  SrcPort		  1
-	  DstBlock		  "Atomic Walkgen"
-	  DstPort		  2
+	  DstBlock		  "Protected RT3"
+	  DstPort		  1
 	}
 	Line {
 	  Name			  "init"
 	  Labels		  [0, 0]
 	  SrcBlock		  "Bus\nCreator4"
 	  SrcPort		  1
-	  DstBlock		  "Atomic Walkgen"
-	  DstPort		  3
+	  DstBlock		  "Protected RT4"
+	  DstPort		  1
 	}
 	Line {
 	  Name			  "left_ankle"
@@ -1895,15 +1951,15 @@ Model {
 	  Labels		  [0, 0]
 	  SrcBlock		  "closed_loop1"
 	  SrcPort		  1
-	  DstBlock		  "Atomic Walkgen"
-	  DstPort		  4
+	  DstBlock		  "Protected RT5"
+	  DstPort		  1
 	}
 	Line {
 	  Name			  "vel_ref"
 	  Labels		  [0, 0]
 	  SrcBlock		  "Sum1"
 	  SrcPort		  1
-	  DstBlock		  "Atomic Walkgen"
+	  DstBlock		  "Protected RT2"
 	  DstPort		  1
 	}
 	Line {
@@ -2046,6 +2102,30 @@ Model {
 	  SrcPort		  4
 	  DstBlock		  "To Workspace17"
 	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Protected RT2"
+	  SrcPort		  1
+	  DstBlock		  "Atomic Walkgen"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Protected RT3"
+	  SrcPort		  1
+	  DstBlock		  "Atomic Walkgen"
+	  DstPort		  2
+	}
+	Line {
+	  SrcBlock		  "Protected RT4"
+	  SrcPort		  1
+	  DstBlock		  "Atomic Walkgen"
+	  DstPort		  3
+	}
+	Line {
+	  SrcBlock		  "Protected RT5"
+	  SrcPort		  1
+	  DstBlock		  "Atomic Walkgen"
+	  DstPort		  4
 	}
       }
     }
