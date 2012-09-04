@@ -19,67 +19,73 @@
 namespace MPCWalkgen{
 
   class QPMatrix{
+    //
+    // Public methods:
+    //
   public:
-
-    /// \name Typedefs
-    /// \{
-    typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> EigenMatrixXdRM;
-    /// \}
-
-    QPMatrix(const int nbrows = 0, const int nbcols = 0);
+    QPMatrix(const int num_rows, const int num_cols);
 
     ~QPMatrix();
 
-    void addTerm(const Eigen::MatrixXd &mat,
-      const int row = 0, const int col = 0);
+    void addTerm(const EigenMatrixXdRM &mat,
+      const int first_row, const int first_col);
 
-    void setTerm(const Eigen::MatrixXd &mat,
-      const int row = 0, const int col = 0);
+    void setTerm(const CommonMatrixType &mat,
+      const int first_row, const int first_col);
 
-    void setConstantPart(const Eigen::MatrixXd &mat);
+    void setConstantPart(const CommonMatrixType &mat);
 
     void reset();
 
-    void resize(const int nbrows, const int nbcols);
+    void resize(const int num_rows, const int num_cols);
 
-    Eigen::MatrixXd &cholesky();
-    Eigen::MatrixXd &cholesky(Eigen::MatrixXd &partialCholesky);
+    CommonMatrixType &cholesky();
+    CommonMatrixType &cholesky(CommonMatrixType &partialCholesky);
 
     void colOrder(const Eigen::VectorXi &order);
     void rowOrder(const Eigen::VectorXi &order);
+    void relative_row_order(const Eigen::VectorXi &order);
+    void relative_col_order(const Eigen::VectorXi &order);
 
 
     // accessors
-    inline EigenMatrixXdRM &operator()(void) {
+    inline CommonMatrixType &operator()(void) {
       cholesky_old_mat_ = true;
       return matrix_;
     }
-    inline const EigenMatrixXdRM &operator()(void) const {
+    inline const CommonMatrixType &operator()(void) const {
       return matrix_;
     }
 
     inline double &operator()(int row, int col=0){return matrix_(row,col);}
 
-    inline int nbrows() const	 {return nbrows_;}
-    inline int nbcols() const    {return nbcols_;}
+    inline int num_rows() const	 {return num_rows_;}
+    inline int num_cols() const    {return num_cols_;}
 
+    //
+    // Private methods:
+    //
   private:
-    void computeCholesky(const Eigen::MatrixXd &partialCholesky);
+    void computeCholesky(const CommonMatrixType &partialCholesky);
     void computeCholesky();
 
+    //
+    // Private data members:
+    //
   private:
 
-    EigenMatrixXdRM constant_mat_;
-    EigenMatrixXdRM matrix_;
-    Eigen::MatrixXd cholesky_mat_;//TODO: Is this logical? (move out?)
+    CommonMatrixType constant_mat_;
+    CommonMatrixType matrix_;
+    CommonMatrixType cholesky_mat_;
 
-    int nbrows_;
-    int nbcols_;
+    int num_rows_;
+    int num_cols_;
 
     bool cholesky_old_mat_;
 
     Eigen::VectorXi row_indices_vec_;
     Eigen::VectorXi col_indices_vec_;
+
   };
 
 }

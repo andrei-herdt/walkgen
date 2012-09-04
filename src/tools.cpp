@@ -10,13 +10,13 @@
 
 using namespace Eigen;
 
-void MPCWalkgen::inverse(const MatrixXd &A, MatrixXd &Ap, double eps) {
-	FullPivLU<MatrixXd> lu(A);
+void MPCWalkgen::inverse(const CommonMatrixType &A, CommonMatrixType &Ap, double eps) {
+	FullPivLU<CommonMatrixType> lu(A);
 	Ap = lu.inverse();
-	for(int i=0;i<Ap.rows();++i){
-		for(int j=0;j<Ap.cols();++j){
-			if (fabs(Ap(i,j))<eps){
-				Ap(i,j)=0;
+	for(int i = 0;i < Ap.rows(); ++i){
+		for(int j = 0;j < Ap.cols(); ++j){
+			if (fabs(Ap(i,j)) < eps){
+				Ap(i,j) = 0;
 			}
 		}
 	}
@@ -24,7 +24,7 @@ void MPCWalkgen::inverse(const MatrixXd &A, MatrixXd &Ap, double eps) {
 }
 
 // Every elmt is supposed to be 0, execpted the diagonal.
-bool MPCWalkgen::isSparseRotationMatrix (const MatrixXd &rot1)
+bool MPCWalkgen::isSparseRotationMatrix (const CommonMatrixType &rot1)
 {
 	int N = rot1.rows() / 2;//TODO: Safe?
 	bool solution = true;
@@ -36,7 +36,7 @@ bool MPCWalkgen::isSparseRotationMatrix (const MatrixXd &rot1)
 }
 
 //
-bool MPCWalkgen::isDiagonalRotationMatrix(const Eigen::MatrixXd &rot)
+bool MPCWalkgen::isDiagonalRotationMatrix(const CommonMatrixType &rot)
 {
 	for (int i=0; i<rot.rows(); ++i)
 	{
@@ -45,8 +45,8 @@ bool MPCWalkgen::isDiagonalRotationMatrix(const Eigen::MatrixXd &rot)
 			// the only non null elements should be on the diagonal.
 			if (fabs(rot(i,j)) > kEps)
 			{
-				int halfi = 2* static_cast <int>(floor (i/2.) );
-				int halfj = 2* static_cast <int>(floor (j/2.) );
+				int halfi = 2 * static_cast <int>(floor (i/2.) );
+				int halfj = 2 * static_cast <int>(floor (j/2.) );
 				if(	halfi != halfj)
 					return false;
 			}
@@ -55,7 +55,7 @@ bool MPCWalkgen::isDiagonalRotationMatrix(const Eigen::MatrixXd &rot)
 	return true;
 }
 
-bool MPCWalkgen::isUpperTriangular(const Eigen::MatrixXd &m)
+bool MPCWalkgen::isUpperTriangular(const CommonMatrixType &m)
 {
 	for (int i=0; i<m.rows(); ++i)
 		for (int j=0; j<i; ++j)
@@ -65,7 +65,7 @@ bool MPCWalkgen::isUpperTriangular(const Eigen::MatrixXd &m)
 	return true;
 }
 
-bool MPCWalkgen::hasCholeskyForm(const Eigen::MatrixXd &m)
+bool MPCWalkgen::hasCholeskyForm(const CommonMatrixType &m)
 {
 	//Check that the matrix is upper triangular,  (a)
 	//such as m(2*i,2*i) = m(2*i+1,2*i+1)         (b)
@@ -101,7 +101,7 @@ bool MPCWalkgen::hasCholeskyForm(const Eigen::MatrixXd &m)
 	return true;
 }
 
-void MPCWalkgen::rotateCholeskyMatrix(MatrixXd &mInOut, const MatrixXd &rot)
+void MPCWalkgen::rotateCholeskyMatrix(CommonMatrixType &mInOut, const CommonMatrixType &rot)
 {
 	assert(isDiagonalRotationMatrix(rot) && "The matrix rot is not 2.2 block diagonal");
 	assert(hasCholeskyForm(mInOut) && "The cholesky matrix has not the form required for a cholesky matrix");
@@ -120,7 +120,7 @@ void MPCWalkgen::rotateCholeskyMatrix(MatrixXd &mInOut, const MatrixXd &rot)
 	assert(isUpperTriangular(mInOut) && "The cholesky matrix is not upper triangular at the exit of the function");
 }
 
-void MPCWalkgen::computeRM(MatrixXd &mIn, const MatrixXd &rot)
+void MPCWalkgen::computeRM(CommonMatrixType &mIn, const CommonMatrixType &rot)
 {
 	assert(isDiagonalRotationMatrix(rot) && "The matrix rot is not 2.2 block diagonal");
 
@@ -133,7 +133,7 @@ void MPCWalkgen::computeRM(MatrixXd &mIn, const MatrixXd &rot)
 	}
 }
 
-void MPCWalkgen::computeMRt(MatrixXd &mIn, const MatrixXd &rot)
+void MPCWalkgen::computeMRt(CommonMatrixType &mIn, const CommonMatrixType &rot)
 {
 	assert(isDiagonalRotationMatrix(rot) && "The matrix rot is not 2.2 block diagonal");
 

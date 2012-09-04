@@ -8,47 +8,58 @@ using namespace MPCWalkgen;
 using namespace Eigen;
 
 
-QPMatrix::QPMatrix(const int nbrows, const int nbcols)
-:constant_mat_(nbrows, nbcols)
-,matrix_(nbrows, nbcols)
-,cholesky_mat_(nbrows, nbcols)
-,nbrows_(nbrows)
-,nbcols_(nbcols)
+QPMatrix::QPMatrix(const int num_rows, const int num_cols)
+:constant_mat_(num_rows, num_cols)
+,matrix_(num_rows, num_cols)
+,cholesky_mat_(num_rows, num_cols)
+,num_rows_(num_rows)
+,num_cols_(num_cols)
 ,cholesky_old_mat_(true)
-,row_indices_vec_(nbrows)
-,col_indices_vec_(nbcols) {
+,row_indices_vec_(num_rows)
+,col_indices_vec_(num_cols) {
 
   constant_mat_.setZero();
   matrix_.setZero();
   cholesky_mat_.setZero();
 
-  for (int i = 0; i < nbrows_; ++i) {
+  for (int i = 0; i < num_rows_; ++i) {
     row_indices_vec_(i) = i;
   }
-  for (int i = 0; i < nbcols_; ++i) {
+  for (int i = 0; i < num_cols_; ++i) {
     col_indices_vec_(i) = i;
   }
 }
 
 QPMatrix::~QPMatrix(){}
 
-void QPMatrix::addTerm(const MatrixXd &mat,
+void QPMatrix::addTerm(const EigenMatrixXdRM &mat,
                        const int first_row, const int first_col) {
-                         int nbrows = mat.rows();
-                         int nbcols = mat.cols();
+                         // The following is optimized for row major matrices.
+                         // It does not work for colum major ones.
+                         // --------------------------------------------------
                          int newcol = 0;
                          int newrow = 0;
-                         //const double *mat_p = mat.data();
-                         for (int row = 0; row < nbrows; ++row) {
-                           newrow = row_indices_vec_(first_row + row);
-                           for (int col = 0; col < nbcols; ++col) {
-                             newcol = col_indices_vec_(first_col + col);
+                         const double *mat_p = mat.data();
+                         double *goal_mat_p = NULL;
+                         int const *first_col_p = col_indices_vec_.data() + first_col;
+                         int const *first_row_p = row_indices_vec_.data() + first_row;
+                         const int *col_p = NULL;
+                         const int *row_p = first_row_p;
+                         
+                         for (int row = 0; row < mat.rows(); ++row) {
+                           goal_mat_p = matrix_.data() + *row_p * num_cols_;
+                           col_p = first_col_p;
+                           for (int col = 0; col < mat.cols(); ++col) {
                              // row major!
-                             *(matrix_.data() + newcol + newrow * nbcols_) += mat(row,col);
-                             //++mat_p;
+                             *(goal_mat_p + *col_p) += *mat_p;
+                             ++mat_p;
+                             ++col_p;
                            }
+                           ++row_p;
                          }
 
+                         // Equivalent, non-optimzed code:
+                         // ------------------------------
                          /*   
                          for (int row = 0; row < mat.rows(); ++row) {
                          for (int col = 0; col < mat.cols(); ++col) {
@@ -57,55 +68,29 @@ void QPMatrix::addTerm(const MatrixXd &mat,
                          }
                          */				
                          cholesky_old_mat_ = true;
-                         // For matrices
-                         //  double * p = Array_p->Array_;
-                         //  boost_ublas::matrix<double>::const_iterator1 row_it = Mat.begin1();
-                         //  boost_ublas::matrix<double>::const_iterator2 col_it = Mat.begin2();
-                         //  double * p_it = &p[first_row+(first_col)*Array_p->NbRows_];
-                         //  for( unsigned col = 0; col < Mat.size2(); col++ )
-                         //    {
-                         //      row_it = col_it.begin();
-                         //      p_it = &p[first_row+(first_col+col)*Array_p->NbRows_];
-                         //      for( unsigned row = 0; row < Mat.size1(); row++ )
-                         //        {
-                         //          *p_it += *row_it;
-                         //          ++p_it;
-                         //          ++row_it;
-                         //        }
-                         //
-                         //      ++col_it;
-                         //    }
-
-                         // For vectors
-                         //						       for( unsigned row = 0; row < Vec.size(); row++ )
-                         //        {
-                         //          *p_it += *vec_it;
-                         //          ++vec_it;
-                         //          ++p_it;
-                         //      }
-
 
 }
 
-void QPMatrix::setTerm(const MatrixXd &mat, const int row, const int col) {
-  int nbrows = mat.rows();
-  int nbcols = mat.cols();
-  for (int i = 0; i < nbrows; ++i) {
-    for (int j = 0; j < nbcols; ++j) {
+//TODO: Not used.
+void QPMatrix::setTerm(const CommonMatrixType &mat, const int row, const int col) {
+  int num_rows = mat.rows();
+  int num_cols = mat.cols();
+  for (int i = 0; i < num_rows; ++i) {
+    for (int j = 0; j < num_cols; ++j) {
       // row major!
-      *(matrix_.data() + col_indices_vec_(col + j) + row_indices_vec_(row + i) * nbcols_) = mat(i, j);
+      *(matrix_.data() + col_indices_vec_(col + j) + row_indices_vec_(row + i) * num_cols_) = mat(i, j);
     }
   }
   cholesky_old_mat_ = true;
 }
 
-void QPMatrix::setConstantPart(const MatrixXd &mat) {
-  int nbrows = mat.rows();
-  int nbcols = mat.cols();
-  for (int i = 0; i <= nbrows; ++i) {
-    for (int j = 0; j < nbcols; ++j) {
+void QPMatrix::setConstantPart(const CommonMatrixType &mat) {
+  int num_rows = mat.rows();
+  int num_cols = mat.cols();
+  for (int i = 0; i <= num_rows; ++i) {
+    for (int j = 0; j < num_cols; ++j) {
       //row major!
-      *(constant_mat_.data() + col_indices_vec_(j) + row_indices_vec_(i) * nbcols_) = mat(i, j);
+      *(constant_mat_.data() + col_indices_vec_(j) + row_indices_vec_(i) * num_cols_) = mat(i, j);
     }
   }
 }
@@ -115,18 +100,18 @@ void QPMatrix::reset() {
   cholesky_old_mat_ = true;
 }
 
-void QPMatrix::resize(const int nbrows, const int nbcols) {
-  nbrows_ = nbrows;
-  nbcols_ = nbcols;
+void QPMatrix::resize(const int num_rows, const int num_cols) {
+  num_rows_ = num_rows;
+  num_cols_ = num_cols;
   //matrix_.resize(nbRows_, nbCols_); //TODO: This should be avoided
 }
 
-MatrixXd &QPMatrix::cholesky() {
+CommonMatrixType &QPMatrix::cholesky() {
   computeCholesky();
   return cholesky_mat_;
 }
 
-MatrixXd &QPMatrix::cholesky(MatrixXd &partialCholesky) {
+CommonMatrixType &QPMatrix::cholesky(CommonMatrixType &partialCholesky) {
   computeCholesky(partialCholesky);
   return cholesky_mat_;
 }
@@ -139,13 +124,13 @@ void QPMatrix::rowOrder(const Eigen::VectorXi &order) {
   row_indices_vec_ = order;
 }
 
-void QPMatrix::computeCholesky(const MatrixXd &partialCholesky) {
+void QPMatrix::computeCholesky(const CommonMatrixType &partialCholesky) {
   if (cholesky_old_mat_) {
     int imin = partialCholesky.rows();
     if (imin>0) {
       cholesky_mat_.block(0, 0, imin, imin) = partialCholesky;
       double tmp;
-      for (int j=0; j<nbcols_; ++j){
+      for (int j=0; j<num_cols_; ++j){
         if (j>=imin){
           for (int i=0; i<j; ++i) {
             cholesky_mat_(j,i)=0;
@@ -161,7 +146,7 @@ void QPMatrix::computeCholesky(const MatrixXd &partialCholesky) {
           }
 
         }
-        for (int i = std::max(j+1,imin); i<nbrows_; ++i) {
+        for (int i = std::max(j+1,imin); i<num_rows_; ++i) {
           tmp = matrix_(j,i);
           for (int k = 0; k < j; ++k) {
             tmp -= cholesky_mat_(k,j) * cholesky_mat_(k,i);

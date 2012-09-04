@@ -22,12 +22,12 @@
 
 namespace MPCWalkgen{
     class QPPreview{
-    private:
-      static const double EPS_;
 
+      //
+      // Public methods:
+      //
     public:
-      QPPreview(Reference * velRef, RigidBodySystem * robot, const MPCData * mpc_parameters);
-
+      QPPreview(Reference *velRef, RigidBodySystem *robot, const MPCData *mpc_parameters);
       ~QPPreview();
 
       void previewSamplingTimes(double currenttime, double firstSamplingPeriod, MPCSolution &solution);
@@ -38,42 +38,31 @@ namespace MPCWalkgen{
 
       inline SelectionMatrices &selectionMatrices(){return selectionMatrices_;}
 
-      inline const Eigen::MatrixXd &rotationMatrix() const{return rotationMatrix_;}
+      inline const CommonMatrixType &rotationMatrix() const{return rotationMatrix_;}
 
-      inline const Eigen::MatrixXd &rotationMatrix2() const{return rotationMatrix2_;}
+      inline const CommonMatrixType &rotationMatrix2() const{return rotationMatrix2_;}
 
+      //
+      // Private methods:
+      //
     private:
-
       void buildSelectionMatrices(MPCSolution &solution);
 
-
-
+      //
+      // Private data members:
+      //
     private:
       RigidBodySystem * robot_;
       const MPCData * mpc_parameters_;
       StateFSM * statesolver_;	//TODO: Name statesolver is bad
 
       SelectionMatrices selectionMatrices_;
-      Eigen::MatrixXd rotationMatrix_;
-      Eigen::MatrixXd rotationMatrix2_;
+      CommonMatrixType rotationMatrix_;
+      CommonMatrixType rotationMatrix2_;
 
+    private:
+      static const double EPS_;
     };
 }
-
-/*! \fn MPCWalkgen::QPPreview::QPPreview(VelReference * velRef, RigidBodySystem * robot, const MPCData * mpc_parameters)
-* \brief Constructor
-*/
-
-/*! \fn void MPCWalkgen::QPPreview::previewSupportStates(const double currentTime,
-                                        const double FirstIterationDynamicsDuration,  MPCSolution &solution)
-* \brief Preview support states for the defined horizon
-* \param [in] currentTime current time (synchronized with QP sampling time)
-* \param [in] FirstIterationDynamicsDuration Duration of the first iteration
-* \param [out] solution
-*/
-
-/*! \fn SelectionMatrix &MPCWalkgen::QPPreview::selectionMatrices()
-* \brief Return computed selection matrices
-*/
 
 #endif // MPC_WALKGEN_QP_PREVIEW_H

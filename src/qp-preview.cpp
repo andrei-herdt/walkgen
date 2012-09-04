@@ -12,8 +12,8 @@ QPPreview::QPPreview(Reference * velRef, RigidBodySystem * robot, const MPCData 
   :robot_(robot)
   ,mpc_parameters_(mpc_parameters)
   ,selectionMatrices_(*mpc_parameters)
-  ,rotationMatrix_ (Eigen::MatrixXd::Zero(2*mpc_parameters_->nbsamples_qp, 2*mpc_parameters_->nbsamples_qp))
-  ,rotationMatrix2_(Eigen::MatrixXd::Zero(2*mpc_parameters_->nbsamples_qp, 2*mpc_parameters_->nbsamples_qp)) {
+  ,rotationMatrix_ (CommonMatrixType::Zero(2*mpc_parameters_->nbsamples_qp, 2*mpc_parameters_->nbsamples_qp))
+  ,rotationMatrix2_(CommonMatrixType::Zero(2*mpc_parameters_->nbsamples_qp, 2*mpc_parameters_->nbsamples_qp)) {
 
   statesolver_ = new StateFSM(velRef, mpc_parameters);
 }

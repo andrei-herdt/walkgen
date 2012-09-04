@@ -75,7 +75,7 @@ void QPSolver::reset() {
   var_l_bounds_vec_.reset();
 }
 
-void QPSolver::varOrder(const Eigen::VectorXi &order) {
+void QPSolver::SetVarOrder(const Eigen::VectorXi &order) {
   var_indices_vec_ = order;
   hessian_mat_.rowOrder(order);
   hessian_mat_.colOrder(order);
@@ -91,6 +91,7 @@ void QPSolver::ctrOrder(const Eigen::VectorXi &order) {
   constr_u_bounds_vec_.rowOrder(order);
   constr_l_bounds_vec_.rowOrder(order);
 }
+
 
 
 void QPSolver::reorderInitialSolution(VectorXd &initialSolution,
@@ -130,13 +131,13 @@ void QPSolver::reorderSolution(VectorXd &qpSolution, VectorXi &constraints,
 void QPSolver::DumpProblem(const char *filename) {  
   std::ofstream file(filename);   
   if (file.is_open()) {     
-    file << "Hessian" << hessian_mat_.nbrows() <<","<< hessian_mat_.nbcols()<<":" << "\n" << hessian_mat_() << '\n';
-    file << "Gradient" << gradient_vec_.nbrows() <<":" << "\n" << gradient_vec_() << '\n';    
-    file << "Constraints Jacobian" << cstr_mat_.nbrows() <<","<< cstr_mat_.nbcols()<<":" << "\n" << cstr_mat_() << '\n';
-    file << "Constraints upper bounds" << constr_u_bounds_vec_.nbrows() <<":" << "\n" << constr_u_bounds_vec_() << '\n';    
-    file << "Constraints lower bounds" << constr_l_bounds_vec_.nbrows() <<":" << "\n" << constr_l_bounds_vec_() << '\n';    
-    file << "Variables upper bounds" << var_u_bounds_vec_.nbrows() <<":" << "\n" << var_u_bounds_vec_() << '\n';    
-    file << "Variables lower bounds" << var_l_bounds_vec_.nbrows() <<":" << "\n" << var_l_bounds_vec_() << '\n';    
+    file << "Hessian" << hessian_mat_.num_rows() <<","<< hessian_mat_.num_cols()<<":" << "\n" << hessian_mat_() << '\n';
+    file << "Gradient" << gradient_vec_.num_rows() <<":" << "\n" << gradient_vec_() << '\n';    
+    file << "Constraints Jacobian" << cstr_mat_.num_rows() <<","<< cstr_mat_.num_cols()<<":" << "\n" << cstr_mat_() << '\n';
+    file << "Constraints upper bounds" << constr_u_bounds_vec_.num_rows() <<":" << "\n" << constr_u_bounds_vec_() << '\n';    
+    file << "Constraints lower bounds" << constr_l_bounds_vec_.num_rows() <<":" << "\n" << constr_l_bounds_vec_() << '\n';    
+    file << "Variables upper bounds" << var_u_bounds_vec_.num_rows() <<":" << "\n" << var_u_bounds_vec_() << '\n';    
+    file << "Variables lower bounds" << var_l_bounds_vec_.num_rows() <<":" << "\n" << var_l_bounds_vec_() << '\n';    
   } 
 }
 

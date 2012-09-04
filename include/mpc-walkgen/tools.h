@@ -11,6 +11,8 @@
 ///
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <mpc-walkgen/types.h>
+
 #include <Eigen/Dense>
 
 #ifdef WIN32
@@ -22,7 +24,7 @@ inline double round( double d )
 const static double kEps = 0.000001;
 
 namespace MPCWalkgen{
-	void inverse(const Eigen::MatrixXd &X, Eigen::MatrixXd &Xinv, double eps=1e-8);
+	void inverse(const CommonMatrixType &X, CommonMatrixType &Xinv, double eps=1e-8);
 
 	inline double pow2(double v);
 
@@ -45,39 +47,39 @@ namespace MPCWalkgen{
 
 	// \brief Return true if the matrix given is triangular.
 	// \param [in] m
-	bool isUpperTriangular(const Eigen::MatrixXd &m);
+	bool isUpperTriangular(const CommonMatrixType &m);
 
 	// \brief Return true if the matrix given is triangular.
 	// \param [in] m
-	bool hasCholeskyForm(const Eigen::MatrixXd &m);
+	bool hasCholeskyForm(const CommonMatrixType &m);
 
 	// \brief Return true if the matrix given is sparse such as
 	//   every elmt is null except elemt for
 	//    (i,i), (i, N+i), (N+i, i), (N+i, N+i), i in [0, N].
 	//    where N is the half size of the matrix.
 	// \param [in] R the rotation matrix block diagonal
-	bool isSparseRotationMatrix (const Eigen::MatrixXd &rot);
+	bool isSparseRotationMatrix (const CommonMatrixType &rot);
 
 	// \brief Return true if the matrix given is block diagonal
 	// \param [in] R the rotation matrix block diagonal
-	bool isDiagonalRotationMatrix(const Eigen::MatrixXd &rot);
+	bool isDiagonalRotationMatrix(const CommonMatrixType &rot);
 
 	// \brief Compute the multiplication of the rotation matrix R by M
 	// \param [in out] mInOut = R mInOut R^T
 	// \param [in] R the rotation matrix block diagonal
-	void computeRM(Eigen::MatrixXd &mInOut, const Eigen::MatrixXd &rot);
+	void computeRM(CommonMatrixType &mInOut, const CommonMatrixType &rot);
 
 
 	// \brief Compute the multiplication of the rotation matrix M by the R^t
 	// \param [in out] mInOut = R mInOut R^T
 	// \param [in] R the rotation matrix block diagonal
-	void computeMRt(Eigen::MatrixXd &mInOut, const Eigen::MatrixXd &rot);
+	void computeMRt(CommonMatrixType &mInOut, const CommonMatrixType &rot);
 
 	// \brief This method considers only blocks of matrices 2.2, so as to reduce the
 	// number of multiplications.
 	// \param [in out] mInOut = R mInOut R^T
 	// \param [in] R the rotation matrix block diagonal
-	void rotateCholeskyMatrix(Eigen::MatrixXd &mInOut, const Eigen::MatrixXd &rot);
+	void rotateCholeskyMatrix(CommonMatrixType &mInOut, const CommonMatrixType &rot);
 }
 
 #include <mpc-walkgen/tools-inl.h>

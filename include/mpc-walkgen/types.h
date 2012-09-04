@@ -9,51 +9,47 @@
 ///\author	Herdt Andrei
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <mpc-walkgen/sharedtypes.h>//TODO: Why is this included?
+#include <mpc-walkgen/sharedtypes.h>//TODO: Include this?
 
 #include <Eigen/Dense>
 
 namespace MPCWalkgen{
 
-  enum HullType{
-    FootHull,
-    CoPHull
-  };
 
   static const double EPSILON = 0.000001;
 
-  enum QPMatrixType{
-    matrixQ,
-    matrixA
-  };
 
-  enum QPVectorType{
-    vectorP,
-    vectorBU,
-    vectorBL,
-    vectorXU,
-    vectorXL
-  };
+  //
+  // Enums:
+  //
+  enum HullType{ FootHull, CoPHull };
 
-  enum Derivative {
-    POSITION,
-    VELOCITY,
-    ACCELERATION,
-    JERK,
-    COP
-  };
+  enum QPMatrixType{ matrixQ, matrixA };
 
-  enum SampleRate {
-    QP,
-    ACTUATORS
-  };
+  enum QPVectorType{ vectorP,  vectorBU,  vectorBL,  vectorXU,  vectorXL };
 
+  enum Derivative { POSITION, VELOCITY, ACCELERATION, JERK,  COP };
+
+  enum SampleRate { QP, ACTUATORS };
+
+
+  //
+  // Typedefs:
+  //
+  typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> EigenMatrixXdRM;
+  typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor> EigenMatrixXdCM;
+  typedef EigenMatrixXdRM CommonMatrixType;
+
+
+  //
+  // Data structures:
+  //
   struct LinearDynamicsMatrices{
-    Eigen::MatrixXd S;
-    Eigen::MatrixXd U;
-    Eigen::MatrixXd UT;
-    Eigen::MatrixXd UInv;
-    Eigen::MatrixXd UInvT;
+    CommonMatrixType S;
+    CommonMatrixType U;
+    CommonMatrixType UT;
+    CommonMatrixType UInv;
+    CommonMatrixType UInvT;
   };
 
   struct LinearDynamics {
@@ -80,30 +76,24 @@ namespace MPCWalkgen{
   };
 
   struct SelectionMatrices{
-    Eigen::MatrixXd V;
-    Eigen::MatrixXd VT;
+    CommonMatrixType V;
+    CommonMatrixType VT;
     Eigen::VectorXd VcX;
     Eigen::VectorXd VcY;
-    Eigen::MatrixXd Vf;
+    CommonMatrixType Vf;
     Eigen::VectorXd VcfX;
     Eigen::VectorXd VcfY;
 
     SelectionMatrices(const MPCData &mpc_parameters);
   };
 
-
   struct RelativeInequalities{
-    Eigen::MatrixXd DX;
-    Eigen::MatrixXd DY;
+    CommonMatrixType DX;
+    CommonMatrixType DY;
     Eigen::VectorXd Dc;
 
     void resize(int rows, int cols);
   };
 }
-
-/** @defgroup private MPCWalkgen private interface
-*  This group gathers the classes contained in the private interface
-*/
-
 
 #endif // MPC_WALKGEN_TYPES_H
