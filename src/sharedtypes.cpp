@@ -8,50 +8,50 @@ using namespace std;
 using namespace MPCWalkgen;
 
 BodyState::BodyState(){
-	reset();
+  reset();
 }
 
 void BodyState::reset(){
-	x.fill(0);
-	y.fill(0);
-	z.fill(0);
-	yaw.fill(0);
-	pitch.fill(0);
-	roll.fill(0);
+  x.fill(0);
+  y.fill(0);
+  z.fill(0);
+  yaw.fill(0);
+  pitch.fill(0);
+  roll.fill(0);
 }
 
 FootData::FootData()
 : soleWidth(0)
 , soleHeight(0)
 , anklePositionInLocalFrame() {
-	edges_x_vec.resize(4);
-	edges_y_vec.resize(4);
+  edges_x_vec.resize(4);
+  edges_y_vec.resize(4);
 }
 
 FootData::FootData(const FootData &f)
 : soleWidth(f.soleWidth)
 , soleHeight(f.soleHeight)
 , anklePositionInLocalFrame(f.anklePositionInLocalFrame) {
-	edges_x_vec = f.edges_x_vec;
-	edges_y_vec = f.edges_y_vec;
+  edges_x_vec = f.edges_x_vec;
+  edges_y_vec = f.edges_y_vec;
 }
 
 FootData::~FootData(){
 }
 
 void FootData::SetEdges(double front, double back, double left, double right,
-						double security_margin) {
-							// Clockwise, starting at front-left corner
-							// Foots sagittal plane is aligned with the x-axis
-							edges_x_vec[0] = front - security_margin;
-							edges_x_vec[1] = front - security_margin;
-							edges_x_vec[2] = back + security_margin;
-							edges_x_vec[3] = back + security_margin;
+                        double security_margin) {
+                          // Clockwise, starting at front-left corner
+                          // Foots sagittal plane is aligned with the x-axis
+                          edges_x_vec[0] = front - security_margin;
+                          edges_x_vec[1] = front - security_margin;
+                          edges_x_vec[2] = back + security_margin;
+                          edges_x_vec[3] = back + security_margin;
 
-							edges_y_vec[0] = left - security_margin;
-							edges_y_vec[1] = left - security_margin;
-							edges_y_vec[2] = right + security_margin;
-							edges_y_vec[3] = right + security_margin;
+                          edges_y_vec[0] = left - security_margin;
+                          edges_y_vec[1] = right + security_margin;
+                          edges_y_vec[2] = right + security_margin;
+                          edges_y_vec[3] = left - security_margin;
 }
 
 HipYawData::HipYawData()
@@ -78,55 +78,55 @@ MPCSolution::~MPCSolution() {}
 
 
 MPCSolution& MPCSolution::operator = (MPCSolution const &rhs){
-	qpSolution = rhs.qpSolution;
-	initialSolution = rhs.initialSolution;
+  qpSolution = rhs.qpSolution;
+  initialSolution = rhs.initialSolution;
 
-	constraints = rhs.constraints;
-	initialConstraints = rhs.initialConstraints;
+  constraints = rhs.constraints;
+  initialConstraints = rhs.initialConstraints;
 
-	/// \brief True if a new trajectory is computed in online loop
-	newTraj = rhs.newTraj;
+  /// \brief True if a new trajectory is computed in online loop
+  newTraj = rhs.newTraj;
 
-	/// \brief Sampling times
-	/// starting with 0, i.e. all times are relative to the current time
-	samplingTimes_vec = rhs.samplingTimes_vec;
+  /// \brief Sampling times
+  /// starting with 0, i.e. all times are relative to the current time
+  samplingTimes_vec = rhs.samplingTimes_vec;
 
-	support_states_vec = rhs.support_states_vec;
+  support_states_vec = rhs.support_states_vec;
 
-	supportOrientations_vec = rhs.supportOrientations_vec;//TODO: supportOrientations_vec
-	supportTrunkOrientations_vec = rhs.supportTrunkOrientations_vec;//TODO: TrunkOrientations_vec
+  supportOrientations_vec = rhs.supportOrientations_vec;//TODO: supportOrientations_vec
+  supportTrunkOrientations_vec = rhs.supportTrunkOrientations_vec;//TODO: TrunkOrientations_vec
 
-	CoPTrajX = rhs.CoPTrajX;
-	CoPTrajY = rhs.CoPTrajY;
+  CoPTrajX = rhs.CoPTrajX;
+  CoPTrajY = rhs.CoPTrajY;
 
-	com_prw = rhs.com_prw;
-	cop_prw = rhs.cop_prw; 
-	foot_left_prw = rhs.foot_left_prw; 
-	foot_right_prw = rhs.foot_right_prw; 
+  com_prw = rhs.com_prw;
+  cop_prw = rhs.cop_prw; 
+  foot_left_prw = rhs.foot_left_prw; 
+  foot_right_prw = rhs.foot_right_prw; 
 
-	com_act = rhs.com_act;
-	cop_prw = rhs.cop_act; 
-	foot_left_act = rhs.foot_left_act; 
-	foot_right_act = rhs.foot_right_act; 
+  com_act = rhs.com_act;
+  cop_prw = rhs.cop_act; 
+  foot_left_act = rhs.foot_left_act; 
+  foot_right_act = rhs.foot_right_act; 
 
-	analysis = rhs.analysis;
+  analysis = rhs.analysis;
 
-	state_vec = rhs.state_vec;
-	return(*this);
+  state_vec = rhs.state_vec;
+  return(*this);
 }
 
 
 void MPCSolution::reset(){
-	support_states_vec.resize(0);
-	supportOrientations_vec.resize(0);
-	supportTrunkOrientations_vec.resize(0);
+  support_states_vec.resize(0);
+  supportOrientations_vec.resize(0);
+  supportTrunkOrientations_vec.resize(0);
 }
 
 void Motion::resize(int size) {
-	pos.x_vec.setZero(size); pos.y_vec.setZero(size); pos.z_vec.setZero(size); pos.yaw_vec.setZero(size);
-	vel.x_vec.setZero(size); vel.y_vec.setZero(size); vel.z_vec.setZero(size); vel.yaw_vec.setZero(size);
-	acc.x_vec.setZero(size); acc.y_vec.setZero(size); acc.z_vec.setZero(size); acc.yaw_vec.setZero(size);
-	jerk.x_vec.setZero(size); jerk.y_vec.setZero(size); jerk.z_vec.setZero(size); jerk.yaw_vec.setZero(size);
+  pos.x_vec.setZero(size); pos.y_vec.setZero(size); pos.z_vec.setZero(size); pos.yaw_vec.setZero(size);
+  vel.x_vec.setZero(size); vel.y_vec.setZero(size); vel.z_vec.setZero(size); vel.yaw_vec.setZero(size);
+  acc.x_vec.setZero(size); acc.y_vec.setZero(size); acc.z_vec.setZero(size); acc.yaw_vec.setZero(size);
+  jerk.x_vec.setZero(size); jerk.y_vec.setZero(size); jerk.z_vec.setZero(size); jerk.yaw_vec.setZero(size);
 }
 
 
@@ -148,31 +148,31 @@ MPCData::MPCData()
 MPCData::~MPCData(){}
 
 int MPCData::nbFeedbackSamplesLeft(double firstIterationduration) const{
-	return static_cast<int> (round(firstIterationduration / period_mpcsample)-1 );
+  return static_cast<int> (round(firstIterationduration / period_mpcsample)-1 );
 }
 
 int MPCData::nbFeedbackSamplesStandard() const{
-	return static_cast<int> (round(period_qpsample / period_mpcsample) );
+  return static_cast<int> (round(period_qpsample / period_mpcsample) );
 }
 
 int MPCData::num_samples_act() const{
-	return static_cast<int> (round(period_mpcsample / period_actsample) );
+  return static_cast<int> (round(period_mpcsample / period_actsample) );
 }
 
 int MPCData::num_qpsamples_ss() const {
-	return nbqpsamples_step - 1;
+  return nbqpsamples_step - 1;
 }
 
 int MPCData::num_steps_max() const {
-	return static_cast<int>(nbsamples_qp / nbqpsamples_step) + 1;
+  return static_cast<int>(nbsamples_qp / nbqpsamples_step) + 1;
 }
 
 double MPCData::period_ss() const {
-	return nbqpsamples_step * period_qpsample - period_trans_ds();
+  return nbqpsamples_step * period_qpsample - period_trans_ds();
 }
 
 double MPCData::period_trans_ds() const {
-	return period_qpsample;
+  return period_qpsample;
 }
 
 ConvexHull::ConvexHull()
@@ -189,128 +189,128 @@ ConvexHull::~ConvexHull() {}
 
 // TODO: Necessary?
 ConvexHull &ConvexHull::operator=(const ConvexHull &hull){
-	x = hull.x;
-	y = hull.y;
-	z = hull.z;
-	A = hull.A;
-	B = hull.B;
-	C = hull.C;
-	D = hull.D;
+  x = hull.x;
+  y = hull.y;
+  z = hull.z;
+  A = hull.A;
+  B = hull.B;
+  C = hull.C;
+  D = hull.D;
 
-	return *this;
+  return *this;
 }
 
 void ConvexHull::resize(int size){
-	if (size != x.rows()){
-		x.setZero(size);
-		y.setZero(size);
-		A.setZero(size);
-		B.setZero(size);
-		C.setZero(size);
-		D.setZero(size);
-	}else{
-		x.fill(0);
-		y.fill(0);
-		A.fill(0);
-		B.fill(0);
-		C.fill(0);
-		D.fill(0);
-	}
+  if (size != x.rows()){
+    x.setZero(size);
+    y.setZero(size);
+    A.setZero(size);
+    B.setZero(size);
+    C.setZero(size);
+    D.setZero(size);
+  }else{
+    x.fill(0);
+    y.fill(0);
+    A.fill(0);
+    B.fill(0);
+    C.fill(0);
+    D.fill(0);
+  }
 }
 
 void ConvexHull::rotate(double yaw) {
-	if (fabs(yaw) < EPSILON)
-		return;
+  if (fabs(yaw) < EPSILON)
+    return;
 
-	double xOld, yOld;
-	int size = x.rows();
-	for(int i = 0; i < size; ++i){
-		xOld = x(i);
-		yOld = y(i);
-		x(i) = (xOld * std::cos(yaw) - yOld * std::sin(yaw));
-		y(i) = (xOld * std::sin(yaw) + yOld * std::cos(yaw));
-	}
+  double xOld, yOld;
+  int size = x.rows();
+  for(int i = 0; i < size; ++i){
+    xOld = x(i);
+    yOld = y(i);
+    x(i) = (xOld * std::cos(yaw) - yOld * std::sin(yaw));
+    y(i) = (xOld * std::sin(yaw) + yOld * std::cos(yaw));
+  }
 }
 
 void ConvexHull::computeLinearSystem(const Foot &foot) {
-	double dx,dy,dc,x1,y1,x2,y2;
-	unsigned nbRows = x.rows();
+  double dx,dy,dc,x1,y1,x2,y2;
+  unsigned nbRows = x.rows();
 
-	double sign;
-	if(foot == LEFT){
-		sign = 1.0;
-	}else{
-		sign = -1.0;
-	}
-	for( unsigned i=0; i<nbRows;++i ){
-		y1 = y(i);
-		y2 = y((i+1)%nbRows);
-		x1 = x(i);
-		x2 = x((i+1)%nbRows);
+  double sign;
+  if(foot == LEFT){
+    sign = 1.0;
+  }else{
+    sign = -1.0;
+  }
+  for( unsigned i=0; i<nbRows;++i ){
+    y1 = y(i);
+    y2 = y((i+1)%nbRows);
+    x1 = x(i);
+    x2 = x((i+1)%nbRows);
 
-		dx = sign*(y1-y2);
-		dy = sign*(x2-x1);
-		dc = dx*x1+dy*y1;
+    dx = sign*(y1-y2);
+    dy = sign*(x2-x1);
+    dc = dx*x1+dy*y1;
 
 
-		A(i) = dx;
-		B(i) = dy;
-		D(i) = dc;
-	}
+    A(i) = dx;
+    B(i) = dy;
+    D(i) = dc;
+  }
 }
 
 RobotData::RobotData(const FootData &leftFoot, const FootData &rightFoot,
-					 const HipYawData &leftHipYaw, const HipYawData &rightHipYaw,
-					 double mass)
-					 :	com()
-					 ,freeFlyingFootMaxHeight(0.05)
-					 ,leftFoot(leftFoot)
-					 ,rightFoot(rightFoot)
-					 ,leftHipYaw(leftHipYaw)
-					 ,rightHipYaw(rightHipYaw)
-					 ,robotMass(mass)
-					 ,leftFootPos()
-					 ,rightFootPos()
-					 ,leftFootHull()
-					 ,rightFootHull()
-					 ,CoPLeftSSHull()
-					 ,CoPRightSSHull()
-					 ,CoPLeftDSHull()
-					 ,CoPRightDSHull() {
-						 CoPLeftSSHull.resize(4);
-						 CoPRightSSHull.resize(4);
-						 CoPLeftDSHull.resize(4);
-						 CoPRightDSHull.resize(4);
-						 com << 0.0, 0.0, 0.814;
-						 leftFootPos << 0.00949035, 0.095, 0;
-						 rightFootPos << 0.00949035, -0.095, 0;
+                     const HipYawData &leftHipYaw, const HipYawData &rightHipYaw,
+                     double mass)
+                     :	com()
+                     ,freeFlyingFootMaxHeight(0.05)
+                     ,leftFoot(leftFoot)
+                     ,rightFoot(rightFoot)
+                     ,leftHipYaw(leftHipYaw)
+                     ,rightHipYaw(rightHipYaw)
+                     ,robotMass(mass)
+                     ,leftFootPos()
+                     ,rightFootPos()
+                     ,leftFootHull()
+                     ,rightFootHull()
+                     ,CoPLeftSSHull()
+                     ,CoPRightSSHull()
+                     ,CoPLeftDSHull()
+                     ,CoPRightDSHull() {
+                       CoPLeftSSHull.resize(4);
+                       CoPRightSSHull.resize(4);
+                       CoPLeftDSHull.resize(4);
+                       CoPRightDSHull.resize(4);
+                       com << 0.0, 0.0, 0.814;
+                       leftFootPos << 0.00949035, 0.095, 0;
+                       rightFootPos << 0.00949035, -0.095, 0;
 }
 
 RobotData::RobotData(){
-	CoPLeftSSHull.resize(4);
-	CoPRightSSHull.resize(4);
-	CoPLeftDSHull.resize(4);
-	CoPRightDSHull.resize(4);
+  CoPLeftSSHull.resize(4);
+  CoPRightSSHull.resize(4);
+  CoPLeftDSHull.resize(4);
+  CoPRightDSHull.resize(4);
 }
 RobotData::~RobotData(){}
 
 // TODO: This function should be moved to a separate object for hulls/constraints
 void RobotData::SetCoPHulls(double ds_distance) {
-	for (int i = 0; i < 4; ++i) {
-		CoPLeftSSHull.x(i) = leftFoot.edges_x_vec[i];
-		CoPLeftSSHull.y(i) = leftFoot.edges_y_vec[i];
-		CoPLeftDSHull.x(i) = leftFoot.edges_x_vec[i];
-		CoPLeftDSHull.y(i) = leftFoot.edges_y_vec[i];
+  for (int i = 0; i < 4; ++i) {
+    CoPLeftSSHull.x(i) = leftFoot.edges_x_vec[i];
+    CoPLeftSSHull.y(i) = leftFoot.edges_y_vec[i];
+    CoPLeftDSHull.x(i) = leftFoot.edges_x_vec[i];
+    CoPLeftDSHull.y(i) = leftFoot.edges_y_vec[i];
 
-		CoPRightSSHull.x(i) = rightFoot.edges_x_vec[i];
-		CoPRightSSHull.y(i) = -rightFoot.edges_y_vec[i]; // Counter-clockwise
-		CoPRightDSHull.x(i) = rightFoot.edges_x_vec[i];
-		CoPRightDSHull.y(i) = -rightFoot.edges_y_vec[i]; // Counter-clockwise
-	}
-	CoPLeftDSHull.y(1)  -= ds_distance;
-	CoPLeftDSHull.y(2)  -= ds_distance;
-	CoPRightDSHull.y(1) += ds_distance;
-	CoPRightDSHull.y(2) += ds_distance;
+    CoPRightSSHull.x(i) = rightFoot.edges_x_vec[i];
+    CoPRightSSHull.y(i) = -rightFoot.edges_y_vec[i]; // Counter-clockwise
+    CoPRightDSHull.x(i) = rightFoot.edges_x_vec[i];
+    CoPRightDSHull.y(i) = -rightFoot.edges_y_vec[i]; // Counter-clockwise
+  }
+  CoPLeftDSHull.y(1)  -= ds_distance;
+  CoPLeftDSHull.y(2)  -= ds_distance;
+  CoPRightDSHull.y(1) += ds_distance;
+  CoPRightDSHull.y(2) += ds_distance;
 }
 
 
@@ -318,15 +318,15 @@ QPPonderation::QPPonderation(int nb)
 :instantVelocity(nb)
 ,CopCentering(nb)
 ,JerkMin(nb) {
-	CopCentering[0]    = 0.0001;
-	JerkMin[0]         = 0.00001;
-	instantVelocity[0] = 1;
+  CopCentering[0]    = 0.0001;
+  JerkMin[0]         = 0.00001;
+  instantVelocity[0] = 1;
 
-	CopCentering[1]    = 0.0001;
-	JerkMin[1]         = 0.00001;
-	instantVelocity[1] = 1;
+  CopCentering[1]    = 0.0001;
+  JerkMin[1]         = 0.00001;
+  instantVelocity[1] = 1;
 
-	activePonderation  = 1;
+  activePonderation  = 1;
 
 }
 QPPonderation::~QPPonderation(){}
