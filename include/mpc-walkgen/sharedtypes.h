@@ -43,10 +43,14 @@ namespace MPCWalkgen{
     double soleWidth;
     double soleHeight;
     Eigen::Vector3d anklePositionInLocalFrame;
+	std::vector<double> edges_x_vec;
+	std::vector<double> edges_y_vec;
 
     FootData();
     FootData(const FootData &f);//TODO: LocalAnklePosition_ better?
     ~FootData();
+
+    void SetEdges(double front, double back, double left, double right, double security_margin);
   };
 
   struct MPC_WALKGEN_API HipYawData {
@@ -149,6 +153,8 @@ namespace MPCWalkgen{
     /// \brief Interpolate not only the control (first element) but the whole preview vector
     bool interpolate_whole_horizon;
 
+    bool closed_loop;
+
     QPPonderation ponderation;
 
     SolverData solver;
@@ -165,6 +171,8 @@ namespace MPCWalkgen{
 
     double period_ss() const;
     double period_trans_ds() const;
+
+
 
     MPCData();
     ~MPCData();
@@ -197,6 +205,8 @@ namespace MPCWalkgen{
       double mass);
     RobotData();
     ~RobotData();
+
+    void SetCoPHulls(double ds_distance);
   };
 
   struct MPC_WALKGEN_API Trajectory {

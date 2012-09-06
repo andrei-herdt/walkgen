@@ -18,7 +18,7 @@ QPOasesParser::~QPOasesParser() {
   if (qp_ != 0x0)
     delete qp_;
   if (solution_vec_ != 0x0)
-    delete solution_vec_;
+    delete [] solution_vec_;
   if (cstr_init_vec_ != 0x0)
     delete cstr_init_vec_;
   if (bounds_init_vec_ != 0x0)

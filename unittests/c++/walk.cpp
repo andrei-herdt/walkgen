@@ -16,8 +16,8 @@ int main(int argc, char *argv[]) {
     int num_samples_dsss = 8;
     int num_steps_ssds = 2;
     double sample_period_qp = 0.1;
-    double sample_period_first = 0.001;
-    double sample_period_act = 0.001;
+    double sample_period_first = 0.005;
+    double sample_period_act = 0.005;
     
     if (argc == 8) {
 
@@ -87,10 +87,10 @@ int main(int argc, char *argv[]) {
     robot_data.leftFootHull.resize(nbVertFeet);
     robot_data.rightFootHull.resize(nbVertFeet);
     for (int i=0; i < nbVertFeet; ++i) {
-        robot_data.leftFootHull.x(i)=DefaultFPosEdgesX[i];
-        robot_data.leftFootHull.y(i)=DefaultFPosEdgesY[i];
-        robot_data.rightFootHull.x(i)=DefaultFPosEdgesX[i];
-        robot_data.rightFootHull.y(i)=-DefaultFPosEdgesY[i];
+        robot_data.leftFootHull.x(i) = DefaultFPosEdgesX[i];
+        robot_data.leftFootHull.y(i) = DefaultFPosEdgesY[i];
+        robot_data.rightFootHull.x(i) = DefaultFPosEdgesX[i];
+        robot_data.rightFootHull.y(i) = -DefaultFPosEdgesY[i];
     }
     
     

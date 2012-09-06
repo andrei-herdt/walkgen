@@ -18,16 +18,16 @@ using namespace std;
 
 static void mdlInitializeSizes(SimStruct *S)
 {
-  // No expected parameters
-  ssSetNumSFcnParams(S, 7);
+    // Expected number of parameters
+  ssSetNumSFcnParams(S, 8);
 
-  // Parameter mismatch will be reported by Simulink
+  // Parameter mismatch?
   if (ssGetNumSFcnParams(S) != ssGetSFcnParamsCount(S)) {
     return;
   }
 
   // Specify I/O
-  if (!ssSetNumInputPorts(S, 9)) return;
+  if (!ssSetNumInputPorts(S, 10)) return;
   ssSetInputPortWidth(S, 0, 3);     //vel_ref
 
   ssSetInputPortWidth(S, 1, 6);     //com_in
@@ -38,6 +38,7 @@ static void mdlInitializeSizes(SimStruct *S)
   ssSetInputPortWidth(S, 6, 4);     //foot_geometry
   ssSetInputPortWidth(S, 7, 1);     //closed_loop
   ssSetInputPortWidth(S, 8, 2);     //cop
+  ssSetInputPortWidth(S, 9, 1);     //cop
 
   ssSetInputPortDirectFeedThrough(S, 0, 1);
   ssSetInputPortDirectFeedThrough(S, 1, 1);
@@ -48,6 +49,7 @@ static void mdlInitializeSizes(SimStruct *S)
   ssSetInputPortDirectFeedThrough(S, 6, 1);
   ssSetInputPortDirectFeedThrough(S, 7, 1);
   ssSetInputPortDirectFeedThrough(S, 8, 1);
+  ssSetInputPortDirectFeedThrough(S, 9, 1);
 
   if (!ssSetNumOutputPorts(S,15)) return;
   // Realized motions
@@ -62,14 +64,13 @@ static void mdlInitializeSizes(SimStruct *S)
   ssSetOutputPortWidth(S, 8, 4);        //dp_right
   ssSetOutputPortWidth(S, 9, 4);        //ddp_right
   // Previewed motions:
-  const int num_samples_horizon      = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 0)));
-  const int num_samples_step         = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 1)));
-  const int num_steps_max = num_samples_horizon / num_samples_step + 1;
+  const int kNumSamplesHorizon      = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 0)));
+  const int kNumSamplesStep         = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 1)));
+  const int num_steps_max = kNumSamplesHorizon / kNumSamplesStep + 1;
   ssSetOutputPortWidth(S, 10, num_steps_max);               //first_foot_prw
-  ssSetOutputPortWidth(S, 11, 4 * num_samples_horizon);     //com_prw (sample_instants, x, y, z)
-  ssSetOutputPortWidth(S, 12, 3 * num_samples_horizon);     //cop_prw (sample_instants, x, y)
-
-  ssSetOutputPortWidth(S, 13, 1);       //support
+  ssSetOutputPortWidth(S, 11, 4 * kNumSamplesHorizon);     //com_prw (sample_instants, x, y, z)
+  ssSetOutputPortWidth(S, 12, 3 * kNumSamplesHorizon);     //cop_prw (sample_instants, x, y)
+  ssSetOutputPortWidth(S, 13, 3);       //support
   ssSetOutputPortWidth(S, 14, 30);      //analysis
 
   ssSetNumSampleTimes(S, 1);
@@ -103,6 +104,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
   InputRealPtrsType foot_geometry   = ssGetInputPortRealSignalPtrs(S, 6);
   InputRealPtrsType closed_loop_in  = ssGetInputPortRealSignalPtrs(S, 7);
   InputRealPtrsType cop_in          = ssGetInputPortRealSignalPtrs(S, 8);
+  InputRealPtrsType reset_in        = ssGetInputPortRealSignalPtrs(S, 9);
 
   real_T *com            = ssGetOutputPortRealSignal(S, 0);
   real_T *dcom           = ssGetOutputPortRealSignal(S, 1);
@@ -121,59 +123,69 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
   real_T *analysis       = ssGetOutputPortRealSignal(S, 14);
 
   
-  const int num_samples_horizon      = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 0)));
-  const int num_samples_step         = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 1)));
-  const int num_samples_dsss         = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 2)));
-  const int num_steps_ssds           = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 3)));
-  const double sample_period_qp      = *mxGetPr(ssGetSFcnParam(S, 4));
-  const double sample_period_first   = *mxGetPr(ssGetSFcnParam(S, 5));
-  const double sample_period_act     = *mxGetPr(ssGetSFcnParam(S, 6));
+  const int kNumSamplesHorizon      = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 0)));
+  const int kNumSamplesStep         = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 1)));
+  const int kNumSamplesDSSS         = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 2)));
+  const int kNumSamplesSSDS         = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 3)));
+  const double kSamplePeriodQP      = *mxGetPr(ssGetSFcnParam(S, 4));
+  const double kSamplePeriodFirst   = *mxGetPr(ssGetSFcnParam(S, 5));
+  const double kSamplePeriodAct     = *mxGetPr(ssGetSFcnParam(S, 6));
+  const double kSecurityMargin      = *mxGetPr(ssGetSFcnParam(S, 7));
+    
+  const double kGravity = 9.81;
     
   WalkgenAbstract *walk = (WalkgenAbstract *)ssGetPWorkValue(S, 0);
 
-  // Initialization:
-  // ---------------
-  if (ssGetIWorkValue(S, 0) == 0) {// Not initialized
+
+  // Begin Initialization:
+  // ---------------------
+  if (ssGetIWorkValue(S, 0) == 0) {
 
     walk->reference(*vel_ref[0], *vel_ref[1], *vel_ref[2]);
 
-    FootData leftFoot;      // TODO: Never used
-    double security_margin = 0.0;
+    const double kSecurityMargin = -0.0;
+    FootData leftFoot;     
     leftFoot.anklePositionInLocalFrame << 0, 0, 0;      //0, 0, 0.105;//TODO:Is not used
-    leftFoot.soleHeight = *foot_geometry[2] - *foot_geometry[3] - security_margin;
-    leftFoot.soleWidth = *foot_geometry[0] - *foot_geometry[1] - security_margin;
+    leftFoot.soleHeight = *foot_geometry[2] - *foot_geometry[3];
+    leftFoot.soleWidth = *foot_geometry[0] - *foot_geometry[1];
+    leftFoot.SetEdges(*foot_geometry[0], *foot_geometry[1], *foot_geometry[2], *foot_geometry[3], kSecurityMargin);    
     FootData rightFoot;
     rightFoot.anklePositionInLocalFrame << 0, 0, 0;     //0, 0, 0.105;//TODO:Is not used
-    rightFoot.soleHeight = *foot_geometry[2] - *foot_geometry[3] - security_margin;
-    rightFoot.soleWidth = *foot_geometry[0] - *foot_geometry[1] - security_margin;
+    rightFoot.soleHeight = *foot_geometry[2] - *foot_geometry[3];
+    rightFoot.soleWidth = *foot_geometry[0] - *foot_geometry[1];
+    rightFoot.SetEdges(*foot_geometry[0], *foot_geometry[1], *foot_geometry[2], *foot_geometry[3], kSecurityMargin);    
 
     HipYawData leftHipYaw;
-    leftHipYaw.lowerBound = -0.523599;
-    leftHipYaw.upperBound = 0.785398;
-    leftHipYaw.lowerVelocityBound = -3.54108;
-    leftHipYaw.upperVelocityBound = 3.54108;
-    leftHipYaw.lowerAccelerationBound = -0.1;
-    leftHipYaw.upperAccelerationBound = 0.1;
-    HipYawData rightHipYaw = leftHipYaw;
+    leftHipYaw.lowerBound                   = -0.523599;
+    leftHipYaw.upperBound                   = 0.785398;
+    leftHipYaw.lowerVelocityBound           = -3.54108;
+    leftHipYaw.upperVelocityBound           = 3.54108;
+    leftHipYaw.lowerAccelerationBound       = -0.1;
+    leftHipYaw.upperAccelerationBound       = 0.1;
+    HipYawData rightHipYaw                  = leftHipYaw;
 
     MPCData mpc_data;
-    mpc_data.nbsamples_qp       = num_samples_horizon;
-    mpc_data.nbqpsamples_step   = num_samples_step;
-    mpc_data.nbqpsamples_dsss   = num_samples_dsss;
-    mpc_data.nbsteps_ssds       = num_steps_ssds;
-    mpc_data.period_qpsample    = sample_period_qp;
-    mpc_data.period_mpcsample   = sample_period_first;
-    mpc_data.period_actsample   = sample_period_act;
+    mpc_data.nbsamples_qp       = kNumSamplesHorizon;
+    mpc_data.nbqpsamples_step   = kNumSamplesStep;
+    mpc_data.nbqpsamples_dsss   = kNumSamplesDSSS;
+    mpc_data.nbsteps_ssds       = kNumSamplesSSDS;
+    mpc_data.period_qpsample    = kSamplePeriodQP;
+    mpc_data.period_mpcsample   = kSamplePeriodFirst;
+    mpc_data.period_actsample   = kSamplePeriodAct;
     mpc_data.ponderation.JerkMin[0] = 0.001;
     mpc_data.ponderation.JerkMin[1] = 0.001;
-    mpc_data.warmstart					= false;
+    mpc_data.warmstart					        = false;
     mpc_data.interpolate_whole_horizon	= false;
-    mpc_data.solver.analysis			= false;
-    mpc_data.solver.name				= QPOASES;
-    mpc_data.solver.num_wsrec			= 2;
+    mpc_data.solver.analysis			      = false;
+    mpc_data.solver.name			  = QPOASES;
+    mpc_data.solver.num_wsrec	  = 2;
+    if (*closed_loop_in[0] > 0.5) {
+      mpc_data.closed_loop              = true;
+    }
 
     RobotData robot_data(leftFoot, rightFoot, leftHipYaw, rightHipYaw, 0.0);
 
+    // TODO: This initialization did not work
     robot_data.com(0) = *com_in[0];
     robot_data.com(1) = *com_in[1];
     robot_data.com(2) = *com_in[2];
@@ -195,49 +207,35 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 
     robot_data.leftFootHull.resize(nbVertFeet);
     robot_data.rightFootHull.resize(nbVertFeet);
-    for (int i=0; i < nbVertFeet; ++i) {
-      robot_data.leftFootHull.x(i)=DefaultFPosEdgesX[i];
-      robot_data.leftFootHull.y(i)=DefaultFPosEdgesY[i];
-      robot_data.rightFootHull.x(i)=DefaultFPosEdgesX[i];
-      robot_data.rightFootHull.y(i)=-DefaultFPosEdgesY[i];
+    for (int i = 0; i < nbVertFeet; ++i) {
+      robot_data.leftFootHull.x(i)  = DefaultFPosEdgesX[i];
+      robot_data.leftFootHull.y(i)  = DefaultFPosEdgesY[i];
+      robot_data.rightFootHull.x(i) = DefaultFPosEdgesX[i];
+      robot_data.rightFootHull.y(i) = -DefaultFPosEdgesY[i];
     }
 
-    // Constraints on the CoP
-    // TODO: Should not be hardcoded
-    const int nbVertCoP = 4;
-    double DefaultCoPSSEdgesX[nbVertCoP] = {0.0686, 0.0686, -0.0686, -0.0686};
-    double DefaultCoPSSEdgesY[nbVertCoP] = {0.029, -0.029, -0.029, 0.029};
-    double DefaultCoPDSEdgesX[nbVertCoP] = {0.0686, 0.0686, -0.0686, -0.0686};
-    double DefaultCoPDSEdgesY[nbVertCoP] = {0.029, -0.229, -0.229, 0.029};
+    double feet_distance_y = *left_ankle_in[1] - *right_ankle_in[1];
+    robot_data.SetCoPHulls(feet_distance_y);
 
-    robot_data.CoPLeftSSHull.resize(nbVertCoP);
-    robot_data.CoPRightSSHull.resize(nbVertCoP);
-    robot_data.CoPLeftDSHull.resize(nbVertCoP);
-    robot_data.CoPRightDSHull.resize(nbVertCoP);
-    for (int i = 0; i < nbVertCoP; ++i) {
-      robot_data.CoPLeftSSHull.x(i) = DefaultCoPSSEdgesX[i];
-      robot_data.CoPLeftSSHull.y(i) = DefaultCoPSSEdgesY[i];
-      robot_data.CoPLeftDSHull.x(i) = DefaultCoPDSEdgesX[i];
-      robot_data.CoPLeftDSHull.y(i) = DefaultCoPDSEdgesY[i];
-
-      robot_data.CoPRightSSHull.x(i) = DefaultCoPSSEdgesX[i];
-      robot_data.CoPRightSSHull.y(i) =- DefaultCoPSSEdgesY[i];
-      robot_data.CoPRightDSHull.x(i) = DefaultCoPDSEdgesX[i];
-      robot_data.CoPRightDSHull.y(i) =- DefaultCoPDSEdgesY[i];
-    }
- 
     walk->Init(robot_data, mpc_data);
+    RigidBodySystem *robot = walk->robot();
+    robot->com()->state().x[0] = *com_in[0];
+    robot->com()->state().y[0] = *com_in[1]; 
+    robot->com()->state().x[1] = *com_in[3];
+    robot->com()->state().y[1] = *com_in[4];
+    robot->com()->state().x[2] = kGravity / *com_in[2] * (*com_in[0] - *cop_in[0]);
+    robot->com()->state().y[2] = kGravity / *com_in[2] * (*com_in[1] - *cop_in[1]);
+
     ssSetIWorkValue(S, 0, 1);//Is initialized
-  }
+  } // End of initialization
 
   // INPUT:
   // ------
   walk->reference(*vel_ref[0], *vel_ref[1], *vel_ref[2]);
-  double kGravity = 9.81;
   RigidBodySystem *robot = walk->robot();
-  if (*closed_loop_in[0] > 0.5) {// TODO: Is there a better way for switching
+  if (*closed_loop_in[0] > 0.5) {// TODO: Is there a better way for switching?
     robot->com()->state().x[0] = *com_in[0];
-    robot->com()->state().y[0] = *com_in[1];
+    robot->com()->state().y[0] = *com_in[1]; 
     robot->com()->state().x[1] = *com_in[3];
     robot->com()->state().y[1] = *com_in[4];
     robot->com()->state().x[2] = kGravity / *com_in[2] * (*com_in[0] - *cop_in[0]);
@@ -327,6 +325,9 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
   } else {
     support[0] = 0.0;
   }
+  support[1] = current_support.phase;
+  support[2] = current_support.foot;
+  
 
   // Analysis:
   // ---------
