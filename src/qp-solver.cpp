@@ -8,9 +8,10 @@ using namespace Eigen;
 
 QPSolver::QPSolver(const SolverData *parameters, int nbvar_max, int nbcstr_max)
 :hessian_mat_(nbvar_max, nbvar_max)
+,hessian_arr_(NULL)
 ,gradient_vec_(nbvar_max)
 ,cstr_mat_(nbcstr_max, nbvar_max)
-,cstr_arr_(0)
+,cstr_arr_(NULL)
 ,constr_u_bounds_vec_(nbcstr_max)
 ,constr_l_bounds_vec_(nbcstr_max)
 ,var_u_bounds_vec_(nbvar_max)
@@ -34,10 +35,14 @@ QPSolver::QPSolver(const SolverData *parameters, int nbvar_max, int nbcstr_max)
 }
 
 QPSolver::~QPSolver() {
-  if (cstr_arr_ != 0x0)
-    delete cstr_arr_;
-  if (hessian_arr_ != 0x0)
-    delete hessian_arr_;
+	if (cstr_arr_ != 0x0) {
+		delete[] cstr_arr_;
+		cstr_arr_ = NULL;
+	}
+	if (hessian_arr_ != 0x0) {
+		delete[] hessian_arr_;
+		hessian_arr_ = NULL;
+	}
 }
 
 QPMatrix &QPSolver::matrix(const QPMatrixType type) {

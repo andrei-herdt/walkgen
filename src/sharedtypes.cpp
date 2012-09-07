@@ -1,5 +1,5 @@
 #include <mpc-walkgen/sharedtypes.h>
-#include <mpc-walkgen/tools.h>
+#include <mpc-walkgen/tools.h>  //TODO: This breaks the structure
 
 #include <iostream>
 #include <cassert>
@@ -23,14 +23,36 @@ void BodyState::reset(){
 FootData::FootData()
 : soleWidth(0)
 , soleHeight(0)
-, anklePositionInLocalFrame(){}
+, anklePositionInLocalFrame() {
+  edges_x_vec.resize(4);
+  edges_y_vec.resize(4);
+}
 
 FootData::FootData(const FootData &f)
 : soleWidth(f.soleWidth)
 , soleHeight(f.soleHeight)
-, anklePositionInLocalFrame(f.anklePositionInLocalFrame){}//TODO: LocalAnklePosition_ better?
+, anklePositionInLocalFrame(f.anklePositionInLocalFrame) {
+  edges_x_vec = f.edges_x_vec;
+  edges_y_vec = f.edges_y_vec;
+}
 
-FootData::~FootData(){}
+FootData::~FootData(){
+}
+
+void FootData::SetEdges(double front, double back, double left, double right,
+                        double security_margin) {
+                          // Clockwise, starting at front-left corner
+                          // Foots sagittal plane is aligned with the x-axis
+                          edges_x_vec[0] = front - security_margin;
+                          edges_x_vec[1] = front - security_margin;
+                          edges_x_vec[2] = back + security_margin;
+                          edges_x_vec[3] = back + security_margin;
+
+                          edges_y_vec[0] = left - security_margin;
+                          edges_y_vec[1] = right + security_margin;
+                          edges_y_vec[2] = right + security_margin;
+                          edges_y_vec[3] = left - security_margin;
+}
 
 HipYawData::HipYawData()
 :lowerBound(-0.523599)
@@ -119,6 +141,7 @@ MPCData::MPCData()
 ,period_ds(1000000000.0)
 ,warmstart(false)
 ,interpolate_whole_horizon(false)
+,closed_loop(false)
 ,ponderation(2)
 {}
 
@@ -152,6 +175,90 @@ double MPCData::period_trans_ds() const {
   return period_qpsample;
 }
 
+ConvexHull::ConvexHull()
+:x(1)
+,y(1)
+,z(1)
+,A(1)
+,B(1)
+,C(1)
+,D(1) {
+}
+
+ConvexHull::~ConvexHull() {}
+
+// TODO: Necessary?
+ConvexHull &ConvexHull::operator=(const ConvexHull &hull){
+  x = hull.x;
+  y = hull.y;
+  z = hull.z;
+  A = hull.A;
+  B = hull.B;
+  C = hull.C;
+  D = hull.D;
+
+  return *this;
+}
+
+void ConvexHull::resize(int size){
+  if (size != x.rows()){
+    x.setZero(size);
+    y.setZero(size);
+    A.setZero(size);
+    B.setZero(size);
+    C.setZero(size);
+    D.setZero(size);
+  }else{
+    x.fill(0);
+    y.fill(0);
+    A.fill(0);
+    B.fill(0);
+    C.fill(0);
+    D.fill(0);
+  }
+}
+
+void ConvexHull::rotate(double yaw) {
+  if (fabs(yaw) < EPSILON)
+    return;
+
+  double xOld, yOld;
+  int size = x.rows();
+  for(int i = 0; i < size; ++i){
+    xOld = x(i);
+    yOld = y(i);
+    x(i) = (xOld * std::cos(yaw) - yOld * std::sin(yaw));
+    y(i) = (xOld * std::sin(yaw) + yOld * std::cos(yaw));
+  }
+}
+
+void ConvexHull::computeLinearSystem(const Foot &foot) {
+  double dx,dy,dc,x1,y1,x2,y2;
+  unsigned nbRows = x.rows();
+
+  double sign;
+  if(foot == LEFT){
+    sign = 1.0;
+  }else{
+    sign = -1.0;
+  }
+  for( unsigned i=0; i<nbRows;++i ){
+    y1 = y(i);
+    y2 = y((i+1)%nbRows);
+    x1 = x(i);
+    x2 = x((i+1)%nbRows);
+
+    dx = sign*(y1-y2);
+    dy = sign*(x2-x1);
+    dc = dx*x1+dy*y1;
+
+
+    A(i) = dx;
+    B(i) = dy;
+    D(i) = dc;
+  }
+}
+
 RobotData::RobotData(const FootData &leftFoot, const FootData &rightFoot,
                      const HipYawData &leftHipYaw, const HipYawData &rightHipYaw,
                      double mass)
@@ -170,13 +277,42 @@ RobotData::RobotData(const FootData &leftFoot, const FootData &rightFoot,
                      ,CoPRightSSHull()
                      ,CoPLeftDSHull()
                      ,CoPRightDSHull() {
+                       CoPLeftSSHull.resize(4);
+                       CoPRightSSHull.resize(4);
+                       CoPLeftDSHull.resize(4);
+                       CoPRightDSHull.resize(4);
                        com << 0.0, 0.0, 0.814;
                        leftFootPos << 0.00949035, 0.095, 0;
                        rightFootPos << 0.00949035, -0.095, 0;
 }
 
-RobotData::RobotData(){}
+RobotData::RobotData(){
+  CoPLeftSSHull.resize(4);
+  CoPRightSSHull.resize(4);
+  CoPLeftDSHull.resize(4);
+  CoPRightDSHull.resize(4);
+}
 RobotData::~RobotData(){}
+
+// TODO: This function should be moved to a separate object for hulls/constraints
+void RobotData::SetCoPHulls(double ds_distance) {
+  for (int i = 0; i < 4; ++i) {
+    CoPLeftSSHull.x(i) = leftFoot.edges_x_vec[i];
+    CoPLeftSSHull.y(i) = leftFoot.edges_y_vec[i];
+    CoPLeftDSHull.x(i) = leftFoot.edges_x_vec[i];
+    CoPLeftDSHull.y(i) = leftFoot.edges_y_vec[i];
+
+    CoPRightSSHull.x(i) = rightFoot.edges_x_vec[i];
+    CoPRightSSHull.y(i) = -rightFoot.edges_y_vec[i]; // Counter-clockwise
+    CoPRightDSHull.x(i) = rightFoot.edges_x_vec[i];
+    CoPRightDSHull.y(i) = -rightFoot.edges_y_vec[i]; // Counter-clockwise
+  }
+  CoPLeftDSHull.y(1)  -= ds_distance;
+  CoPLeftDSHull.y(2)  -= ds_distance;
+  CoPRightDSHull.y(1) += ds_distance;
+  CoPRightDSHull.y(2) += ds_distance;
+}
+
 
 QPPonderation::QPPonderation(int nb)
 :instantVelocity(nb)

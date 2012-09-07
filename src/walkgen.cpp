@@ -132,20 +132,21 @@ void Walkgen::Init() {
 
   generator_->precomputeObjective();
 
-  BodyState state;
-  state.x[0] = robotData_.leftFootPos[0];
-  state.y[0] = robotData_.leftFootPos[1];
-  robot_->body(LEFT_FOOT)->state(state);
+  BodyState state_left_foot;
+  state_left_foot.x[0] = robotData_.leftFootPos[0];
+  state_left_foot.y[0] = robotData_.leftFootPos[1];
+  robot_->body(LEFT_FOOT)->state(state_left_foot);
 
-  state.x[0] = robotData_.rightFootPos[0];
-  state.y[0] = robotData_.rightFootPos[1];
-  robot_->body(RIGHT_FOOT)->state(state);
+  BodyState state_right_foot;
+  state_right_foot.x[0] = robotData_.rightFootPos[0];
+  state_right_foot.y[0] = robotData_.rightFootPos[1];
+  robot_->body(RIGHT_FOOT)->state(state_right_foot);
 
-  state.x[0] = robotData_.com(0);//TODO: Add macros for x,y,z
-  state.y[0] = robotData_.com(1);
-  state.z[0] = robotData_.com(2);
-
-  robot_->body(COM)->state(state);
+  BodyState state_com;
+  state_com.x[0] = robotData_.com(0);//TODO: Add macros for x,y,z
+  state_com.y[0] = robotData_.com(1);
+  state_com.z[0] = robotData_.com(2);
+  robot_->body(COM)->state(state_com);
 
   ponderation_.activePonderation = 0;
 
