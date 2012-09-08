@@ -35,7 +35,7 @@ QPMatrix::~QPMatrix(){}
 void QPMatrix::addTerm(const EigenMatrixXdRM &mat,
                        const int first_row, const int first_col) {
                          // The following is optimized for row major matrices.
-                         // It does not work for colum major ones.
+                         // It has to be adapted if colum major ones are used.
                          // --------------------------------------------------
                          int newcol = 0;
                          int newrow = 0;
@@ -71,19 +71,6 @@ void QPMatrix::addTerm(const EigenMatrixXdRM &mat,
 
 }
 
-//TODO: Not used.
-void QPMatrix::setTerm(const CommonMatrixType &mat, const int row, const int col) {
-  int num_rows = mat.rows();
-  int num_cols = mat.cols();
-  for (int i = 0; i < num_rows; ++i) {
-    for (int j = 0; j < num_cols; ++j) {
-      // row major!
-      *(matrix_.data() + col_indices_vec_(col + j) + row_indices_vec_(row + i) * num_cols_) = mat(i, j);
-    }
-  }
-  cholesky_old_mat_ = true;
-}
-
 void QPMatrix::setConstantPart(const CommonMatrixType &mat) {
   int num_rows = mat.rows();
   int num_cols = mat.cols();
@@ -103,7 +90,6 @@ void QPMatrix::reset() {
 void QPMatrix::resize(const int num_rows, const int num_cols) {
   num_rows_ = num_rows;
   num_cols_ = num_cols;
-  //matrix_.resize(nbRows_, nbCols_); //TODO: This should be avoided
 }
 
 CommonMatrixType &QPMatrix::cholesky() {

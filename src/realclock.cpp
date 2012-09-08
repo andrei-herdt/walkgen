@@ -24,7 +24,8 @@ using namespace MPCWalkgen;
 
 RealClock::RealClock():
 num_counters_(0),  
-num_max_counters_(0)
+num_max_counters_(0),
+frequency_(1)
 {}
 
 RealClock::~RealClock(){}
@@ -48,7 +49,7 @@ void RealClock::GetFrequency(unsigned long long milliseconds) {
 	double seconds = static_cast<double>(milliseconds) / 1000.0;
 	taskDelay(static_cast<int>(seconds * sysClkRateGet()));
 #elif defined __LINUX__
-	usleep(milliseconds*1000);
+	usleep(milliseconds * 1000);
 #endif
 	frequency_ = (__rdtsc() - start_tick) / (milliseconds * 1000 );
 #endif
