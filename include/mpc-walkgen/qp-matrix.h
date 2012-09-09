@@ -30,9 +30,6 @@ namespace MPCWalkgen{
     void addTerm(const EigenMatrixXdRM &mat,
       const int first_row, const int first_col);
 
-    void setTerm(const CommonMatrixType &mat,
-      const int first_row, const int first_col);
-
     void setConstantPart(const CommonMatrixType &mat);
 
     void reset();

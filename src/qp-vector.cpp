@@ -13,36 +13,39 @@ QPVector::QPVector(const int num_rows)
 :constantPart_(num_rows)
 ,vector_(num_rows)
 ,num_rows_(num_rows)
-,rowOrder_(num_rows) {
+,index_order_(num_rows) {
 
   constantPart_.setZero();
   vector_.setZero();
 
   for (int i = 0; i < num_rows; ++i) {
-    rowOrder_(i) = i;
+    index_order_(i) = i;
   }
 }
 
 QPVector::~QPVector(){}
 
-void QPVector::addTerm(const VectorXd &vec, const int row) {
-  int nbRows = vec.rows();
-  for (int i = 0; i < nbRows; ++i){
-    vector_(rowOrder_(row+i)) += vec(i);
+void QPVector::addTerm(const VectorXd &vec, const int first_row) {
+  int num_rows = vec.rows();
+  const double *vec_p = vec.data();
+  const int *row_p = index_order_.data() + first_row;
+  double *goal_vec_p = vector_.data();
+  for (int i = 0; i < num_rows; ++i){
+    *(goal_vec_p + *row_p) = *vec_p;
+    ++row_p;
+    ++vec_p;
   }
-}
 
-void QPVector::setTerm(const VectorXd &vec, const int row) {
-  int nbRows = vec.rows();
-  for (int i = 0; i < nbRows; ++i) {
-    vector_(rowOrder_(row+i)) = vec(i);
-  }
+  // Non-optimized equivalent code
+  /*for (int i = 0; i < num_rows; ++i){
+    vector_(index_order_(first_row+i)) += vec(i);
+  }*/
 }
 
 void QPVector::setConstantPart(const VectorXd &mat) {
   int nbRows = mat.rows();
   for (int i = 0; i <= nbRows; ++i) {
-    constantPart_(rowOrder_(i)) = mat(i);
+    constantPart_(index_order_(i)) = mat(i);
   }
 }
 
@@ -55,5 +58,5 @@ void QPVector::resize(const int nbRows){
 }
 
 void QPVector::rowOrder(const Eigen::VectorXi &order){
-  rowOrder_ = order;
+  index_order_ = order;
 }
