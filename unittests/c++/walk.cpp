@@ -125,7 +125,7 @@ int main(int argc, char *argv[]) {
     
     // Go:
     // ---
-    double velocity = 0.2;
+    double velocity = 0.1;
     double curr_time = 0;
     walk->reference(velocity, 0, 0);
 	int num_iterations = 0;

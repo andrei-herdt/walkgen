@@ -33,8 +33,7 @@ all: ${TEST_EXES}
 
 	
 walk${EXE}: walk.${OBJEXT} ${SRCDIR}libmpc-walkgen.${LIBEXT}
-	${CPP} ${DEF_TARGET} ${CPPFLAGS} $< ${MPC_WALKGEN_LIB} ${THREAD_LIB} ${QPOASES_LIB} 
-#${BLAS_LIB}
+	${CPP} ${DEF_TARGET} ${CPPFLAGS} $< ${MPC_WALKGEN_LIB} ${THREAD_LIB} ${QPOASES_LIB} ${BLAS_LIB}
 
 clean: 
 	${RM} -f *.${OBJEXT} ${TEST_EXES}
