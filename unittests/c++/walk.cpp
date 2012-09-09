@@ -178,6 +178,9 @@ int main(int argc, char *argv[]) {
      passed_time = walk->clock().GetMaxTime(0);
      std::cout << "total: " << passed_time  << std::endl;
 
+	std::cout << "Final CoM position: " << walk->output().com.x <<
+	", " << walk->output().com.y <<std::endl;
+
     delete walk;
     return 0;
 }
