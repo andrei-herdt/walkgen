@@ -27,19 +27,19 @@ QPVector::~QPVector(){}
 
 void QPVector::addTerm(const VectorXd &vec, const int first_row) {
   int num_rows = vec.rows();
-  const double *vec_p = vec.data();
+  /*const double *vec_p = vec.data();
   const int *row_p = index_order_.data() + first_row;
   double *goal_vec_p = vector_.data();
   for (int i = 0; i < num_rows; ++i){
     *(goal_vec_p + *row_p) = *vec_p;
     ++row_p;
     ++vec_p;
-  }
+  }*/
 
   // Non-optimized equivalent code
-  /*for (int i = 0; i < num_rows; ++i){
+  for (int i = 0; i < num_rows; ++i){
     vector_(index_order_(first_row+i)) += vec(i);
-  }*/
+  }
 }
 
 void QPVector::setConstantPart(const VectorXd &mat) {
