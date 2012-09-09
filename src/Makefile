@@ -6,19 +6,19 @@
 SRCDIR = .
 
 # select your operating system here!
-# include make_linux.mk
+include make_linux.mk
 # include make_windows.mk
-include make_vxworks.mk
+# include make_vxworks.mk
 # include make_vxworks_intel.mk
 
 
 ##
 ##	flags
 ##
-IDIR        =  ../include/
-DIR_EIGEN   =	/home/f_legs/rtw_models/herdt/eigen-3.1.1/
-QPOASES_IDIR	=	/home/f_legs/rtw_models/herdt/qpOASES-3.0/include/
-QPOASES_SRCDIR	=	/home/f_legs/rtw_models/herdt/qpOASES-3.0/src/
+IDIR        	=  ../include/
+DIR_EIGEN   	=  ../../eigen-3.1.1/
+QPOASES_IDIR	=  ../../qpoases-3.0/include/
+QPOASES_SRCDIR	=  ../../qpoases-3.0/src/
 
 IFLAGS      =  -I. \
                -I${IDIR} \
@@ -47,27 +47,14 @@ MPC_WALKGEN_OBJECTS = \
 	com-body.${OBJEXT} \
 	realclock.${OBJEXT} 
 	
-QPOASES_OBJECTS = \
-	${QPOASES_SRCDIR}/SQProblem.${OBJEXT} \
-	${QPOASES_SRCDIR}/QProblem.${OBJEXT} \
-	${QPOASES_SRCDIR}/QProblemB.${OBJEXT} \
-	${QPOASES_SRCDIR}/Bounds.${OBJEXT} \
-	${QPOASES_SRCDIR}/Constraints.${OBJEXT} \
-	${QPOASES_SRCDIR}/SubjectTo.${OBJEXT} \
-	${QPOASES_SRCDIR}/Indexlist.${OBJEXT} \
-	${QPOASES_SRCDIR}/Utils.${OBJEXT} \
-	${QPOASES_SRCDIR}/Options.${OBJEXT} \
-	${QPOASES_SRCDIR}/Matrices.${OBJEXT} \
-	${QPOASES_SRCDIR}/MessageHandling.${OBJEXT}
-	
 
 all: libmpc-walkgen.${LIBEXT}
 
 
-libmpc-walkgen.${LIBEXT}: ${MPC_WALKGEN_OBJECTS} \
-	${QPOASES_OBJECTS}
+libmpc-walkgen.${LIBEXT}: ${MPC_WALKGEN_OBJECTS} 
 	${AR} r $@ $?
-
+	
+	
 ##
 ##	targets
 ##
