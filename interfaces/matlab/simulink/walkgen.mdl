@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.319"
+    ComputedModelVersion    "1.328"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Tue Sep 04 11:08:22 2012"
+  LastModifiedDate	  "Sun Sep 09 12:19:34 2012"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:319>"
+  ModelVersionFormat	  "1.%<AutoIncrement:328>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -667,7 +667,7 @@ Model {
   }
   System {
     Name		    "walkgen"
-    Location		    [848, 74, 1123, 375]
+    Location		    [850, 74, 1125, 375]
     Open		    off
     ModelBrowserVisibility  off
     ModelBrowserWidth	    200
@@ -700,8 +700,8 @@ Model {
       FunctionWithSeparateData off
       System {
 	Name			"Simulation"
-	Location		[848, 74, 1594, 860]
-	Open			on
+	Location		[702, 74, 1448, 860]
+	Open			off
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
 	ScreenColor		"white"
@@ -740,13 +740,13 @@ Model {
 	  Position		  [390, 63, 495, 772]
 	  TreatAsAtomicUnit	  on
 	  MinAlgLoopOccurrences	  off
-	  SystemSampleTime	  "0.005"
+	  SystemSampleTime	  "0.001"
 	  RTWSystemCode		  "Auto"
 	  FunctionWithSeparateData off
 	  System {
 	    Name		    "Atomic Walkgen"
 	    Location		    [403, 74, 1582, 876]
-	    Open		    off
+	    Open		    on
 	    ModelBrowserVisibility  off
 	    ModelBrowserWidth	    200
 	    ScreenColor		    "white"
@@ -778,7 +778,7 @@ Model {
 	    Block {
 	      BlockType		      Inport
 	      Name		      "init"
-	      Position		      [55, 348, 85, 362]
+	      Position		      [55, 343, 85, 357]
 	      Port		      "3"
 	      IconDisplay	      "Port number"
 	      OutDataType	      "sfix(16)"
@@ -787,7 +787,7 @@ Model {
 	    Block {
 	      BlockType		      Inport
 	      Name		      "options"
-	      Position		      [60, 468, 90, 482]
+	      Position		      [60, 448, 90, 462]
 	      Port		      "4"
 	      IconDisplay	      "Port number"
 	      OutDataType	      "sfix(16)"
@@ -797,7 +797,7 @@ Model {
 	      BlockType		      BusCreator
 	      Name		      "Bus\nCreator"
 	      Ports		      [4, 1]
-	      Position		      [845, 237, 850, 283]
+	      Position		      [615, 232, 620, 278]
 	      ShowName		      off
 	      DisplayOption	      "bar"
 	    }
@@ -805,7 +805,7 @@ Model {
 	      BlockType		      BusCreator
 	      Name		      "Bus\nCreator1"
 	      Ports		      [5, 1]
-	      Position		      [680, 419, 685, 541]
+	      Position		      [505, 419, 510, 541]
 	      ShowName		      off
 	      Inputs		      "5"
 	      DisplayOption	      "bar"
@@ -821,7 +821,7 @@ Model {
 	      BlockType		      BusCreator
 	      Name		      "Bus\nCreator2"
 	      Ports		      [3, 1]
-	      Position		      [565, 186, 570, 224]
+	      Position		      [510, 186, 515, 224]
 	      ShowName		      off
 	      Inputs		      "3"
 	      DisplayOption	      "bar"
@@ -837,7 +837,7 @@ Model {
 	      BlockType		      BusCreator
 	      Name		      "Bus\nCreator3"
 	      Ports		      [3, 1]
-	      Position		      [565, 286, 570, 324]
+	      Position		      [510, 286, 515, 324]
 	      ShowName		      off
 	      Inputs		      "3"
 	      DisplayOption	      "bar"
@@ -853,7 +853,7 @@ Model {
 	      BlockType		      BusCreator
 	      Name		      "Bus\nCreator4"
 	      Ports		      [3, 1]
-	      Position		      [570, 361, 575, 399]
+	      Position		      [515, 361, 520, 399]
 	      ShowName		      off
 	      Inputs		      "3"
 	      DisplayOption	      "bar"
@@ -889,7 +889,7 @@ Model {
 	      BlockType		      BusSelector
 	      Name		      "Bus\nSelector2"
 	      Ports		      [1, 5]
-	      Position		      [245, 258, 250, 452]
+	      Position		      [175, 253, 180, 447]
 	      ShowName		      off
 	      OutputSignals	      "left_ankle,right_ankle,left_yaw,right_yaw,foot_geometry"
 	      Port {
@@ -924,24 +924,32 @@ Model {
 	      }
 	    }
 	    Block {
+	      BlockType		      Constant
+	      Name		      "Constant"
+	      Position		      [225, 504, 245, 526]
+	      Value		      "0"
+	      OutDataType	      "sfix(16)"
+	      OutScaling	      "2^0"
+	    }
+	    Block {
 	      BlockType		      RateTransition
 	      Name		      "Protected RT1"
-	      Position		      [890, 250, 910, 270]
+	      Position		      [665, 245, 685, 265]
 	      Deterministic	      off
 	    }
 	    Block {
 	      BlockType		      RateTransition
 	      Name		      "Protected RT2"
-	      Position		      [810, 465, 830, 485]
+	      Position		      [580, 470, 600, 490]
 	      Deterministic	      off
 	    }
 	    Block {
 	      BlockType		      "S-Function"
 	      Name		      "S-Function"
-	      Ports		      [9, 15]
-	      Position		      [375, 168, 465, 542]
+	      Ports		      [10, 15]
+	      Position		      [300, 168, 390, 542]
 	      FunctionName	      "walkgen_sfun"
-	      Parameters	      "10, 8, 8, 2, 0.1, 0.005, 0.005"
+	      Parameters	      "10, 8, 8, 2, 0.1, 0.001, 0.001, 0.02"
 	      Port {
 		PortNumber		1
 		Name			"com"
@@ -1037,11 +1045,11 @@ Model {
 	      BlockType		      Scope
 	      Name		      "Scope"
 	      Ports		      [1]
-	      Position		      [505, 140, 525, 160]
+	      Position		      [450, 140, 470, 160]
 	      Orientation	      "up"
 	      ShowName		      off
 	      Floating		      off
-	      Location		      [79, 49, 1595, 900]
+	      Location		      [89, 45, 1601, 899]
 	      Open		      off
 	      NumInputPorts	      "1"
 	      List {
@@ -1059,7 +1067,7 @@ Model {
 	      BlockType		      Scope
 	      Name		      "Scope1"
 	      Ports		      [1]
-	      Position		      [529, 220, 551, 240]
+	      Position		      [474, 220, 496, 240]
 	      Orientation	      "up"
 	      NamePlacement	      "alternate"
 	      ShowName		      off
@@ -1079,7 +1087,7 @@ Model {
 	      BlockType		      Scope
 	      Name		      "Scope2"
 	      Ports		      [1]
-	      Position		      [595, 264, 615, 286]
+	      Position		      [540, 264, 560, 286]
 	      ShowName		      off
 	      Floating		      off
 	      Location		      [79, 40, 1595, 894]
@@ -1097,7 +1105,7 @@ Model {
 	      BlockType		      Scope
 	      Name		      "Scope3"
 	      Ports		      [1]
-	      Position		      [595, 335, 615, 355]
+	      Position		      [540, 335, 560, 355]
 	      ShowName		      off
 	      Floating		      off
 	      Location		      [79, 40, 1595, 894]
@@ -1114,7 +1122,7 @@ Model {
 	    Block {
 	      BlockType		      Outport
 	      Name		      "command"
-	      Position		      [950, 253, 980, 267]
+	      Position		      [725, 248, 755, 262]
 	      IconDisplay	      "Port number"
 	      OutDataType	      "sfix(16)"
 	      OutScaling	      "2^0"
@@ -1122,7 +1130,7 @@ Model {
 	    Block {
 	      BlockType		      Outport
 	      Name		      "preview"
-	      Position		      [950, 468, 980, 482]
+	      Position		      [715, 473, 745, 487]
 	      Port		      "2"
 	      IconDisplay	      "Port number"
 	      OutDataType	      "sfix(16)"
@@ -1133,7 +1141,6 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "Bus\nCreator1"
 	      SrcPort		      1
-	      Points		      [0, -5]
 	      DstBlock		      "Protected RT2"
 	      DstPort		      1
 	    }
@@ -1148,7 +1155,7 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "S-Function"
 	      SrcPort		      1
-	      Points		      [45, 0]
+	      Points		      [65, 0]
 	      Branch {
 		Points			[5, 0; 0, 15]
 		DstBlock		"Bus\nCreator2"
@@ -1164,12 +1171,13 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "S-Function"
 	      SrcPort		      4
-	      Points		      [70, 0]
+	      Points		      [90, 0]
 	      Branch {
 		DstBlock		"Scope1"
 		DstPort			1
 	      }
 	      Branch {
+		Points			[115, 0]
 		DstBlock		"Bus\nCreator"
 		DstPort			2
 	      }
@@ -1179,7 +1187,7 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "Bus\nCreator4"
 	      SrcPort		      1
-	      Points		      [215, 0; 0, -105]
+	      Points		      [65, 0; 0, -110]
 	      DstBlock		      "Bus\nCreator"
 	      DstPort		      4
 	    }
@@ -1196,7 +1204,7 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "Bus\nCreator2"
 	      SrcPort		      1
-	      Points		      [180, 0; 0, 40]
+	      Points		      [55, 0; 0, 35]
 	      DstBlock		      "Bus\nCreator"
 	      DstPort		      1
 	    }
@@ -1213,7 +1221,7 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "S-Function"
 	      SrcPort		      3
-	      Points		      [50, 0; 0, -15]
+	      Points		      [70, 0; 0, -15]
 	      DstBlock		      "Bus\nCreator2"
 	      DstPort		      3
 	    }
@@ -1222,7 +1230,7 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "Bus\nCreator3"
 	      SrcPort		      1
-	      Points		      [180, 0; 0, -40]
+	      Points		      [55, 0; 0, -45]
 	      DstBlock		      "Bus\nCreator"
 	      DstPort		      3
 	    }
@@ -1231,7 +1239,7 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "S-Function"
 	      SrcPort		      10
-	      Points		      [35, 0; 0, -15]
+	      Points		      [55, 0; 0, -15]
 	      DstBlock		      "Bus\nCreator4"
 	      DstPort		      3
 	    }
@@ -1240,7 +1248,7 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "S-Function"
 	      SrcPort		      8
-	      Points		      [35, 0; 0, 15; 50, 0]
+	      Points		      [55, 0; 0, 15; 50, 0]
 	      Branch {
 		Points			[-5, 0; 0, -25]
 		DstBlock		"Scope3"
@@ -1256,7 +1264,7 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "S-Function"
 	      SrcPort		      5
-	      Points		      [30, 0; 0, 15; 45, 0]
+	      Points		      [50, 0; 0, 15; 45, 0]
 	      Branch {
 		DstBlock		"Bus\nCreator3"
 		DstPort			1
@@ -1280,7 +1288,7 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "S-Function"
 	      SrcPort		      7
-	      Points		      [40, 0; 0, -15]
+	      Points		      [60, 0; 0, -15]
 	      DstBlock		      "Bus\nCreator3"
 	      DstPort		      3
 	    }
@@ -1327,6 +1335,7 @@ Model {
 	    Line {
 	      SrcBlock		      "reference"
 	      SrcPort		      1
+	      Points		      [195, 0]
 	      DstBlock		      "S-Function"
 	      DstPort		      1
 	    }
@@ -1349,7 +1358,7 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "Bus\nSelector1"
 	      SrcPort		      2
-	      Points		      [25, 0; 0, 260]
+	      Points		      [15, 0; 0, 225]
 	      DstBlock		      "S-Function"
 	      DstPort		      9
 	    }
@@ -1372,6 +1381,7 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "Bus\nSelector2"
 	      SrcPort		      2
+	      Points		      [100, 0]
 	      DstBlock		      "S-Function"
 	      DstPort		      4
 	    }
@@ -1380,6 +1390,7 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "Bus\nSelector2"
 	      SrcPort		      3
+	      Points		      [100, 0]
 	      DstBlock		      "S-Function"
 	      DstPort		      5
 	    }
@@ -1388,6 +1399,7 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "Bus\nSelector2"
 	      SrcPort		      4
+	      Points		      [100, 0]
 	      DstBlock		      "S-Function"
 	      DstPort		      6
 	    }
@@ -1396,12 +1408,14 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "Bus\nSelector2"
 	      SrcPort		      5
+	      Points		      [100, 0]
 	      DstBlock		      "S-Function"
 	      DstPort		      7
 	    }
 	    Line {
 	      SrcBlock		      "options"
 	      SrcPort		      1
+	      Points		      [190, 0]
 	      DstBlock		      "S-Function"
 	      DstPort		      8
 	    }
@@ -1416,6 +1430,12 @@ Model {
 	      SrcPort		      1
 	      DstBlock		      "command"
 	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "Constant"
+	      SrcPort		      1
+	      DstBlock		      "S-Function"
+	      DstPort		      10
 	    }
 	  }
 	}
@@ -1546,7 +1566,7 @@ Model {
 	  ShowName		  off
 	  FontName		  "Arial"
 	  FontSize		  8
-	  Value			  "[0.0, 0.0, 0.3]"
+	  Value			  "[0.0, 0.0, 0.0]"
 	  OutDataType		  "sfix(16)"
 	  OutScaling		  "2^0"
 	}

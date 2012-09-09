@@ -108,12 +108,6 @@ void QPPreview::previewSupportStates(double firstSamplingPeriod, MPCSolution &so
 void QPPreview::computeRotationMatrix(MPCSolution &solution){
   int N = mpc_parameters_->nbsamples_qp;
 
-  // check that the elements not on the diagonal are null
-  assert(isSparseRotationMatrix(rotationMatrix_) && "The matrix rotationMatrix_ is not 2.2 block diagonal");
-
-  // check that the elements not on the diagonal are null
-  assert(isDiagonalRotationMatrix(rotationMatrix2_) && "The matrix rotationMatrix2_ is not 2.2 block diagonal");
-
   for (int i=0; i<N; ++i) {
       double cosYaw = cos(solution.support_states_vec[i+1].yaw);
       double sinYaw = sin(solution.support_states_vec[i+1].yaw);

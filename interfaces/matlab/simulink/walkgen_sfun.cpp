@@ -38,7 +38,7 @@ static void mdlInitializeSizes(SimStruct *S)
   ssSetInputPortWidth(S, 6, 4);     //foot_geometry
   ssSetInputPortWidth(S, 7, 1);     //closed_loop
   ssSetInputPortWidth(S, 8, 2);     //cop
-  ssSetInputPortWidth(S, 9, 1);     //cop
+  ssSetInputPortWidth(S, 9, 1);     //reset_in
 
   ssSetInputPortDirectFeedThrough(S, 0, 1);
   ssSetInputPortDirectFeedThrough(S, 1, 1);
@@ -81,7 +81,7 @@ static void mdlInitializeSizes(SimStruct *S)
 
 static void mdlInitializeSampleTimes(SimStruct *S)
 {
-  ssSetSampleTime(S, 0, 0.005);
+  ssSetSampleTime(S, 0, 0.001);
 }
 
 #define MDL_START
@@ -143,7 +143,6 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 
     walk->reference(*vel_ref[0], *vel_ref[1], *vel_ref[2]);
 
-    const double kSecurityMargin = -0.0;
     FootData leftFoot;     
     leftFoot.anklePositionInLocalFrame << 0, 0, 0;      //0, 0, 0.105;//TODO:Is not used
     leftFoot.soleHeight = *foot_geometry[2] - *foot_geometry[3];

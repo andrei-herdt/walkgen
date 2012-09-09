@@ -21,7 +21,7 @@ namespace MPCWalkgen{
 
   enum SolverName { QPOASES, LSSOL };
 
-  enum Axis { X,  Y, Z, Yaw };
+  enum Axis { X, Y, Z, Yaw };
   /// \}
 
   /// \name Structures
@@ -43,8 +43,8 @@ namespace MPCWalkgen{
     double soleWidth;
     double soleHeight;
     Eigen::Vector3d anklePositionInLocalFrame;
-	std::vector<double> edges_x_vec;
-	std::vector<double> edges_y_vec;
+    std::vector<double> edges_x_vec;
+    std::vector<double> edges_y_vec;
 
     FootData();
     FootData(const FootData &f);//TODO: LocalAnklePosition_ better?

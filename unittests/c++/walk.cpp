@@ -16,8 +16,8 @@ int main(int argc, char *argv[]) {
     int num_samples_dsss = 8;
     int num_steps_ssds = 2;
     double sample_period_qp = 0.1;
-    double sample_period_first = 0.005;
-    double sample_period_act = 0.005;
+    double sample_period_first = 0.001;
+    double sample_period_act = 0.001;
     
     if (argc == 8) {
 
@@ -129,11 +129,11 @@ int main(int argc, char *argv[]) {
     double curr_time = 0;
     walk->reference(velocity, 0, 0);
 	int num_iterations = 0;
-    for (; curr_time < 5; curr_time += sample_period_act) {
+    for (; curr_time < 20; curr_time += sample_period_act) {
         walk->clock().ResetLocal();
         int online_timer = walk->clock().StartCounter();
         const MPCSolution &solution = walk->online(curr_time);
-		walk->clock().StopLastCounter();
+		    walk->clock().StopLastCounter();
         walk->clock().StopCounter(online_timer);
 		// Print time:
 		/*

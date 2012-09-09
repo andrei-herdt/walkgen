@@ -53,17 +53,6 @@ namespace MPCWalkgen{
 	// \param [in] m
 	bool hasCholeskyForm(const CommonMatrixType &m);
 
-	// \brief Return true if the matrix given is sparse such as
-	//   every elmt is null except elemt for
-	//    (i,i), (i, N+i), (N+i, i), (N+i, N+i), i in [0, N].
-	//    where N is the half size of the matrix.
-	// \param [in] R the rotation matrix block diagonal
-	bool isSparseRotationMatrix (const CommonMatrixType &rot);
-
-	// \brief Return true if the matrix given is block diagonal
-	// \param [in] R the rotation matrix block diagonal
-	bool isDiagonalRotationMatrix(const CommonMatrixType &rot);
-
 	// \brief Compute the multiplication of the rotation matrix R by M
 	// \param [in out] mInOut = R mInOut R^T
 	// \param [in] R the rotation matrix block diagonal
