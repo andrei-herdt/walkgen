@@ -21,6 +21,7 @@ CPPFLAGS = -g -O3 -finline-functions -D__LINUX__ -D__NO_COPYRIGHT__ -D__SUPPRESS
 #CPPFLAGS = -g -D__DEBUG__ -D__LINUX__
 
 MPC_WALKGEN_LIB         =  -L${SRCDIR} -lmpc-walkgen
+THREAD_LIB         =  -lpthread -lgfortran
 
 
 ##
