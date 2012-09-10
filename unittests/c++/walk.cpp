@@ -121,7 +121,8 @@ int main(int argc, char *argv[]) {
     // Create and initialize generator:
     // -------------------------------
     WalkgenAbstract *walk = createWalkgen();
-    walk->Init(robot_data, mpc_parameters);
+    walk->Init(mpc_parameters);
+    walk->Init(robot_data);
     
     // Go:
     // ---

@@ -33,7 +33,8 @@ namespace MPCWalkgen{
     Walkgen();
     ~Walkgen();
 
-    virtual void Init(const RobotData &data_robot, const MPCData &mpc_parameters);
+    virtual void Init(const MPCData &mpc_parameters);
+    virtual void Init(const RobotData &data_robot);
 
     virtual void Init();
 

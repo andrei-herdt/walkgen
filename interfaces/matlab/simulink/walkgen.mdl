@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.328"
+    ComputedModelVersion    "1.331"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Sun Sep 09 12:19:34 2012"
+  LastModifiedDate	  "Mon Sep 10 19:55:04 2012"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:328>"
+  ModelVersionFormat	  "1.%<AutoIncrement:331>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -667,7 +667,7 @@ Model {
   }
   System {
     Name		    "walkgen"
-    Location		    [850, 74, 1125, 375]
+    Location		    [403, 74, 678, 375]
     Open		    off
     ModelBrowserVisibility  off
     ModelBrowserWidth	    200
@@ -701,7 +701,7 @@ Model {
       System {
 	Name			"Simulation"
 	Location		[702, 74, 1448, 860]
-	Open			off
+	Open			on
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
 	ScreenColor		"white"
@@ -746,7 +746,7 @@ Model {
 	  System {
 	    Name		    "Atomic Walkgen"
 	    Location		    [403, 74, 1582, 876]
-	    Open		    on
+	    Open		    off
 	    ModelBrowserVisibility  off
 	    ModelBrowserWidth	    200
 	    ScreenColor		    "white"
@@ -797,7 +797,7 @@ Model {
 	      BlockType		      BusCreator
 	      Name		      "Bus\nCreator"
 	      Ports		      [4, 1]
-	      Position		      [615, 232, 620, 278]
+	      Position		      [615, 237, 620, 283]
 	      ShowName		      off
 	      DisplayOption	      "bar"
 	    }
@@ -934,7 +934,7 @@ Model {
 	    Block {
 	      BlockType		      RateTransition
 	      Name		      "Protected RT1"
-	      Position		      [665, 245, 685, 265]
+	      Position		      [665, 250, 685, 270]
 	      Deterministic	      off
 	    }
 	    Block {
@@ -1049,16 +1049,17 @@ Model {
 	      Orientation	      "up"
 	      ShowName		      off
 	      Floating		      off
-	      Location		      [89, 45, 1601, 899]
+	      Location		      [83, 40, 1595, 891]
 	      Open		      off
 	      NumInputPorts	      "1"
+	      ZoomMode		      "yonly"
 	      List {
 		ListType		AxesTitles
 		axes1			"%<SignalLabel>"
 	      }
 	      TimeRange		      "0.007766893178016154"
-	      YMin		      "0.05"
-	      YMax		      "0.95"
+	      YMin		      "0.1"
+	      YMax		      "1.4"
 	      SaveName		      "ScopeData4"
 	      DataFormat	      "StructureWithTime"
 	      SampleTime	      "0"
@@ -1122,7 +1123,7 @@ Model {
 	    Block {
 	      BlockType		      Outport
 	      Name		      "command"
-	      Position		      [725, 248, 755, 262]
+	      Position		      [725, 253, 755, 267]
 	      IconDisplay	      "Port number"
 	      OutDataType	      "sfix(16)"
 	      OutScaling	      "2^0"
@@ -1177,7 +1178,6 @@ Model {
 		DstPort			1
 	      }
 	      Branch {
-		Points			[115, 0]
 		DstBlock		"Bus\nCreator"
 		DstPort			2
 	      }
@@ -1187,7 +1187,7 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "Bus\nCreator4"
 	      SrcPort		      1
-	      Points		      [65, 0; 0, -110]
+	      Points		      [65, 0; 0, -105]
 	      DstBlock		      "Bus\nCreator"
 	      DstPort		      4
 	    }
@@ -1204,7 +1204,7 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "Bus\nCreator2"
 	      SrcPort		      1
-	      Points		      [55, 0; 0, 35]
+	      Points		      [55, 0; 0, 40]
 	      DstBlock		      "Bus\nCreator"
 	      DstPort		      1
 	    }
@@ -1230,7 +1230,7 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "Bus\nCreator3"
 	      SrcPort		      1
-	      Points		      [55, 0; 0, -45]
+	      Points		      [55, 0; 0, -40]
 	      DstBlock		      "Bus\nCreator"
 	      DstPort		      3
 	    }
@@ -1577,7 +1577,7 @@ Model {
 	  ShowName		  off
 	  FontName		  "Arial"
 	  FontSize		  8
-	  Value			  "[0.0, 0.0, 0.0]"
+	  Value			  "[0.2, 0.0, 0.0]"
 	  OutDataType		  "sfix(16)"
 	  OutScaling		  "2^0"
 	  Port {
@@ -1594,7 +1594,7 @@ Model {
 	  ShowName		  off
 	  FontName		  "Arial"
 	  FontSize		  8
-	  Value			  "[0.1, 0.0, 0.0]"
+	  Value			  "[0.2, 0.0, 0.0]"
 	  OutDataType		  "sfix(16)"
 	  OutScaling		  "2^0"
 	}

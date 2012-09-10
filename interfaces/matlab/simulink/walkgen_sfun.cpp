@@ -87,7 +87,33 @@ static void mdlInitializeSampleTimes(SimStruct *S)
 #define MDL_START
 static void mdlStart(SimStruct *S)
 {
+  const int kNumSamplesHorizon      = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 0)));
+  const int kNumSamplesStep         = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 1)));
+  const int kNumSamplesDSSS         = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 2)));
+  const int kNumSamplesSSDS         = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 3)));
+  const double kSamplePeriodQP      = *mxGetPr(ssGetSFcnParam(S, 4));
+  const double kSamplePeriodFirst   = *mxGetPr(ssGetSFcnParam(S, 5));
+  const double kSamplePeriodAct     = *mxGetPr(ssGetSFcnParam(S, 6));
+  const double kSecurityMargin      = *mxGetPr(ssGetSFcnParam(S, 7));
+
+  MPCData mpc_data;
+  mpc_data.nbsamples_qp       = kNumSamplesHorizon;
+  mpc_data.nbqpsamples_step   = kNumSamplesStep;
+  mpc_data.nbqpsamples_dsss   = kNumSamplesDSSS;
+  mpc_data.nbsteps_ssds       = kNumSamplesSSDS;
+  mpc_data.period_qpsample    = kSamplePeriodQP;
+  mpc_data.period_mpcsample   = kSamplePeriodFirst;
+  mpc_data.period_actsample   = kSamplePeriodAct;
+  mpc_data.ponderation.JerkMin[0] = 0.001;
+  mpc_data.ponderation.JerkMin[1] = 0.001;
+  mpc_data.warmstart					        = false;
+  mpc_data.interpolate_whole_horizon	= false;
+  mpc_data.solver.analysis			      = false;
+  mpc_data.solver.name			  = QPOASES;
+  mpc_data.solver.num_wsrec	  = 2;
+
   WalkgenAbstract *walk = createWalkgen();
+  walk->Init(mpc_data);
 
   ssSetPWorkValue(S, 0, (void*)walk);
   ssSetIWorkValue(S, 0, 0);     //MPCWalkgen not initialized
@@ -122,23 +148,15 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
   real_T *support        = ssGetOutputPortRealSignal(S, 13);
   real_T *analysis       = ssGetOutputPortRealSignal(S, 14);
 
-  
-  const int kNumSamplesHorizon      = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 0)));
-  const int kNumSamplesStep         = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 1)));
-  const int kNumSamplesDSSS         = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 2)));
-  const int kNumSamplesSSDS         = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 3)));
-  const double kSamplePeriodQP      = *mxGetPr(ssGetSFcnParam(S, 4));
-  const double kSamplePeriodFirst   = *mxGetPr(ssGetSFcnParam(S, 5));
-  const double kSamplePeriodAct     = *mxGetPr(ssGetSFcnParam(S, 6));
   const double kSecurityMargin      = *mxGetPr(ssGetSFcnParam(S, 7));
-    
+
   const double kGravity = 9.81;
     
   WalkgenAbstract *walk = (WalkgenAbstract *)ssGetPWorkValue(S, 0);
 
 
-  // Begin Initialization:
-  // ---------------------
+  // Begin initialization of the robot:
+  // ----------------------------------
   if (ssGetIWorkValue(S, 0) == 0) {
 
     walk->reference(*vel_ref[0], *vel_ref[1], *vel_ref[2]);
@@ -162,25 +180,6 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
     leftHipYaw.lowerAccelerationBound       = -0.1;
     leftHipYaw.upperAccelerationBound       = 0.1;
     HipYawData rightHipYaw                  = leftHipYaw;
-
-    MPCData mpc_data;
-    mpc_data.nbsamples_qp       = kNumSamplesHorizon;
-    mpc_data.nbqpsamples_step   = kNumSamplesStep;
-    mpc_data.nbqpsamples_dsss   = kNumSamplesDSSS;
-    mpc_data.nbsteps_ssds       = kNumSamplesSSDS;
-    mpc_data.period_qpsample    = kSamplePeriodQP;
-    mpc_data.period_mpcsample   = kSamplePeriodFirst;
-    mpc_data.period_actsample   = kSamplePeriodAct;
-    mpc_data.ponderation.JerkMin[0] = 0.001;
-    mpc_data.ponderation.JerkMin[1] = 0.001;
-    mpc_data.warmstart					        = false;
-    mpc_data.interpolate_whole_horizon	= false;
-    mpc_data.solver.analysis			      = false;
-    mpc_data.solver.name			  = QPOASES;
-    mpc_data.solver.num_wsrec	  = 2;
-    if (*closed_loop_in[0] > 0.5) {
-      mpc_data.closed_loop              = true;
-    }
 
     RobotData robot_data(leftFoot, rightFoot, leftHipYaw, rightHipYaw, 0.0);
 
@@ -216,7 +215,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
     double feet_distance_y = *left_ankle_in[1] - *right_ankle_in[1];
     robot_data.SetCoPHulls(feet_distance_y);
 
-    walk->Init(robot_data, mpc_data);
+    walk->Init(robot_data);
     RigidBodySystem *robot = walk->robot();
     robot->com()->state().x[0] = *com_in[0];
     robot->com()->state().y[0] = *com_in[1]; 

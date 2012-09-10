@@ -48,10 +48,16 @@ Walkgen::Walkgen()
 ,currentTime_(0)
 ,currentRealTime_(0)
 {
+
+  orientPrw_ = new OrientationsPreview();
+
+  interpolation_ = new Interpolation();
+
+
 	// Setting the frequency is time demanding.
 	// Therefore this is done in the constructor.
 	clock_.ReserveMemory(20);
-	clock_.GetFrequency(1000);				// sleep
+	//clock_.GetFrequency(1000);				// sleep
 }
 
 
@@ -75,49 +81,18 @@ Walkgen::~Walkgen(){
     delete interpolation_;
 }
 
-void Walkgen::Init(const RobotData &data_robot, const MPCData &mpc_parameters) {
-
+void Walkgen::Init(const MPCData &mpc_parameters) {
   mpc_parameters_ = mpc_parameters;
-  robotData_ = data_robot;
 
-  // Check if sampling periods are defined correctly
-  assert(mpc_parameters_.period_actsample > 0);
-  assert(mpc_parameters_.period_mpcsample >= mpc_parameters_.period_actsample);
-  assert(mpc_parameters_.period_qpsample >= mpc_parameters_.period_mpcsample);
-  assert(mpc_parameters_.nbqpsamples_step <= mpc_parameters_.nbsamples_qp);
-  assert(mpc_parameters_.nbqpsamples_dsss <= mpc_parameters_.nbsamples_qp);
-
-  Init();
-
-}
-
-void Walkgen::Init() {
-  //TODO: Cleaning is necessary
+  // Solver:
+  // -------
   int num_constr_step = 5;// TODO: Move this to MPCParameters
   int num_steps_max = mpc_parameters_.num_steps_max();
   int num_vars_max = 2 * (mpc_parameters_.nbsamples_qp + num_steps_max);
   int num_constr_max = num_constr_step * num_steps_max;
   solver_ = createQPSolver(mpc_parameters_.solver, num_vars_max,  num_constr_max );
 
-  orientPrw_ = new OrientationsPreview();
-
-  interpolation_ = new Interpolation();
-
-  robot_ = new RigidBodySystem(&mpc_parameters_);
-
-  preview_ = new QPPreview(&velRef_, robot_, &mpc_parameters_);
-
-  generator_= new QPGenerator(preview_, solver_, &velRef_, &ponderation_, robot_, &mpc_parameters_);
-
-  robot_->Init(robotData_, interpolation_);
-
-  solution_.com_act.resize(mpc_parameters_.num_samples_act());
-  solution_.cop_act.resize(mpc_parameters_.num_samples_act());
-  solution_.com_prw.resize(mpc_parameters_.nbsamples_qp);
-  solution_.cop_prw.resize(mpc_parameters_.nbsamples_qp);
-
-  // Set (global) distribution of optimization parameters:
-  // -----------------------------------------------------
+  // Set order of optimization variables
   VectorXi order(solver_->nbvar_max());
   for (int i = 0; i < mpc_parameters_.nbsamples_qp; ++i) {// 0,2,4,1,3,5 (CoM)
     order(i) = 2 * i;
@@ -127,6 +102,47 @@ void Walkgen::Init() {
     order(i) = i;
   }
   solver_->SetVarOrder(order);
+
+  // Resize:
+  // -------
+  solution_.com_act.resize(mpc_parameters_.num_samples_act());
+  solution_.cop_act.resize(mpc_parameters_.num_samples_act());
+  solution_.com_prw.resize(mpc_parameters_.nbsamples_qp);
+  solution_.cop_prw.resize(mpc_parameters_.nbsamples_qp);
+
+  velRef_.resize(mpc_parameters_.nbsamples_qp);
+  newVelRef_.resize(mpc_parameters_.nbsamples_qp);
+
+  // Reset:
+  // ------
+  ResetCounters(0.0);
+}
+
+void Walkgen::Init(const RobotData &robot_data) {
+
+  robotData_ = robot_data;
+
+  // Check if sampling periods are defined correctly
+  /*
+  assert(mpc_parameters_.period_actsample > 0);
+  assert(mpc_parameters_.period_mpcsample >= mpc_parameters_.period_actsample);
+  assert(mpc_parameters_.period_qpsample >= mpc_parameters_.period_mpcsample);
+  assert(mpc_parameters_.nbqpsamples_step <= mpc_parameters_.nbsamples_qp);
+  assert(mpc_parameters_.nbqpsamples_dsss <= mpc_parameters_.nbsamples_qp);
+*/
+
+  Init();
+
+}
+
+void Walkgen::Init() {
+  robot_ = new RigidBodySystem(&mpc_parameters_);
+
+  preview_ = new QPPreview(&velRef_, robot_, &mpc_parameters_);
+
+  generator_= new QPGenerator(preview_, solver_, &velRef_, &ponderation_, robot_, &mpc_parameters_);
+
+  robot_->Init(robotData_, interpolation_);
 
   orientPrw_->Init(mpc_parameters_, robotData_);
 
@@ -149,9 +165,6 @@ void Walkgen::Init() {
   robot_->body(COM)->state(state_com);
 
   ponderation_.activePonderation = 0;
-
-  velRef_.resize(mpc_parameters_.nbsamples_qp);
-  newVelRef_.resize(mpc_parameters_.nbsamples_qp);
 
   BuildProblem();
 
