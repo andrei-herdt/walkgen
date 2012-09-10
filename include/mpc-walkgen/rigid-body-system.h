@@ -28,7 +28,7 @@ namespace MPCWalkgen{
 
       void Init(const MPCData *mpc_parameters_p);
 
-      void Init(const RobotData &data_robot, const Interpolation *interpolation);
+      void Init(const RobotData &data_robot);
 
       void interpolateBodies(MPCSolution &solution, double currentTime, const Reference &velRef);
 
@@ -36,9 +36,12 @@ namespace MPCWalkgen{
 
       void setSelectionNumber(double firstSamplingPeriod);
 
-    private:
       void ComputeDynamics();
 
+
+      //
+      // Private data members:
+      //
     private:
       const MPCData *mpc_parameters_p_;
       RobotData data_robot_;

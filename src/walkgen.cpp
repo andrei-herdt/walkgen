@@ -26,7 +26,6 @@ Walkgen::Walkgen()
 ,solver_(NULL)
 ,generator_(NULL)
 ,preview_(NULL)
-,interpolation_(NULL)
 ,robot_(NULL)
 ,orientPrw_(NULL)
 ,clock_()
@@ -45,7 +44,8 @@ Walkgen::Walkgen()
 
   orientPrw_ = new OrientationsPreview();
 
-  interpolation_ = new Interpolation();
+  robot_ = new RigidBodySystem();
+
 
 	// Setting the frequency is time demanding.
 	// Therefore this is done in the constructor.
@@ -69,14 +69,12 @@ Walkgen::~Walkgen(){
 
   if (robot_ != 0x0)
     delete robot_;
-
-  if (interpolation_ != 0x0)
-    delete interpolation_;
 }
 
 void Walkgen::Init(const MPCData &mpc_parameters) {
   mpc_parameters_ = mpc_parameters;
 
+  robot_->Init(&mpc_parameters_);
   // Solver:
   // -------
   int num_constr_step = 5;// TODO: Move this to MPCParameters
@@ -115,6 +113,7 @@ void Walkgen::Init(const RobotData &robot_data) {
 
   robotData_ = robot_data;
 
+  robot_->Init(robotData_);
   // Check if sampling periods are defined correctly
   /*
   assert(mpc_parameters_.period_actsample > 0);
@@ -129,14 +128,14 @@ void Walkgen::Init(const RobotData &robot_data) {
 }
 
 void Walkgen::Init() {
-  robot_ = new RigidBodySystem();
-  robot_->Init(&mpc_parameters_);
+
+  robot_->ComputeDynamics();
 
   preview_ = new QPPreview(&velRef_, robot_, &mpc_parameters_);
 
   generator_= new QPGenerator(preview_, solver_, &velRef_, &ponderation_, robot_, &mpc_parameters_);
 
-  robot_->Init(robotData_, interpolation_);
+
 
   orientPrw_->Init(mpc_parameters_, robotData_);
 

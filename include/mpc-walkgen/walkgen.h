@@ -20,7 +20,6 @@
 #include <mpc-walkgen/qp-generator.h>
 #include <mpc-walkgen/qp-preview.h>
 #include <mpc-walkgen/rigid-body-system.h>
-#include <mpc-walkgen/interpolation.h>
 #include <mpc-walkgen/realclock.h>
 
 namespace MPCWalkgen{
@@ -90,7 +89,6 @@ namespace MPCWalkgen{
     ::MPCWalkgen::QPSolver *solver_;
     QPGenerator *generator_;
     QPPreview *preview_;
-    ::MPCWalkgen::Interpolation *interpolation_;
     RigidBodySystem *robot_;
 
     OrientationsPreview *orientPrw_;

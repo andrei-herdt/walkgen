@@ -5,7 +5,11 @@
 using namespace MPCWalkgen;
 using namespace Eigen;
 
-RigidBodySystem::RigidBodySystem() { }
+RigidBodySystem::RigidBodySystem() { 
+  com_ = new CoMBody();
+  foot_left_ = new FootBody(LEFT);
+  foot_right_ = new FootBody(RIGHT);
+}
 
 RigidBodySystem::~RigidBodySystem() {
   if (com_ != 0x0)
@@ -18,17 +22,20 @@ RigidBodySystem::~RigidBodySystem() {
     delete foot_right_;
 }
 
-void RigidBodySystem::Init(const MPCData * mpc_parameters_p) {
+void RigidBodySystem::Init(const MPCData *mpc_parameters_p) {
   mpc_parameters_p_ = mpc_parameters_p;
+
+  com_->Init(mpc_parameters_p_);
+  foot_left_->Init(mpc_parameters_p_);
+  foot_right_->Init(mpc_parameters_p_);
 }
 
-void RigidBodySystem::Init(const RobotData &data_robot, const Interpolation *interpolation) {//TODO: Remove object data_robot
+void RigidBodySystem::Init(const RobotData &data_robot) {//TODO: Remove object data_robot
   data_robot_ = data_robot;
   
-
-  com_ = new CoMBody(mpc_parameters_p_, &data_robot_);
-  foot_left_ = new FootBody(mpc_parameters_p_, &data_robot_,  LEFT);
-  foot_right_ = new FootBody(mpc_parameters_p_, &data_robot_, RIGHT);
+  com_->Init(&data_robot);
+  foot_left_->Init(&data_robot);
+  foot_right_->Init(&data_robot);
 
   currentSupport_.phase = DS;
   currentSupport_.foot = LEFT;
@@ -40,14 +47,12 @@ void RigidBodySystem::Init(const RobotData &data_robot, const Interpolation *int
   currentSupport_.yaw = 0.0;
   currentSupport_.yawTrunk = 0.0;
   currentSupport_.start_time = 0.0;
-
-  ComputeDynamics();
 }
 
 void RigidBodySystem::ComputeDynamics() {
-  com_->ComputeDynamics();
-  foot_left_->ComputeDynamics();
-  foot_right_->ComputeDynamics();
+    com_->ComputeDynamics();
+    foot_left_->ComputeDynamics();
+    foot_right_->ComputeDynamics();
 }
 
 void RigidBodySystem::interpolateBodies(MPCSolution &solution, double currentTime, const Reference &velRef){
