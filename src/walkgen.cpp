@@ -1,13 +1,5 @@
 #include <mpc-walkgen/walkgen.h>
 
-#include <mpc-walkgen/orientations-preview.h>
-#include <mpc-walkgen/qp-solver.h>
-#include <mpc-walkgen/qp-generator.h>
-#include <mpc-walkgen/qp-preview.h>
-#include <mpc-walkgen/rigid-body-system.h>
-#include <mpc-walkgen/interpolation.h>
-#include <mpc-walkgen/realclock.h>
-
 #include <iostream>
 //  #include <windows.h> 
 #include <Eigen/Dense>
@@ -17,25 +9,27 @@ using namespace MPCWalkgen;
 
 using namespace Eigen;
 
-
-MPCWalkgen::WalkgenAbstract* MPCWalkgen::createWalkgen() {
-  MPCWalkgen::WalkgenAbstract* zmpVra = new MPCWalkgen::Walkgen();
+/*
+MPCWalkgen::WalkgenAbstract* MPCWalkgen::createWalkgen(const MPCData &mpc_parameters) {
+  MPCWalkgen::WalkgenAbstract* zmpVra = new MPCWalkgen::Walkgen(mpc_parameters);
   return zmpVra;
 }
-
+*/
 
 
 
 // Implementation of the private interface
 Walkgen::Walkgen()
-: WalkgenAbstract()
-,mpc_parameters_()
-,solver_(0x0)
-,generator_(0x0)
-,preview_(0x0)
-,interpolation_(0x0)
-,robot_(0x0)
-,orientPrw_(0x0)
+/*: WalkgenAbstract()*/
+: mpc_parameters_()
+,robotData_()
+,solver_(NULL)
+,generator_(NULL)
+,preview_(NULL)
+,interpolation_(NULL)
+,robot_(NULL)
+,orientPrw_(NULL)
+,clock_()
 ,output_()
 ,output_index_(0)
 ,solution_()
@@ -52,7 +46,6 @@ Walkgen::Walkgen()
   orientPrw_ = new OrientationsPreview();
 
   interpolation_ = new Interpolation();
-
 
 	// Setting the frequency is time demanding.
 	// Therefore this is done in the constructor.
@@ -136,7 +129,8 @@ void Walkgen::Init(const RobotData &robot_data) {
 }
 
 void Walkgen::Init() {
-  robot_ = new RigidBodySystem(&mpc_parameters_);
+  robot_ = new RigidBodySystem();
+  robot_->Init(&mpc_parameters_);
 
   preview_ = new QPPreview(&velRef_, robot_, &mpc_parameters_);
 

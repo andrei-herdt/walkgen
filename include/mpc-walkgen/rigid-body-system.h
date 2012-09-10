@@ -19,9 +19,14 @@
 namespace MPCWalkgen{
     class RigidBodySystem{
 
+      // 
+      // Public methods:
+      //
     public:
-      RigidBodySystem(const MPCData *mpc_parameters);
+      RigidBodySystem();
       ~RigidBodySystem();
+
+      void Init(const MPCData *mpc_parameters_p);
 
       void Init(const RobotData &data_robot, const Interpolation *interpolation);
 
@@ -35,7 +40,7 @@ namespace MPCWalkgen{
       void ComputeDynamics();
 
     private:
-      const MPCData *mpc_parameters_;
+      const MPCData *mpc_parameters_p_;
       RobotData data_robot_;
 
       RigidBody *com_;
