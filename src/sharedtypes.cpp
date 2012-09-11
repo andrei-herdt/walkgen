@@ -26,6 +26,8 @@ FootData::FootData()
 , anklePositionInLocalFrame() {
   edges_x_vec.resize(4);
   edges_y_vec.resize(4);
+
+  position.resize(3);
 }
 
 FootData::FootData(const FootData &f)
@@ -34,6 +36,7 @@ FootData::FootData(const FootData &f)
 , anklePositionInLocalFrame(f.anklePositionInLocalFrame) {
   edges_x_vec = f.edges_x_vec;
   edges_y_vec = f.edges_y_vec;
+  position = f.position;
 }
 
 FootData::~FootData(){
@@ -269,8 +272,6 @@ RobotData::RobotData(const FootData &leftFoot, const FootData &rightFoot,
                      ,leftHipYaw(leftHipYaw)
                      ,rightHipYaw(rightHipYaw)
                      ,robotMass(mass)
-                     ,leftFootPos()
-                     ,rightFootPos()
                      ,leftFootHull()
                      ,rightFootHull()
                      ,CoPLeftSSHull()
@@ -281,9 +282,6 @@ RobotData::RobotData(const FootData &leftFoot, const FootData &rightFoot,
                        CoPRightSSHull.resize(4);
                        CoPLeftDSHull.resize(4);
                        CoPRightDSHull.resize(4);
-                       com << 0.0, 0.0, 0.814;
-                       leftFootPos << 0.00949035, 0.095, 0;
-                       rightFootPos << 0.00949035, -0.095, 0;
 }
 
 RobotData::RobotData(){

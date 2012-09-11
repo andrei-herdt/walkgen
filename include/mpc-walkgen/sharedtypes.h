@@ -42,9 +42,13 @@ namespace MPCWalkgen{
   struct MPC_WALKGEN_API FootData{
     double soleWidth;
     double soleHeight;
+
     Eigen::Vector3d anklePositionInLocalFrame;
+
     std::vector<double> edges_x_vec;
     std::vector<double> edges_y_vec;
+
+    std::vector<double> position;
 
     FootData();
     FootData(const FootData &f);//TODO: LocalAnklePosition_ better?
@@ -189,9 +193,6 @@ namespace MPCWalkgen{
     HipYawData rightHipYaw;
 
     double robotMass; //TODO: rename mass
-
-    Eigen::Vector3d leftFootPos;
-    Eigen::Vector3d rightFootPos;
 
     ConvexHull leftFootHull;
     ConvexHull rightFootHull;

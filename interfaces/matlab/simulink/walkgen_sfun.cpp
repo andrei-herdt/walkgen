@@ -87,23 +87,15 @@ static void mdlInitializeSampleTimes(SimStruct *S)
 #define MDL_START
 static void mdlStart(SimStruct *S)
 {
-  const int kNumSamplesHorizon      = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 0)));
-  const int kNumSamplesStep         = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 1)));
-  const int kNumSamplesDSSS         = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 2)));
-  const int kNumSamplesSSDS         = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 3)));
-  const double kSamplePeriodQP      = *mxGetPr(ssGetSFcnParam(S, 4));
-  const double kSamplePeriodFirst   = *mxGetPr(ssGetSFcnParam(S, 5));
-  const double kSamplePeriodAct     = *mxGetPr(ssGetSFcnParam(S, 6));
-  const double kSecurityMargin      = *mxGetPr(ssGetSFcnParam(S, 7));
 
   MPCData mpc_data;
-  mpc_data.nbsamples_qp       = kNumSamplesHorizon;
-  mpc_data.nbqpsamples_step   = kNumSamplesStep;
-  mpc_data.nbqpsamples_dsss   = kNumSamplesDSSS;
-  mpc_data.nbsteps_ssds       = kNumSamplesSSDS;
-  mpc_data.period_qpsample    = kSamplePeriodQP;
-  mpc_data.period_mpcsample   = kSamplePeriodFirst;
-  mpc_data.period_actsample   = kSamplePeriodAct;
+  mpc_data.nbsamples_qp         = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 0)));
+  mpc_data.nbqpsamples_step     = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 1)));
+  mpc_data.nbqpsamples_dsss     = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 2)));
+  mpc_data.nbsteps_ssds         = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 3)));
+  mpc_data.period_qpsample      = *mxGetPr(ssGetSFcnParam(S, 4));
+  mpc_data.period_mpcsample     = *mxGetPr(ssGetSFcnParam(S, 5));
+  mpc_data.period_actsample     = *mxGetPr(ssGetSFcnParam(S, 6));
   mpc_data.ponderation.JerkMin[0] = 0.001;
   mpc_data.ponderation.JerkMin[1] = 0.001;
   mpc_data.warmstart					        = false;
@@ -112,7 +104,7 @@ static void mdlStart(SimStruct *S)
   mpc_data.solver.name			  = QPOASES;
   mpc_data.solver.num_wsrec	  = 2;
 
-  WalkgenAbstract *walk = createWalkgen();
+  Walkgen *walk = new Walkgen;
   walk->Init(mpc_data);
 
   ssSetPWorkValue(S, 0, (void*)walk);
@@ -148,18 +140,16 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
   real_T *support        = ssGetOutputPortRealSignal(S, 13);
   real_T *analysis       = ssGetOutputPortRealSignal(S, 14);
 
-  const double kSecurityMargin      = *mxGetPr(ssGetSFcnParam(S, 7));
+  const double kSecurityMargin = *mxGetPr(ssGetSFcnParam(S, 7));
 
   const double kGravity = 9.81;
     
-  WalkgenAbstract *walk = (WalkgenAbstract *)ssGetPWorkValue(S, 0);
+  Walkgen *walk = (Walkgen *)ssGetPWorkValue(S, 0);
 
 
   // Begin initialization of the robot:
   // ----------------------------------
   if (ssGetIWorkValue(S, 0) == 0) {
-
-    walk->reference(*vel_ref[0], *vel_ref[1], *vel_ref[2]);
 
     FootData leftFoot;     
     leftFoot.anklePositionInLocalFrame << 0, 0, 0;      //0, 0, 0.105;//TODO:Is not used
@@ -188,16 +178,16 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
     robot_data.com(1) = *com_in[1];
     robot_data.com(2) = *com_in[2];
 
-    robot_data.leftFootPos(0) = *left_ankle_in[0];
-    robot_data.leftFootPos(1) = *left_ankle_in[1];
-    robot_data.leftFootPos(2) = *left_ankle_in[2];
+    robot_data.leftFoot.position[0] = *left_ankle_in[0];
+    robot_data.leftFoot.position[1] = *left_ankle_in[1];
+    robot_data.leftFoot.position[2] = *left_ankle_in[2];
 
-    robot_data.rightFootPos(0) = *right_ankle_in[0];
-    robot_data.rightFootPos(1) = *right_ankle_in[1];
-    robot_data.rightFootPos(2) = *right_ankle_in[2];
+    robot_data.rightFoot.position[0] = *right_ankle_in[0];
+    robot_data.rightFoot.position[1]  = *right_ankle_in[1];
+    robot_data.rightFoot.position[2]  = *right_ankle_in[2];
 
-    // Feasible hulls:
-    // ---------------
+    // Feasibility hulls:
+    // ------------------
     const int nbVertFeet = 5;
     // Feasible foot positions
     double DefaultFPosEdgesX[nbVertFeet] = {-0.28, -0.2, 0.0, 0.2, 0.28};
@@ -215,6 +205,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
     double feet_distance_y = *left_ankle_in[1] - *right_ankle_in[1];
     robot_data.SetCoPHulls(feet_distance_y);
 
+    walk->reference(0.0, 0.0, 0.0);
     walk->Init(robot_data);
     RigidBodySystem *robot = walk->robot();
     robot->com()->state().x[0] = *com_in[0];
@@ -341,7 +332,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 
 static void mdlTerminate(SimStruct *S)
 {
-  WalkgenAbstract *walk = static_cast<WalkgenAbstract *>(ssGetPWork(S)[0]);
+  Walkgen *walk = static_cast<Walkgen *>(ssGetPWork(S)[0]);
   delete walk;
 }
 

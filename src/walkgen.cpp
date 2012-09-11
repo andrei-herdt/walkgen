@@ -75,6 +75,7 @@ void Walkgen::Init(const MPCData &mpc_parameters) {
   mpc_parameters_ = mpc_parameters;
 
   robot_->Init(&mpc_parameters_);
+
   // Solver:
   // -------
   int num_constr_step = 5;// TODO: Move this to MPCParameters
@@ -135,20 +136,18 @@ void Walkgen::Init() {
 
   generator_= new QPGenerator(preview_, solver_, &velRef_, &ponderation_, robot_, &mpc_parameters_);
 
-
-
   orientPrw_->Init(mpc_parameters_, robotData_);
 
   generator_->precomputeObjective();
 
   BodyState state_left_foot;
-  state_left_foot.x[0] = robotData_.leftFootPos[0];
-  state_left_foot.y[0] = robotData_.leftFootPos[1];
+  state_left_foot.x[0] = robotData_.leftFoot.position[0];
+  state_left_foot.y[0] = robotData_.leftFoot.position[1];
   robot_->body(LEFT_FOOT)->state(state_left_foot);
 
   BodyState state_right_foot;
-  state_right_foot.x[0] = robotData_.rightFootPos[0];
-  state_right_foot.y[0] = robotData_.rightFootPos[1];
+  state_right_foot.x[0] = robotData_.rightFoot.position[0];
+  state_right_foot.y[0] = robotData_.rightFoot.position[1];
   robot_->body(RIGHT_FOOT)->state(state_right_foot);
 
   BodyState state_com;
@@ -237,7 +236,7 @@ void Walkgen::BuildProblem() {
   if (robot_->current_support().phase == SS && robot_->current_support().nbStepsLeft == 0) {
     velRef_.local.x.fill(0);
     velRef_.local.y.fill(0);
-    velRef_.local.yaw.fill(0);//TODO: Bullshit
+    velRef_.local.yaw.fill(0);
   }
   if (fabs(velRef_.local.yaw(0)) < EPSILON && 
     fabs(velRef_.local.x(0)) < EPSILON && 
