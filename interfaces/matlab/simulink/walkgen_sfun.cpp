@@ -81,7 +81,7 @@ static void mdlInitializeSizes(SimStruct *S)
 
 static void mdlInitializeSampleTimes(SimStruct *S)
 {
-  ssSetSampleTime(S, 0, 0.001);
+  ssSetSampleTime(S, 0, 0.005);
 }
 
 #define MDL_START
