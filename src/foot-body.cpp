@@ -4,11 +4,8 @@
 using namespace MPCWalkgen;
 using namespace Eigen;
 
-FootBody::FootBody(const MPCData *mpc_parameters,
-                   const RobotData *data_robot, Foot type)
-                   :RigidBody(mpc_parameters, data_robot)
-                   ,footType_(type)
-{}
+FootBody::FootBody(Foot type) : RigidBody()
+                   ,footType_(type) {}
 
 FootBody::~FootBody(){}
 
@@ -60,7 +57,7 @@ void FootBody::Interpolate(MPCSolution &solution, double currentTime, const Refe
     }
     // Vertical trajectory
     if (time_left_flying - halftime_rounded > mpc_parameters_->period_actsample) {
-      goal_state.z(0) = robotData_->freeFlyingFootMaxHeight;
+      goal_state.z(0) = robot_data_p_->freeFlyingFootMaxHeight;
       time_left_z = time_left_flying - halftime_rounded;
     } else if (time_left_flying < halftime_rounded && time_left_flying > EPSILON) { // Half-time passed
       time_left_z = time_left_flying;

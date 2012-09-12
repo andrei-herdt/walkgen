@@ -18,9 +18,12 @@
 
 namespace MPCWalkgen{
     class FootBody:public RigidBody{
+
+      //
+      // Public methods:
+      //
     public:
-      FootBody(const MPCData * mpc_parameters,
-               const RobotData * data_robot, Foot type);
+      FootBody(Foot type);
       virtual ~FootBody();
 
       virtual void Interpolate(MPCSolution &solution, double currentTime, const Reference &velRef);

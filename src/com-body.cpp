@@ -6,12 +6,9 @@ using namespace MPCWalkgen;
 using namespace Eigen;
 
 
-CoMBody::CoMBody(const MPCData *mpc_parameters,
-                 const RobotData *data_robot)
-                 :RigidBody(mpc_parameters, data_robot)
-{}
-//TODO: Can CoMBody be merged with FootBody?
-CoMBody::~CoMBody(){}
+CoMBody::CoMBody() : RigidBody() {}
+
+CoMBody::~CoMBody() {}
 
 void CoMBody::Interpolate(MPCSolution &solution, double currentTime, const Reference &velRef){
   // Actuator sampling rate:
@@ -126,12 +123,12 @@ void CoMBody::ComputeDynamicsMatrices(LinearDynamicsMatrices &dyn,
       for (int i=0; i<N; i++) {
         dyn.S(i,0) = 1;
         dyn.S(i,1) = i*T + S;
-        dyn.S(i,2) = S*S/2 + i*T*S + i*i*T*T/2-robotData_->com(2)/9.81;
+        dyn.S(i,2) = S*S/2 + i*T*S + i*i*T*T/2 - robot_data_p_->com(2) / 9.81;
 
-        dyn.U(i,0) = dyn.UT(0,i) =S*S*S/6 + i*T*S*S/2 + S*(i*i*T*T/2 - robotData_->com(2)/9.81);
+        dyn.U(i,0) = dyn.UT(0,i) =S*S*S/6 + i*T*S*S/2 + S*(i*i*T*T/2 - robot_data_p_->com(2) / 9.81);
         for(int j=1; j<N; j++){
           if (j <= i) {
-            dyn.U(i,j) = dyn.UT(j,i) = T*T*T/6 + 3*(i-j)*T*T*T/6 + 3*(i-j)*(i-j)*T*T*T/6 - T*robotData_->com(2)/9.81;
+            dyn.U(i,j) = dyn.UT(j,i) = T*T*T/6 + 3*(i-j)*T*T*T/6 + 3*(i-j)*(i-j)*T*T*T/6 - T*robot_data_p_->com(2) / 9.81;
           }
         }
 

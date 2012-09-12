@@ -1,13 +1,5 @@
 #include <mpc-walkgen/walkgen.h>
 
-#include <mpc-walkgen/orientations-preview.h>
-#include <mpc-walkgen/qp-solver.h>
-#include <mpc-walkgen/qp-generator.h>
-#include <mpc-walkgen/qp-preview.h>
-#include <mpc-walkgen/rigid-body-system.h>
-#include <mpc-walkgen/interpolation.h>
-#include <mpc-walkgen/realclock.h>
-
 #include <iostream>
 //  #include <windows.h> 
 #include <Eigen/Dense>
@@ -17,25 +9,26 @@ using namespace MPCWalkgen;
 
 using namespace Eigen;
 
-
-MPCWalkgen::WalkgenAbstract* MPCWalkgen::createWalkgen() {
-  MPCWalkgen::WalkgenAbstract* zmpVra = new MPCWalkgen::Walkgen();
+/*
+MPCWalkgen::WalkgenAbstract* MPCWalkgen::createWalkgen(const MPCData &mpc_parameters) {
+  MPCWalkgen::WalkgenAbstract* zmpVra = new MPCWalkgen::Walkgen(mpc_parameters);
   return zmpVra;
 }
-
+*/
 
 
 
 // Implementation of the private interface
 Walkgen::Walkgen()
-: WalkgenAbstract()
-,mpc_parameters_()
-,solver_(0x0)
-,generator_(0x0)
-,preview_(0x0)
-,interpolation_(0x0)
-,robot_(0x0)
-,orientPrw_(0x0)
+/*: WalkgenAbstract()*/
+: mpc_parameters_()
+,robotData_()
+,solver_(NULL)
+,generator_(NULL)
+,preview_(NULL)
+,robot_(NULL)
+,orientPrw_(NULL)
+,clock_()
 ,output_()
 ,output_index_(0)
 ,solution_()
@@ -48,10 +41,16 @@ Walkgen::Walkgen()
 ,currentTime_(0)
 ,currentRealTime_(0)
 {
+
+  orientPrw_ = new OrientationsPreview();
+
+  robot_ = new RigidBodySystem();
+
+
 	// Setting the frequency is time demanding.
 	// Therefore this is done in the constructor.
 	clock_.ReserveMemory(20);
-	clock_.GetFrequency(1000);				// sleep
+	//clock_.GetFrequency(1000);				// sleep
 }
 
 
@@ -70,54 +69,22 @@ Walkgen::~Walkgen(){
 
   if (robot_ != 0x0)
     delete robot_;
-
-  if (interpolation_ != 0x0)
-    delete interpolation_;
 }
 
-void Walkgen::Init(const RobotData &data_robot, const MPCData &mpc_parameters) {
-
+void Walkgen::Init(const MPCData &mpc_parameters) {
   mpc_parameters_ = mpc_parameters;
-  robotData_ = data_robot;
 
-  // Check if sampling periods are defined correctly
-  assert(mpc_parameters_.period_actsample > 0);
-  assert(mpc_parameters_.period_mpcsample >= mpc_parameters_.period_actsample);
-  assert(mpc_parameters_.period_qpsample >= mpc_parameters_.period_mpcsample);
-  assert(mpc_parameters_.nbqpsamples_step <= mpc_parameters_.nbsamples_qp);
-  assert(mpc_parameters_.nbqpsamples_dsss <= mpc_parameters_.nbsamples_qp);
+  robot_->Init(&mpc_parameters_);
 
-  Init();
-
-}
-
-void Walkgen::Init() {
-  //TODO: Cleaning is necessary
+  // Solver:
+  // -------
   int num_constr_step = 5;// TODO: Move this to MPCParameters
   int num_steps_max = mpc_parameters_.num_steps_max();
   int num_vars_max = 2 * (mpc_parameters_.nbsamples_qp + num_steps_max);
   int num_constr_max = num_constr_step * num_steps_max;
   solver_ = createQPSolver(mpc_parameters_.solver, num_vars_max,  num_constr_max );
 
-  orientPrw_ = new OrientationsPreview();
-
-  interpolation_ = new Interpolation();
-
-  robot_ = new RigidBodySystem(&mpc_parameters_);
-
-  preview_ = new QPPreview(&velRef_, robot_, &mpc_parameters_);
-
-  generator_= new QPGenerator(preview_, solver_, &velRef_, &ponderation_, robot_, &mpc_parameters_);
-
-  robot_->Init(robotData_, interpolation_);
-
-  solution_.com_act.resize(mpc_parameters_.num_samples_act());
-  solution_.cop_act.resize(mpc_parameters_.num_samples_act());
-  solution_.com_prw.resize(mpc_parameters_.nbsamples_qp);
-  solution_.cop_prw.resize(mpc_parameters_.nbsamples_qp);
-
-  // Set (global) distribution of optimization parameters:
-  // -----------------------------------------------------
+  // Set order of optimization variables
   VectorXi order(solver_->nbvar_max());
   for (int i = 0; i < mpc_parameters_.nbsamples_qp; ++i) {// 0,2,4,1,3,5 (CoM)
     order(i) = 2 * i;
@@ -128,18 +95,59 @@ void Walkgen::Init() {
   }
   solver_->SetVarOrder(order);
 
+  // Resize:
+  // -------
+  solution_.com_act.resize(mpc_parameters_.num_samples_act());
+  solution_.cop_act.resize(mpc_parameters_.num_samples_act());
+  solution_.com_prw.resize(mpc_parameters_.nbsamples_qp);
+  solution_.cop_prw.resize(mpc_parameters_.nbsamples_qp);
+
+  velRef_.resize(mpc_parameters_.nbsamples_qp);
+  newVelRef_.resize(mpc_parameters_.nbsamples_qp);
+
+  // Reset:
+  // ------
+  ResetCounters(0.0);
+}
+
+void Walkgen::Init(const RobotData &robot_data) {
+
+  robotData_ = robot_data;
+
+  robot_->Init(robotData_);
+  // Check if sampling periods are defined correctly
+  /*
+  assert(mpc_parameters_.period_actsample > 0);
+  assert(mpc_parameters_.period_mpcsample >= mpc_parameters_.period_actsample);
+  assert(mpc_parameters_.period_qpsample >= mpc_parameters_.period_mpcsample);
+  assert(mpc_parameters_.nbqpsamples_step <= mpc_parameters_.nbsamples_qp);
+  assert(mpc_parameters_.nbqpsamples_dsss <= mpc_parameters_.nbsamples_qp);
+*/
+
+  Init();
+
+}
+
+void Walkgen::Init() {
+
+  robot_->ComputeDynamics();
+
+  preview_ = new QPPreview(&velRef_, robot_, &mpc_parameters_);
+
+  generator_= new QPGenerator(preview_, solver_, &velRef_, &ponderation_, robot_, &mpc_parameters_);
+
   orientPrw_->Init(mpc_parameters_, robotData_);
 
   generator_->precomputeObjective();
 
   BodyState state_left_foot;
-  state_left_foot.x[0] = robotData_.leftFootPos[0];
-  state_left_foot.y[0] = robotData_.leftFootPos[1];
+  state_left_foot.x[0] = robotData_.leftFoot.position[0];
+  state_left_foot.y[0] = robotData_.leftFoot.position[1];
   robot_->body(LEFT_FOOT)->state(state_left_foot);
 
   BodyState state_right_foot;
-  state_right_foot.x[0] = robotData_.rightFootPos[0];
-  state_right_foot.y[0] = robotData_.rightFootPos[1];
+  state_right_foot.x[0] = robotData_.rightFoot.position[0];
+  state_right_foot.y[0] = robotData_.rightFoot.position[1];
   robot_->body(RIGHT_FOOT)->state(state_right_foot);
 
   BodyState state_com;
@@ -149,9 +157,6 @@ void Walkgen::Init() {
   robot_->body(COM)->state(state_com);
 
   ponderation_.activePonderation = 0;
-
-  velRef_.resize(mpc_parameters_.nbsamples_qp);
-  newVelRef_.resize(mpc_parameters_.nbsamples_qp);
 
   BuildProblem();
 
@@ -231,7 +236,7 @@ void Walkgen::BuildProblem() {
   if (robot_->current_support().phase == SS && robot_->current_support().nbStepsLeft == 0) {
     velRef_.local.x.fill(0);
     velRef_.local.y.fill(0);
-    velRef_.local.yaw.fill(0);//TODO: Bullshit
+    velRef_.local.yaw.fill(0);
   }
   if (fabs(velRef_.local.yaw(0)) < EPSILON && 
     fabs(velRef_.local.x(0)) < EPSILON && 

@@ -1,14 +1,14 @@
 #include <mpc-walkgen/rigid-body-system.h>
-#include <mpc-walkgen/com-body.h>
+#include <mpc-walkgen/com-body.h>//TODO: These two to .h?
 #include <mpc-walkgen/foot-body.h>
 
 using namespace MPCWalkgen;
 using namespace Eigen;
 
-RigidBodySystem::RigidBodySystem(const MPCData *mpc_parameters)
-:mpc_parameters_(mpc_parameters)
-,data_robot_() {
-
+RigidBodySystem::RigidBodySystem() { 
+  com_ = new CoMBody();
+  foot_left_ = new FootBody(LEFT);
+  foot_right_ = new FootBody(RIGHT);
 }
 
 RigidBodySystem::~RigidBodySystem() {
@@ -22,31 +22,37 @@ RigidBodySystem::~RigidBodySystem() {
     delete foot_right_;
 }
 
-void RigidBodySystem::Init(const RobotData &data_robot, const Interpolation *interpolation) {//TODO: Remove object data_robot
-  data_robot_ = data_robot;
+void RigidBodySystem::Init(const MPCData *mpc_parameters_p) {
+  mpc_parameters_p_ = mpc_parameters_p;
 
-  com_ = new CoMBody(mpc_parameters_, &data_robot_);
-  foot_left_ = new FootBody(mpc_parameters_, &data_robot_,  LEFT);
-  foot_right_ = new FootBody(mpc_parameters_, &data_robot_, RIGHT);
+  com_->Init(mpc_parameters_p_);
+  foot_left_->Init(mpc_parameters_p_);
+  foot_right_->Init(mpc_parameters_p_);
+}
+
+void RigidBodySystem::Init(const RobotData &data_robot) {//TODO: Remove object data_robot
+  data_robot_ = data_robot;
+  
+  com_->Init(&data_robot);
+  foot_left_->Init(&data_robot);
+  foot_right_->Init(&data_robot);
 
   currentSupport_.phase = DS;
   currentSupport_.foot = LEFT;
   currentSupport_.time_limit = 1e9;
   currentSupport_.nbStepsLeft = 1;
   currentSupport_.state_changed = true;
-  currentSupport_.x = data_robot.leftFootPos(0);
-  currentSupport_.y = data_robot.leftFootPos(1);
+  currentSupport_.x = data_robot.leftFoot.position[0];
+  currentSupport_.y = data_robot.leftFoot.position[1];
   currentSupport_.yaw = 0.0;
   currentSupport_.yawTrunk = 0.0;
   currentSupport_.start_time = 0.0;
-
-  ComputeDynamics();
 }
 
 void RigidBodySystem::ComputeDynamics() {
-  com_->ComputeDynamics();
-  foot_left_->ComputeDynamics();
-  foot_right_->ComputeDynamics();
+    com_->ComputeDynamics();
+    foot_left_->ComputeDynamics();
+    foot_right_->ComputeDynamics();
 }
 
 void RigidBodySystem::interpolateBodies(MPCSolution &solution, double currentTime, const Reference &velRef){
@@ -58,7 +64,7 @@ void RigidBodySystem::interpolateBodies(MPCSolution &solution, double currentTim
 void RigidBodySystem::UpdateState(const MPCSolution &solution) {
   BodyState foot_left, foot_right, com;
   // TODO: State updates can/should be done locally in RigidBody
-  int next_sample = mpc_parameters_->num_samples_act() - 1;
+  int next_sample = mpc_parameters_p_->num_samples_act() - 1;
   for (int i = 0; i < 3; ++i){
     const MPCSolution::State &currentState = solution.state_vec[i];
     foot_left.x(i) = currentState.leftFootTrajX_(next_sample);

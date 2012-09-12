@@ -5,7 +5,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 ///
 ///\file	rigid-body.h
-///\brief	A class to store rigid bodies
 ///\author	Herdt Andrei
 ///
 ////////////////////////////////////////////////////////////////////////////////
@@ -18,10 +17,15 @@
 namespace MPCWalkgen{
   class RigidBody{
 
+    //
+    // Public methods:
+    //
   public:
-    RigidBody(const MPCData *mpc_parameters,
-      const RobotData *data_robot);
+    RigidBody();
     virtual ~RigidBody();
+
+    void Init(const MPCData *mpc_parameters);
+    void Init(const RobotData *data_robot);
 
     void ComputeDynamics();
 
@@ -47,7 +51,7 @@ namespace MPCWalkgen{
 
   protected:
     const MPCData *mpc_parameters_;
-    const RobotData *robotData_;
+    const RobotData *robot_data_p_;//TODO: Maybe should not be here
     Interpolation interpolation_;
 
     BodyState state_;

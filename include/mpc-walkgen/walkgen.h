@@ -10,13 +10,21 @@
 ///\author      Keith François
 ///
 ////////////////////////////////////////////////////////////////////////////////
-
-#include <mpc-walkgen/walkgen-abstract.h>
+/*
+#include <mpc-walkgen/walkgen-abstract.h>*/
 #include <mpc-walkgen/types.h>
+#include <mpc-walkgen/realclock.h>
+
+#include <mpc-walkgen/orientations-preview.h>
+#include <mpc-walkgen/qp-solver.h>
+#include <mpc-walkgen/qp-generator.h>
+#include <mpc-walkgen/qp-preview.h>
+#include <mpc-walkgen/rigid-body-system.h>
 #include <mpc-walkgen/realclock.h>
 
 namespace MPCWalkgen{
 
+  /*
   class Interpolation;
   class QPSolver;
   class QPGenerator;
@@ -24,21 +32,22 @@ namespace MPCWalkgen{
   class RigidBodySystem;
   class OrientationsPreview;
   class RealClock;
-
-  class Walkgen :
-    public WalkgenAbstract
+*/
+  class Walkgen /*:
+    public WalkgenAbstract*/
   {
 
   public:
     Walkgen();
     ~Walkgen();
 
-    virtual void Init(const RobotData &data_robot, const MPCData &mpc_parameters);
+    void Init(const MPCData &mpc_parameters);
+    void Init(const RobotData &data_robot);
 
-    virtual void Init();
+    void Init();
 
-    virtual const MPCSolution &online(double time);
-    virtual const MPCSolution &online();
+    const MPCSolution &online(double time);
+    const MPCSolution &online();
 
   public:
     // \name Accessors and mutators
@@ -46,21 +55,22 @@ namespace MPCWalkgen{
     void reference(double dx, double dy, double dyaw);
     void reference(Eigen::VectorXd dx, Eigen::VectorXd dy, Eigen::VectorXd dyaw);
 
-    virtual const SupportState &currentSupportState() const;
-    virtual inline void currentSupportState(const SupportState &newSupportState){
+    const SupportState &currentSupportState() const;
+    inline void currentSupportState(const SupportState &newSupportState){
       newCurrentSupport_ = newSupportState;
       isNewCurrentSupport_ = true;
     }
 
-    virtual const BodyState &bodyState(BodyType body) const;
-    virtual void bodyState(BodyType body, const BodyState &state);
-    virtual const ControlOutput &output() const { return output_; };
-    virtual RigidBodySystem *robot() { return robot_; };
+    const BodyState &bodyState(BodyType body) const;
+    void bodyState(BodyType body, const BodyState &state);
+    const ControlOutput &output() const { return output_; };
+    RigidBodySystem *robot() { return robot_; };
 
-    virtual const QPSolver *solver() const { return solver_; };
+    const QPSolver *solver() const { return solver_; };
 
-    virtual RealClock &clock() {return clock_;};
-	virtual const MPCSolution &solution() {return solution_;};
+    RealClock &clock() {return clock_;};
+	  
+    const MPCSolution &solution() {return solution_;};
     // \}
   
   private:
@@ -79,7 +89,6 @@ namespace MPCWalkgen{
     ::MPCWalkgen::QPSolver *solver_;
     QPGenerator *generator_;
     QPPreview *preview_;
-    ::MPCWalkgen::Interpolation *interpolation_;
     RigidBodySystem *robot_;
 
     OrientationsPreview *orientPrw_;
