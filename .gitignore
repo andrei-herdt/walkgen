@@ -40,3 +40,5 @@ CMakeLists.txt.user
 *.o
 *.ilk
 *.cmake
+Makefile
+*.mk
