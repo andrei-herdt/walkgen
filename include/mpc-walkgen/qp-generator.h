@@ -55,7 +55,7 @@ namespace MPCWalkgen{
     QPPreview *preview_;
     QPSolver *solver_;
     RigidBodySystem *robot_;
-    Reference *velRef_;
+    Reference *ref_;
     QPPonderation *ponderation_;
     const MPCData *mpc_parameters_;
 

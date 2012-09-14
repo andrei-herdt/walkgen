@@ -66,7 +66,7 @@ static void mdlInitializeSizes(SimStruct *S)
   // Previewed motions:
   const int kNumSamplesHorizon      = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 0)));
   const int kNumSamplesStep         = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 1)));
-  const int num_steps_max = kNumSamplesHorizon / kNumSamplesStep + 1;
+  const int num_steps_max           = kNumSamplesHorizon / kNumSamplesStep + 1;
   ssSetOutputPortWidth(S, 10, num_steps_max);               //first_foot_prw
   ssSetOutputPortWidth(S, 11, 4 * kNumSamplesHorizon);     //com_prw (sample_instants, x, y, z)
   ssSetOutputPortWidth(S, 12, 3 * kNumSamplesHorizon);     //cop_prw (sample_instants, x, y)
@@ -81,7 +81,7 @@ static void mdlInitializeSizes(SimStruct *S)
 
 static void mdlInitializeSampleTimes(SimStruct *S)
 {
-  ssSetSampleTime(S, 0, 0.005);
+  ssSetSampleTime(S, 0, 0.002);
 }
 
 #define MDL_START
@@ -98,11 +98,11 @@ static void mdlStart(SimStruct *S)
   mpc_data.period_actsample     = *mxGetPr(ssGetSFcnParam(S, 6));
   mpc_data.ponderation.JerkMin[0] = 0.001;
   mpc_data.ponderation.JerkMin[1] = 0.001;
-  mpc_data.warmstart					        = false;
+  mpc_data.warmstart					= false;
   mpc_data.interpolate_whole_horizon	= false;
-  mpc_data.solver.analysis			      = false;
-  mpc_data.solver.name			  = QPOASES;
-  mpc_data.solver.num_wsrec	  = 2;
+  mpc_data.solver.analysis			    = false;
+  mpc_data.solver.name                  = QPOASES;
+  mpc_data.solver.num_wsrec             = 2;
 
   Walkgen *walk = new Walkgen;
   walk->Init(mpc_data);
