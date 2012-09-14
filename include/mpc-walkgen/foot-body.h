@@ -17,31 +17,49 @@
 #include <Eigen/Dense>
 
 namespace MPCWalkgen{
-    class FootBody:public RigidBody{
+	class FootBody: public RigidBody{
 
-      //
-      // Public methods:
-      //
-    public:
-      FootBody(Foot type);
-      virtual ~FootBody();
+		//
+		// Public methods:
+		//
+	public:
+		FootBody(Foot type);
+		virtual ~FootBody();
 
-      virtual void Interpolate(MPCSolution &solution, double currentTime, const Reference &velRef);
+		virtual void Interpolate(MPCSolution &solution, double currentTime, const Reference &velRef);
 
-    protected:
+	protected:
     virtual void ComputeDynamicsMatrices(LinearDynamicsMatrices &dyn,
-      double sample_period_first, double sample_period_rest, int nbsamples, Derivative type);
+      double sample_period_first, double sample_period_rest, int N, Derivative type);
 
-    private:
-      Eigen::VectorXd &getFootVector(MPCSolution &solution, Axis axis, unsigned derivative);
+		//
+		// Private methods:
+		//
+	private:
 
-      void InterpolatePolynomial(MPCSolution &solution, Axis axis, int nbSampling, double T, 
-                                                const Eigen::Vector3d &state_vec,
-                                                const Eigen::Vector3d &nextSupportFootState);
+		/*
+		Eigen::VectorXd &getFootVector(
+			MPCSolution &solution, 
+			Axis axis,
+			unsigned derivative);
+*/
 
-    private:
-      Foot footType_;
-    };
+		void InterpolatePolynomial(
+			MPCSolution &solution, 
+			CommonVectorType &pos_vec,
+			CommonVectorType &vel_vec,
+			CommonVectorType &acc_vec,
+			int num_samples, 
+			double T,
+			const Eigen::Vector3d &state_vec,
+			const Eigen::Vector3d &nextSupportFootState);
+
+		//
+		// Private data members:
+		//
+	private:
+		Foot which_;
+	};
 }
 
 #endif // MPC_WALKGEN_FOOT_BODY_H

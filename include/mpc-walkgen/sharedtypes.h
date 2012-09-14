@@ -257,8 +257,8 @@ namespace MPCWalkgen{
     Eigen::VectorXd CoPTrajX;
     Eigen::VectorXd CoPTrajY;
 
-    Motion com_prw, cop_prw, foot_left_prw, foot_right_prw; 
-    Motion com_act, cop_act, foot_left_act, foot_right_act; 
+    Motion com_prw, cop_prw, left_foot_prw, right_foot_prw; 
+    Motion com_act, cop_act, left_foot_act, right_foot_act; 
 
     SolutionAnalysis analysis;
 

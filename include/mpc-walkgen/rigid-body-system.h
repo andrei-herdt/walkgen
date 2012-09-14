@@ -30,7 +30,7 @@ namespace MPCWalkgen{
 
       void Init(const RobotData &data_robot);
 
-      void interpolateBodies(MPCSolution &solution, double currentTime, const Reference &velRef);
+      void Interpolate(MPCSolution &solution, double currentTime, const Reference &velRef);
 
       void UpdateState(const MPCSolution &solution);
 
@@ -47,8 +47,8 @@ namespace MPCWalkgen{
       RobotData data_robot_;
 
       RigidBody *com_;
-      RigidBody *foot_left_;
-      RigidBody *foot_right_;
+      RigidBody *left_foot_;
+      RigidBody *right_foot_;
 
       SupportState currentSupport_;
 

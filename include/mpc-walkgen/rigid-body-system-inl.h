@@ -41,16 +41,16 @@ public:
     return com_;
   };
   inline RigidBody *left_foot() {
-    return foot_left_;
+    return left_foot_;
   };
   inline const RigidBody *left_foot() const {
-    return foot_left_;
+    return left_foot_;
   };
   inline RigidBody *right_foot() {
-    return foot_right_;
+    return right_foot_;
   };
   inline const RigidBody *right_foot() const {
-    return foot_right_;
+    return right_foot_;
   };
 
 
