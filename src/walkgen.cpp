@@ -1,7 +1,6 @@
 #include <mpc-walkgen/walkgen.h>
 
 #include <iostream>
-//  #include <windows.h> 
 #include <Eigen/Dense>
 #include <stdio.h>
 
@@ -115,14 +114,6 @@ void Walkgen::Init(const RobotData &robot_data) {
   robotData_ = robot_data;
 
   robot_->Init(robotData_);
-  // Check if sampling periods are defined correctly
-  /*
-  assert(mpc_parameters_.period_actsample > 0);
-  assert(mpc_parameters_.period_mpcsample >= mpc_parameters_.period_actsample);
-  assert(mpc_parameters_.period_qpsample >= mpc_parameters_.period_mpcsample);
-  assert(mpc_parameters_.nbqpsamples_step <= mpc_parameters_.nbsamples_qp);
-  assert(mpc_parameters_.nbqpsamples_dsss <= mpc_parameters_.nbsamples_qp);
-*/
 
   Init();
 
@@ -271,7 +262,7 @@ void Walkgen::BuildProblem() {
 void Walkgen::GenerateTrajectories() {
   generator_->ConvertCopToJerk(solution_);
 
-  robot_->interpolateBodies(solution_, currentTime_, velRef_);
+  robot_->Interpolate(solution_, currentTime_, velRef_);
 
   robot_->UpdateState(solution_);
 
@@ -306,6 +297,33 @@ void Walkgen::UpdateOutput() {
   output_.cop.x =   solution_.cop_act.pos.x_vec[output_index_];
   output_.cop.y =   solution_.cop_act.pos.y_vec[output_index_];
 
+  output_.left_foot.x = robot_->left_foot()->motion_act().pos.x_vec[output_index_];
+  output_.left_foot.y = robot_->left_foot()->motion_act().pos.y_vec[output_index_];
+  output_.left_foot.z = robot_->left_foot()->motion_act().pos.z_vec[output_index_];
+  output_.left_foot.yaw = robot_->left_foot()->motion_act().pos.yaw_vec[output_index_];
+  output_.left_foot.dx = robot_->left_foot()->motion_act().vel.x_vec[output_index_];
+  output_.left_foot.dy = robot_->left_foot()->motion_act().vel.y_vec[output_index_];
+  output_.left_foot.dz = robot_->left_foot()->motion_act().vel.z_vec[output_index_];
+  output_.left_foot.dyaw = robot_->left_foot()->motion_act().vel.yaw_vec[output_index_];
+  output_.left_foot.ddx = robot_->left_foot()->motion_act().acc.x_vec[output_index_];
+  output_.left_foot.ddy = robot_->left_foot()->motion_act().acc.y_vec[output_index_];
+  output_.left_foot.ddz = robot_->left_foot()->motion_act().acc.z_vec[output_index_];
+  output_.left_foot.ddyaw = robot_->left_foot()->motion_act().acc.yaw_vec[output_index_];
+
+  output_.right_foot.x = robot_->right_foot()->motion_act().pos.x_vec[output_index_];
+  output_.right_foot.y = robot_->right_foot()->motion_act().pos.y_vec[output_index_];
+  output_.right_foot.z = robot_->right_foot()->motion_act().pos.z_vec[output_index_];
+  output_.right_foot.yaw = robot_->right_foot()->motion_act().pos.yaw_vec[output_index_];
+  output_.right_foot.dx = robot_->right_foot()->motion_act().vel.x_vec[output_index_];
+  output_.right_foot.dy = robot_->right_foot()->motion_act().vel.y_vec[output_index_];
+  output_.right_foot.dz = robot_->right_foot()->motion_act().vel.z_vec[output_index_];
+  output_.right_foot.dyaw = robot_->right_foot()->motion_act().vel.yaw_vec[output_index_];
+  output_.right_foot.ddx = robot_->right_foot()->motion_act().acc.x_vec[output_index_];
+  output_.right_foot.ddy = robot_->right_foot()->motion_act().acc.y_vec[output_index_];
+  output_.right_foot.ddz = robot_->right_foot()->motion_act().acc.z_vec[output_index_];
+  output_.right_foot.ddyaw = robot_->right_foot()->motion_act().acc.yaw_vec[output_index_];
+
+/*
   output_.left_foot.x = solution_.state_vec[0].leftFootTrajX_[output_index_];
   output_.left_foot.y = solution_.state_vec[0].leftFootTrajY_[output_index_];
   output_.left_foot.z = solution_.state_vec[0].leftFootTrajZ_[output_index_];
@@ -331,6 +349,7 @@ void Walkgen::UpdateOutput() {
   output_.right_foot.ddy = solution_.state_vec[2].rightFootTrajY_[output_index_];
   output_.right_foot.ddz = solution_.state_vec[2].rightFootTrajZ_[output_index_];
   output_.right_foot.ddyaw = solution_.state_vec[2].rightFootTrajYaw_[output_index_];
+  */
 }
 
 void Walkgen::reference(double dx, double dy, double dyaw){

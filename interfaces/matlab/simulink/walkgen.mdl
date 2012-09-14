@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.333"
+    ComputedModelVersion    "1.334"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -45,11 +45,11 @@ Model {
   Creator		  "The MathWorks Inc."
   UpdateHistory		  "UpdateHistoryNever"
   ModifiedByFormat	  "%<Auto>"
-  LastModifiedBy	  "herd_an"
+  LastModifiedBy	  "f_legs"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Tue Sep 11 09:53:12 2012"
+  LastModifiedDate	  "Fri Sep 14 18:07:58 2012"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:333>"
+  ModelVersionFormat	  "1.%<AutoIncrement:334>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -701,7 +701,7 @@ Model {
       System {
 	Name			"Simulation"
 	Location		[702, 74, 1448, 860]
-	Open			off
+	Open			on
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
 	ScreenColor		"white"
@@ -740,7 +740,7 @@ Model {
 	  Position		  [390, 63, 495, 772]
 	  TreatAsAtomicUnit	  on
 	  MinAlgLoopOccurrences	  off
-	  SystemSampleTime	  "0.001"
+	  SystemSampleTime	  "0.005"
 	  RTWSystemCode		  "Auto"
 	  FunctionWithSeparateData off
 	  System {
@@ -949,7 +949,7 @@ Model {
 	      Ports		      [10, 15]
 	      Position		      [300, 168, 390, 542]
 	      FunctionName	      "walkgen_sfun"
-	      Parameters	      "10, 8, 8, 2, 0.1, 0.001, 0.001, 0.02"
+	      Parameters	      "16, 8, 8, 2, 0.1, 0.005, 0.005, 0.02"
 	      Port {
 		PortNumber		1
 		Name			"com"

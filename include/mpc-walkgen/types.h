@@ -28,7 +28,12 @@ namespace MPCWalkgen{
 
   enum QPVectorType{ vectorP,  vectorBU,  vectorBL,  vectorXU,  vectorXL };
 
-  enum Derivative { POSITION, VELOCITY, ACCELERATION, JERK,  COP };
+  enum Derivative { 
+	  POSITION		= 0, 
+	  VELOCITY		= 1, 
+	  ACCELERATION	= 2, 
+	  JERK			= 3, 
+	  COP			= 4 };
 
   enum SampleRate { QP, ACTUATORS };
 
@@ -40,6 +45,7 @@ namespace MPCWalkgen{
   typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor> EigenMatrixXdCM;
   typedef EigenMatrixXdRM CommonMatrixType;
 
+  typedef Eigen::VectorXd CommonVectorType;
 
   //
   // Data structures:

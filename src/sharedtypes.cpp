@@ -104,13 +104,13 @@ MPCSolution& MPCSolution::operator = (MPCSolution const &rhs){
 
   com_prw = rhs.com_prw;
   cop_prw = rhs.cop_prw; 
-  foot_left_prw = rhs.foot_left_prw; 
-  foot_right_prw = rhs.foot_right_prw; 
+  left_foot_prw = rhs.left_foot_prw; 
+  right_foot_prw = rhs.right_foot_prw; 
 
   com_act = rhs.com_act;
   cop_prw = rhs.cop_act; 
-  foot_left_act = rhs.foot_left_act; 
-  foot_right_act = rhs.foot_right_act; 
+  left_foot_act = rhs.left_foot_act; 
+  right_foot_act = rhs.right_foot_act; 
 
   analysis = rhs.analysis;
 
