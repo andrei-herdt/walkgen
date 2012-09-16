@@ -9,7 +9,7 @@
 using namespace Eigen;
 using namespace MPCWalkgen;
 
-int main(int argc, char *argv[]) {
+int main() {
 
   int num_samples_horizon = 16;
   int num_samples_step = 8;
@@ -18,50 +18,9 @@ int main(int argc, char *argv[]) {
   double sample_period_qp = 0.1;
   double sample_period_first = 0.001;
   double sample_period_act = 0.001;
+  const double kSecurityMargin = 0.02;
 
-  if (argc == 8) {
-
-    sscanf(argv[1], "%i", &num_samples_horizon);
-    sscanf(argv[2], "%i", &num_samples_step);
-    sscanf(argv[3], "%i", &num_samples_dsss);
-    sscanf(argv[4], "%i", &num_steps_ssds);
-    sscanf(argv[5], "%d", &sample_period_qp);
-    sscanf(argv[6], "%d", &sample_period_first);
-    sscanf(argv[7], "%d", &sample_period_act);
-  } else if (argc > 1) {
-    std::cout<<"main() requires 8 or zero parameters! "<<std::endl;
-  }
-
-  // Robot parameters:
-  // -----------------
-  FootData leftFoot;
-  leftFoot.anklePositionInLocalFrame      << 0, 0, 0.105;
-  leftFoot.soleHeight                     = 0.138;
-  leftFoot.soleWidth                      = 0.2172;
-  leftFoot.position[0] = 0.00949035;
-  leftFoot.position[1] = 0.095;
-  leftFoot.position[2] = 0.0;
-  
-  FootData rightFoot;
-  rightFoot.anklePositionInLocalFrame     << 0, 0, 0.105;
-  rightFoot.soleHeight                    = 0.138;
-  rightFoot.soleWidth                     = 0.2172;
-  rightFoot.position[0] = 0.00949035;
-  rightFoot.position[1] = -0.095;
-  rightFoot.position[2] = 0.0;
-
-
-  HipYawData leftHipYaw;
-  leftHipYaw.lowerBound                   = -0.523599;
-  leftHipYaw.upperBound                   = 0.785398;
-  leftHipYaw.lowerVelocityBound           = -3.54108;
-  leftHipYaw.upperVelocityBound           = 3.54108;
-  leftHipYaw.lowerAccelerationBound       = -0.1;
-  leftHipYaw.upperAccelerationBound       = 0.1;
-  HipYawData rightHipYaw = leftHipYaw;
-
-
-  // Simulation parameters:
+    // Simulation parameters:
   // ----------------------
   MPCData mpc_parameters;
   mpc_parameters.nbsamples_qp       = num_samples_horizon;
@@ -80,7 +39,44 @@ int main(int argc, char *argv[]) {
   mpc_parameters.solver.num_wsrec               = 2;
 
 
+
+  // Robot parameters:
+  // -----------------
+  FootData leftFoot;
+  leftFoot.anklePositionInLocalFrame      << 0, 0, 0.105;
+  leftFoot.soleHeight                     = 0.138;
+  leftFoot.soleWidth                      = 0.2172;
+  leftFoot.position[0] = 0.00949035;
+  leftFoot.position[1] = 0.095;
+  leftFoot.position[2] = 0.0;
+  leftFoot.SetEdges(0.2172, 0.0, 0.138, 0.0, kSecurityMargin);    
+
+  FootData rightFoot;
+  rightFoot.anklePositionInLocalFrame     << 0, 0, 0.105;
+  rightFoot.soleHeight                    = 0.138;
+  rightFoot.soleWidth                     = 0.2172;
+  rightFoot.position[0] = 0.00949035;
+  rightFoot.position[1] = -0.095;
+  rightFoot.position[2] = 0.0;
+  rightFoot.SetEdges(0.2172, 0.0, 0.138, 0.0, kSecurityMargin);    
+
+
+  HipYawData leftHipYaw;
+  leftHipYaw.lowerBound                   = -0.523599;
+  leftHipYaw.upperBound                   = 0.785398;
+  leftHipYaw.lowerVelocityBound           = -3.54108;
+  leftHipYaw.upperVelocityBound           = 3.54108;
+  leftHipYaw.lowerAccelerationBound       = -0.1;
+  leftHipYaw.upperAccelerationBound       = 0.1;
+  HipYawData rightHipYaw = leftHipYaw;
+
   RobotData robot_data(leftFoot, rightFoot, leftHipYaw, rightHipYaw, 0.0);
+
+    // TODO: This initialization did not work
+    robot_data.com(0) = 0.0;
+    robot_data.com(1) = 0.0;
+    robot_data.com(2) = 0.814;
+
 
   // Feasible hulls:
   // ---------------

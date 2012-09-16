@@ -65,7 +65,7 @@ namespace MPCWalkgen{
     /// \brief Dynamics sampled with the actuator sampling rate
     LinearDynamics dynamics_act_;
 
-	Motion motion_act_, motion_prw_;
+    Motion motion_act_, motion_prw_;
 
   };
 }

@@ -21,10 +21,10 @@
 inline double round( double d )
 {	return floor( d + 0.5 );	}
 
-const static double kEps = 0.000001;
+const static double kEps = 1e-8;
 
 namespace MPCWalkgen{
-	void inverse(const CommonMatrixType &X, CommonMatrixType &Xinv, double eps=1e-8);
+	void inverse(const CommonMatrixType &X, CommonMatrixType &Xinv, double eps = 1e-8);
 
 	inline double pow2(double v);
 

@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.336"
+    ComputedModelVersion    "1.343"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Thu Sep 13 14:28:23 2012"
+  LastModifiedDate	  "Sun Sep 16 12:40:25 2012"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:336>"
+  ModelVersionFormat	  "1.%<AutoIncrement:343>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -668,7 +668,7 @@ Model {
   System {
     Name		    "walkgen"
     Location		    [403, 74, 678, 375]
-    Open		    on
+    Open		    off
     ModelBrowserVisibility  off
     ModelBrowserWidth	    200
     ScreenColor		    "white"
@@ -949,7 +949,7 @@ Model {
 	      Ports		      [10, 15]
 	      Position		      [300, 168, 390, 542]
 	      FunctionName	      "walkgen_sfun"
-	      Parameters	      "10, 8, 8, 2, 0.1, 0.002, 0.002, 0.02"
+	      Parameters	      "16, 8, 8, 2, 0.1, 0.002, 0.002, 0.02"
 	      Port {
 		PortNumber		1
 		Name			"com"
@@ -1049,7 +1049,7 @@ Model {
 	      Orientation	      "up"
 	      ShowName		      off
 	      Floating		      off
-	      Location		      [83, 40, 1595, 891]
+	      Location		      [79, 40, 1595, 891]
 	      Open		      off
 	      NumInputPorts	      "1"
 	      ZoomMode		      "yonly"
@@ -1073,13 +1073,15 @@ Model {
 	      NamePlacement	      "alternate"
 	      ShowName		      off
 	      Floating		      off
-	      Location		      [79, 40, 1595, 894]
+	      Location		      [79, 40, 1595, 891]
 	      Open		      off
 	      NumInputPorts	      "1"
 	      List {
 		ListType		AxesTitles
 		axes1			"%<SignalLabel>"
 	      }
+	      YMin		      "-0.075"
+	      YMax		      "0.275"
 	      SaveName		      "ScopeData5"
 	      DataFormat	      "StructureWithTime"
 	      SampleTime	      "0"
@@ -1091,13 +1093,16 @@ Model {
 	      Position		      [540, 264, 560, 286]
 	      ShowName		      off
 	      Floating		      off
-	      Location		      [79, 40, 1595, 894]
+	      Location		      [79, 40, 1595, 891]
 	      Open		      off
 	      NumInputPorts	      "1"
 	      List {
 		ListType		AxesTitles
 		axes1			"%<SignalLabel>"
 	      }
+	      TimeRange		      "0.7000000000000001"
+	      YMin		      "0"
+	      YMax		      "1.5"
 	      SaveName		      "ScopeData6"
 	      DataFormat	      "StructureWithTime"
 	      SampleTime	      "0"
@@ -1106,7 +1111,7 @@ Model {
 	      BlockType		      Scope
 	      Name		      "Scope3"
 	      Ports		      [1]
-	      Position		      [540, 335, 560, 355]
+	      Position		      [545, 335, 565, 355]
 	      ShowName		      off
 	      Floating		      off
 	      Location		      [79, 40, 1595, 894]
@@ -1116,6 +1121,8 @@ Model {
 		ListType		AxesTitles
 		axes1			"%<SignalLabel>"
 	      }
+	      YMin		      "-0.05"
+	      YMax		      "0.6"
 	      SaveName		      "ScopeData7"
 	      DataFormat	      "StructureWithTime"
 	      SampleTime	      "0"
@@ -1248,14 +1255,14 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "S-Function"
 	      SrcPort		      8
-	      Points		      [55, 0; 0, 15; 50, 0]
+	      Points		      [55, 0; 0, 15; 25, 0]
 	      Branch {
-		Points			[-5, 0; 0, -25]
-		DstBlock		"Scope3"
+		DstBlock		"Bus\nCreator4"
 		DstPort			1
 	      }
 	      Branch {
-		DstBlock		"Bus\nCreator4"
+		Points			[0, -25]
+		DstBlock		"Scope3"
 		DstPort			1
 	      }
 	    }
@@ -1264,7 +1271,7 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "S-Function"
 	      SrcPort		      5
-	      Points		      [50, 0; 0, 15; 45, 0]
+	      Points		      [50, 0; 0, 15; 25, 0]
 	      Branch {
 		DstBlock		"Bus\nCreator3"
 		DstPort			1
@@ -1878,9 +1885,9 @@ Model {
 	Block {
 	  BlockType		  Constant
 	  Name			  "cop_real1"
-	  Position		  [130, 332, 185, 348]
+	  Position		  [70, 331, 185, 349]
 	  ShowName		  off
-	  Value			  "[0,0]"
+	  Value			  "[-0.0144 0.105]"
 	  OutDataType		  "sfix(16)"
 	  OutScaling		  "2^0"
 	  Port {

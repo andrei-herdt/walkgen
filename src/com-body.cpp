@@ -134,7 +134,7 @@ void CoMBody::ComputeDynamicsMatrices(LinearDynamicsMatrices &dyn,
 
       }
       inverse(dyn.U, dyn.UInv);
-      dyn.UInvT=dyn.UInv.transpose();
+      dyn.UInvT = dyn.UInv.transpose();
       break;
 
     default:
@@ -172,7 +172,7 @@ void CoMBody::interpolateTrunkOrientation(MPCSolution &solution,
   Eigen::Matrix<double,6,1> factor;
   interpolation_.computePolynomialNormalisedFactors(factor, state().yaw, nextTrunkState, T);
   for (int i=0; i < nbSampling; ++i) {
-    double ti = (i+1)*mpc_parameters_->period_actsample;
+    double ti = (i + 1) * mpc_parameters_->period_actsample;
 
     solution.state_vec[0].trunkYaw_(i) = p(factor, ti/T);
     solution.state_vec[1].trunkYaw_(i) = dp(factor, ti/T)/T;
