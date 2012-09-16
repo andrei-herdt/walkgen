@@ -41,7 +41,7 @@ namespace MPCWalkgen{
     inline const LinearDynamics &dynamics_qp() const { return dynamics_qp_vec_[dynamics_iter_];};
     inline const LinearDynamics &dynamics_act() const {return dynamics_act_;};
 
-	inline Motion &motion_act() {return motion_act_;};
+    inline Motion &motion_act() {return motion_act_;};
     inline Motion &motion_prw() {return motion_prw_;};
 
     void setSelectionNumber(double firstSamplingPeriod);

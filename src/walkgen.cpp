@@ -322,34 +322,6 @@ void Walkgen::UpdateOutput() {
   output_.right_foot.ddy = robot_->right_foot()->motion_act().acc.y_vec[output_index_];
   output_.right_foot.ddz = robot_->right_foot()->motion_act().acc.z_vec[output_index_];
   output_.right_foot.ddyaw = robot_->right_foot()->motion_act().acc.yaw_vec[output_index_];
-
-/*
-  output_.left_foot.x = solution_.state_vec[0].leftFootTrajX_[output_index_];
-  output_.left_foot.y = solution_.state_vec[0].leftFootTrajY_[output_index_];
-  output_.left_foot.z = solution_.state_vec[0].leftFootTrajZ_[output_index_];
-  output_.left_foot.yaw = solution_.state_vec[0].leftFootTrajYaw_[output_index_];
-  output_.left_foot.dx = solution_.state_vec[1].leftFootTrajX_[output_index_];
-  output_.left_foot.dy = solution_.state_vec[1].leftFootTrajY_[output_index_];
-  output_.left_foot.dz = solution_.state_vec[1].leftFootTrajZ_[output_index_];
-  output_.left_foot.dyaw = solution_.state_vec[1].leftFootTrajYaw_[output_index_];
-  output_.left_foot.ddx = solution_.state_vec[2].leftFootTrajX_[output_index_];
-  output_.left_foot.ddy = solution_.state_vec[2].leftFootTrajY_[output_index_];
-  output_.left_foot.ddz = solution_.state_vec[2].leftFootTrajZ_[output_index_];
-  output_.left_foot.ddyaw = solution_.state_vec[2].leftFootTrajYaw_[output_index_];
-
-  output_.right_foot.x = solution_.state_vec[0].rightFootTrajX_[output_index_];
-  output_.right_foot.y = solution_.state_vec[0].rightFootTrajY_[output_index_];
-  output_.right_foot.z = solution_.state_vec[0].rightFootTrajZ_[output_index_];
-  output_.right_foot.yaw = solution_.state_vec[0].rightFootTrajYaw_[output_index_];
-  output_.right_foot.dx = solution_.state_vec[1].rightFootTrajX_[output_index_];
-  output_.right_foot.dy = solution_.state_vec[1].rightFootTrajY_[output_index_];
-  output_.right_foot.dz = solution_.state_vec[1].rightFootTrajZ_[output_index_];
-  output_.right_foot.dyaw = solution_.state_vec[1].rightFootTrajYaw_[output_index_];
-  output_.right_foot.ddx = solution_.state_vec[2].rightFootTrajX_[output_index_];
-  output_.right_foot.ddy = solution_.state_vec[2].rightFootTrajY_[output_index_];
-  output_.right_foot.ddz = solution_.state_vec[2].rightFootTrajZ_[output_index_];
-  output_.right_foot.ddyaw = solution_.state_vec[2].rightFootTrajYaw_[output_index_];
-  */
 }
 
 void Walkgen::reference(double dx, double dy, double dyaw){

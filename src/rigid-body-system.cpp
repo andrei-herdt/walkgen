@@ -62,24 +62,9 @@ void RigidBodySystem::Interpolate(MPCSolution &solution, double currentTime, con
 }
 
 void RigidBodySystem::UpdateState(const MPCSolution &solution) {
-	// TODO: State updates can/should be done locally in RigidBody
-	/*
-	int next_sample = mpc_parameters_p_->num_samples_act() - 1;
-	for (int i = 0; i < 3; ++i){
-	const MPCSolution::State &currentState = solution.state_vec[i];
-	left_foot.x(i) = currentState.leftFootTrajX_(next_sample);
-	left_foot.y(i) = currentState.leftFootTrajY_(next_sample);
-	left_foot.z(i) = currentState.leftFootTrajZ_(next_sample);
-	left_foot.yaw(i) = currentState.leftFootTrajYaw_(next_sample);
 
-	right_foot.x(i) = currentState.rightFootTrajX_(next_sample);
-	right_foot.y(i) = currentState.rightFootTrajY_(next_sample);
-	right_foot.z(i) = currentState.rightFootTrajZ_(next_sample);
-	right_foot.yaw(i) = currentState.rightFootTrajYaw_(next_sample);
-	}
-	*/
 
-	int next_sample = mpc_parameters_p_->num_samples_act() - 1;
+  int next_sample = mpc_parameters_p_->num_samples_act() - 1;
 	left_foot_->state().x(POSITION) = left_foot_->motion_act().pos.x_vec[next_sample];
 	left_foot_->state().y(POSITION) = left_foot_->motion_act().pos.y_vec[next_sample];
 	left_foot_->state().z(POSITION) = left_foot_->motion_act().pos.z_vec[next_sample];

@@ -36,14 +36,6 @@ namespace MPCWalkgen{
 		// Private methods:
 		//
 	private:
-
-		/*
-		Eigen::VectorXd &getFootVector(
-			MPCSolution &solution, 
-			Axis axis,
-			unsigned derivative);
-*/
-
 		void InterpolatePolynomial(
 			MPCSolution &solution, 
 			CommonVectorType &pos_vec,

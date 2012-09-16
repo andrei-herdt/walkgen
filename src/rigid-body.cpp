@@ -12,6 +12,9 @@ void RigidBody::Init(const MPCData *mpc_parameters_p) {
   
   int nbdynamics = mpc_parameters_->nbFeedbackSamplesStandard();
   dynamics_qp_vec_.resize(nbdynamics);
+
+  int num_samples = mpc_parameters_->num_samples_act();
+  motion_act_.resize(num_samples);
 }
 
 void RigidBody::Init(const RobotData *robot_data_p) {

@@ -121,68 +121,58 @@ int main() {
 
   // Create and initialize generator:
   // -------------------------------
-  Walkgen *walk = new Walkgen();
-  walk->Init(mpc_parameters);
-  walk->Init(robot_data);
+  Walkgen walk;
+  walk.Init(mpc_parameters);
+  walk.Init(robot_data);
 
   // Go:
   // ---
   double velocity = 0.1;
   double curr_time = 0;
-  walk->reference(velocity, 0, 0);
+  walk.reference(velocity, 0, 0);
   int num_iterations = 0;
   for (; curr_time < 20; curr_time += sample_period_act) {
-    walk->clock().ResetLocal();
-    int online_timer = walk->clock().StartCounter();
-    const MPCSolution &solution = walk->online(curr_time);
-    walk->clock().StopLastCounter();
-    walk->clock().StopCounter(online_timer);
-    // Print time:
-    /*
-    int num_counters = walk->clock().GetNumCounters();
-    double passed_time = 0.0;
-    for (int i = num_counters - 1; i >= 1; i--) {
-    passed_time = walk->clock().PopBackTime();
-    std::cout<<"num"<< i <<": " << passed_time << "   ";
-    }
-    passed_time = walk->clock().PopBackTime();
-    std::cout << "total: " << passed_time  << std::endl;
-    */
+    walk.clock().ResetLocal();
+    int online_timer = walk.clock().StartCounter();
+    const MPCSolution &solution = walk.online(curr_time);
+    walk.clock().StopLastCounter();
+    walk.clock().StopCounter(online_timer);
+    
     num_iterations++;
   }
 
+
   // Print total time:
-  int num_counters = walk->clock().GetNumTotalCounters();
+  int num_counters = walk.clock().GetNumTotalCounters();
   double passed_time = 0.0;
   std::cout << "Total [mus]: ----------------" << std::endl;
   for (int counter = num_counters - 1; counter >= 1; counter--) {
-    passed_time = walk->clock().GetTotalTime(counter);
+    passed_time = walk.clock().GetTotalTime(counter);
     std::cout<<"num"<< counter <<": " << passed_time << "   ";
   }
-  passed_time = walk->clock().GetTotalTime(0);
+  passed_time = walk.clock().GetTotalTime(0);
   std::cout << "total: " << passed_time  << std::endl;
 
   // Print mean time:
   std::cout << "Mean [mus]: ----------------" << std::endl;
   for (int counter = num_counters - 1; counter >= 1; counter--) {
-    passed_time = walk->clock().GetTotalTime(counter) / num_iterations;
+    passed_time = walk.clock().GetTotalTime(counter) / num_iterations;
     std::cout<<"num"<< counter <<": " << passed_time << "   ";
   }
-  passed_time = walk->clock().GetTotalTime(0) / num_iterations;
+  passed_time = walk.clock().GetTotalTime(0) / num_iterations;
   std::cout << "total: " << passed_time  << std::endl;
 
   // Print mean time:
   std::cout << "Max [mus]: ----------------" << std::endl;
   for (int counter = num_counters - 1; counter >= 1; counter--) {
-    passed_time = walk->clock().GetMaxTime(counter);
+    passed_time = walk.clock().GetMaxTime(counter);
     std::cout<<"num"<< counter <<": " << passed_time << "   ";
   }
-  passed_time = walk->clock().GetMaxTime(0);
+  passed_time = walk.clock().GetMaxTime(0);
   std::cout << "total: " << passed_time  << std::endl;
 
-  std::cout << "Final CoM position: " << walk->output().com.x <<
-    ", " << walk->output().com.y <<std::endl;
+  std::cout << "Final CoM position: " << walk.output().com.x <<
+    ", " << walk.output().com.y <<std::endl;
 
-  delete walk;
   return 0;
 }

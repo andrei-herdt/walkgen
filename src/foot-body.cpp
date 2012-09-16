@@ -71,11 +71,17 @@ void FootBody::Interpolate(MPCSolution &solution, double currentTime, const Refe
     } else {
       // time_left_z stays 1
     }
-  } 
-  InterpolatePolynomial(solution, motion_act_.pos.x_vec, motion_act_.vel.x_vec, motion_act_.acc.x_vec, num_samples, time_left_xy, state_.x, goal_state.x);
-  InterpolatePolynomial(solution, motion_act_.pos.y_vec, motion_act_.vel.y_vec, motion_act_.acc.y_vec, num_samples, time_left_xy, state_.y, goal_state.y);
-  InterpolatePolynomial(solution, motion_act_.pos.z_vec, motion_act_.vel.z_vec, motion_act_.acc.z_vec, num_samples, time_left_z, state_.z, goal_state.z);
-  InterpolatePolynomial(solution, motion_act_.pos.yaw_vec, motion_act_.vel.yaw_vec, motion_act_.acc.yaw_vec, num_samples, time_left_xy, state_.yaw, goal_state.yaw);
+    InterpolatePolynomial(solution, motion_act_.pos.x_vec, motion_act_.vel.x_vec, motion_act_.acc.x_vec, num_samples, time_left_xy, state_.x, goal_state.x);
+    InterpolatePolynomial(solution, motion_act_.pos.y_vec, motion_act_.vel.y_vec, motion_act_.acc.y_vec, num_samples, time_left_xy, state_.y, goal_state.y);
+    InterpolatePolynomial(solution, motion_act_.pos.z_vec, motion_act_.vel.z_vec, motion_act_.acc.z_vec, num_samples, time_left_z, state_.z, goal_state.z);
+    InterpolatePolynomial(solution, motion_act_.pos.yaw_vec, motion_act_.vel.yaw_vec, motion_act_.acc.yaw_vec, num_samples, time_left_xy, state_.yaw, goal_state.yaw);
+  } else {
+    InterpolatePolynomial(solution, motion_act_.pos.x_vec, motion_act_.vel.x_vec, motion_act_.acc.x_vec, num_samples, time_left_xy, state_.x, state_.x);
+    InterpolatePolynomial(solution, motion_act_.pos.y_vec, motion_act_.vel.y_vec, motion_act_.acc.y_vec, num_samples, time_left_xy, state_.y, state_.y);
+    InterpolatePolynomial(solution, motion_act_.pos.z_vec, motion_act_.vel.z_vec, motion_act_.acc.z_vec, num_samples, time_left_z, state_.z, state_.z);
+    InterpolatePolynomial(solution, motion_act_.pos.yaw_vec, motion_act_.vel.yaw_vec, motion_act_.acc.yaw_vec, num_samples, time_left_xy, state_.yaw, state_.yaw);
+  }
+
 }
 
 
@@ -83,32 +89,27 @@ void FootBody::Interpolate(MPCSolution &solution, double currentTime, const Refe
 // Private methods:
 //
 void FootBody::InterpolatePolynomial(MPCSolution &solution, CommonVectorType &pos_vec, CommonVectorType &vel_vec, CommonVectorType &acc_vec, 
-                                     int num_samples, double T, const Eigen::Vector3d &init_state_vec, const Eigen::Vector3d &final_state_vec) {
-                                       if (pos_vec.rows() < num_samples) {
-                                         pos_vec.resize(num_samples);
-                                         vel_vec.resize(num_samples);
-                                         acc_vec.resize(num_samples);
-                                       }
+                                     int num_samples, double T, const Eigen::Vector3d &init_state_vec, const Eigen::Vector3d &final_state_vec) 
+{
+  if (pos_vec.rows() < num_samples) {
+    pos_vec.resize(num_samples);
+    vel_vec.resize(num_samples);
+    acc_vec.resize(num_samples);
+  }
 
-                                       if (solution.support_states_vec[0].foot == which_) {
-                                         pos_vec.setConstant(init_state_vec[0]);
-                                         vel_vec.setConstant(0.0);
-                                         acc_vec.setConstant(0.0);
-                                       } else {
-                                         if (solution.support_states_vec[0].phase == DS) {
-                                           pos_vec.setConstant(init_state_vec[0]);
-                                           vel_vec.setConstant(0.0);
-                                           acc_vec.setConstant(0.0);
-                                         } else {
-                                           Eigen::Matrix<double, 6, 1> factors;
-                                           interpolation_.computePolynomialNormalisedFactors(factors, init_state_vec, final_state_vec, T);
-                                           for (int i = 0; i < num_samples; ++i) {
-                                             double ti = (i + 1) * mpc_parameters_->period_actsample;
+  if (solution.support_states_vec[0].foot == which_) {
+    pos_vec.setConstant(init_state_vec[0]);
+    vel_vec.setConstant(0.0);
+    acc_vec.setConstant(0.0);
+  } else {
+    Eigen::Matrix<double, 6, 1> factors;
+    interpolation_.computePolynomialNormalisedFactors(factors, init_state_vec, final_state_vec, T);
+    for (int i = 0; i < num_samples; ++i) {
+      double ti = (i + 1) * mpc_parameters_->period_actsample;
 
-                                             pos_vec[i] = p(factors, ti / T);
-                                             vel_vec[i]   = dp(factors, ti / T) / T;
-                                             acc_vec[i]   = ddp(factors, ti / T) / (T * T);
-                                           }
-                                         }
-                                       }
+      pos_vec[i] = p(factors, ti / T);
+      vel_vec[i] = dp(factors, ti / T) / T;
+      acc_vec[i] = ddp(factors, ti / T) / (T * T);
+    }
+  }
 }
