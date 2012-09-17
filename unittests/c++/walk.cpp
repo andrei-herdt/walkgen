@@ -11,7 +11,7 @@ using namespace MPCWalkgen;
 
 int main() {
 
-  int num_samples_horizon = 16;
+  int num_samples_horizon = 10;
   int num_samples_step = 8;
   int num_samples_dsss = 8;
   int num_steps_ssds = 2;
@@ -131,6 +131,7 @@ int main() {
   double curr_time = 0;
   walk.reference(velocity, 0, 0);
   int num_iterations = 0;
+  walk.clock().GetFrequency(1000);
   for (; curr_time < 20; curr_time += sample_period_act) {
     walk.clock().ResetLocal();
     int online_timer = walk.clock().StartCounter();

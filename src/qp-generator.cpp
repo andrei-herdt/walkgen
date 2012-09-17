@@ -116,7 +116,7 @@ void QPGenerator::buildObjective(const MPCSolution &solution) {
 
   // Choose the precomputed element depending on the nb of "feedback-recomputations" until new qp-sample
   int sample_num = mpc_parameters_->nbFeedbackSamplesLeft(solution.support_states_vec[1].previousSamplingPeriod);
-  sample_num += ponderation_->activePonderation * mpc_parameters_->nbFeedbackSamplesStandard();
+  sample_num += ponderation_->active_weights * mpc_parameters_->nbFeedbackSamplesStandard();
 
   const BodyState &com = robot_->body(COM)->state();
   const SelectionMatrices &select_mats = preview_->selectionMatrices();
@@ -148,19 +148,19 @@ void QPGenerator::buildObjective(const MPCSolution &solution) {
 
     if (compute_cholesky == false){
       tmp_mat_.noalias() = select_mats.VT*Qconst_[sample_num];
-      Q.addTerm(tmp_mat_, 2*num_samples, 0);
-      Q.addTerm(tmp_mat_, 2*num_samples + num_steps_previewed, num_samples);
+      Q.addTerm(tmp_mat_, 2 * num_samples, 0);
+      Q.addTerm(tmp_mat_, 2 * num_samples + num_steps_previewed, num_samples);
 
       // rotate the down left block
-      CommonMatrixType dlBlock = Q().block(2*num_samples, 0, 2*num_steps_previewed, 2*num_samples);
+      CommonMatrixType dlBlock = Q().block(2 * num_samples, 0, 2 * num_steps_previewed, 2 * num_samples);
       computeMRt(dlBlock, rot_mat2);
-      Q().block(2*num_samples, 0, 2*num_steps_previewed, 2*num_samples) = dlBlock;
+      Q().block(2 * num_samples, 0, 2 * num_steps_previewed, 2 * num_samples) = dlBlock;
     }
 
     // rotate the upper right block
-    CommonMatrixType urBlock = Q().block(0, 2*num_samples, 2*num_samples, 2*num_steps_previewed);
+    CommonMatrixType urBlock = Q().block(0, 2 * num_samples, 2*num_samples, 2*num_steps_previewed);
     computeRM(urBlock, rot_mat2);
-    Q().block(0, 2*num_samples, 2*num_samples, 2*num_steps_previewed) = urBlock;
+    Q().block(0, 2 * num_samples, 2 * num_samples, 2 * num_steps_previewed) = urBlock;
   }
 
   if (!compute_cholesky) {
@@ -239,12 +239,12 @@ void QPGenerator::computeWarmStart(MPCSolution &solution){
 
     // New final ZMP elements are old final elements
     solution.initialConstraints(  num_samples-1) = initialConstraintTmp(  num_samples-1);
-    solution.initialConstraints(2*num_samples-1) = initialConstraintTmp(2*num_samples-1);
+    solution.initialConstraints(2 * num_samples-1) = initialConstraintTmp(2*num_samples-1);
 
     // Foot constraints are not shifted
-    solution.initialConstraints.segment(2*num_samples          , nbFC*nbSteps)=
-      initialConstraintTmp.segment (2*num_samples          , nbFC*nbSteps);
-    solution.initialConstraints.segment(2*num_samples+nbFC*nbSteps, nbFC*(nbStepsMax-nbSteps))=
+    solution.initialConstraints.segment(2 * num_samples, nbFC*nbSteps)=
+      initialConstraintTmp.segment (2 * num_samples, nbFC*nbSteps);
+    solution.initialConstraints.segment(2 * num_samples+nbFC*nbSteps, nbFC*(nbStepsMax-nbSteps))=
       initialConstraintTmp.segment (2*num_samples+nbFC*nbSteps, nbFC*(nbStepsMax-nbSteps));
   } else {
     solution.initialConstraints = VectorXi::Zero(2*num_samples+(4+nbFC)*nbStepsMax);//TODO: Why this value?
@@ -373,10 +373,10 @@ void QPGenerator::computeReferenceVector(const MPCSolution &solution){
   }
 
   double YawTrunk;
-  for (int i=0;i<mpc_parameters_->nbsamples_qp;++i){
+  for (int i = 0; i < mpc_parameters_->nbsamples_qp; ++i){
     YawTrunk = solution.support_states_vec[i+1].yaw;
-    ref_->global.x(i) = ref_->local.x(i)*cos(YawTrunk)-ref_->local.y(i)*sin(YawTrunk);
-    ref_->global.y(i) = ref_->local.x(i)*sin(YawTrunk)+ref_->local.y(i)*cos(YawTrunk);
+    ref_->global.x(i) = ref_->local.x(i) * cos(YawTrunk) - ref_->local.y(i) * sin(YawTrunk);
+    ref_->global.y(i) = ref_->local.x(i) * sin(YawTrunk) + ref_->local.y(i) * cos(YawTrunk);
   }
 
 }

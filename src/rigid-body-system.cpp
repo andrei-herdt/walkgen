@@ -1,6 +1,8 @@
 #include <mpc-walkgen/rigid-body-system.h>
 #include <mpc-walkgen/com-body.h>//TODO: These two to .h?
 #include <mpc-walkgen/foot-body.h>
+#include <limits>
+#include <iostream>
 
 using namespace MPCWalkgen;
 using namespace Eigen;

@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.349"
+    ComputedModelVersion    "1.352"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Sun Sep 16 18:32:27 2012"
+  LastModifiedDate	  "Mon Sep 17 13:57:24 2012"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:349>"
+  ModelVersionFormat	  "1.%<AutoIncrement:352>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -492,13 +492,6 @@ Model {
       OutputAsBus	      off
     }
     Block {
-      BlockType		      Display
-      Format		      "short"
-      Decimation	      "10"
-      Floating		      off
-      SampleTime	      "-1"
-    }
-    Block {
       BlockType		      EnablePort
       StatesWhenEnabling      "held"
       ShowOutputPort	      off
@@ -675,7 +668,7 @@ Model {
   System {
     Name		    "walkgen"
     Location		    [403, 74, 678, 375]
-    Open		    off
+    Open		    on
     ModelBrowserVisibility  off
     ModelBrowserWidth	    200
     ScreenColor		    "white"
@@ -939,100 +932,6 @@ Model {
 	      OutScaling	      "2^0"
 	    }
 	    Block {
-	      BlockType		      SubSystem
-	      Name		      "Numeric display"
-	      Ports		      [1]
-	      Position		      [700, 304, 800, 346]
-	      MinAlgLoopOccurrences   off
-	      RTWSystemCode	      "Auto"
-	      FunctionWithSeparateData off
-	      System {
-		Name			"Numeric display"
-		Location		[451, 168, 1655, 866]
-		Open			off
-		ModelBrowserVisibility	off
-		ModelBrowserWidth	200
-		ScreenColor		"white"
-		PaperOrientation	"landscape"
-		PaperPositionMode	"auto"
-		PaperType		"A4"
-		PaperUnits		"centimeters"
-		TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
-		TiledPageScale		1
-		ShowPageBoundaries	off
-		ZoomFactor		"100"
-		Block {
-		  BlockType		  Inport
-		  Name			  "In1"
-		  Position		  [100, 338, 130, 352]
-		  IconDisplay		  "Port number"
-		  OutDataType		  "sfix(16)"
-		  OutScaling		  "2^0"
-		}
-		Block {
-		  BlockType		  Display
-		  Name			  "Display"
-		  Ports			  [1]
-		  Position		  [245, 93, 1065, 597]
-		  Decimation		  "1"
-		  Lockdown		  off
-		}
-		Line {
-		  SrcBlock		  "In1"
-		  SrcPort		  1
-		  DstBlock		  "Display"
-		  DstPort		  1
-		}
-	      }
-	    }
-	    Block {
-	      BlockType		      SubSystem
-	      Name		      "Numeric display1"
-	      Ports		      [1]
-	      Position		      [700, 369, 800, 411]
-	      MinAlgLoopOccurrences   off
-	      RTWSystemCode	      "Auto"
-	      FunctionWithSeparateData off
-	      System {
-		Name			"Numeric display1"
-		Location		[451, 168, 1655, 866]
-		Open			off
-		ModelBrowserVisibility	off
-		ModelBrowserWidth	200
-		ScreenColor		"white"
-		PaperOrientation	"landscape"
-		PaperPositionMode	"auto"
-		PaperType		"A4"
-		PaperUnits		"centimeters"
-		TiledPaperMargins	[0.500000, 0.500000, 0.500000, 0.500000]
-		TiledPageScale		1
-		ShowPageBoundaries	off
-		ZoomFactor		"100"
-		Block {
-		  BlockType		  Inport
-		  Name			  "In1"
-		  Position		  [100, 338, 130, 352]
-		  IconDisplay		  "Port number"
-		  OutDataType		  "sfix(16)"
-		  OutScaling		  "2^0"
-		}
-		Block {
-		  BlockType		  Display
-		  Name			  "Display"
-		  Ports			  [1]
-		  Position		  [245, 93, 1065, 597]
-		  Decimation		  "1"
-		  Lockdown		  off
-		}
-		Line {
-		  SrcBlock		  "In1"
-		  SrcPort		  1
-		  DstBlock		  "Display"
-		  DstPort		  1
-		}
-	      }
-	    }
-	    Block {
 	      BlockType		      RateTransition
 	      Name		      "Protected RT1"
 	      Position		      [665, 250, 685, 270]
@@ -1203,8 +1102,8 @@ Model {
 		axes1			"%<SignalLabel>"
 	      }
 	      TimeRange		      "0.7000000000000001"
-	      YMin		      "-1"
-	      YMax		      "1"
+	      YMin		      "-0.025"
+	      YMax		      "0.225"
 	      SaveName		      "ScopeData6"
 	      DataFormat	      "StructureWithTime"
 	      SampleTime	      "0"
@@ -1364,16 +1263,8 @@ Model {
 		DstPort			1
 	      }
 	      Branch {
-		Points			[15, 0]
-		Branch {
-		  DstBlock		  "Bus\nCreator4"
-		  DstPort		  1
-		}
-		Branch {
-		  Points		  [0, 35; 195, 0]
-		  DstBlock		  "Numeric display1"
-		  DstPort		  1
-		}
+		DstBlock		"Bus\nCreator4"
+		DstPort			1
 	      }
 	    }
 	    Line {
@@ -1381,14 +1272,14 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "S-Function"
 	      SrcPort		      5
-	      Points		      [50, 0; 0, 15; 35, 0]
+	      Points		      [50, 0; 0, 15; 10, 0]
 	      Branch {
-		DstBlock		"Bus\nCreator3"
+		Points			[0, -20]
+		DstBlock		"Scope2"
 		DstPort			1
 	      }
 	      Branch {
-		Points			[0, 30]
-		DstBlock		"Numeric display"
+		DstBlock		"Bus\nCreator3"
 		DstPort			1
 	      }
 	    }
@@ -1397,16 +1288,8 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "S-Function"
 	      SrcPort		      6
-	      Points		      [70, 0]
-	      Branch {
-		DstBlock		"Bus\nCreator3"
-		DstPort			2
-	      }
-	      Branch {
-		Points			[0, -30]
-		DstBlock		"Scope2"
-		DstPort			1
-	      }
+	      DstBlock		      "Bus\nCreator3"
+	      DstPort		      2
 	    }
 	    Line {
 	      Name		      "ddp_left"

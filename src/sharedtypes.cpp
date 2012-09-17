@@ -320,11 +320,11 @@ QPPonderation::QPPonderation(int nb)
   JerkMin[0]         = 0.00001;
   instantVelocity[0] = 1;
 
-  CopCentering[1]    = 0.0001;
+  CopCentering[1]    = 1.;
   JerkMin[1]         = 0.00001;
-  instantVelocity[1] = 1;
+  instantVelocity[1] = 1.;
 
-  activePonderation  = 1;
+  active_weights  = 1;
 
 }
 QPPonderation::~QPPonderation(){}

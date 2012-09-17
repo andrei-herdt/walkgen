@@ -75,7 +75,7 @@ namespace MPCWalkgen{
     std::vector<double> JerkMin;
 
     /// \brief Define the element of ponderation std::vector used in this iteration
-    int activePonderation;
+    int active_weights;
 
     QPPonderation(int nb = 2);
     ~QPPonderation();

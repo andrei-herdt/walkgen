@@ -1,6 +1,8 @@
 #include <mpc-walkgen/foot-body.h>
 #include <mpc-walkgen/tools.h>
 
+#include <iostream>
+
 using namespace MPCWalkgen;
 using namespace Eigen;
 
@@ -45,7 +47,7 @@ void FootBody::Interpolate(MPCSolution &solution, double currentTime, const Refe
       goal_state.y(0) = state_.y(0);
       goal_state.yaw(0) = state_.yaw(0);
     }  else if (time_left_flying < raise_period + EPSILON) {
-      time_left_xy = time_left_flying;
+      time_left_xy = 1.;
       goal_state.x(0) = state_.x(0);
       goal_state.y(0) = state_.y(0);
       goal_state.yaw(0) = state_.yaw(0);

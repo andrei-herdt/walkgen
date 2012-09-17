@@ -10,8 +10,7 @@
 ///\author      Keith François
 ///
 ////////////////////////////////////////////////////////////////////////////////
-/*
-#include <mpc-walkgen/walkgen-abstract.h>*/
+
 #include <mpc-walkgen/types.h>
 #include <mpc-walkgen/realclock.h>
 
@@ -24,19 +23,7 @@
 
 namespace MPCWalkgen{
 
-  /*
-  class Interpolation;
-  class QPSolver;
-  class QPGenerator;
-  class QPPreview;
-  class RigidBodySystem;
-  class OrientationsPreview;
-  class RealClock;
-*/
-  class Walkgen /*:
-    public WalkgenAbstract*/
-  {
-
+  class Walkgen {
   public:
     Walkgen();
     ~Walkgen();
@@ -69,10 +56,10 @@ namespace MPCWalkgen{
     const QPSolver *solver() const { return solver_; };
 
     RealClock &clock() {return clock_;};
-	  
+
     const MPCSolution &solution() {return solution_;};
     // \}
-  
+
   private:
     void BuildProblem();
     void GenerateTrajectories();
@@ -92,7 +79,7 @@ namespace MPCWalkgen{
     RigidBodySystem *robot_;
 
     OrientationsPreview *orientPrw_;
- 
+
     RealClock clock_;
 
     // \brief Contains pointers to trajectory values

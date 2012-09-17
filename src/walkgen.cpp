@@ -8,14 +8,6 @@ using namespace MPCWalkgen;
 
 using namespace Eigen;
 
-/*
-MPCWalkgen::WalkgenAbstract* MPCWalkgen::createWalkgen(const MPCData &mpc_parameters) {
-  MPCWalkgen::WalkgenAbstract* zmpVra = new MPCWalkgen::Walkgen(mpc_parameters);
-  return zmpVra;
-}
-*/
-
-
 
 // Implementation of the private interface
 Walkgen::Walkgen()
@@ -45,20 +37,21 @@ Walkgen::Walkgen()
 
   robot_ = new RigidBodySystem();
 
-
-	// Setting the frequency is time demanding.
-	// Therefore this is done in the constructor.
 	clock_.ReserveMemory(20);
-	//clock_.GetFrequency(1000);				// sleep
 }
 
 
 Walkgen::~Walkgen(){
-  if (orientPrw_ != 0x0)
+  if (orientPrw_ != 0x0) {
     delete orientPrw_;
+    orientPrw_ = NULL;
+  }
 
-  if (solver_ != 0x0)
+  if (solver_ != 0x0) {
     delete solver_;
+    solver_ = NULL;
+  }
+
 
   if (generator_ != 0x0)
     delete generator_;
@@ -147,7 +140,7 @@ void Walkgen::Init() {
   state_com.z[0] = robotData_.com(2);
   robot_->body(COM)->state(state_com);
 
-  ponderation_.activePonderation = 0;
+  ponderation_.active_weights = 0;
 
   BuildProblem();
 
@@ -232,9 +225,9 @@ void Walkgen::BuildProblem() {
   if (fabs(velRef_.local.yaw(0)) < EPSILON && 
     fabs(velRef_.local.x(0)) < EPSILON && 
     fabs(velRef_.local.y(0)) < EPSILON) {
-      ponderation_.activePonderation = 1;
+      ponderation_.active_weights = 1;
   } else {
-    ponderation_.activePonderation = 0;
+    ponderation_.active_weights = 0;
   }
 
   double firstSamplingPeriod = first_sample_time_ - currentTime_;
