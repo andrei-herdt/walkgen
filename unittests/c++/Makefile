@@ -2,6 +2,7 @@
 ##	Author:    Andrei Herdt (Joachim Ferreau)
 
 # select your operating system here!
+include make_dependencies.mk
 include ../../src/make_linux.mk
 # include ../../src/make_windows.mk
 # include ../../src/make_vxworks.mk
@@ -12,12 +13,6 @@ include ../../src/make_linux.mk
 ##
 ##	flags
 ##
-IDIR				=  ../../include/
-SRCDIR				=  ../../src/
-EIGENDIR			=	../../../eigen-3.1.1/
-QPOASES_SRCDIR		=	../../../qpoases-3.0/src/
-QPOASES_LIB			=	${QPOASES_SRCDIR}libqpOASES.a
-BLAS_LIB			=	../../../GotoBLAS2/libgoto2.a
 
 IFLAGS      =  -I. \
                -I${IDIR} \

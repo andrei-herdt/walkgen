@@ -184,7 +184,7 @@ namespace MPCWalkgen{
 
   struct MPC_WALKGEN_API RobotData {
     Eigen::Vector3d com;
-    double freeFlyingFootMaxHeight;
+    double max_foot_height;
 
     FootData leftFoot;
     FootData rightFoot;

@@ -266,7 +266,7 @@ RobotData::RobotData(const FootData &leftFoot, const FootData &rightFoot,
                      const HipYawData &leftHipYaw, const HipYawData &rightHipYaw,
                      double mass)
                      :	com()
-                     ,freeFlyingFootMaxHeight(0.05)
+                     ,max_foot_height(0.03)
                      ,leftFoot(leftFoot)
                      ,rightFoot(rightFoot)
                      ,leftHipYaw(leftHipYaw)

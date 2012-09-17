@@ -6,6 +6,7 @@
 SRCDIR = .
 
 # select your operating system here!
+include make_dependencies.mk
 include make_linux.mk
 # include make_windows.mk
 # include make_vxworks.mk
@@ -15,10 +16,6 @@ include make_linux.mk
 ##
 ##	flags
 ##
-IDIR        	=  ../include/
-DIR_EIGEN   	=  ../../eigen-3.1.1/
-QPOASES_IDIR	=  ../../qpoases-3.0/include/
-QPOASES_SRCDIR	=  ../../qpoases-3.0/src/
 
 IFLAGS      =  -I. \
                -I${IDIR} \

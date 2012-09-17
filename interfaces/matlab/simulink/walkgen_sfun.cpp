@@ -97,7 +97,7 @@ static void mdlStart(SimStruct *S)
   mpc_data.period_mpcsample     = *mxGetPr(ssGetSFcnParam(S, 5));
   mpc_data.period_actsample     = *mxGetPr(ssGetSFcnParam(S, 6));
   mpc_data.ponderation.JerkMin[0] = 0.001;
-  mpc_data.ponderation.JerkMin[1] = 0.00001;
+  mpc_data.ponderation.JerkMin[1] = 0.01;
   mpc_data.warmstart					= false;
   mpc_data.interpolate_whole_horizon	= false;
   mpc_data.solver.analysis			    = false;
@@ -141,8 +141,9 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
   real_T *analysis       = ssGetOutputPortRealSignal(S, 14);
 
   const double kSecurityMargin = *mxGetPr(ssGetSFcnParam(S, 7));
-
+  const double kMaxFootHeight = 0.03;
   const double kGravity = 9.81;
+
     
   Walkgen *walk = (Walkgen *)ssGetPWorkValue(S, 0);
 
@@ -190,7 +191,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
     // ------------------
     const int nbVertFeet = 5;
     // Feasible foot positions
-    double DefaultFPosEdgesX[nbVertFeet] = {-0.28, -0.2, 0.0, 0.2, 0.28};
+    double DefaultFPosEdgesX[nbVertFeet] = {-0.2, -0.2, 0.0, 0.2, 0.2};
     double DefaultFPosEdgesY[nbVertFeet] = {-0.2, -0.3, -0.4, -0.3, -0.2};
 
     robot_data.leftFootHull.resize(nbVertFeet);
@@ -204,6 +205,8 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 
     double feet_distance_y = *left_ankle_in[1] - *right_ankle_in[1];
     robot_data.SetCoPHulls(feet_distance_y);
+
+	robot_data.max_foot_height = kMaxFootHeight;
 
     walk->reference(0.0, 0.0, 0.0);
     walk->Init(robot_data);
