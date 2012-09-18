@@ -46,6 +46,8 @@ namespace MPCWalkgen{
       const MPCData *mpc_parameters_p_;
       RobotData data_robot_;
 
+      DynamicsBuilder dynamics_builder_;
+
       RigidBody *com_;
       RigidBody *left_foot_;
       RigidBody *right_foot_;

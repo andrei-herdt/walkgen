@@ -12,6 +12,7 @@
 
 #include <mpc-walkgen/types.h>
 #include <mpc-walkgen/interpolation.h>
+#include <mpc-walkgen/dynamics-builder.h>
 #include <vector>
 
 namespace MPCWalkgen{
@@ -24,8 +25,9 @@ namespace MPCWalkgen{
     RigidBody();
     virtual ~RigidBody();
 
-    void Init(const MPCData *mpc_parameters);
-    void Init(const RobotData *data_robot);
+    void Init(const MPCData *mpc_parameters_p);
+    void Init(const RobotData *data_robot_p);
+    void Init(const DynamicsBuilder *dyn_build_p);
 
     void ComputeDynamics();
 
@@ -55,6 +57,8 @@ namespace MPCWalkgen{
   protected:
     const MPCData *mpc_parameters_;
     const RobotData *robot_data_p_;//TODO: Maybe should not be here
+    const DynamicsBuilder *dyn_build_p_;
+
     Interpolation interpolation_;
 
     BodyState state_;
@@ -65,7 +69,7 @@ namespace MPCWalkgen{
     /// \brief Dynamics sampled with the actuator sampling rate
     LinearDynamics dynamics_act_;
 
-    Motion motion_act_, motion_prw_;
+    Motion motion_act_, motion_prw_;    
 
   };
 }

@@ -21,6 +21,9 @@ void RigidBody::Init(const RobotData *robot_data_p) {
   robot_data_p_ = robot_data_p;
 }
 
+void RigidBody::Init(const DynamicsBuilder *dyn_build_p) {
+  dyn_build_p_ = dyn_build_p;
+}
 
 void RigidBody::ComputeDynamics() {
   int nbsamples = mpc_parameters_->nbsamples_qp;

@@ -42,7 +42,8 @@ MPC_WALKGEN_OBJECTS = \
 	interpolation.${OBJEXT} \
 	foot-body.${OBJEXT} \
 	com-body.${OBJEXT} \
-	realclock.${OBJEXT} 
+	realclock.${OBJEXT} \
+	dynamics-builder.${OBJEXT} 
 	
 
 all: libmpc-walkgen.${LIBEXT}
@@ -79,6 +80,7 @@ walkgen.${OBJEXT}:  walkgen.cpp \
 	${IDIR}/mpc-walkgen/interpolation.h \
 	${IDIR}/mpc-walkgen/tools.h \
 	${IDIR}/mpc-walkgen/tools-inl.h  \
+	${IDIR}/mpc-walkgen/dynamics-builder.h \
 	${IDIR}/mpc-walkgen/rigid-body-system-inl.h \
 	${IDIR}/mpc-walkgen/realclock.h 
 	@echo "Creating"  $@
@@ -120,6 +122,7 @@ rigid-body-system.${OBJEXT}: rigid-body-system.cpp \
 	${IDIR}/mpc-walkgen/interpolation.h \
 	${IDIR}/mpc-walkgen/tools.h \
 	${IDIR}/mpc-walkgen/tools-inl.h  \
+	${IDIR}/mpc-walkgen/dynamics-builder.h \
 	${IDIR}/mpc-walkgen/rigid-body-system-inl.h 
 	@echo "Creating"  $@
 	${CPP} ${DEF_TARGET} -c ${IFLAGS} ${CPPFLAGS} rigid-body-system.cpp
@@ -131,7 +134,8 @@ rigid-body.${OBJEXT}: rigid-body.cpp \
 	${IDIR}/mpc-walkgen/api.h \
 	${IDIR}/mpc-walkgen/interpolation.h \
 	${IDIR}/mpc-walkgen/tools.h \
-	${IDIR}/mpc-walkgen/tools-inl.h  
+	${IDIR}/mpc-walkgen/tools-inl.h \
+	${IDIR}/mpc-walkgen/dynamics-builder.h 
 	@echo "Creating"  $@
 	${CPP} ${DEF_TARGET} -c ${IFLAGS} ${CPPFLAGS} rigid-body.cpp
 	
@@ -160,6 +164,7 @@ qp-preview.${OBJEXT}: qp-preview.cpp \
 	${IDIR}/mpc-walkgen/interpolation.h \
 	${IDIR}/mpc-walkgen/tools.h \
 	${IDIR}/mpc-walkgen/tools-inl.h  \
+	${IDIR}/mpc-walkgen/dynamics-builder.h \
 	${IDIR}/mpc-walkgen/rigid-body-system-inl.h \
 	${IDIR}/mpc-walkgen/state-fsm.h 
 	@echo "Creating"  $@
@@ -212,6 +217,7 @@ qp-generator.${OBJEXT}: qp-generator.cpp \
 	${IDIR}/mpc-walkgen/interpolation.h \
 	${IDIR}/mpc-walkgen/tools.h \
 	${IDIR}/mpc-walkgen/tools-inl.h  \
+	${IDIR}/mpc-walkgen/dynamics-builder.h \
 	${IDIR}/mpc-walkgen/rigid-body-system-inl.h \
 	${IDIR}/mpc-walkgen/state-fsm.h 
 	@echo "Creating"  $@
@@ -227,6 +233,7 @@ orientations-preview.${OBJEXT}: orientations-preview.cpp \
 	${IDIR}/mpc-walkgen/interpolation.h \
 	${IDIR}/mpc-walkgen/tools.h \
 	${IDIR}/mpc-walkgen/tools-inl.h  \
+	${IDIR}/mpc-walkgen/dynamics-builder.h \
 	${IDIR}/mpc-walkgen/rigid-body-system-inl.h 
 	@echo "Creating"  $@
 	${CPP} ${DEF_TARGET} -c ${IFLAGS} ${CPPFLAGS} orientations-preview.cpp
@@ -260,7 +267,8 @@ foot-body.${OBJEXT}: foot-body.cpp \
 	${IDIR}/mpc-walkgen/rigid-body.h \
 	${IDIR}/mpc-walkgen/interpolation.h \
 	${IDIR}/mpc-walkgen/tools.h \
-	${IDIR}/mpc-walkgen/tools-inl.h  
+	${IDIR}/mpc-walkgen/tools-inl.h \
+	${IDIR}/mpc-walkgen/dynamics-builder.h 
 	@echo "Creating"  $@
 	${CPP} ${DEF_TARGET} -c ${IFLAGS} ${CPPFLAGS} foot-body.cpp
 	
@@ -272,7 +280,8 @@ com-body.${OBJEXT}: com-body.cpp \
 	${IDIR}/mpc-walkgen/rigid-body.h \
 	${IDIR}/mpc-walkgen/interpolation.h \
 	${IDIR}/mpc-walkgen/tools.h \
-	${IDIR}/mpc-walkgen/tools-inl.h  
+	${IDIR}/mpc-walkgen/tools-inl.h \
+	${IDIR}/mpc-walkgen/dynamics-builder.h 
 	@echo "Creating"  $@
 	${CPP} ${DEF_TARGET} -c ${IFLAGS} ${CPPFLAGS} com-body.cpp
 
@@ -280,6 +289,14 @@ realclock.${OBJEXT}: realclock.cpp \
 	${IDIR}/mpc-walkgen/realclock.h 
 	@echo "Creating"  $@
 	${CPP} ${DEF_TARGET} -c ${IFLAGS} ${CPPFLAGS} realclock.cpp
+	
+dynamics-builder.${OBJEXT}: dynamics-builder.cpp \
+	${IDIR}/mpc-walkgen/dynamics-builder.h \
+	${IDIR}/mpc-walkgen/types.h \
+	${IDIR}/mpc-walkgen/sharedtypes.h \
+	${IDIR}/mpc-walkgen/api.h 
+	@echo "Creating"  $@
+	${CPP} ${DEF_TARGET} -c ${IFLAGS} ${CPPFLAGS} dynamics-builder.cpp
 
 clean:
 	${RM} -f *.${OBJEXT} *.${LIBEXT}

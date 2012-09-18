@@ -22,6 +22,8 @@ namespace MPCWalkgen{
   enum SolverName { QPOASES, LSSOL };
 
   enum Axis { X, Y, Z, Yaw };
+
+  enum DynamicsType { FIRST_ORDER, SECOND_ORDER, THIRD_ORDER };
   /// \}
 
   /// \name Structures
@@ -159,6 +161,8 @@ namespace MPCWalkgen{
 
     bool closed_loop;
 
+    DynamicsType dynamics_type;
+
     QPPonderation ponderation;
 
     SolverData solver;
@@ -175,8 +179,6 @@ namespace MPCWalkgen{
 
     double period_ss() const;
     double period_trans_ds() const;
-
-
 
     MPCData();
     ~MPCData();

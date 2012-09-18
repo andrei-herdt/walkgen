@@ -145,6 +145,7 @@ MPCData::MPCData()
 ,warmstart(false)
 ,interpolate_whole_horizon(false)
 ,closed_loop(false)
+,dynamics_type(THIRD_ORDER)
 ,ponderation(2)
 {}
 
