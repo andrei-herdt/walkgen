@@ -28,7 +28,7 @@ namespace MPCWalkgen{
 
       void Init(const MPCData *mpc_parameters_p);
 
-      void Init(const RobotData &data_robot);
+      void Init(const RobotData &robot_data);
 
       void Interpolate(MPCSolution &solution, double currentTime, const Reference &velRef);
 
@@ -44,7 +44,7 @@ namespace MPCWalkgen{
       //
     private:
       const MPCData *mpc_parameters_p_;
-      RobotData data_robot_;
+      RobotData robot_data_;
 
       DynamicsBuilder dynamics_builder_;
 

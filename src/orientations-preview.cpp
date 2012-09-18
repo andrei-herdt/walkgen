@@ -41,23 +41,23 @@ OrientationsPreview::OrientationsPreview()
 OrientationsPreview::~OrientationsPreview()
 { }
 
-void OrientationsPreview::Init(const MPCData &data, const RobotData &data_robot) {
+void OrientationsPreview::Init(const MPCData &data, const RobotData &robot_data) {
 	T_ 			= data.period_qpsample;
 	Ti_ 		= data.period_mpcsample;
 	N_ 			= data.nbsamples_qp;
   SSPeriod_ 	= data.nbqpsamples_step * data.period_qpsample;//TODO: Incoherent
 
-	lLimitLeftHipYaw_ = data_robot.leftHipYaw.lowerBound;
-	uLimitLeftHipYaw_ = data_robot.leftHipYaw.upperBound;
+	lLimitLeftHipYaw_ = robot_data.leftHipYaw.lowerBound;
+	uLimitLeftHipYaw_ = robot_data.leftHipYaw.upperBound;
 
-	lLimitRightHipYaw_ = data_robot.rightHipYaw.lowerBound;
-	uLimitRightHipYaw_ = data_robot.rightHipYaw.upperBound;
+	lLimitRightHipYaw_ = robot_data.rightHipYaw.lowerBound;
+	uLimitRightHipYaw_ = robot_data.rightHipYaw.upperBound;
 
 	//Velocity limit
-	uvLimitFoot_ = fabs(data_robot.rightHipYaw.upperVelocityBound);
+	uvLimitFoot_ = fabs(robot_data.rightHipYaw.upperVelocityBound);
 
 	//Acceleration limit not given by HRP2JRLmain.wrl
-	uaLimitHipYaw_ = data_robot.rightHipYaw.upperAccelerationBound;
+	uaLimitHipYaw_ = robot_data.rightHipYaw.upperAccelerationBound;
 
 	//Maximal cross angle between the feet
 	uLimitFeet_ = 5.0/180.0*M_PI;

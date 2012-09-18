@@ -29,7 +29,7 @@ namespace MPCWalkgen{
     ~Walkgen();
 
     void Init(const MPCData &mpc_parameters);
-    void Init(const RobotData &data_robot);
+    void Init(const RobotData &robot_data);
 
     void Init();
 

@@ -62,8 +62,6 @@ void RigidBody::ComputeDynamics(DynamicsType dynamics_type) {
   double sp_rest = mpc_parameters_->period_qpsample;
   int nbdynamics = mpc_parameters_->nbFeedbackSamplesStandard();
   double height = state_.z(0);
-  std::cout << "height: " << height << std::endl;
-
 
   std::vector<LinearDynamics>::iterator dyn_it = dynamics_qp_vec_.begin();
   for (int k = 0; k < nbdynamics; ++k) {
