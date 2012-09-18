@@ -28,10 +28,6 @@ namespace MPCWalkgen{
 
 		virtual void Interpolate(MPCSolution &solution, double currentTime, const Reference &velRef);
 
-	protected:
-    virtual void ComputeDynamicsMatrices(LinearDynamicsMatrices &dyn,
-      double sample_period_first, double sample_period_rest, int N, Derivative type);
-
 		//
 		// Private methods:
 		//

@@ -29,8 +29,6 @@ namespace MPCWalkgen{
     void Init(const RobotData *data_robot_p);
     void Init(DynamicsBuilder *dyn_build_p);
 
-    void ComputeDynamics();
-
     void ComputeDynamics(DynamicsType dynamics_type);
 
     virtual void Interpolate(MPCSolution &solution, double currentTime, const Reference &velRef)=0;
@@ -50,11 +48,6 @@ namespace MPCWalkgen{
 
     void setSelectionNumber(double firstSamplingPeriod);
     /// \}
-
-  protected:
-    virtual void ComputeDynamicsMatrices(LinearDynamicsMatrices &dyn,
-      double sample_period_first, double sample_period_rest, int nbsamples, Derivative type) = 0;
-
 
   protected:
     const MPCData *mpc_parameters_;

@@ -15,10 +15,6 @@ FootBody::FootBody(Foot which) : RigidBody()
 
 FootBody::~FootBody(){}
 
-void FootBody::ComputeDynamicsMatrices(LinearDynamicsMatrices &dyn,
-                                       double sample_period_first, double sample_period_rest, int nbsamples, Derivative type) 
-{}
-
 void FootBody::Interpolate(MPCSolution &solution, double currentTime, const Reference &/*velRef*/) {
   BodyState goal_state;
   const SupportState &current_support = solution.support_states_vec[0];

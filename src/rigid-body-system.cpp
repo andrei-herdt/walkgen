@@ -57,10 +57,7 @@ void RigidBodySystem::Init(const RobotData &robot_data) {//TODO: Remove object r
 }
 
 void RigidBodySystem::ComputeDynamics() {
-	//com_->ComputeDynamics();
   com_->ComputeDynamics(THIRD_ORDER);
-	left_foot_->ComputeDynamics();
-	right_foot_->ComputeDynamics();
 }
 
 void RigidBodySystem::Interpolate(MPCSolution &solution, double currentTime, const Reference &velRef){
