@@ -28,6 +28,7 @@ void RigidBodySystem::Init(const MPCData *mpc_parameters_p) {
 	mpc_parameters_p_ = mpc_parameters_p;
 
 	com_->Init(mpc_parameters_p_);
+  com_->Init(&dynamics_builder_);
 	left_foot_->Init(mpc_parameters_p_);
 	right_foot_->Init(mpc_parameters_p_);
 }

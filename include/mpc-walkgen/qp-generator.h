@@ -24,7 +24,7 @@ namespace MPCWalkgen{
     //
   public:
     QPGenerator(QPPreview * preview, QPSolver * solver,
-      Reference * velRef, QPPonderation * ponderation,
+      Reference * velRef, WeightCoefficients * weight_coefficients,
       RigidBodySystem * robot, const MPCData * mpc_parameters);
     ~QPGenerator();
 
@@ -56,7 +56,7 @@ namespace MPCWalkgen{
     QPSolver *solver_;
     RigidBodySystem *robot_;
     Reference *ref_;
-    QPPonderation *ponderation_;
+    WeightCoefficients *weight_coefficients_;
     const MPCData *mpc_parameters_;
 
     Eigen::VectorXd tmp_vec_;

@@ -118,7 +118,7 @@ void Walkgen::Init() {
 
   preview_ = new QPPreview(&velRef_, robot_, &mpc_parameters_);
 
-  generator_= new QPGenerator(preview_, solver_, &velRef_, &ponderation_, robot_, &mpc_parameters_);
+  generator_= new QPGenerator(preview_, solver_, &velRef_, &weight_coefficients_, robot_, &mpc_parameters_);
 
   orientPrw_->Init(mpc_parameters_, robotData_);
 
@@ -140,7 +140,7 @@ void Walkgen::Init() {
   state_com.z[0] = robotData_.com(2);
   robot_->body(COM)->state(state_com);
 
-  ponderation_.active_weights = 0;
+  weight_coefficients_.active_mode = 0;
 
   BuildProblem();
 
@@ -222,13 +222,7 @@ void Walkgen::BuildProblem() {
     velRef_.local.y.fill(0);
     velRef_.local.yaw.fill(0);
   }
-  if (fabs(velRef_.local.yaw(0)) < EPSILON && 
-    fabs(velRef_.local.x(0)) < EPSILON && 
-    fabs(velRef_.local.y(0)) < EPSILON) {
-      ponderation_.active_weights = 1;
-  } else {
-    ponderation_.active_weights = 0;
-  }
+  weight_coefficients_.SetCoefficients(velRef_);
 
   double firstSamplingPeriod = first_sample_time_ - currentTime_;
   robot_->setSelectionNumber(firstSamplingPeriod);

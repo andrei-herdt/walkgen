@@ -11,6 +11,11 @@
 
 namespace MPCWalkgen{
 
+  //
+  // Constants
+  //
+  const double kEps = 0.00000001;
+
   /// \name Enum types
   /// \{
   enum Phase{  SS, DS };
@@ -24,10 +29,32 @@ namespace MPCWalkgen{
   enum Axis { X, Y, Z, Yaw };
 
   enum DynamicsType { FIRST_ORDER, SECOND_ORDER, THIRD_ORDER };
+
+  enum Mode { INITIAL = 0, STANDING = 1, WALK = 2 };
   /// \}
 
-  /// \name Structures
+  /// \name Data structs
   /// \{
+  struct Frame{
+    Eigen::VectorXd x;
+    Eigen::VectorXd y;
+    Eigen::VectorXd yaw;
+
+    Frame();
+
+    void resize(int size);
+  };
+
+  struct Reference{
+
+    Frame global;
+    Frame local;
+
+    Reference();
+
+    void resize(int size);
+  };
+
   struct MPC_WALKGEN_API BodyState{
     Eigen::Vector3d x;
     Eigen::Vector3d y;
@@ -71,16 +98,23 @@ namespace MPCWalkgen{
     ~HipYawData();
   };
 
-  struct MPC_WALKGEN_API QPPonderation{
-    std::vector<double> instantVelocity;
-    std::vector<double> CopCentering;
-    std::vector<double> JerkMin;
+  struct MPC_WALKGEN_API WeightCoefficients{
+    std::vector<double> pos;
+    std::vector<double> vel;
+    std::vector<double> acc;
+    std::vector<double> jerk;
+    std::vector<double> cop;
 
-    /// \brief Define the element of ponderation std::vector used in this iteration
-    int active_weights;
+    //std::map<Mode, int> mode;
 
-    QPPonderation(int nb = 2);
-    ~QPPonderation();
+    /// \brief Define the element of weight_coefficients std::vector used in this iteration
+    int active_mode;
+    bool is_initial_mode;
+
+    void SetCoefficients(Reference &ref);
+
+    WeightCoefficients(int num_modes = 2);
+    ~WeightCoefficients();
   };
 
   struct MPC_WALKGEN_API SupportState {
@@ -163,7 +197,7 @@ namespace MPCWalkgen{
 
     DynamicsType dynamics_type;
 
-    QPPonderation ponderation;
+    WeightCoefficients weight_coefficients;
 
     SolverData solver;
 
@@ -225,12 +259,10 @@ namespace MPCWalkgen{
 
   struct SolutionAnalysis { 
     int num_iterations;
-    //int active_set;
 
     double objective_value;
     double resolution_time;
     double max_kkt_violation; //Maximum violation of the KKT optimality conditions
-
 
     SolutionAnalysis();
   };

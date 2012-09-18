@@ -1,11 +1,35 @@
 #include <mpc-walkgen/sharedtypes.h>
-#include <mpc-walkgen/tools.h>  //TODO: This breaks the structure
+#include <mpc-walkgen/tools.h>
 
 #include <iostream>
 #include <cassert>
 
 using namespace std;
 using namespace MPCWalkgen;
+
+Frame::Frame()
+:x(1),y(1),yaw(1)
+{
+  x.fill(0);
+  y.fill(0);
+  yaw.fill(0);
+}
+
+void Frame::resize(int size){
+  x.setZero(size);
+  y.setZero(size);
+  yaw.setZero(size);
+}
+
+Reference::Reference()
+:global()
+,local()
+{}
+
+void Reference::resize(int size){
+  global.resize(size);
+  local.resize(size);
+}
 
 BodyState::BodyState(){
   reset();
@@ -146,7 +170,7 @@ MPCData::MPCData()
 ,interpolate_whole_horizon(false)
 ,closed_loop(false)
 ,dynamics_type(THIRD_ORDER)
-,ponderation(2)
+,weight_coefficients(2)
 {}
 
 MPCData::~MPCData(){}
@@ -312,22 +336,37 @@ void RobotData::SetCoPHulls(double ds_distance) {
   CoPRightDSHull.y(2) += ds_distance;
 }
 
+WeightCoefficients::WeightCoefficients(int num_modes)
+:pos(num_modes)
+,vel(num_modes)
+,acc(num_modes)
+,jerk(num_modes)
+,cop(num_modes) {
+  cop[0]  = 0.0001;
+  jerk[0] = 0.00001;
+  vel[0]  = 1;
 
-QPPonderation::QPPonderation(int nb)
-:instantVelocity(nb)
-,CopCentering(nb)
-,JerkMin(nb) {
-  CopCentering[0]    = 0.0001;
-  JerkMin[0]         = 0.00001;
-  instantVelocity[0] = 1;
+  cop[1]  = 1.;
+  jerk[1] = 0.00001;
+  vel[1]  = 1.;
 
-  CopCentering[1]    = 1.;
-  JerkMin[1]         = 0.00001;
-  instantVelocity[1] = 1.;
+  active_mode  = 0;
 
-  active_weights  = 1;
-
+  is_initial_mode = true;
 }
-QPPonderation::~QPPonderation(){}
+WeightCoefficients::~WeightCoefficients(){}
+
+void WeightCoefficients::SetCoefficients(Reference &ref) { 
+  if (fabs(ref.local.yaw(0)) < kEps && fabs(ref.local.x(0)) < kEps && fabs(ref.local.y(0)) < kEps) {
+    if (is_initial_mode) {
+      active_mode = 0;
+    } else {
+      active_mode = 1;
+    }
+  } else {
+    active_mode = 0;
+    is_initial_mode = false;
+  }
+}
 
 

@@ -91,11 +91,11 @@ namespace MPCWalkgen{
     Reference velRef_;
     /// \brief The new value of reference velocity, updated with in online method
     Reference newVelRef_;
-    QPPonderation ponderation_;
+    WeightCoefficients weight_coefficients_;
+
     /// \brief The new value of current support state, updated with in online method
     SupportState newCurrentSupport_;
     bool isNewCurrentSupport_;
-
 
     /// \brief Time at which the problem should be updated
     double first_sample_time_;

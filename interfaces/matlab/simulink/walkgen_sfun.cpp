@@ -96,8 +96,8 @@ static void mdlStart(SimStruct *S)
   mpc_data.period_qpsample      = *mxGetPr(ssGetSFcnParam(S, 4));
   mpc_data.period_mpcsample     = *mxGetPr(ssGetSFcnParam(S, 5));
   mpc_data.period_actsample     = *mxGetPr(ssGetSFcnParam(S, 6));
-  mpc_data.ponderation.JerkMin[0] = 0.001;
-  mpc_data.ponderation.JerkMin[1] = 0.01;
+  mpc_data.weight_coefficients.jerk[0] = 0.001;
+  mpc_data.weight_coefficients.jerk[1] = 0.01;
   mpc_data.warmstart					= false;
   mpc_data.interpolate_whole_horizon	= false;
   mpc_data.solver.analysis			    = false;

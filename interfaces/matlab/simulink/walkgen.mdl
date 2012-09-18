@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.352"
+    ComputedModelVersion    "1.357"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Mon Sep 17 13:57:24 2012"
+  LastModifiedDate	  "Tue Sep 18 20:50:05 2012"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:352>"
+  ModelVersionFormat	  "1.%<AutoIncrement:357>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -746,7 +746,7 @@ Model {
 	  System {
 	    Name		    "Atomic Walkgen"
 	    Location		    [403, 74, 1582, 876]
-	    Open		    on
+	    Open		    off
 	    ModelBrowserVisibility  off
 	    ModelBrowserWidth	    200
 	    ScreenColor		    "white"
@@ -1058,8 +1058,8 @@ Model {
 		axes1			"%<SignalLabel>"
 	      }
 	      TimeRange		      "0.007766893178016154"
-	      YMin		      "0.1"
-	      YMax		      "2"
+	      YMin		      "-0.5"
+	      YMax		      "1"
 	      SaveName		      "ScopeData4"
 	      DataFormat	      "StructureWithTime"
 	      SampleTime	      "0"
@@ -1125,6 +1125,28 @@ Model {
 	      YMin		      "-0.05"
 	      YMax		      "0.6"
 	      SaveName		      "ScopeData7"
+	      DataFormat	      "StructureWithTime"
+	      SampleTime	      "0"
+	    }
+	    Block {
+	      BlockType		      Scope
+	      Name		      "Scope4"
+	      Ports		      [1]
+	      Position		      [210, 155, 230, 175]
+	      Orientation	      "up"
+	      ShowName		      off
+	      Floating		      off
+	      Location		      [79, 40, 1595, 891]
+	      Open		      off
+	      NumInputPorts	      "1"
+	      ZoomMode		      "yonly"
+	      List {
+		ListType		AxesTitles
+		axes1			"%<SignalLabel>"
+	      }
+	      TimeRange		      "0.007766893178016154"
+	      YMin		      "-1"
+	      YMax		      "1"
 	      DataFormat	      "StructureWithTime"
 	      SampleTime	      "0"
 	    }
@@ -1343,9 +1365,16 @@ Model {
 	    Line {
 	      SrcBlock		      "reference"
 	      SrcPort		      1
-	      Points		      [195, 0]
-	      DstBlock		      "S-Function"
-	      DstPort		      1
+	      Points		      [130, 0]
+	      Branch {
+		Points			[65, 0]
+		DstBlock		"S-Function"
+		DstPort			1
+	      }
+	      Branch {
+		DstBlock		"Scope4"
+		DstPort			1
+	      }
 	    }
 	    Line {
 	      SrcBlock		      "state"
@@ -1585,7 +1614,7 @@ Model {
 	  ShowName		  off
 	  FontName		  "Arial"
 	  FontSize		  8
-	  Value			  "[0.2, 0.0, 0.0]"
+	  Value			  "[0.0, 0.0, 0.0]"
 	  OutDataType		  "sfix(16)"
 	  OutScaling		  "2^0"
 	  Port {

@@ -20,7 +20,7 @@ namespace MPCWalkgen{
 
 
   //
-  // Enums:
+  // Enums: 
   //
   enum HullType{ FootHull, CoPHull };
 
@@ -60,25 +60,6 @@ namespace MPCWalkgen{
 
   struct LinearDynamics {
     LinearDynamicsMatrices pos, vel, acc, jerk, cop;
-  };
-
-  struct Reference{
-    struct Frame{
-      Eigen::VectorXd x;
-      Eigen::VectorXd y;
-      Eigen::VectorXd yaw;
-
-      Frame();
-
-      void resize(int size);
-    };
-
-    Frame global;
-    Frame local;
-
-    Reference();
-
-    void resize(int size);
   };
 
   struct SelectionMatrices{

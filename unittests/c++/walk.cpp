@@ -30,8 +30,8 @@ int main() {
   mpc_parameters.period_qpsample    = sample_period_qp;
   mpc_parameters.period_mpcsample   = sample_period_first;
   mpc_parameters.period_actsample   = sample_period_act;
-  mpc_parameters.ponderation.JerkMin[0]         = 0.001;
-  mpc_parameters.ponderation.JerkMin[1]         = 0.001;
+  mpc_parameters.weight_coefficients.jerk[0]         = 0.001;
+  mpc_parameters.weight_coefficients.jerk[1]         = 0.001;
   mpc_parameters.warmstart                      = false;
   mpc_parameters.interpolate_whole_horizon      = false;
   mpc_parameters.solver.analysis                = false;

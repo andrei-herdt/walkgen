@@ -7,13 +7,13 @@ using namespace MPCWalkgen;
 using namespace Eigen;
 
 QPGenerator::QPGenerator(QPPreview *preview, QPSolver *solver,
-                         Reference *velRef, QPPonderation *ponderation,
+                         Reference *velRef, WeightCoefficients *weight_coefficients,
                          RigidBodySystem *robot, const MPCData *mpc_parameters)
                          :preview_(preview)
                          ,solver_(solver)
                          ,robot_(robot)
                          ,ref_(velRef)
-                         ,ponderation_(ponderation)
+                         ,weight_coefficients_(weight_coefficients)
                          ,mpc_parameters_(mpc_parameters)
                          ,tmp_vec_(1)
                          ,tmp_vec2_(1)
@@ -26,7 +26,7 @@ QPGenerator::~QPGenerator(){}
 
 void QPGenerator::precomputeObjective(){
   // TODO: Document this function
-  int nbUsedPonderations = ponderation_->JerkMin.size(); //
+  int nbUsedPonderations = weight_coefficients_->jerk.size(); //
   int num_recomp = mpc_parameters_->nbFeedbackSamplesStandard();
   Qconst_.resize(num_recomp * nbUsedPonderations);
   QconstN_.resize(num_recomp * nbUsedPonderations);
@@ -70,10 +70,10 @@ void QPGenerator::precomputeObjective(){
         tmp_mat_.noalias() = CoPDynamics.UInvT * VelDynamics.UT/**pondFactor*/ * VelDynamics.U * CoPDynamics.UInv;
         tmp_mat2_.noalias() = CoPDynamics.UInvT/**pondFactor*/ * CoPDynamics.UInv;
 
-        G = ponderation_->instantVelocity[i] * tmp_mat_ + ponderation_->JerkMin[i] * tmp_mat2_;
+        G = weight_coefficients_->vel[i] * tmp_mat_ + weight_coefficients_->jerk[i] * tmp_mat2_;
         Qconst_[nb] = G;
 
-        QconstN_[nb] = G + ponderation_->CopCentering[i] * CommonMatrixType::Identity(num_samples, num_samples);
+        QconstN_[nb] = G + weight_coefficients_->cop[i] * CommonMatrixType::Identity(num_samples, num_samples);
 
         chol.reset();
         chol.addTerm(QconstN_[nb], 0, 0);
@@ -82,13 +82,13 @@ void QPGenerator::precomputeObjective(){
         choleskyConst_[nb] = chol.cholesky();
 
         pconstCoM_[nb] = VelDynamics.S - VelDynamics.U * CoPDynamics.UInv * CoPDynamics.S;
-        pconstCoM_[nb] = CoPDynamics.UInvT * VelDynamics.UT * ponderation_->instantVelocity[i]/**pondFactor*/ * pconstCoM_[nb];
-        pconstCoM_[nb]-= CoPDynamics.UInvT * ponderation_->JerkMin[i]/**pondFactor*/*CoPDynamics.UInv * CoPDynamics.S;
+        pconstCoM_[nb] = CoPDynamics.UInvT * VelDynamics.UT * weight_coefficients_->vel[i]/**pondFactor*/ * pconstCoM_[nb];
+        pconstCoM_[nb]-= CoPDynamics.UInvT * weight_coefficients_->jerk[i]/**pondFactor*/*CoPDynamics.UInv * CoPDynamics.S;
 
-        pconstVc_[nb]  = CoPDynamics.UInvT * ponderation_->JerkMin[i]/**pondFactor*/ * CoPDynamics.UInv;
-        pconstVc_[nb] += CoPDynamics.UInvT * VelDynamics.UT * ponderation_->instantVelocity[i]/**pondFactor*/ * VelDynamics.U * CoPDynamics.UInv;
+        pconstVc_[nb]  = CoPDynamics.UInvT * weight_coefficients_->jerk[i]/**pondFactor*/ * CoPDynamics.UInv;
+        pconstVc_[nb] += CoPDynamics.UInvT * VelDynamics.UT * weight_coefficients_->vel[i]/**pondFactor*/ * VelDynamics.U * CoPDynamics.UInv;
 
-        pconstRef_[nb] = -CoPDynamics.UInvT * VelDynamics.UT * ponderation_->instantVelocity[i]/**pondFactor*/;
+        pconstRef_[nb] = -CoPDynamics.UInvT * VelDynamics.UT * weight_coefficients_->vel[i]/**pondFactor*/;
     }
   }
 
@@ -116,7 +116,7 @@ void QPGenerator::buildObjective(const MPCSolution &solution) {
 
   // Choose the precomputed element depending on the nb of "feedback-recomputations" until new qp-sample
   int sample_num = mpc_parameters_->nbFeedbackSamplesLeft(solution.support_states_vec[1].previousSamplingPeriod);
-  sample_num += ponderation_->active_weights * mpc_parameters_->nbFeedbackSamplesStandard();
+  sample_num += weight_coefficients_->active_mode * mpc_parameters_->nbFeedbackSamplesStandard();
 
   const BodyState &com = robot_->body(COM)->state();
   const SelectionMatrices &select_mats = preview_->selectionMatrices();
@@ -176,7 +176,7 @@ void QPGenerator::buildObjective(const MPCSolution &solution) {
     Q.cholesky(chol);
   }
 
-  VectorXd HX(num_samples),HY(num_samples),H(2*num_samples);//TODO: Make this member
+  VectorXd HX(num_samples), HY(num_samples), H(2*num_samples);//TODO: Make this member
 
   HX = pconstCoM_[sample_num] * com.x;
   HY = pconstCoM_[sample_num] * com.y;
