@@ -28,7 +28,7 @@ namespace MPCWalkgen{
 
   enum Axis { X, Y, Z, Yaw };
 
-  enum DynamicsType { FIRST_ORDER, SECOND_ORDER, THIRD_ORDER };
+  enum DynamicsOrder { FIRST_ORDER = 1, SECOND_ORDER = 2, THIRD_ORDER = 3 };
 
   enum Mode { INITIAL = 0, STANDING = 1, WALK = 2 };
   /// \}
@@ -104,6 +104,7 @@ namespace MPCWalkgen{
     std::vector<double> acc;
     std::vector<double> jerk;
     std::vector<double> cop;
+    std::vector<double> control;
 
     //std::map<Mode, int> mode;
 
@@ -195,7 +196,7 @@ namespace MPCWalkgen{
 
     bool closed_loop;
 
-    DynamicsType dynamics_type;
+    DynamicsOrder dynamics_order;
 
     WeightCoefficients weight_coefficients;
 

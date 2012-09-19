@@ -2,8 +2,8 @@
 
 using namespace MPCWalkgen;
 
-StateFSM::StateFSM(Reference * velRef, const MPCData * mpc_parameters)
-:velRef_(velRef)
+StateFSM::StateFSM(Reference * ref, const MPCData * mpc_parameters)
+:velRef_(ref)
 ,mpc_parameters_(mpc_parameters)
 {}
 

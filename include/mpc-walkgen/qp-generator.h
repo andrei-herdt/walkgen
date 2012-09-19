@@ -24,7 +24,7 @@ namespace MPCWalkgen{
     //
   public:
     QPGenerator(QPPreview * preview, QPSolver * solver,
-      Reference * velRef, WeightCoefficients * weight_coefficients,
+      Reference * ref, WeightCoefficients * weight_coefficients,
       RigidBodySystem * robot, const MPCData * mpc_parameters);
     ~QPGenerator();
 

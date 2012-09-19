@@ -25,13 +25,13 @@ namespace MPCWalkgen{
     CoMBody();
     virtual ~CoMBody();
 
-    virtual void Interpolate(MPCSolution &solution, double currentTime, const Reference &velRef);
+    virtual void Interpolate(MPCSolution &solution, double current_time, const Reference &ref);
 	//
     // Private methods:
     //
   private:
     void interpolateTrunkOrientation(MPCSolution &solution,
-      double /*currentTime*/, const Reference &velRef);
+      double /*current_time*/, const Reference &ref);
 
   };
 }

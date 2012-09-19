@@ -30,7 +30,7 @@ namespace MPCWalkgen{
 
       void Init(const RobotData &robot_data);
 
-      void Interpolate(MPCSolution &solution, double currentTime, const Reference &velRef);
+      void Interpolate(MPCSolution &solution, double current_time, const Reference &ref);
 
       void UpdateState(const MPCSolution &solution);
 
@@ -38,6 +38,8 @@ namespace MPCWalkgen{
 
       void ComputeDynamics();
 
+      // Returns 
+      void GetState(CommonVectorType &state_x, CommonVectorType &state_y);
 
       //
       // Private data members:

@@ -7,18 +7,19 @@ using namespace MPCWalkgen;
 using namespace Eigen;
 
 QPGenerator::QPGenerator(QPPreview *preview, QPSolver *solver,
-                         Reference *velRef, WeightCoefficients *weight_coefficients,
+                         Reference *ref, WeightCoefficients *weight_coefficients,
                          RigidBodySystem *robot, const MPCData *mpc_parameters)
                          :preview_(preview)
                          ,solver_(solver)
                          ,robot_(robot)
-                         ,ref_(velRef)
+                         ,ref_(ref)
                          ,weight_coefficients_(weight_coefficients)
                          ,mpc_parameters_(mpc_parameters)
                          ,tmp_vec_(1)
                          ,tmp_vec2_(1)
                          ,tmp_mat_(1,1)
-                         ,tmp_mat2_(1,1) {
+                         ,tmp_mat2_(1,1) 
+{
 }
 
 QPGenerator::~QPGenerator(){}
@@ -128,7 +129,7 @@ void QPGenerator::buildObjective(const MPCSolution &solution) {
   int num_steps_previewed = solution.support_states_vec.back().stepNumber;
   int num_samples = mpc_parameters_->nbsamples_qp;
 
-  
+
   bool compute_cholesky = (solver_->useCholesky() == true);
 
   if (!compute_cholesky) {
@@ -178,8 +179,14 @@ void QPGenerator::buildObjective(const MPCSolution &solution) {
 
   VectorXd HX(num_samples), HY(num_samples), H(2*num_samples);//TODO: Make this member
 
-  HX = pconstCoM_[sample_num] * com.x;
-  HY = pconstCoM_[sample_num] * com.y;
+  CommonVectorType state_x(mpc_parameters_->dynamics_order), state_y(mpc_parameters_->dynamics_order);
+  for (int i = 0; i < mpc_parameters_->dynamics_order; i++) {
+    state_x(i) = com.x(i);
+    state_y(i) = com.y(i);
+  }
+
+  HX = pconstCoM_[sample_num] * state_x;
+  HY = pconstCoM_[sample_num] * state_y;
 
   HX += pconstVc_[sample_num] * select_mats.VcX;
   HY += pconstVc_[sample_num] * select_mats.VcY;
@@ -409,7 +416,7 @@ void QPGenerator::ConvertCopToJerk(MPCSolution &solution){
     cop_x_vec(s) = 
       rot_mat(s, s) * sol_x_vec(s) - rot_mat(s, num_samples + s) * sol_y_vec(s);
     cop_y_vec(s) = 
-       rot_mat(num_samples + s, num_samples + s) * sol_y_vec(s) - rot_mat(num_samples + s, s) * sol_x_vec(s);
+      rot_mat(num_samples + s, num_samples + s) * sol_y_vec(s) - rot_mat(num_samples + s, s) * sol_x_vec(s);
   }
   // Add to global coordinates of the feet
   cop_x_vec += select.VcX;
@@ -417,37 +424,26 @@ void QPGenerator::ConvertCopToJerk(MPCSolution &solution){
   cop_y_vec += select.VcY; 
   cop_y_vec += select.V * feet_y_vec;
 
+  CommonVectorType state_x(mpc_parameters_->dynamics_order), state_y(mpc_parameters_->dynamics_order);
+  for (int i = 0; i < mpc_parameters_->dynamics_order; i++) {
+    state_x(i) = com.x(i);
+    state_y(i) = com.y(i);
+  }
+
   // Transform to jerk vectors
   const LinearDynamicsMatrices &copdyn = robot_->body(COM)->dynamics_qp().cop;
   VectorXd &jerk_x_vec = solution.com_prw.jerk.x_vec;
   jerk_x_vec.setZero(num_samples); 
   VectorXd &jerk_y_vec = solution.com_prw.jerk.y_vec;
   jerk_y_vec.setZero(num_samples); 
-  tmp_vec_ = cop_x_vec - copdyn.S * com.x;
+  tmp_vec_ = cop_x_vec - copdyn.S * state_x;
   jerk_x_vec.noalias() = copdyn.UInv * tmp_vec_;
-  tmp_vec_ = cop_y_vec - copdyn.S * com.y;
+  tmp_vec_ = cop_y_vec - copdyn.S * state_y;
   jerk_y_vec.noalias() = copdyn.UInv * tmp_vec_;
-
-  //TODO: We don't need the rest
-  // Vpx(0,0) and Vpy(0,0) always equal to 0 because the first iteration always on the current foot and never on previewed steps
-  /*
-  const VectorXd px = solution.solution.segment(2*num_samples,         nbSteps);
-  const VectorXd py = solution.solution.segment(2*num_samples+nbSteps, nbSteps);
-  VectorXd Vpx;
-  VectorXd Vpy;
-  if (nbSteps>0){
-  Vpx =select.V*px;
-  Vpy =select.V*py;
-  }else{
-  Vpx=VectorXd::Zero(num_samples);
-  Vpy=VectorXd::Zero(num_samples);
-  }
-  */
 
   // Compute ZMP wrt the inertial frame:
   // -----------------------------------
   // TODO: The jerk is computed only for the first instant and copied for the whole preview period!!
-  
   double zx;
   zx =(rot_mat.block(0,0,1,2) * sol_x_vec.segment(0, 2) - rot_mat.block(0,num_samples,1,2)*sol_y_vec.segment(0, 2))(0,0);
   zx+=/*Vpx(0,0)+*/select.VcX(0,0);
@@ -458,10 +454,10 @@ void QPGenerator::ConvertCopToJerk(MPCSolution &solution){
 
   double X;
   double Y;
-  zx -= (copdyn.S.block(0,0,1,3) * com.x)(0,0);
-  X  =  copdyn.UInv(0,0) * zx;
-  zy -= (copdyn.S.block(0,0,1,3) * com.y)(0,0) ;
-  Y  =  copdyn.UInv(0,0) * zy;
+  zx -= (copdyn.S.block(0, 0, 1, mpc_parameters_->dynamics_order) * state_x)(0, 0);
+  X  =  copdyn.UInv(0, 0) * zx;
+  zy -= (copdyn.S.block(0, 0, 1, mpc_parameters_->dynamics_order) * state_y)(0, 0) ;
+  Y  =  copdyn.UInv(0, 0) * zy;
 
   solution.qpSolution.segment(0, num_samples).fill(X);
   solution.qpSolution.segment(num_samples, num_samples).fill(Y);

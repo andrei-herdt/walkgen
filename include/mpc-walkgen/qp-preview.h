@@ -27,7 +27,7 @@ namespace MPCWalkgen{
       // Public methods:
       //
     public:
-      QPPreview(Reference *velRef, RigidBodySystem *robot, const MPCData *mpc_parameters);
+      QPPreview(Reference *ref, RigidBodySystem *robot, const MPCData *mpc_parameters);
       ~QPPreview();
 
       void previewSamplingTimes(double currenttime, double firstSamplingPeriod, MPCSolution &solution);

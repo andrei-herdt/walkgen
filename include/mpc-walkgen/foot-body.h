@@ -26,7 +26,7 @@ namespace MPCWalkgen{
 		FootBody(Foot type);
 		virtual ~FootBody();
 
-		virtual void Interpolate(MPCSolution &solution, double currentTime, const Reference &velRef);
+		virtual void Interpolate(MPCSolution &solution, double current_time, const Reference &ref);
 
 		//
 		// Private methods:

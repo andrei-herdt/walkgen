@@ -15,7 +15,7 @@ FootBody::FootBody(Foot which) : RigidBody()
 
 FootBody::~FootBody(){}
 
-void FootBody::Interpolate(MPCSolution &solution, double currentTime, const Reference &/*velRef*/) {
+void FootBody::Interpolate(MPCSolution &solution, double current_time, const Reference &/*ref*/) {
   BodyState goal_state;
   const SupportState &current_support = solution.support_states_vec[0];
   const SupportState &next_support = solution.support_states_vec[1];
@@ -29,11 +29,11 @@ void FootBody::Interpolate(MPCSolution &solution, double currentTime, const Refe
   double time_spent_flying = 0.0;
   double halftime_rounded = std::ceil(static_cast<double>(mpc_parameters_->num_qpsamples_ss()) / 2.0) * mpc_parameters_->period_qpsample;
   if (current_support.phase == SS) {
-    time_left_flying = current_support.time_limit - period_ds - currentTime;
-    time_spent_flying = currentTime - current_support.start_time;
+    time_left_flying = current_support.time_limit - period_ds - current_time;
+    time_spent_flying = current_time - current_support.start_time;
     int nbStepsPreviewed = solution.support_states_vec.back().stepNumber;
     if (next_support.transitional_ds) {
-      time_left_xy = current_support.time_limit - currentTime;
+      time_left_xy = current_support.time_limit - current_time;
       goal_state.x(0) = state_.x(0);
       goal_state.y(0) = state_.y(0);
       goal_state.yaw(0) = state_.yaw(0);

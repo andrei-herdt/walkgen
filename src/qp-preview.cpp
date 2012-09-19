@@ -8,14 +8,14 @@ using namespace Eigen;
 const double QPPreview::EPS_ = 1e-6;
 
 //TODO:change name QPPreview to Preview
-QPPreview::QPPreview(Reference * velRef, RigidBodySystem * robot, const MPCData * mpc_parameters)
+QPPreview::QPPreview(Reference * ref, RigidBodySystem * robot, const MPCData * mpc_parameters)
   :robot_(robot)
   ,mpc_parameters_(mpc_parameters)
   ,selectionMatrices_(*mpc_parameters)
   ,rotationMatrix_ (CommonMatrixType::Zero(2*mpc_parameters_->nbsamples_qp, 2*mpc_parameters_->nbsamples_qp))
   ,rotationMatrix2_(CommonMatrixType::Zero(2*mpc_parameters_->nbsamples_qp, 2*mpc_parameters_->nbsamples_qp)) {
 
-  statesolver_ = new StateFSM(velRef, mpc_parameters);
+  statesolver_ = new StateFSM(ref, mpc_parameters);
 }
 
 QPPreview::~QPPreview()

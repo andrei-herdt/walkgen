@@ -29,9 +29,9 @@ namespace MPCWalkgen{
     void Init(const RobotData *data_robot_p);
     void Init(DynamicsBuilder *dyn_build_p);
 
-    void ComputeDynamics(DynamicsType dynamics_type);
+    void ComputeDynamics(DynamicsOrder dynamics_order);
 
-    virtual void Interpolate(MPCSolution &solution, double currentTime, const Reference &velRef)=0;
+    virtual void Interpolate(MPCSolution &solution, double current_time, const Reference &ref)=0;
 
     /// \name Accessors and mutators 
     /// \{

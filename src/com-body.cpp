@@ -10,60 +10,65 @@ CoMBody::CoMBody() : RigidBody() {}
 
 CoMBody::~CoMBody() {}
 
-void CoMBody::Interpolate(MPCSolution &solution, double currentTime, const Reference &velRef){
+void CoMBody::Interpolate(MPCSolution &solution, double current_time, const Reference &ref){
   // Actuator sampling rate:
   // -----------------------
+  CommonVectorType state_x(mpc_parameters_->dynamics_order), state_y(mpc_parameters_->dynamics_order);
+  for (int i = 0; i < mpc_parameters_->dynamics_order; i++) {
+    state_x(i) = state_.x(i);
+    state_y(i) = state_.y(i);
+  }
   // Position:
   interpolation_.Interpolate(solution.com_act.pos.x_vec, dynamics_act().pos, 
-    state_.x, solution.com_prw.jerk.x_vec[0]);
+    state_x, solution.com_prw.jerk.x_vec[0]);
   interpolation_.Interpolate(solution.com_act.pos.y_vec, dynamics_act().pos, 
-    state_.y, solution.com_prw.jerk.y_vec[0]);
+    state_y, solution.com_prw.jerk.y_vec[0]);
 
   // Velocity:
   interpolation_.Interpolate(solution.com_act.vel.x_vec, dynamics_act().vel, 
-    state_.x, solution.com_prw.jerk.x_vec[0]);
+    state_x, solution.com_prw.jerk.x_vec[0]);
   interpolation_.Interpolate(solution.com_act.vel.y_vec, dynamics_act().vel, 
-    state_.y, solution.com_prw.jerk.y_vec[0]);
+    state_y, solution.com_prw.jerk.y_vec[0]);
 
   // Acceleration:
   interpolation_.Interpolate(solution.com_act.acc.x_vec, dynamics_act().acc, 
-    state_.x, solution.com_prw.jerk.x_vec[0]);
+    state_x, solution.com_prw.jerk.x_vec[0]);
   interpolation_.Interpolate(solution.com_act.acc.y_vec, dynamics_act().acc, 
-    state_.y, solution.com_prw.jerk.y_vec[0]);
+    state_y, solution.com_prw.jerk.y_vec[0]);
 
   // CoP:
   interpolation_.Interpolate(solution.cop_act.pos.x_vec, dynamics_act().cop, 
-    state_.x, solution.com_prw.jerk.x_vec[0]);
+    state_x, solution.com_prw.jerk.x_vec[0]);
   interpolation_.Interpolate(solution.cop_act.pos.y_vec, dynamics_act().cop, 
-    state_.y, solution.com_prw.jerk.y_vec[0]);
+    state_y, solution.com_prw.jerk.y_vec[0]);
 
   // QP sampling rate:
   // -----------------
   // Position:
   if (mpc_parameters_->interpolate_whole_horizon) {
       interpolation_.Interpolate(solution.com_prw.pos.x_vec, dynamics_qp().pos,
-      state_.x, solution.com_prw.jerk.x_vec);
+      state_x, solution.com_prw.jerk.x_vec);
       interpolation_.Interpolate(solution.com_prw.pos.y_vec, dynamics_qp().pos,
-      state_.y, solution.com_prw.jerk.y_vec);
+      state_y, solution.com_prw.jerk.y_vec);
       
       // Velocity:
       interpolation_.Interpolate(solution.com_prw.vel.x_vec, dynamics_qp().vel,
-      state_.x, solution.com_prw.jerk.x_vec);
+      state_x, solution.com_prw.jerk.x_vec);
       interpolation_.Interpolate(solution.com_prw.vel.y_vec, dynamics_qp().vel,
-      state_.y, solution.com_prw.jerk.y_vec);
+      state_y, solution.com_prw.jerk.y_vec);
       
       // Acceleration:
       interpolation_.Interpolate(solution.com_prw.acc.x_vec, dynamics_qp().acc,
-      state_.x, solution.com_prw.jerk.x_vec);
+      state_x, solution.com_prw.jerk.x_vec);
       interpolation_.Interpolate(solution.com_prw.acc.y_vec, dynamics_qp().acc,
-      state_.y, solution.com_prw.jerk.y_vec);
+      state_y, solution.com_prw.jerk.y_vec);
   }
 
-  interpolateTrunkOrientation(solution, currentTime, velRef);
+  interpolateTrunkOrientation(solution, current_time, ref);
 }
 
 void CoMBody::interpolateTrunkOrientation(MPCSolution &solution,
-                                          double /*currentTime*/, const Reference &velRef) 
+                                          double /*current_time*/, const Reference &ref) 
 {
   double T = mpc_parameters_->nbqpsamples_step * mpc_parameters_->period_qpsample;
 
@@ -85,7 +90,7 @@ void CoMBody::interpolateTrunkOrientation(MPCSolution &solution,
     orientation1 = orientation0;
   }
 
-  Vector3d nextTrunkState(orientation1, -velRef.local.yaw(0), 0);
+  Vector3d nextTrunkState(orientation1, -ref.local.yaw(0), 0);
 
   Eigen::Matrix<double,6,1> factor;
   interpolation_.computePolynomialNormalisedFactors(factor, state().yaw, nextTrunkState, T);

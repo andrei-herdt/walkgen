@@ -37,6 +37,7 @@ int main() {
   mpc_parameters.solver.analysis                = false;
   mpc_parameters.solver.name                    = QPOASES;
   mpc_parameters.solver.num_wsrec               = 2;
+  mpc_parameters.dynamics_order                 = SECOND_ORDER;
 
 
 
@@ -129,7 +130,7 @@ int main() {
   // ---
   double velocity = 0.1;
   double curr_time = 0;
-  walk.reference(velocity, 0, 0);
+  walk.reference(0.1, 0, 0);
   int num_iterations = 0;
   walk.clock().GetFrequency(1000);
   for (; curr_time < 20; curr_time += sample_period_act) {

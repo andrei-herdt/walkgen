@@ -13,45 +13,21 @@ Interpolation::Interpolation()
 Interpolation::~Interpolation(){}
 
 
-//TODO: Remove
-void Interpolation::computeInterpolationByJerk(VectorXd &solutionX, VectorXd &solutionY, const BodyState &state,
-                                               const LinearDynamicsMatrices &dyn, double jerkX, double jerkY) const
-{
-  int nbsamples = dyn.U.cols();
-  VectorXd UX = VectorXd::Constant(nbsamples, jerkX);
-  VectorXd UY = VectorXd::Constant(nbsamples, jerkY);
-
-  solutionX = dyn.S * state.x + dyn.U * UX;
-  solutionY = dyn.S * state.y + dyn.U * UY;
-}
-
 void Interpolation::Interpolate(VectorXd &solution_vec, const LinearDynamicsMatrices &dyn, 
-                                const Vector3d &state_vec, const VectorXd &u_vec) 
+                                const CommonVectorType &state_vec, const VectorXd &u_vec) 
 {
   solution_vec.setZero();
   solution_vec.noalias() = dyn.S * state_vec + dyn.U * u_vec;
 }
 
 void Interpolation::Interpolate(VectorXd &solution_vec, const LinearDynamicsMatrices &dyn, 
-                                const Vector3d &state_vec, double u) 
+                                const CommonVectorType &state_vec, double u) 
 {
   solution_vec.setZero();
   tmp_vec_.setZero(dyn.U.cols());
   tmp_vec_.fill(u);
   solution_vec.noalias() = dyn.S * state_vec + dyn.U * tmp_vec_;
 }
-
-//TODO: Remove
-void Interpolation::computeInterpolationByJerk(VectorXd &solution, const VectorXd &state,
-                                               const LinearDynamicsMatrices &dyn, double jerk) const
-{
-  int nbsamples = dyn.U.cols();
-  VectorXd U = VectorXd::Constant(nbsamples, jerk);
-
-  solution = dyn.S * state + dyn.U * U;
-}
-
-
 
 void Interpolation::computePolynomialNormalisedFactors( Eigen::Matrix<double,6,1> &factor,
                                                        const Vector3d &initialstate, const Vector3d &finalState, double T) const
@@ -86,16 +62,16 @@ void Interpolation::computePolynomialFactors( Eigen::Matrix<double,6,1>  &factor
   Ainv(1,0) = -15/pow4(T);  Ainv(1,1) = 7/pow3(T)   ;  Ainv(1,2) = -1/pow2(T);
   Ainv(2,0) = 10/pow3(T) ;  Ainv(2,1) = -4/pow2(T)  ;  Ainv(2,2) = 1/(2*T);
 
-  b(0) = finalState(0) - initialstate(0) - initialstate(1)*T - initialstate(2)*T*T/2;
-  b(1) = finalState(1) - initialstate(1) - initialstate(2)*T;
+  b(0) = finalState(0) - initialstate(0) - initialstate(1) * T - initialstate(2) * T * T / 2;
+  b(1) = finalState(1) - initialstate(1) - initialstate(2) * T;
   b(2) = finalState(2) - initialstate(2);
 
   Vector3d abc;
-  abc=Ainv*b;
+  abc = Ainv * b;
 
   factor(5) = initialstate(0);
   factor(4) = initialstate(1);
-  factor(3) = initialstate(2)/2;
+  factor(3) = initialstate(2) / 2;
   factor(2) = abc(2);
   factor(1) = abc(1);
   factor(0) = abc(0);
