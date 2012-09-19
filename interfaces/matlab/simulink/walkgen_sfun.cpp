@@ -81,31 +81,32 @@ extern "C" {
 
   static void mdlInitializeSampleTimes(SimStruct *S)
   {
-    ssSetSampleTime(S, 0, 0.002);
+    ssSetSampleTime(S, 0, 0.001);
   }
 
 #define MDL_START
   static void mdlStart(SimStruct *S)
   {
 
-    MPCData mpc_data;
-    mpc_data.nbsamples_qp         = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 0)));
-    mpc_data.nbqpsamples_step     = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 1)));
-    mpc_data.nbqpsamples_dsss     = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 2)));
-    mpc_data.nbsteps_ssds         = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 3)));
-    mpc_data.period_qpsample      = *mxGetPr(ssGetSFcnParam(S, 4));
-    mpc_data.period_mpcsample     = *mxGetPr(ssGetSFcnParam(S, 5));
-    mpc_data.period_actsample     = *mxGetPr(ssGetSFcnParam(S, 6));
-    mpc_data.weight_coefficients.jerk[0] = 0.001;
-    mpc_data.weight_coefficients.jerk[1] = 0.01;
-    mpc_data.warmstart					= false;
-    mpc_data.interpolate_whole_horizon	= false;
-    mpc_data.solver.analysis			    = false;
-    mpc_data.solver.name                  = QPOASES;
-    mpc_data.solver.num_wsrec             = 2;
+    MPCData mpc_parameters;
+    mpc_parameters.nbsamples_qp         = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 0)));
+    mpc_parameters.nbqpsamples_step     = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 1)));
+    mpc_parameters.nbqpsamples_dsss     = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 2)));
+    mpc_parameters.nbsteps_ssds         = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 3)));
+    mpc_parameters.period_qpsample      = *mxGetPr(ssGetSFcnParam(S, 4));
+    mpc_parameters.period_mpcsample     = *mxGetPr(ssGetSFcnParam(S, 5));
+    mpc_parameters.period_actsample     = *mxGetPr(ssGetSFcnParam(S, 6));
+    mpc_parameters.weight_coefficients.jerk[0] = 0.001;
+    mpc_parameters.weight_coefficients.jerk[1] = 0.01;
+    mpc_parameters.warmstart					         = false;
+    mpc_parameters.interpolate_whole_horizon	= false;
+    mpc_parameters.solver.analysis			      = false;
+    mpc_parameters.solver.name                = QPOASES;
+    mpc_parameters.solver.num_wsrec           = 100;
+    mpc_parameters.dynamics_order             = SECOND_ORDER;
 
     Walkgen *walk = new Walkgen;
-    walk->Init(mpc_data);
+    walk->Init(mpc_parameters);
 
     ssSetPWorkValue(S, 0, (void*)walk);
     ssSetIWorkValue(S, 0, 0);     //MPCWalkgen not initialized
