@@ -22,10 +22,10 @@ namespace MPCWalkgen{
     Interpolation();
     ~Interpolation();
 
-    void Interpolate(Eigen::VectorXd &solution_vec, const LinearDynamicsMatrices &dyn, 
-      const CommonVectorType &state_vec, const Eigen::VectorXd &u_vec);
+    void Interpolate(CommonVectorType &solution_vec, const LinearDynamicsMatrices &dyn, 
+      const CommonVectorType &state_vec, const CommonVectorType &u_vec);
 
-    void Interpolate(Eigen::VectorXd &solution_vec, const LinearDynamicsMatrices &dyn, 
+    void Interpolate(CommonVectorType &solution_vec, const LinearDynamicsMatrices &dyn, 
       const CommonVectorType &state_vec, double u);
 
     void computePolynomialNormalisedFactors(
@@ -39,7 +39,7 @@ namespace MPCWalkgen{
 
   private:
     Eigen::Matrix3d AinvNorm_;
-    Eigen::VectorXd tmp_vec_;
+    CommonVectorType tmp_vec_;
   };
 }
 

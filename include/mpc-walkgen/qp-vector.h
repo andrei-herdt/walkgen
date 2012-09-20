@@ -14,8 +14,9 @@
 ///
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <mpc-walkgen/types.h>
+
 #include <vector>
-#include <Eigen/Dense>
 
 namespace MPCWalkgen{
 
@@ -24,10 +25,10 @@ namespace MPCWalkgen{
     QPVector(const int num_rows);
     ~QPVector();
 
-    void addTerm(const Eigen::VectorXd &vec, const int row);
+    void addTerm(const CommonVectorType &vec, const int row);
     void addTerm(double value, int first_row);
 
-    void setConstantPart(const Eigen::VectorXd &vec);
+    void setConstantPart(const CommonVectorType &vec);
 
     void reset();
 
@@ -35,7 +36,7 @@ namespace MPCWalkgen{
 
     void rowOrder(const Eigen::VectorXi &order);
 
-    inline Eigen::VectorXd &operator()(void) {
+    inline CommonVectorType &operator()(void) {
       return vector_;
     }
     inline double &operator()(int row){return vector_(row);}
@@ -44,7 +45,7 @@ namespace MPCWalkgen{
 
   private:
 
-    Eigen::VectorXd constantPart_, vector_;
+    CommonVectorType constantPart_, vector_;
 
     int num_rows_;
 

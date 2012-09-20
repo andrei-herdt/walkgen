@@ -40,7 +40,7 @@ namespace MPCWalkgen{
     // \name Accessors and mutators
     // \{
     void reference(double dx, double dy, double dyaw);
-    void reference(Eigen::VectorXd dx, Eigen::VectorXd dy, Eigen::VectorXd dyaw);
+    void reference(CommonVectorType dx, CommonVectorType dy, CommonVectorType dyaw);
 
     const SupportState &currentSupportState() const;
     inline void currentSupportState(const SupportState &newSupportState){

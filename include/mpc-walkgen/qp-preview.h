@@ -30,13 +30,13 @@ namespace MPCWalkgen{
       QPPreview(Reference *ref, RigidBodySystem *robot, const MPCData *mpc_parameters);
       ~QPPreview();
 
-      void previewSamplingTimes(double currenttime, double firstSamplingPeriod, MPCSolution &solution);
+      void previewSamplingTimes(double current_time, double firstSamplingPeriod, MPCSolution &solution);
 
       void previewSupportStates(double FirstIterationDynamicsDuration, MPCSolution &solution);
 
       void computeRotationMatrix(MPCSolution &solution);
 
-      inline SelectionMatrices &selectionMatrices(){return selectionMatrices_;}
+      inline SelectionMatrices &selectionMatrices(){return select_matrices_;}
 
       inline const CommonMatrixType &rotationMatrix() const{return rotationMatrix_;}
 
@@ -56,7 +56,7 @@ namespace MPCWalkgen{
       const MPCData * mpc_parameters_;
       StateFSM * statesolver_;	//TODO: Name statesolver is bad
 
-      SelectionMatrices selectionMatrices_;
+      SelectionMatrices select_matrices_;
       CommonMatrixType rotationMatrix_;
       CommonMatrixType rotationMatrix2_;
 

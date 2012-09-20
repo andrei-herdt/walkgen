@@ -8,10 +8,10 @@ using namespace Eigen;
 const double QPPreview::EPS_ = 1e-6;
 
 //TODO:change name QPPreview to Preview
-QPPreview::QPPreview(Reference * ref, RigidBodySystem * robot, const MPCData * mpc_parameters)
+QPPreview::QPPreview(Reference *ref, RigidBodySystem *robot, const MPCData *mpc_parameters)
   :robot_(robot)
   ,mpc_parameters_(mpc_parameters)
-  ,selectionMatrices_(*mpc_parameters)
+  ,select_matrices_(mpc_parameters->num_samples_horizon)
   ,rotationMatrix_ (CommonMatrixType::Zero(2*mpc_parameters_->num_samples_horizon, 2*mpc_parameters_->num_samples_horizon))
   ,rotationMatrix2_(CommonMatrixType::Zero(2*mpc_parameters_->num_samples_horizon, 2*mpc_parameters_->num_samples_horizon)) {
 
@@ -23,13 +23,13 @@ QPPreview::~QPPreview()
   delete statesolver_;
 }
 
-void QPPreview::previewSamplingTimes(double currenttime, 
+void QPPreview::previewSamplingTimes(double current_time, 
                                      double firstSamplingPeriod, MPCSolution &solution) {
 
   solution.samplingTimes_vec.resize(mpc_parameters_->num_samples_horizon + 1, 0);
   std::fill(solution.samplingTimes_vec.begin(), solution.samplingTimes_vec.end(), 0);
   // As for now, only the first sampling period varies
-  solution.samplingTimes_vec[0] = currenttime;
+  solution.samplingTimes_vec[0] = current_time;
   solution.samplingTimes_vec[1] = solution.samplingTimes_vec[0] + firstSamplingPeriod;// mpc_parameters_->QPSamplingPeriod;////// //
   for (int sample = 2; sample < mpc_parameters_->num_samples_horizon + 1; sample++) {
       solution.samplingTimes_vec[sample] += solution.samplingTimes_vec[sample - 1] +
@@ -123,47 +123,56 @@ void QPPreview::computeRotationMatrix(MPCSolution &solution){
     }
 }
 
-void QPPreview::buildSelectionMatrices(MPCSolution &solution){
-  const int &NbPrwSteps = solution.support_states_vec.back().stepNumber;
+void QPPreview::buildSelectionMatrices(MPCSolution &solution)
+{
+  assert(select_matrices_.V.rows() == mpc_parameters_->num_samples_horizon);
 
-  if (selectionMatrices_.V.cols() != NbPrwSteps){
-      selectionMatrices_.V.resize(mpc_parameters_->num_samples_horizon,NbPrwSteps);
-      selectionMatrices_.VT.resize(NbPrwSteps, mpc_parameters_->num_samples_horizon);
-      selectionMatrices_.VcfX.resize(NbPrwSteps);
-      selectionMatrices_.VcfY.resize(NbPrwSteps);
-      selectionMatrices_.Vf.resize(NbPrwSteps, NbPrwSteps);
+  const BodyState *left_foot_p = &robot_->body(LEFT_FOOT)->state();
+  const BodyState *right_foot_p = &robot_->body(RIGHT_FOOT)->state();
+
+  int num_steps_previewed = solution.support_states_vec.back().stepNumber;
+  int num_samples = mpc_parameters_->num_samples_horizon;
+
+  if (select_matrices_.V.cols() != num_steps_previewed){
+      select_matrices_.V.resize(num_samples, num_steps_previewed);
+      select_matrices_.VT.resize(num_steps_previewed, num_samples);
+      select_matrices_.Vf.resize(num_steps_previewed, num_steps_previewed);
+      select_matrices_.VcfX.resize(num_steps_previewed);
+      select_matrices_.VcfY.resize(num_steps_previewed);
+      select_matrices_.m_feet.resize(num_samples, num_steps_previewed);
+      select_matrices_.m_feet_trans.resize(num_steps_previewed, num_samples);
     }
+  select_matrices_.SetZero();
 
-  selectionMatrices_.VcX.fill(0);
-  selectionMatrices_.VcY.fill(0);
-  selectionMatrices_.V.fill(0);
-  selectionMatrices_.VT.fill(0);
-  selectionMatrices_.VcfX.fill(0);
-  selectionMatrices_.VcfY.fill(0);
-  selectionMatrices_.Vf.fill(0);
+  std::vector<SupportState>::iterator SS_it = solution.support_states_vec.begin();//points at the cur. sup. st.
 
-
-
-  std::vector<SupportState>::iterator SS_it;
-  SS_it = solution.support_states_vec.begin();//points at the cur. sup. st.
   ++SS_it;
-  for (int i=0; i<mpc_parameters_->num_samples_horizon; i++){
-      if (SS_it->stepNumber>0){
-          selectionMatrices_.V(i,SS_it->stepNumber-1) = selectionMatrices_.VT(SS_it->stepNumber-1,i) = 1.0;
-          if (SS_it->stepNumber==1 && SS_it->state_changed && SS_it->phase == SS) {
+  for (int i=0; i < num_samples; i++){
+      if (SS_it->stepNumber>0) {
+          select_matrices_.V(i, SS_it->stepNumber - 1) = select_matrices_.VT(SS_it->stepNumber-1, i) = 1.0;
+          select_matrices_.m_feet(i, SS_it->stepNumber - 1) = select_matrices_.m_feet_trans(SS_it->stepNumber-1, i) = 0.5;
+          if (SS_it->stepNumber == 1 && SS_it->state_changed && SS_it->phase == SS) {
               --SS_it;
-              selectionMatrices_.VcfX(0) = SS_it->x;
-              selectionMatrices_.VcfY(0) = SS_it->y;
+              select_matrices_.VcfX(0) = SS_it->x;
+              select_matrices_.VcfY(0) = SS_it->y;
               ++SS_it;
 
-              selectionMatrices_.Vf(0,0) = 1.0;
-            }else if(SS_it->stepNumber>1){
-              selectionMatrices_.Vf(SS_it->stepNumber-1,SS_it->stepNumber-2) = -1.0;
-              selectionMatrices_.Vf(SS_it->stepNumber-1,SS_it->stepNumber-1) = 1.0;
+              select_matrices_.Vf(0,0) = 1.0;
+            } else if(SS_it->stepNumber > 1) {
+              select_matrices_.Vf(SS_it->stepNumber-1, SS_it->stepNumber-2) = -1.0;
+              select_matrices_.Vf(SS_it->stepNumber-1, SS_it->stepNumber-1) = 1.0;
             }
-        }else{
-          selectionMatrices_.VcX(i) = SS_it->x;
-          selectionMatrices_.VcY(i) = SS_it->y;
+        } else {
+          if (SS_it->phase == SS) {
+          select_matrices_.VcX(i) = SS_it->x;
+          select_matrices_.VcY(i) = SS_it->y;
+          select_matrices_.cm_feet_x(i) = SS_it->x;
+          select_matrices_.cm_feet_y(i) = SS_it->y;
+          } else {
+            select_matrices_.cm_feet_x(i) = left_foot_p->x(0) / 2. + right_foot_p->x(0) / 2.;
+            select_matrices_.cm_feet_y(i) = left_foot_p->y(0) / 2. + right_foot_p->y(0) / 2.;
+          }
+          
         }
       ++SS_it;
     }

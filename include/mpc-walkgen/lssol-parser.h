@@ -35,14 +35,14 @@ namespace MPCWalkgen{
 
   protected:
     Eigen::VectorXi kx_;
-    Eigen::VectorXd bb_;
-    Eigen::VectorXd lambda_;
-    Eigen::VectorXd bu_;
-    Eigen::VectorXd bl_;
+    CommonVectorType bb_;
+    CommonVectorType lambda_;
+    CommonVectorType bu_;
+    CommonVectorType bl_;
 
     int leniw_;
     int lenw_;
-    Eigen::VectorXd war_;
+    CommonVectorType war_;
     Eigen::VectorXi iwar_;
 
     int inform_;

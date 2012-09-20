@@ -60,9 +60,9 @@ namespace MPCWalkgen{
 
   protected:
 
-    void reorderInitialSolution(Eigen::VectorXd &initialSolution,
+    void reorderInitialSolution(CommonVectorType &initialSolution,
       Eigen::VectorXi &initialConstraints);
-    void reorderSolution(Eigen::VectorXd &qp_solution_vec,
+    void reorderSolution(CommonVectorType &qp_solution_vec,
       Eigen::VectorXi &constraints,
       Eigen::VectorXi &initialConstraints);
 

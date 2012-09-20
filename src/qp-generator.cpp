@@ -3,6 +3,8 @@
 #include <mpc-walkgen/qp-vector.h>
 #include <mpc-walkgen/tools.h>
 
+#include <iostream>
+
 using namespace MPCWalkgen;
 using namespace Eigen;
 
@@ -105,7 +107,7 @@ void QPGenerator::BuildProblem(MPCSolution &solution) {
   solver_->nbvar(nbvars);
   solver_->num_constr(num_constr);
 
-  buildObjective(solution);
+  BuildObjective(solution);
   buildConstraints(solution);
   if (mpc_parameters_->warmstart) {
     computeWarmStart(solution);//TODO: Weird to modify the solution
@@ -113,7 +115,7 @@ void QPGenerator::BuildProblem(MPCSolution &solution) {
 
 }
 
-void QPGenerator::buildObjective(const MPCSolution &solution) {
+void QPGenerator::BuildObjective(const MPCSolution &solution) {
 
   // Choose the precomputed element depending on the nb of "feedback-recomputations" until new qp-sample
   int sample_num = mpc_parameters_->nbFeedbackSamplesLeft(solution.support_states_vec[1].previousSamplingPeriod);
@@ -129,26 +131,22 @@ void QPGenerator::buildObjective(const MPCSolution &solution) {
   int num_steps_previewed = solution.support_states_vec.back().stepNumber;
   int num_samples = mpc_parameters_->num_samples_horizon;
 
-
-  bool compute_cholesky = (solver_->useCholesky() == true);
-
-  if (!compute_cholesky) {
+  if (!solver_->useCholesky()) {
     Q.addTerm(QconstN_[sample_num], 0, 0);
     Q.addTerm(QconstN_[sample_num], num_samples, num_samples);
   }
 
   if (num_steps_previewed > 0) {
-    tmp_mat_.noalias() = Qconst_[sample_num]*select_mats.V;
-    Q.addTerm(tmp_mat_, 0, 2*num_samples);
-    Q.addTerm(tmp_mat_, num_samples, 2*num_samples + num_steps_previewed);
+    tmp_mat_.noalias() = Qconst_[sample_num] * select_mats.V;
+    Q.addTerm(tmp_mat_, 0, 2 * num_samples);
+    Q.addTerm(tmp_mat_, num_samples, 2 * num_samples + num_steps_previewed);
 
+    tmp_mat_.noalias() = select_mats.VT * Qconst_[sample_num] * select_mats.V;
+    Q.addTerm(tmp_mat_, 2 * num_samples, 2 * num_samples);
+    Q.addTerm(tmp_mat_, 2 * num_samples + num_steps_previewed, 2 * num_samples + num_steps_previewed);
 
-    tmp_mat_.noalias() = select_mats.VT * Qconst_[sample_num]*select_mats.V;
-    Q.addTerm(tmp_mat_, 2 * num_samples , 2 * num_samples);
-    Q.addTerm(tmp_mat_, 2 * num_samples + num_steps_previewed, 2*num_samples + num_steps_previewed);
-
-    if (compute_cholesky == false){
-      tmp_mat_.noalias() = select_mats.VT*Qconst_[sample_num];
+    if (solver_->useCholesky() == false){
+      tmp_mat_.noalias() = select_mats.VT * Qconst_[sample_num];
       Q.addTerm(tmp_mat_, 2 * num_samples, 0);
       Q.addTerm(tmp_mat_, 2 * num_samples + num_steps_previewed, num_samples);
 
@@ -164,13 +162,13 @@ void QPGenerator::buildObjective(const MPCSolution &solution) {
     Q().block(0, 2 * num_samples, 2 * num_samples, 2 * num_steps_previewed) = urBlock;
   }
 
-  if (!compute_cholesky) {
+  if (!solver_->useCholesky()) {
     CommonMatrixType Qmat = Q().block(0, 0, 2 * num_samples, 2 * num_samples);
     Qmat = rot_mat2 * Qmat * rot_mat2.transpose();
     Q().block(0, 0, 2 * num_samples, 2 * num_samples) = Qmat;
   }
 
-  if (compute_cholesky) {
+  if (solver_->useCholesky()) {
     // rotate the cholesky matrix
     CommonMatrixType chol = choleskyConst_[sample_num];
     rotateCholeskyMatrix(chol, rot_mat2);
@@ -215,6 +213,7 @@ void QPGenerator::buildConstraints(const MPCSolution &solution){
   if (num_steps_previewed>0){
     BuildInequalitiesFeet(solution);
     BuildConstraintsFeet(solution);
+    //BuildFootVelConstraints(solution);
   }
 }
 
@@ -251,8 +250,8 @@ void QPGenerator::computeWarmStart(MPCSolution &solution){
     // Foot constraints are not shifted
     solution.initialConstraints.segment(2 * num_samples, nbFC*num_steps)=
       initialConstraintTmp.segment (2 * num_samples, nbFC*num_steps);
-    solution.initialConstraints.segment(2 * num_samples+nbFC*num_steps, nbFC*(nbStepsMax-num_steps))=
-      initialConstraintTmp.segment (2*num_samples+nbFC*num_steps, nbFC*(nbStepsMax-num_steps));
+    solution.initialConstraints.segment(2 * num_samples + nbFC*num_steps, nbFC * (nbStepsMax - num_steps))=
+      initialConstraintTmp.segment (2 * num_samples + nbFC * num_steps, nbFC * (nbStepsMax - num_steps));
   } else {
     solution.initialConstraints = VectorXi::Zero(2*num_samples+(4+nbFC)*nbStepsMax);//TODO: Why this value?
   }
@@ -497,22 +496,31 @@ void QPGenerator::BuildFootVelConstraints(const MPCSolution &solution)
   assert(robot_->robot_data().max_foot_vel > kEps);
 
   double raise_time = 0.05;//TODO: Hard coded value has to come from robot_
-  double time_left = solution.support_states_vec.front().time_limit - raise_time;
+  double time_left = solution.support_states_vec.front().time_limit - raise_time - current_time_;
   double max_vel = robot_->robot_data().max_foot_vel;
-  
 
   int num_steps_previewed = solution.support_states_vec.back().stepNumber;
   int x_var_pos = mpc_parameters_->num_samples_horizon;
   int y_var_pos = mpc_parameters_->num_samples_horizon; + num_steps_previewed;
 
-  double upper_limit_x = max_vel * time_left + solution.support_states_vec.front().x;
-  double upper_limit_y = max_vel * time_left + solution.support_states_vec.front().y;
+  const BodyState *flying_foot;
+  const SupportState &current_support = solution.support_states_vec.front();
+  if (current_support.foot == LEFT) {
+    flying_foot = &robot_->body(RIGHT_FOOT)->state();
+  } else {
+    flying_foot = &robot_->body(LEFT_FOOT)->state();
+  }
+
+  double upper_limit_x = max_vel * time_left + flying_foot->x(0);
+  double upper_limit_y = max_vel * time_left + flying_foot->y(0);
   solver_->vector(vectorXU).addTerm(upper_limit_x, x_var_pos);
   solver_->vector(vectorXU).addTerm(upper_limit_y, y_var_pos);
-  double lower_limit_x = -max_vel * time_left + solution.support_states_vec.front().x;
-  double lower_limit_y = -max_vel * time_left + solution.support_states_vec.front().y;
+  double lower_limit_x = -max_vel * time_left + flying_foot->x(0);
+  double lower_limit_y = -max_vel * time_left + flying_foot->y(0);
   solver_->vector(vectorXL).addTerm(lower_limit_x, x_var_pos);
   solver_->vector(vectorXL).addTerm(lower_limit_y, y_var_pos);
+  //std::cout << "x: " << lower_limit_x <<  " : " << upper_limit_x <<std::endl;
+  std::cout << "y:"<<flying_foot->y(0)<<" " << lower_limit_y <<  " : " << upper_limit_y <<std::endl;
 }
 
 void QPGenerator::buildConstraintsCOP(const MPCSolution &solution) 

@@ -67,18 +67,19 @@ FootData::~FootData(){
 }
 
 void FootData::SetEdges(double front, double back, double left, double right,
-                        double security_margin) {
-                          // Clockwise, starting at front-left corner
-                          // Foots sagittal plane is aligned with the x-axis
-                          edges_x_vec[0] = front - security_margin;
-                          edges_x_vec[1] = front - security_margin;
-                          edges_x_vec[2] = back + security_margin;
-                          edges_x_vec[3] = back + security_margin;
+                        double security_margin) 
+{
+  // Clockwise, starting at front-left corner
+  // Foots sagittal plane is aligned with the x-axis
+  edges_x_vec[0] = front - security_margin;
+  edges_x_vec[1] = front - security_margin;
+  edges_x_vec[2] = back + security_margin;
+  edges_x_vec[3] = back + security_margin;
 
-                          edges_y_vec[0] = left - security_margin;
-                          edges_y_vec[1] = right + security_margin;
-                          edges_y_vec[2] = right + security_margin;
-                          edges_y_vec[3] = left - security_margin;
+  edges_y_vec[0] = left - security_margin;
+  edges_y_vec[1] = right + security_margin;
+  edges_y_vec[2] = right + security_margin;
+  edges_y_vec[3] = left - security_margin;
 }
 
 HipYawData::HipYawData()

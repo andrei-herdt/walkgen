@@ -33,12 +33,21 @@ namespace MPCWalkgen{
   enum Mode { INITIAL = 0, STANDING = 1, WALK = 2 };
   /// \}
 
+  //
+  // Typedefs:
+  //
+  typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> EigenMatrixXdRM;
+  typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor> EigenMatrixXdCM;
+  typedef EigenMatrixXdRM CommonMatrixType;
+
+  typedef Eigen::VectorXd CommonVectorType;
+
   /// \name Data structs
   /// \{
   struct Frame{
-    Eigen::VectorXd x;
-    Eigen::VectorXd y;
-    Eigen::VectorXd yaw;
+    CommonVectorType x;
+    CommonVectorType y;
+    CommonVectorType yaw;
 
     Frame();
 
@@ -146,15 +155,15 @@ namespace MPCWalkgen{
 
   struct MPC_WALKGEN_API ConvexHull {
     /// \brief Set of vertices
-    Eigen::VectorXd x;
-    Eigen::VectorXd y;
-    Eigen::VectorXd z;
+    CommonVectorType x;
+    CommonVectorType y;
+    CommonVectorType z;
 
     /// \brief Set of inequalities A*x+B*y+C*z+D>0
-    Eigen::VectorXd A;
-    Eigen::VectorXd B;
-    Eigen::VectorXd C;
-    Eigen::VectorXd D;
+    CommonVectorType A;
+    CommonVectorType B;
+    CommonVectorType C;
+    CommonVectorType D;
 
     ConvexHull();
     ~ConvexHull();
@@ -251,7 +260,7 @@ namespace MPCWalkgen{
   };
 
   struct MPC_WALKGEN_API Trajectory {
-    Eigen::VectorXd x_vec, y_vec, z_vec, yaw_vec;
+    CommonVectorType x_vec, y_vec, z_vec, yaw_vec;
   };
 
   struct Motion {
@@ -274,8 +283,8 @@ namespace MPCWalkgen{
 
   struct MPC_WALKGEN_API MPCSolution {
 
-    Eigen::VectorXd qp_solution_vec;
-    Eigen::VectorXd initialSolution;
+    CommonVectorType qp_solution_vec;
+    CommonVectorType initialSolution;
 
     Eigen::VectorXi constraints;
     Eigen::VectorXi initialConstraints;
@@ -292,8 +301,8 @@ namespace MPCWalkgen{
     std::vector<double> supportOrientations_vec;//TODO: supportOrientations_vec
     std::vector<double> supportTrunkOrientations_vec;//TODO: TrunkOrientations_vec
 
-    Eigen::VectorXd CoPTrajX;
-    Eigen::VectorXd CoPTrajY;
+    CommonVectorType CoPTrajX;
+    CommonVectorType CoPTrajY;
 
     Motion com_prw, cop_prw, left_foot_prw, right_foot_prw; 
     Motion com_act, cop_act, left_foot_act, right_foot_act; 
@@ -301,21 +310,21 @@ namespace MPCWalkgen{
     SolutionAnalysis analysis;
 
     struct State {
-      Eigen::VectorXd CoMTrajX_;
-      Eigen::VectorXd CoMTrajY_;
+      CommonVectorType CoMTrajX_;
+      CommonVectorType CoMTrajY_;
       //TODO: Add CoMTrajZ_;
 
-      Eigen::VectorXd leftFootTrajX_;
-      Eigen::VectorXd leftFootTrajY_;
-      Eigen::VectorXd leftFootTrajZ_;
-      Eigen::VectorXd leftFootTrajYaw_;
+      CommonVectorType leftFootTrajX_;
+      CommonVectorType leftFootTrajY_;
+      CommonVectorType leftFootTrajZ_;
+      CommonVectorType leftFootTrajYaw_;
 
-      Eigen::VectorXd rightFootTrajX_;
-      Eigen::VectorXd rightFootTrajY_;
-      Eigen::VectorXd rightFootTrajZ_;
-      Eigen::VectorXd rightFootTrajYaw_;
+      CommonVectorType rightFootTrajX_;
+      CommonVectorType rightFootTrajY_;
+      CommonVectorType rightFootTrajZ_;
+      CommonVectorType rightFootTrajYaw_;
 
-      Eigen::VectorXd trunkYaw_;
+      CommonVectorType trunkYaw_;
     };
     std::vector<State> state_vec;
 

@@ -52,9 +52,10 @@ Walkgen::~Walkgen(){
     solver_ = NULL;
   }
 
-
-  if (generator_ != 0x0)
+  if (generator_ != 0x0) {
     delete generator_;
+    generator_ = NULL;
+  }
 
   if (preview_ != 0x0)
     delete preview_;
@@ -318,7 +319,7 @@ void Walkgen::reference(double dx, double dy, double dyaw){
   newVelRef_.local.yaw.fill(dyaw);
 }
 
-void Walkgen::reference(Eigen::VectorXd dx, Eigen::VectorXd dy, Eigen::VectorXd dyaw){
+void Walkgen::reference(CommonVectorType dx, CommonVectorType dy, CommonVectorType dyaw){
   newVelRef_.local.x=dx;
   newVelRef_.local.y=dy;
   newVelRef_.local.yaw=dyaw;

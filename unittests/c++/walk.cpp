@@ -11,7 +11,7 @@ using namespace MPCWalkgen;
 
 int main() {
 
-  int num_samples_horizon = 10;
+  int num_samples_horizon = 16;
   int num_samples_step = 8;
   int num_samples_dsss = 8;
   int num_steps_ssds = 2;
@@ -20,7 +20,7 @@ int main() {
   double sample_period_act = 0.005;
   const double kSecurityMargin = 0.02;
 
-    // Simulation parameters:
+  // Simulation parameters:
   // ----------------------
   MPCData mpc_parameters;
   mpc_parameters.num_samples_horizon    = num_samples_horizon;
@@ -31,12 +31,12 @@ int main() {
   mpc_parameters.period_mpcsample       = sample_period_first;
   mpc_parameters.period_actsample       = sample_period_act;
   mpc_parameters.weight_coefficients.jerk[0]         = 0.001;
-  mpc_parameters.weight_coefficients.jerk[1]         = 0.001;
+  mpc_parameters.weight_coefficients.jerk[1]         = 0.01;
   mpc_parameters.warmstart                      = false;
   mpc_parameters.interpolate_whole_horizon      = false;
   mpc_parameters.solver.analysis                = false;
   mpc_parameters.solver.name                    = QPOASES;
-  mpc_parameters.solver.num_wsrec               = 2;
+  mpc_parameters.solver.num_wsrec               = 10;
   mpc_parameters.dynamics_order                 = THIRD_ORDER;
 
 
@@ -73,11 +73,12 @@ int main() {
 
   RobotData robot_data(leftFoot, rightFoot, leftHipYaw, rightHipYaw, 0.0);
 
-    // TODO: This initialization did not work
-    robot_data.com(0) = 0.0;
-    robot_data.com(1) = 0.0;
-    robot_data.com(2) = 0.814;
+  // TODO: This initialization did not work
+  robot_data.com(0) = 0.0;
+  robot_data.com(1) = 0.0;
+  robot_data.com(2) = 0.814;
 
+  robot_data.max_foot_vel = 1.;
 
   // Feasible hulls:
   // ---------------
@@ -133,16 +134,29 @@ int main() {
   walk.reference(0.1, 0, 0);
   int num_iterations = 0;
   walk.clock().GetFrequency(1000);
-  for (; curr_time < 20; curr_time += sample_period_act) {
-    walk.clock().ResetLocal();
+walk.clock().ResetLocal();
     int online_timer = walk.clock().StartCounter();
+  for (; curr_time < 10; curr_time += sample_period_act) {
     const MPCSolution &solution = walk.online(curr_time);
     walk.clock().StopLastCounter();
-    walk.clock().StopCounter(online_timer);
-    
+
     num_iterations++;
   }
+walk.reference(0.1, 0, 0.1);
+ for (; curr_time < 20; curr_time += sample_period_act) {
+    const MPCSolution &solution = walk.online(curr_time);
+    walk.clock().StopLastCounter();
 
+    num_iterations++;
+  }
+walk.reference(0., 0, 0.);
+ for (; curr_time < 25; curr_time += sample_period_act) {
+    const MPCSolution &solution = walk.online(curr_time);
+    walk.clock().StopLastCounter();
+
+    num_iterations++;
+  }
+    walk.clock().StopCounter(online_timer);
 
   // Print total time:
   int num_counters = walk.clock().GetNumTotalCounters();

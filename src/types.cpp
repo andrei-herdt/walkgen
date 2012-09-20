@@ -1,17 +1,29 @@
 #include <mpc-walkgen/types.h>
 
-
 using namespace MPCWalkgen;
 
-SelectionMatrices::SelectionMatrices(const MPCData &mpc_parameters)
-:V(mpc_parameters.num_samples_horizon,mpc_parameters.num_samples_horizon)
-,VT(mpc_parameters.num_samples_horizon,mpc_parameters.num_samples_horizon)
-,VcX(mpc_parameters.num_samples_horizon)
-,VcY(mpc_parameters.num_samples_horizon)
-,Vf(mpc_parameters.num_samples_horizon,mpc_parameters.num_samples_horizon)
-,VcfX(mpc_parameters.num_samples_horizon)
-,VcfY(mpc_parameters.num_samples_horizon)
+SelectionMatrices::SelectionMatrices(int num_rows)
+:V(num_rows, num_rows)
+,VT(num_rows, num_rows)
+,VcX(num_rows)
+,VcY(num_rows)
+,Vf(num_rows, num_rows)
+,VcfX(num_rows)
+,VcfY(num_rows)
+,cm_feet_x(num_rows)
+,cm_feet_y(num_rows)
+,m_feet(num_rows, num_rows)
+,m_feet_trans(num_rows, num_rows)
 {}
+
+void SelectionMatrices::SetZero() {
+    V.setZero(); VT.setZero();
+    VcX.setZero(); VcY.setZero();
+    Vf.setZero();
+    VcfX.setZero();  VcfY.setZero();
+    cm_feet_x.setZero(); cm_feet_y.setZero();  
+    m_feet.setZero(); m_feet_trans.setZero();
+}
 
 void RelativeInequalities::resize(int rows, int cols){
   if (rows!=DX.rows() || cols!=DX.cols()){

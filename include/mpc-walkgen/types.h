@@ -11,13 +11,10 @@
 
 #include <mpc-walkgen/sharedtypes.h>//TODO: Include this?
 
-#include <Eigen/Dense>
-
 namespace MPCWalkgen{
 
 
   static const double EPSILON = 0.000001;
-
 
   //
   // Enums: 
@@ -37,16 +34,6 @@ namespace MPCWalkgen{
 
   enum SampleRate { QP, ACTUATORS };
 
-
-  //
-  // Typedefs:
-  //
-  typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> EigenMatrixXdRM;
-  typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor> EigenMatrixXdCM;
-  typedef EigenMatrixXdRM CommonMatrixType;
-
-  typedef Eigen::VectorXd CommonVectorType;
-
   //
   // Data structures:
   //
@@ -63,21 +50,21 @@ namespace MPCWalkgen{
   };
 
   struct SelectionMatrices{
-    CommonMatrixType V;
-    CommonMatrixType VT;
-    Eigen::VectorXd VcX;
-    Eigen::VectorXd VcY;
+    CommonMatrixType V, VT;
+    CommonVectorType VcX, VcY;
     CommonMatrixType Vf;
-    Eigen::VectorXd VcfX;
-    Eigen::VectorXd VcfY;
+    CommonVectorType VcfX, VcfY;              //\brief Middle of both feet
+    CommonVectorType cm_feet_x, cm_feet_y;  //\brief Middle of both currently supporting feet
+    CommonMatrixType m_feet, m_feet_trans;    //\brief Middle of both feet
 
-    SelectionMatrices(const MPCData &mpc_parameters);
+    void SetZero();
+    SelectionMatrices(int num_rows);
   };
 
   struct RelativeInequalities{
     CommonMatrixType DX;
     CommonMatrixType DY;
-    Eigen::VectorXd Dc;
+    CommonVectorType Dc;
 
     void resize(int rows, int cols);
   };

@@ -99,11 +99,11 @@ extern "C" {
     mpc_parameters.weight_coefficients.jerk[0] = 0.001;
     mpc_parameters.weight_coefficients.jerk[1] = 0.01;
     mpc_parameters.warmstart					         = false;
-    mpc_parameters.interpolate_whole_horizon	= false;
-    mpc_parameters.solver.analysis			      = false;
-    mpc_parameters.solver.name                = QPOASES;
-    mpc_parameters.solver.num_wsrec           = 2;
-    mpc_parameters.dynamics_order             = THIRD_ORDER;
+    mpc_parameters.interpolate_whole_horizon	 = false;
+    mpc_parameters.solver.analysis			       = false;
+    mpc_parameters.solver.name                 = QPOASES;
+    mpc_parameters.solver.num_wsrec            = 2;
+    mpc_parameters.dynamics_order              = THIRD_ORDER;
 
     Walkgen *walk = new Walkgen;
     walk->Init(mpc_parameters);
@@ -145,9 +145,7 @@ extern "C" {
     const double kMaxFootHeight = 0.03;
     const double kGravity = 9.81;
 
-
     Walkgen *walk = (Walkgen *)ssGetPWorkValue(S, 0);
-
 
     // Begin initialization of the robot:
     // ----------------------------------
@@ -187,6 +185,8 @@ extern "C" {
       robot_data.rightFoot.position[0]  = *right_ankle_in[0];
       robot_data.rightFoot.position[1]  = *right_ankle_in[1];
       robot_data.rightFoot.position[2]  = *right_ankle_in[2];
+
+      robot_data.max_foot_vel = 1.;
 
       // Feasibility hulls:
       // ------------------

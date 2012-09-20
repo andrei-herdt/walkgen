@@ -44,7 +44,7 @@ namespace MPCWalkgen{
 
     void BuildInequalitiesFeet(const MPCSolution &solution);
 
-    void buildObjective(const MPCSolution &solution);
+    void BuildObjective(const MPCSolution &solution);
 
     void buildConstraints(const MPCSolution &solution);
 
@@ -63,8 +63,8 @@ namespace MPCWalkgen{
     WeightCoefficients *weight_coefficients_;
     const MPCData *mpc_parameters_;
 
-    Eigen::VectorXd tmp_vec_;
-    Eigen::VectorXd tmp_vec2_;
+    CommonVectorType tmp_vec_;
+    CommonVectorType tmp_vec2_;
     CommonMatrixType tmp_mat_;
     CommonMatrixType tmp_mat2_;
 
