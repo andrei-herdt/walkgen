@@ -81,7 +81,7 @@ extern "C" {
 
   static void mdlInitializeSampleTimes(SimStruct *S)
   {
-    ssSetSampleTime(S, 0, 0.001);
+    ssSetSampleTime(S, 0, 0.005);
   }
 
 #define MDL_START
@@ -89,7 +89,7 @@ extern "C" {
   {
 
     MPCData mpc_parameters;
-    mpc_parameters.num_samples_horizon         = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 0)));
+    mpc_parameters.num_samples_horizon  = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 0)));
     mpc_parameters.nbqpsamples_step     = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 1)));
     mpc_parameters.nbqpsamples_dsss     = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 2)));
     mpc_parameters.nbsteps_ssds         = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 3)));
@@ -102,8 +102,8 @@ extern "C" {
     mpc_parameters.interpolate_whole_horizon	= false;
     mpc_parameters.solver.analysis			      = false;
     mpc_parameters.solver.name                = QPOASES;
-    mpc_parameters.solver.num_wsrec           = 100;
-    mpc_parameters.dynamics_order             = SECOND_ORDER;
+    mpc_parameters.solver.num_wsrec           = 2;
+    mpc_parameters.dynamics_order             = THIRD_ORDER;
 
     Walkgen *walk = new Walkgen;
     walk->Init(mpc_parameters);
@@ -184,7 +184,7 @@ extern "C" {
       robot_data.leftFoot.position[1] = *left_ankle_in[1];
       robot_data.leftFoot.position[2] = *left_ankle_in[2];
 
-      robot_data.rightFoot.position[0] = *right_ankle_in[0];
+      robot_data.rightFoot.position[0]  = *right_ankle_in[0];
       robot_data.rightFoot.position[1]  = *right_ankle_in[1];
       robot_data.rightFoot.position[2]  = *right_ankle_in[2];
 

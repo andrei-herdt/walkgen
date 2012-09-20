@@ -168,6 +168,7 @@ const MPCSolution &Walkgen::online(double time){
       }
     }
     ResetOutputIndex();
+    generator_->current_time(currentTime_);
     clock_.StopCounter(first_timer);
 
     int timer_build_problem = clock_.StartCounter();

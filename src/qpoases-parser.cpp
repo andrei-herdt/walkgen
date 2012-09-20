@@ -6,11 +6,11 @@ using namespace MPCWalkgen;
 using namespace Eigen;
 
 
-QPOasesParser::QPOasesParser(const SolverData *parameters, int nbvars, int nbcstr)
-:QPSolver(parameters, nbvars, nbcstr) {
-  qp_ = new qpOASES::SQProblem(nbvars, nbcstr);
+QPOasesParser::QPOasesParser(const SolverData *parameters, int nbvars, int num_constr)
+:QPSolver(parameters, nbvars, num_constr) {
+  qp_ = new qpOASES::SQProblem(nbvars, num_constr);
   solution_vec_ = new double[nbvars];
-  cstr_init_vec_ = new  qpOASES::Constraints(nbcstr);
+  cstr_init_vec_ = new  qpOASES::Constraints(num_constr);
   bounds_init_vec_ = new  qpOASES::Bounds(nbvars);
 }
 

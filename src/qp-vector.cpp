@@ -42,6 +42,10 @@ void QPVector::addTerm(const VectorXd &vec, const int first_row) {
   }
 }
 
+void QPVector::addTerm(double value, int first_row) {
+  vector_(index_order_(first_row)) += value;
+}
+
 void QPVector::setConstantPart(const VectorXd &mat) {
   int nbRows = mat.rows();
   for (int i = 0; i <= nbRows; ++i) {

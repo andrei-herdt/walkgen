@@ -229,7 +229,9 @@ namespace MPCWalkgen{
     HipYawData leftHipYaw;
     HipYawData rightHipYaw;
 
-    double robotMass; //TODO: rename mass
+    double mass;
+
+    double max_foot_vel;
 
     ConvexHull leftFootHull;
     ConvexHull rightFootHull;
@@ -245,6 +247,7 @@ namespace MPCWalkgen{
     ~RobotData();
 
     void SetCoPHulls(double ds_distance);
+    //TODO: void ComputeMaxFootVel();
   };
 
   struct MPC_WALKGEN_API Trajectory {

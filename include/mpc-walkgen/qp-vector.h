@@ -25,6 +25,7 @@ namespace MPCWalkgen{
     ~QPVector();
 
     void addTerm(const Eigen::VectorXd &vec, const int row);
+    void addTerm(double value, int first_row);
 
     void setConstantPart(const Eigen::VectorXd &vec);
 

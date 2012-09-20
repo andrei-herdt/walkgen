@@ -35,14 +35,14 @@ QPSolver::QPSolver(const SolverData *parameters, int nbvar_max, int nbcstr_max)
 }
 
 QPSolver::~QPSolver() {
-	if (cstr_arr_ != 0x0) {
-		delete[] cstr_arr_;
-		cstr_arr_ = NULL;
-	}
-	if (hessian_arr_ != 0x0) {
-		delete[] hessian_arr_;
-		hessian_arr_ = NULL;
-	}
+  if (cstr_arr_ != 0x0) {
+    delete[] cstr_arr_;
+    cstr_arr_ = NULL;
+  }
+  if (hessian_arr_ != 0x0) {
+    delete[] hessian_arr_;
+    hessian_arr_ = NULL;
+  }
 }
 
 QPMatrix &QPSolver::matrix(const QPMatrixType type) {
@@ -117,19 +117,20 @@ void QPSolver::reorderInitialSolution(VectorXd &initialSolution,
 }
 
 void QPSolver::reorderSolution(VectorXd &qp_solution_vec, VectorXi &constraints,
-                               VectorXi &initialConstraints) {
-                                 VectorXd solutionTmp = qp_solution_vec;
-                                 VectorXi constraintsTmp = constraints;
+                               VectorXi &initialConstraints) 
+{
+  VectorXd solutionTmp = qp_solution_vec;
+  VectorXi constraintsTmp = constraints;
 
-                                 for (int i = 0; i < num_vars_; ++i) {
-                                   qp_solution_vec(i) = solutionTmp(var_indices_vec_(i));
-                                   constraints(i) = constraintsTmp(var_indices_vec_(i));
-                                 }
-                                 for (int i = 0; i < num_constr_; ++i) {
-                                   constraints(i + num_vars_) = constraintsTmp(constr_indices_vec_(i + num_vars_));
-                                 }
+  for (int i = 0; i < num_vars_; ++i) {
+    qp_solution_vec(i) = solutionTmp(var_indices_vec_(i));
+    constraints(i) = constraintsTmp(var_indices_vec_(i));
+  }
+  for (int i = 0; i < num_constr_; ++i) {
+    constraints(i + num_vars_) = constraintsTmp(constr_indices_vec_(i + num_vars_));
+  }
 
-                                 initialConstraints = constraints;
+  initialConstraints = constraints;
 }
 
 

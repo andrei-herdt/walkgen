@@ -296,7 +296,8 @@ RobotData::RobotData(const FootData &leftFoot, const FootData &rightFoot,
                      ,rightFoot(rightFoot)
                      ,leftHipYaw(leftHipYaw)
                      ,rightHipYaw(rightHipYaw)
-                     ,robotMass(mass)
+                     ,mass(mass)
+                     ,max_foot_vel(0.)
                      ,leftFootHull()
                      ,rightFootHull()
                      ,CoPLeftSSHull()
@@ -347,7 +348,7 @@ WeightCoefficients::WeightCoefficients(int num_modes)
   vel[0]  = 1;
 
   cop[1]  = 1.;
-  jerk[1] = 0.00001;
+  jerk[1] = 0.01;
   vel[1]  = 1.;
 
   active_mode  = 0;

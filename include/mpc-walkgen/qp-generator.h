@@ -23,9 +23,9 @@ namespace MPCWalkgen{
     // Public methods:
     //
   public:
-    QPGenerator(QPPreview * preview, QPSolver * solver,
-      Reference * ref, WeightCoefficients * weight_coefficients,
-      RigidBodySystem * robot, const MPCData * mpc_parameters);
+    QPGenerator(QPPreview *preview, QPSolver *solver,
+      Reference *ref, WeightCoefficients *weight_coefficients,
+      RigidBodySystem *robot, const MPCData *mpc_parameters);
     ~QPGenerator();
 
     void precomputeObjective();
@@ -38,15 +38,19 @@ namespace MPCWalkgen{
 
     void computeReferenceVector(const MPCSolution &solution);
 
+    inline void current_time(double time) {current_time_ = time;};
+
   private:
 
-    void buildInequalitiesFeet(const MPCSolution &solution);
+    void BuildInequalitiesFeet(const MPCSolution &solution);
 
     void buildObjective(const MPCSolution &solution);
 
     void buildConstraints(const MPCSolution &solution);
 
-    void buildConstraintsFeet(const MPCSolution &solution);
+    void BuildConstraintsFeet(const MPCSolution &solution);
+
+    void BuildFootVelConstraints(const MPCSolution &solution);
 
     void buildConstraintsCOP(const MPCSolution &solution);
 
@@ -64,7 +68,7 @@ namespace MPCWalkgen{
     CommonMatrixType tmp_mat_;
     CommonMatrixType tmp_mat2_;
 
-    RelativeInequalities feetInequalities_;//TODO: Maybe should be instantiated in robot_
+    RelativeInequalities feetInequalities_;
 
     std::vector<CommonMatrixType> Qconst_;
     std::vector<CommonMatrixType> QconstN_;
@@ -76,6 +80,8 @@ namespace MPCWalkgen{
     ConvexHull FootFeasibilityEdges;
     ConvexHull COPFeasibilityEdges;
     ConvexHull hull;
+
+    double current_time_;
   };
 }
 #endif // MPC_WALKGEN_QP_GENERATOR_H

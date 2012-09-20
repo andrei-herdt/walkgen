@@ -43,10 +43,10 @@ namespace MPCWalkgen{
     inline int nbvar () const {return num_vars_;}
     inline void nbvar_max (int nbvar) {num_vars_max_ = nbvar;}
     inline int nbvar_max () const {return num_vars_max_;}
-    inline void nbcstr(int nbcstr) 
-    {assert(nbcstr <= num_constr_max_); num_constr_ = nbcstr;}
-    inline int nbcstr() const {return num_constr_;}
-    inline void nbcstr_max(const int nbcstr) {num_constr_max_ = nbcstr;}
+    inline void num_constr(int num_constr) 
+    {assert(num_constr <= num_constr_max_); num_constr_ = num_constr;}
+    inline int num_constr() const {return num_constr_;}
+    inline void nbcstr_max(const int num_constr) {num_constr_max_ = num_constr;}
     inline int nbcstr_max() const {return num_constr_max_;}
 
 
