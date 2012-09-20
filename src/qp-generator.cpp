@@ -402,24 +402,24 @@ void QPGenerator::ConvertCopToJerk(MPCSolution &solution){
   const VectorXd feet_y_vec = solution.qp_solution_vec.segment(2 * num_samples + nbsteps, nbsteps);
 
 
-  int nbsamples_interp = 1;
+  int num_samples_interp = 1;
   if (mpc_parameters_->interpolate_whole_horizon == true) {
-    nbsamples_interp = num_samples;
+    num_samples_interp = num_samples;
   }
 
   VectorXd &cop_x_vec = solution.cop_prw.pos.x_vec;
   VectorXd &cop_y_vec = solution.cop_prw.pos.y_vec;//TODO: Resize OK?
-  cop_x_vec.setZero(num_samples);//TODO(andrei.herdt@gmail.com): Resize necessary?
-  cop_y_vec.setZero(num_samples);
-  for (int s = 0; s < nbsamples_interp; ++s) {
+  //cop_x_vec.setZero(num_samples);//TODO(andrei.herdt@gmail.com): Resize necessary?
+  //cop_y_vec.setZero(num_samples);
+  for (int s = 0; s < num_samples_interp; ++s) {
     // Rotate: Rx*x - Ry*y;
     cop_x_vec(s) =  rot_mat(s, s) * sol_x_vec(s) - rot_mat(s, num_samples + s) * sol_y_vec(s);
+    cop_x_vec(s) += select.VcX(s);
     cop_y_vec(s) =  rot_mat(num_samples + s, num_samples + s) * sol_y_vec(s) - rot_mat(num_samples + s, s) * sol_x_vec(s);
+    cop_y_vec(s) += select.VcY(s); 
   }
   // Add to global coordinates of the feet
-  cop_x_vec += select.VcX;
   cop_x_vec += select.V * feet_x_vec;
-  cop_y_vec += select.VcY; 
   cop_y_vec += select.V * feet_y_vec;
 
   CommonVectorType state_x(mpc_parameters_->dynamics_order), state_y(mpc_parameters_->dynamics_order);
@@ -431,9 +431,11 @@ void QPGenerator::ConvertCopToJerk(MPCSolution &solution){
   // Transform to com motion
   const LinearDynamicsMatrices &copdyn = robot_->body(COM)->dynamics_qp().cop;
   VectorXd &jerk_x_vec = solution.com_prw.jerk.x_vec;
-  jerk_x_vec.setZero(num_samples); 
+  //jerk_x_vec.setZero(num_samples); 
   VectorXd &jerk_y_vec = solution.com_prw.jerk.y_vec;
-  jerk_y_vec.setZero(num_samples); 
+  //jerk_y_vec.setZero(num_samples); 
+
+
   tmp_vec_ = cop_x_vec - copdyn.S * state_x;
   jerk_x_vec.noalias() = copdyn.UInv * tmp_vec_;
   tmp_vec_ = cop_y_vec - copdyn.S * state_y;
