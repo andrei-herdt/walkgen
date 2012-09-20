@@ -44,7 +44,7 @@ OrientationsPreview::~OrientationsPreview()
 void OrientationsPreview::Init(const MPCData &data, const RobotData &robot_data) {
 	T_ 			= data.period_qpsample;
 	Ti_ 		= data.period_mpcsample;
-	N_ 			= data.nbsamples_qp;
+	N_ 			= data.num_samples_horizon;
   SSPeriod_ 	= data.nbqpsamples_step * data.period_qpsample;//TODO: Incoherent
 
 	lLimitLeftHipYaw_ = robot_data.leftHipYaw.lowerBound;

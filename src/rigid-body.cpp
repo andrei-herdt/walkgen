@@ -31,7 +31,7 @@ void RigidBody::Init(DynamicsBuilder *dyn_build_p) {
 void RigidBody::ComputeDynamics(DynamicsOrder dynamics_order) {
   assert(state_.z(0) > kEps);
 
-  int num_samples = mpc_parameters_->nbsamples_qp;
+  int num_samples = mpc_parameters_->num_samples_horizon;
   double sp_first = mpc_parameters_->period_mpcsample;
   double sp_rest = mpc_parameters_->period_qpsample;
   int nbdynamics = mpc_parameters_->nbFeedbackSamplesStandard();

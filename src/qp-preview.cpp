@@ -12,8 +12,8 @@ QPPreview::QPPreview(Reference * ref, RigidBodySystem * robot, const MPCData * m
   :robot_(robot)
   ,mpc_parameters_(mpc_parameters)
   ,selectionMatrices_(*mpc_parameters)
-  ,rotationMatrix_ (CommonMatrixType::Zero(2*mpc_parameters_->nbsamples_qp, 2*mpc_parameters_->nbsamples_qp))
-  ,rotationMatrix2_(CommonMatrixType::Zero(2*mpc_parameters_->nbsamples_qp, 2*mpc_parameters_->nbsamples_qp)) {
+  ,rotationMatrix_ (CommonMatrixType::Zero(2*mpc_parameters_->num_samples_horizon, 2*mpc_parameters_->num_samples_horizon))
+  ,rotationMatrix2_(CommonMatrixType::Zero(2*mpc_parameters_->num_samples_horizon, 2*mpc_parameters_->num_samples_horizon)) {
 
   statesolver_ = new StateFSM(ref, mpc_parameters);
 }
@@ -26,12 +26,12 @@ QPPreview::~QPPreview()
 void QPPreview::previewSamplingTimes(double currenttime, 
                                      double firstSamplingPeriod, MPCSolution &solution) {
 
-  solution.samplingTimes_vec.resize(mpc_parameters_->nbsamples_qp + 1, 0);
+  solution.samplingTimes_vec.resize(mpc_parameters_->num_samples_horizon + 1, 0);
   std::fill(solution.samplingTimes_vec.begin(), solution.samplingTimes_vec.end(), 0);
   // As for now, only the first sampling period varies
   solution.samplingTimes_vec[0] = currenttime;
   solution.samplingTimes_vec[1] = solution.samplingTimes_vec[0] + firstSamplingPeriod;// mpc_parameters_->QPSamplingPeriod;////// //
-  for (int sample = 2; sample < mpc_parameters_->nbsamples_qp + 1; sample++) {
+  for (int sample = 2; sample < mpc_parameters_->num_samples_horizon + 1; sample++) {
       solution.samplingTimes_vec[sample] += solution.samplingTimes_vec[sample - 1] +
           mpc_parameters_->period_qpsample;
     }
@@ -65,7 +65,7 @@ void QPPreview::previewSupportStates(double firstSamplingPeriod, MPCSolution &so
   // initialize the previewed support state before previewing
   SupportState previewed_support = current_support;//TODO: Replace =operator by CopyFrom or give to constructor
   previewed_support.stepNumber = 0;
-  for (int sample = 1; sample <= mpc_parameters_->nbsamples_qp; sample++) {
+  for (int sample = 1; sample <= mpc_parameters_->num_samples_horizon; sample++) {
       statesolver_->setSupportState(sample, solution.samplingTimes_vec, previewed_support);
       // special treatment for the first instant of transitionalDS
       previewed_support.transitional_ds = false;
@@ -106,7 +106,7 @@ void QPPreview::previewSupportStates(double firstSamplingPeriod, MPCSolution &so
 //  The indexes not given are supposed to be zero and are not reset
 //  to reduce computation time.
 void QPPreview::computeRotationMatrix(MPCSolution &solution){
-  int N = mpc_parameters_->nbsamples_qp;
+  int N = mpc_parameters_->num_samples_horizon;
 
   for (int i=0; i<N; ++i) {
       double cosYaw = cos(solution.support_states_vec[i+1].yaw);
@@ -127,8 +127,8 @@ void QPPreview::buildSelectionMatrices(MPCSolution &solution){
   const int &NbPrwSteps = solution.support_states_vec.back().stepNumber;
 
   if (selectionMatrices_.V.cols() != NbPrwSteps){
-      selectionMatrices_.V.resize(mpc_parameters_->nbsamples_qp,NbPrwSteps);
-      selectionMatrices_.VT.resize(NbPrwSteps, mpc_parameters_->nbsamples_qp);
+      selectionMatrices_.V.resize(mpc_parameters_->num_samples_horizon,NbPrwSteps);
+      selectionMatrices_.VT.resize(NbPrwSteps, mpc_parameters_->num_samples_horizon);
       selectionMatrices_.VcfX.resize(NbPrwSteps);
       selectionMatrices_.VcfY.resize(NbPrwSteps);
       selectionMatrices_.Vf.resize(NbPrwSteps, NbPrwSteps);
@@ -147,7 +147,7 @@ void QPPreview::buildSelectionMatrices(MPCSolution &solution){
   std::vector<SupportState>::iterator SS_it;
   SS_it = solution.support_states_vec.begin();//points at the cur. sup. st.
   ++SS_it;
-  for (int i=0; i<mpc_parameters_->nbsamples_qp; i++){
+  for (int i=0; i<mpc_parameters_->num_samples_horizon; i++){
       if (SS_it->stepNumber>0){
           selectionMatrices_.V(i,SS_it->stepNumber-1) = selectionMatrices_.VT(SS_it->stepNumber-1,i) = 1.0;
           if (SS_it->stepNumber==1 && SS_it->state_changed && SS_it->phase == SS) {

@@ -47,13 +47,13 @@ void LSSOLParser::Solve(MPCSolution &solution_data,
 	bu_.segment(num_vars_, num_constr_) = constr_u_bounds_vec_().block(0,0,num_constr_,1);
 
 	if (useWarmStart){
-		solution_data.qpSolution = solution_data.initialSolution;
+		solution_data.qp_solution_vec = solution_data.initialSolution;
 		solution_data.constraints = solution_data.initialConstraints;
 	}else{
-		if (solution_data.qpSolution.rows() != num_vars_){
-			solution_data.qpSolution.setZero(num_vars_);
+		if (solution_data.qp_solution_vec.rows() != num_vars_){
+			solution_data.qp_solution_vec.setZero(num_vars_);
 		}else{
-			solution_data.qpSolution.fill(0);
+			solution_data.qp_solution_vec.fill(0);
 		}
 		if (solution_data.constraints.rows()!=num_vars_ + num_constr_){
 			solution_data.constraints.setZero(num_vars_ + num_constr_);
@@ -80,10 +80,10 @@ void LSSOLParser::Solve(MPCSolution &solution_data,
 //	lssol_(&num_vars_, &num_vars_,
 //			&num_constr_, &num_constr_, &num_vars_,
 //			matrixA_().data(), bl_.data(), bu_.data(),gradient_vec_().data(),
-//			solution_data.constraints.data(), kx_.data(), solution_data.qpSolution.data(),
+//			solution_data.constraints.data(), kx_.data(), solution_data.qp_solution_vec.data(),
 //			matrixQ_.cholesky().data(), bb_.data(), &inform_, &iter_, &obj_, lambda_.data(),
 //			iwar_.data(), &leniw_, war_.data(), &lenw_);
 
 
-	reorderSolution(solution_data.qpSolution, solution_data.constraints, solution_data.initialConstraints);
+	reorderSolution(solution_data.qp_solution_vec, solution_data.constraints, solution_data.initialConstraints);
 }

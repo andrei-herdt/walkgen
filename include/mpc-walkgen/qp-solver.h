@@ -62,7 +62,7 @@ namespace MPCWalkgen{
 
     void reorderInitialSolution(Eigen::VectorXd &initialSolution,
       Eigen::VectorXi &initialConstraints);
-    void reorderSolution(Eigen::VectorXd &qpSolution,
+    void reorderSolution(Eigen::VectorXd &qp_solution_vec,
       Eigen::VectorXi &constraints,
       Eigen::VectorXi &initialConstraints);
 

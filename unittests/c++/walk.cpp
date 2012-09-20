@@ -16,20 +16,20 @@ int main() {
   int num_samples_dsss = 8;
   int num_steps_ssds = 2;
   double sample_period_qp = 0.1;
-  double sample_period_first = 0.002;
-  double sample_period_act = 0.002;
+  double sample_period_first = 0.005;
+  double sample_period_act = 0.005;
   const double kSecurityMargin = 0.02;
 
     // Simulation parameters:
   // ----------------------
   MPCData mpc_parameters;
-  mpc_parameters.nbsamples_qp       = num_samples_horizon;
-  mpc_parameters.nbqpsamples_step   = num_samples_step;
-  mpc_parameters.nbqpsamples_dsss   = num_samples_dsss;
-  mpc_parameters.nbsteps_ssds       = num_steps_ssds;
-  mpc_parameters.period_qpsample    = sample_period_qp;
-  mpc_parameters.period_mpcsample   = sample_period_first;
-  mpc_parameters.period_actsample   = sample_period_act;
+  mpc_parameters.num_samples_horizon    = num_samples_horizon;
+  mpc_parameters.nbqpsamples_step       = num_samples_step;
+  mpc_parameters.nbqpsamples_dsss       = num_samples_dsss;
+  mpc_parameters.nbsteps_ssds           = num_steps_ssds;
+  mpc_parameters.period_qpsample        = sample_period_qp;
+  mpc_parameters.period_mpcsample       = sample_period_first;
+  mpc_parameters.period_actsample       = sample_period_act;
   mpc_parameters.weight_coefficients.jerk[0]         = 0.001;
   mpc_parameters.weight_coefficients.jerk[1]         = 0.001;
   mpc_parameters.warmstart                      = false;
@@ -37,7 +37,7 @@ int main() {
   mpc_parameters.solver.analysis                = false;
   mpc_parameters.solver.name                    = QPOASES;
   mpc_parameters.solver.num_wsrec               = 2;
-  mpc_parameters.dynamics_order                 = SECOND_ORDER;
+  mpc_parameters.dynamics_order                 = THIRD_ORDER;
 
 
 

@@ -179,7 +179,7 @@ namespace MPCWalkgen{
     double period_actsample;   //blocked - precomputeObjective / RigidBodySystem::computeDynamicMatrix
 
     /// \brief Nb. samplings inside preview window
-    int nbsamples_qp;  //blocked - precomputeObjective
+    int num_samples_horizon;  //blocked - precomputeObjective
 
     // \brief Step period ss_left<->ss_right in qp sample periods
     int nbqpsamples_step;  //blocked by orientPrw_ ? can be solved --
@@ -271,7 +271,7 @@ namespace MPCWalkgen{
 
   struct MPC_WALKGEN_API MPCSolution {
 
-    Eigen::VectorXd qpSolution;
+    Eigen::VectorXd qp_solution_vec;
     Eigen::VectorXd initialSolution;
 
     Eigen::VectorXi constraints;

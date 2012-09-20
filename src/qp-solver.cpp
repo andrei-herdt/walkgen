@@ -116,13 +116,13 @@ void QPSolver::reorderInitialSolution(VectorXd &initialSolution,
 
 }
 
-void QPSolver::reorderSolution(VectorXd &qpSolution, VectorXi &constraints,
+void QPSolver::reorderSolution(VectorXd &qp_solution_vec, VectorXi &constraints,
                                VectorXi &initialConstraints) {
-                                 VectorXd solutionTmp = qpSolution;
+                                 VectorXd solutionTmp = qp_solution_vec;
                                  VectorXi constraintsTmp = constraints;
 
                                  for (int i = 0; i < num_vars_; ++i) {
-                                   qpSolution(i) = solutionTmp(var_indices_vec_(i));
+                                   qp_solution_vec(i) = solutionTmp(var_indices_vec_(i));
                                    constraints(i) = constraintsTmp(var_indices_vec_(i));
                                  }
                                  for (int i = 0; i < num_constr_; ++i) {

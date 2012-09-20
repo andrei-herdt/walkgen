@@ -4,13 +4,13 @@
 using namespace MPCWalkgen;
 
 SelectionMatrices::SelectionMatrices(const MPCData &mpc_parameters)
-:V(mpc_parameters.nbsamples_qp,mpc_parameters.nbsamples_qp)
-,VT(mpc_parameters.nbsamples_qp,mpc_parameters.nbsamples_qp)
-,VcX(mpc_parameters.nbsamples_qp)
-,VcY(mpc_parameters.nbsamples_qp)
-,Vf(mpc_parameters.nbsamples_qp,mpc_parameters.nbsamples_qp)
-,VcfX(mpc_parameters.nbsamples_qp)
-,VcfY(mpc_parameters.nbsamples_qp)
+:V(mpc_parameters.num_samples_horizon,mpc_parameters.num_samples_horizon)
+,VT(mpc_parameters.num_samples_horizon,mpc_parameters.num_samples_horizon)
+,VcX(mpc_parameters.num_samples_horizon)
+,VcY(mpc_parameters.num_samples_horizon)
+,Vf(mpc_parameters.num_samples_horizon,mpc_parameters.num_samples_horizon)
+,VcfX(mpc_parameters.num_samples_horizon)
+,VcfY(mpc_parameters.num_samples_horizon)
 {}
 
 void RelativeInequalities::resize(int rows, int cols){

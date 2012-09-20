@@ -105,7 +105,7 @@ MPCSolution::~MPCSolution() {}
 
 
 MPCSolution& MPCSolution::operator = (MPCSolution const &rhs){
-  qpSolution = rhs.qpSolution;
+  qp_solution_vec = rhs.qp_solution_vec;
   initialSolution = rhs.initialSolution;
 
   constraints = rhs.constraints;
@@ -161,7 +161,7 @@ MPCData::MPCData()
 :period_qpsample(0.1)
 ,period_mpcsample(0.005)
 ,period_actsample(0.005)
-,nbsamples_qp(16)
+,num_samples_horizon(16)
 ,nbqpsamples_step(8)
 ,nbqpsamples_dsss(8)
 ,nbsteps_ssds(2)
@@ -192,7 +192,7 @@ int MPCData::num_qpsamples_ss() const {
 }
 
 int MPCData::num_steps_max() const {
-  return static_cast<int>(nbsamples_qp / nbqpsamples_step) + 1;
+  return static_cast<int>(num_samples_horizon / nbqpsamples_step) + 1;
 }
 
 double MPCData::period_ss() const {

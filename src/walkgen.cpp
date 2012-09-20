@@ -72,17 +72,17 @@ void Walkgen::Init(const MPCData &mpc_parameters) {
   // -------
   int num_constr_step = 5;// TODO: Move this to MPCParameters
   int num_steps_max = mpc_parameters_.num_steps_max();
-  int num_vars_max = 2 * (mpc_parameters_.nbsamples_qp + num_steps_max);
+  int num_vars_max = 2 * (mpc_parameters_.num_samples_horizon + num_steps_max);
   int num_constr_max = num_constr_step * num_steps_max;
   solver_ = createQPSolver(mpc_parameters_.solver, num_vars_max,  num_constr_max );
 
   // Set order of optimization variables
   VectorXi order(solver_->nbvar_max());
-  for (int i = 0; i < mpc_parameters_.nbsamples_qp; ++i) {// 0,2,4,1,3,5 (CoM)
+  for (int i = 0; i < mpc_parameters_.num_samples_horizon; ++i) {// 0,2,4,1,3,5 (CoM)
     order(i) = 2 * i;
-    order(i + mpc_parameters_.nbsamples_qp) = 2*i+1;
+    order(i + mpc_parameters_.num_samples_horizon) = 2*i+1;
   }
-  for (int i = 2 * mpc_parameters_.nbsamples_qp; i < solver_->nbvar_max(); ++i) {// 6,7,8 (Feet)
+  for (int i = 2 * mpc_parameters_.num_samples_horizon; i < solver_->nbvar_max(); ++i) {// 6,7,8 (Feet)
     order(i) = i;
   }
   solver_->SetVarOrder(order);
@@ -91,11 +91,11 @@ void Walkgen::Init(const MPCData &mpc_parameters) {
   // -------
   solution_.com_act.resize(mpc_parameters_.num_samples_act());
   solution_.cop_act.resize(mpc_parameters_.num_samples_act());
-  solution_.com_prw.resize(mpc_parameters_.nbsamples_qp);
-  solution_.cop_prw.resize(mpc_parameters_.nbsamples_qp);
+  solution_.com_prw.resize(mpc_parameters_.num_samples_horizon);
+  solution_.cop_prw.resize(mpc_parameters_.num_samples_horizon);
 
-  velRef_.resize(mpc_parameters_.nbsamples_qp);
-  newVelRef_.resize(mpc_parameters_.nbsamples_qp);
+  velRef_.resize(mpc_parameters_.num_samples_horizon);
+  newVelRef_.resize(mpc_parameters_.num_samples_horizon);
 
   // Reset:
   // ------

@@ -51,8 +51,8 @@ void FootBody::Interpolate(MPCSolution &solution, double current_time, const Ref
       time_left_xy = time_left_flying - raise_period;
       int nbPreviewedSteps = solution.support_states_vec.back().stepNumber;
       if (nbPreviewedSteps > 0) {
-        goal_state.x(0) = solution.qpSolution(2 * mpc_parameters_->nbsamples_qp);
-        goal_state.y(0) = solution.qpSolution(2 * mpc_parameters_->nbsamples_qp + nbStepsPreviewed);
+        goal_state.x(0) = solution.qp_solution_vec(2 * mpc_parameters_->num_samples_horizon);
+        goal_state.y(0) = solution.qp_solution_vec(2 * mpc_parameters_->num_samples_horizon + nbStepsPreviewed);
         goal_state.yaw(0) = solution.supportOrientations_vec[0];
       } else {
         goal_state.x(0) = state_.x(0);

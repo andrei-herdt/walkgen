@@ -89,7 +89,7 @@ extern "C" {
   {
 
     MPCData mpc_parameters;
-    mpc_parameters.nbsamples_qp         = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 0)));
+    mpc_parameters.num_samples_horizon         = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 0)));
     mpc_parameters.nbqpsamples_step     = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 1)));
     mpc_parameters.nbqpsamples_dsss     = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 2)));
     mpc_parameters.nbsteps_ssds         = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 3)));
@@ -305,8 +305,8 @@ extern "C" {
 
     int nbsteps_prw = solution.support_states_vec.back().stepNumber;
     if (nbsteps_prw > 0) {
-      first_foot_prw[0] = solution.qpSolution[2 * nbsamples];
-      first_foot_prw[1] = solution.qpSolution[2 * nbsamples + nbsteps_prw];
+      first_foot_prw[0] = solution.qp_solution_vec[2 * nbsamples];
+      first_foot_prw[1] = solution.qp_solution_vec[2 * nbsamples + nbsteps_prw];
     } else {
       first_foot_prw[0] = solution.support_states_vec.front().x;
       first_foot_prw[1] = solution.support_states_vec.front().y;
