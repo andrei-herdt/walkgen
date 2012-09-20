@@ -36,7 +36,7 @@ int main() {
   mpc_parameters.interpolate_whole_horizon      = false;
   mpc_parameters.solver.analysis                = false;
   mpc_parameters.solver.name                    = QPOASES;
-  mpc_parameters.solver.num_wsrec               = 10;
+  mpc_parameters.solver.num_wsrec               = 2;
   mpc_parameters.dynamics_order                 = THIRD_ORDER;
 
 

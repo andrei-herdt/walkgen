@@ -163,9 +163,9 @@ void QPPreview::buildSelectionMatrices(MPCSolution &solution)
               select_matrices_.Vf(SS_it->stepNumber-1, SS_it->stepNumber-1) = 1.0;
             }
         } else {
-          if (SS_it->phase == SS) {
           select_matrices_.VcX(i) = SS_it->x;
           select_matrices_.VcY(i) = SS_it->y;
+          if (SS_it->phase == SS) {
           select_matrices_.cm_feet_x(i) = SS_it->x;
           select_matrices_.cm_feet_y(i) = SS_it->y;
           } else {
