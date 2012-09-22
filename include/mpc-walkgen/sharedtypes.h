@@ -55,7 +55,6 @@ namespace MPCWalkgen{
   };
 
   struct Reference{
-
     Frame global;
     Frame local;
 

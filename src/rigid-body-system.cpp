@@ -14,8 +14,10 @@ RigidBodySystem::RigidBodySystem() {
 }
 
 RigidBodySystem::~RigidBodySystem() {
-	if (com_ != 0x0)
+  if (com_ != 0x0) {
 		delete com_;
+    com_ = NULL;
+  }
 
 	if (left_foot_ != 0x0)
 		delete left_foot_;

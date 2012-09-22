@@ -2,13 +2,6 @@
 #ifndef MPC_WALKGEN_QP_GENERATOR_H
 #define MPC_WALKGEN_QP_GENERATOR_H
 
-////////////////////////////////////////////////////////////////////////////////
-///
-///\file	qp-generator.h
-///\author	Herdt Andrei
-///\author Jory Lafaye
-////////////////////////////////////////////////////////////////////////////////
-
 #include <mpc-walkgen/types.h>
 #include <mpc-walkgen/qp-solver.h>
 #include <mpc-walkgen/qp-preview.h>
@@ -28,7 +21,7 @@ namespace MPCWalkgen{
       RigidBodySystem *robot, const MPCData *mpc_parameters);
     ~QPGenerator();
 
-    void precomputeObjective();
+    void PrecomputeObjective();
 
     void BuildProblem(MPCSolution &solution);
 
@@ -59,29 +52,30 @@ namespace MPCWalkgen{
     QPPreview *preview_;
     QPSolver *solver_;
     RigidBodySystem *robot_;
-    Reference *ref_;
+    Reference *vel_ref_, *pos_ref_;
     WeightCoefficients *weight_coefficients_;
     const MPCData *mpc_parameters_;
 
-    CommonVectorType tmp_vec_;
-    CommonVectorType tmp_vec2_;
-    CommonMatrixType tmp_mat_;
-    CommonMatrixType tmp_mat2_;
+    CommonVectorType tmp_vec_, tmp_vec2_;
+    CommonMatrixType tmp_mat_, tmp_mat2_;
+
+    double current_time_;
 
     RelativeInequalities feetInequalities_;
 
     std::vector<CommonMatrixType> Qconst_;
     std::vector<CommonMatrixType> QconstN_;
     std::vector<CommonMatrixType> choleskyConst_;
-    std::vector<CommonMatrixType> pconstCoM_;
-    std::vector<CommonMatrixType> pconstVc_;
-    std::vector<CommonMatrixType> pconstRef_;
+    std::vector<CommonMatrixType> state_variant_;   //\brief These elements are multiplied by the state
+    std::vector<CommonMatrixType> select_variant_;
+    std::vector<CommonMatrixType> ref_variant_vel_;
+    std::vector<CommonMatrixType> ref_variant_pos_;
 
-    ConvexHull FootFeasibilityEdges;
-    ConvexHull COPFeasibilityEdges;
+    ConvexHull foot_hull_edges_;
+    ConvexHull cop_hull_edges_;
     ConvexHull hull;
 
-    double current_time_;
+
   };
 }
 #endif // MPC_WALKGEN_QP_GENERATOR_H

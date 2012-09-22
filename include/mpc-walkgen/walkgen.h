@@ -2,15 +2,6 @@
 #ifndef MPC_WALKGEN_WALKGEN
 #define MPC_WALKGEN_WALKGEN
 
-////////////////////////////////////////////////////////////////////////////////
-///
-///\file	walkgen.h
-///\author	Herdt Andrei
-///\author	Lafaye Jory
-///\author      Keith François
-///
-////////////////////////////////////////////////////////////////////////////////
-
 #include <mpc-walkgen/types.h>
 #include <mpc-walkgen/realclock.h>
 
@@ -88,7 +79,7 @@ namespace MPCWalkgen{
     int output_index_;
 
     MPCSolution solution_;
-    Reference velRef_;
+    Reference vel_ref_, pos_ref_;
     /// \brief The new value of reference velocity, updated with in online method
     Reference newVelRef_;
     WeightCoefficients weight_coefficients_;

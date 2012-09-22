@@ -9,96 +9,99 @@ using namespace MPCWalkgen;
 using namespace Eigen;
 
 QPGenerator::QPGenerator(QPPreview *preview, QPSolver *solver,
-                         Reference *ref, WeightCoefficients *weight_coefficients,
+                         Reference *vel_ref, WeightCoefficients *weight_coefficients,
                          RigidBodySystem *robot, const MPCData *mpc_parameters)
                          :preview_(preview)
                          ,solver_(solver)
                          ,robot_(robot)
-                         ,ref_(ref)
+                         ,vel_ref_(vel_ref)
                          ,weight_coefficients_(weight_coefficients)
                          ,mpc_parameters_(mpc_parameters)
                          ,tmp_vec_(1)
                          ,tmp_vec2_(1)
                          ,tmp_mat_(1,1)
-                         ,tmp_mat2_(1,1) 
+                         ,tmp_mat2_(1,1)
+                         ,current_time_(0.)
+{}
+
+QPGenerator::~QPGenerator() {}
+
+
+void QPGenerator::PrecomputeObjective() 
 {
-}
-
-QPGenerator::~QPGenerator(){}
-
-
-void QPGenerator::precomputeObjective(){
-  // TODO: Document this function
-  int nbUsedPonderations = weight_coefficients_->jerk.size(); //
-  int num_recomp = mpc_parameters_->nbFeedbackSamplesStandard();
-  Qconst_.resize(num_recomp * nbUsedPonderations);
-  QconstN_.resize(num_recomp * nbUsedPonderations);
-  choleskyConst_.resize(num_recomp * nbUsedPonderations);
-  pconstCoM_.resize(num_recomp * nbUsedPonderations);
-  pconstVc_.resize(num_recomp * nbUsedPonderations);
-  pconstRef_.resize(num_recomp * nbUsedPonderations);
-
+	//TODO: The following has already been done in Walkgen::Init()
+	// Define order of variables:
+	// --------------------------
   int num_samples = mpc_parameters_->num_samples_horizon;
-  //CommonMatrixType pondFactor = MatrixXd::Identity(num_samples,num_samples);
+	VectorXi order(2 * num_samples);
+	for (int i = 0; i < num_samples; ++i) {
+		order(i) = 2 * i;
+		order(i + num_samples) = 2 * i + 1;
+	}
+	QPMatrix chol(2 * num_samples, 2 * num_samples);
+	chol.rowOrder(order);
+	chol.colOrder(order);
+
+	int num_modes = weight_coefficients_->jerk.size();
+	int num_recomp = mpc_parameters_->nbFeedbackSamplesStandard();
+	Qconst_.resize(num_recomp * num_modes);
+	QconstN_.resize(num_recomp * num_modes);
+	choleskyConst_.resize(num_recomp * num_modes);
+	state_variant_.resize(num_recomp * num_modes);
+	select_variant_.resize(num_recomp * num_modes);
+	ref_variant_vel_.resize(num_recomp * num_modes);
+  ref_variant_pos_.resize(num_recomp * num_modes);
+
+	// Precompute:
+	// -----------
   CommonMatrixType G(num_samples, num_samples);
+	for (int i = 0; i < num_modes; ++i) {
+		for (double first_period = mpc_parameters_->period_mpcsample;
+				first_period < mpc_parameters_->period_qpsample + kEps;
+				first_period += mpc_parameters_->period_mpcsample) {
+			int nb = (int)round(first_period / mpc_parameters_->period_mpcsample)-1;
+			nb += i * num_recomp;
+			robot_->setSelectionNumber(first_period);//TODO: ?
+			// TODO: Get access to entire vector and do all operations here
+			const LinearDynamicsMatrices &pos_dyn = robot_->body(COM)->dynamics_qp().pos;
+			const LinearDynamicsMatrices &vel_dyn = robot_->body(COM)->dynamics_qp().vel;
+			const LinearDynamicsMatrices &cop_dyn = robot_->body(COM)->dynamics_qp().cop;
 
-  //TODO: The following has already been done in Walkgen::Init()
-  // Define order of variables:
-  // --------------------------
-  VectorXi order(2 * num_samples);
-  for (int i = 0; i < num_samples; ++i) {
-    order(i) = 2 * i;
-    order(i + num_samples) = 2 * i + 1;
-  }
-  QPMatrix chol(2 * num_samples, 2 * num_samples);
-  chol.rowOrder(order);
-  chol.colOrder(order);
+			tmp_mat_.noalias() = cop_dyn.UInvT * vel_dyn.UT * vel_dyn.U * cop_dyn.UInv;
+      G = weight_coefficients_->vel[i] * tmp_mat_;
+      tmp_mat_.noalias() = cop_dyn.UInvT * cop_dyn.UInv;
+      G += weight_coefficients_->jerk[i] * tmp_mat_;
+			tmp_mat_.noalias() = cop_dyn.UInvT * pos_dyn.UT * pos_dyn.U * cop_dyn.UInv;/**/
+      G +=  weight_coefficients_->pos[i] * tmp_mat_;
 
+			Qconst_[nb] = G;
+			QconstN_[nb] = G + weight_coefficients_->cop[i] * CommonMatrixType::Identity(num_samples, num_samples);//TODO: What is difference??
 
-  // Precompute:
-  // -----------
-  for (int i = 0; i < nbUsedPonderations; ++i) {
-    for (double period_first = mpc_parameters_->period_mpcsample;
-      period_first < mpc_parameters_->period_qpsample+EPSILON;
-      period_first += mpc_parameters_->period_mpcsample) {
-        int nb = (int)round(period_first / mpc_parameters_->period_mpcsample)-1;
-        nb += i * num_recomp;
-        robot_->setSelectionNumber(period_first);
-        // TODO: Get access to entire vector and do all operations here
-        const LinearDynamicsMatrices &CoPDynamics = robot_->body(COM)->dynamics_qp().cop;
-        const LinearDynamicsMatrices &VelDynamics = robot_->body(COM)->dynamics_qp().vel;
+			chol.reset();
+			chol.addTerm(QconstN_[nb], 0, 0);
+			chol.addTerm(QconstN_[nb], num_samples, num_samples);
 
-        //double firstIterationWeight = period_first / mpc_parameters_->period_qpsample;
+			choleskyConst_[nb] = chol.cholesky();
 
-        tmp_mat_.noalias() = CoPDynamics.UInvT * VelDynamics.UT/**pondFactor*/ * VelDynamics.U * CoPDynamics.UInv;
-        tmp_mat2_.noalias() = CoPDynamics.UInvT/**pondFactor*/ * CoPDynamics.UInv;
+			tmp_mat_.noalias() = vel_dyn.S - vel_dyn.U * cop_dyn.UInv * cop_dyn.S;
+			state_variant_[nb] = cop_dyn.UInvT * vel_dyn.UT * weight_coefficients_->vel[i] * tmp_mat_;
+      tmp_mat_.noalias() = pos_dyn.S - pos_dyn.U * cop_dyn.UInv * cop_dyn.S;/**/
+			state_variant_[nb] += cop_dyn.UInvT * pos_dyn.UT * weight_coefficients_->pos[i] * tmp_mat_;/**/
+			state_variant_[nb] -= cop_dyn.UInvT * weight_coefficients_->jerk[i] * cop_dyn.UInv * cop_dyn.S;
 
-        G = weight_coefficients_->vel[i] * tmp_mat_ + weight_coefficients_->jerk[i] * tmp_mat2_;
-        Qconst_[nb] = G;
+			select_variant_[nb]  = cop_dyn.UInvT * weight_coefficients_->jerk[i] * cop_dyn.UInv;
+			select_variant_[nb] += cop_dyn.UInvT * vel_dyn.UT * weight_coefficients_->vel[i] * vel_dyn.U * cop_dyn.UInv;
+			select_variant_[nb] += cop_dyn.UInvT * pos_dyn.UT * weight_coefficients_->pos[i] * pos_dyn.U * cop_dyn.UInv;/**/
 
-        QconstN_[nb] = G + weight_coefficients_->cop[i] * CommonMatrixType::Identity(num_samples, num_samples);
-
-        chol.reset();
-        chol.addTerm(QconstN_[nb], 0, 0);
-        chol.addTerm(QconstN_[nb], num_samples, num_samples);
-
-        choleskyConst_[nb] = chol.cholesky();
-
-        pconstCoM_[nb] = VelDynamics.S - VelDynamics.U * CoPDynamics.UInv * CoPDynamics.S;
-        pconstCoM_[nb] = CoPDynamics.UInvT * VelDynamics.UT * weight_coefficients_->vel[i]/**pondFactor*/ * pconstCoM_[nb];
-        pconstCoM_[nb]-= CoPDynamics.UInvT * weight_coefficients_->jerk[i]/**pondFactor*/*CoPDynamics.UInv * CoPDynamics.S;
-
-        pconstVc_[nb]  = CoPDynamics.UInvT * weight_coefficients_->jerk[i]/**pondFactor*/ * CoPDynamics.UInv;
-        pconstVc_[nb] += CoPDynamics.UInvT * VelDynamics.UT * weight_coefficients_->vel[i]/**pondFactor*/ * VelDynamics.U * CoPDynamics.UInv;
-
-        pconstRef_[nb] = -CoPDynamics.UInvT * VelDynamics.UT * weight_coefficients_->vel[i]/**pondFactor*/;
-    }
-  }
+			ref_variant_vel_[nb] = -cop_dyn.UInvT * vel_dyn.UT * weight_coefficients_->vel[i];
+			ref_variant_pos_[nb] = -cop_dyn.UInvT * pos_dyn.UT * weight_coefficients_->pos[i];/**/
+		}
+	}
 
 }
 
-void QPGenerator::BuildProblem(MPCSolution &solution) {
-
+void QPGenerator::BuildProblem(MPCSolution &solution) 
+{
   // DIMENSION OF QP:
   // ----------------
   int nbvars = 2 * mpc_parameters_->num_samples_horizon +				// com
@@ -175,7 +178,7 @@ void QPGenerator::BuildObjective(const MPCSolution &solution) {
     Q.cholesky(chol);
   }
 
-  VectorXd HX(num_samples), HY(num_samples), H(2*num_samples);//TODO: Make this member
+  VectorXd HX(num_samples), HY(num_samples), H(2 * num_samples);//TODO: Make this member
 
   CommonVectorType state_x(mpc_parameters_->dynamics_order), state_y(mpc_parameters_->dynamics_order);
   for (int i = 0; i < mpc_parameters_->dynamics_order; i++) {
@@ -183,23 +186,23 @@ void QPGenerator::BuildObjective(const MPCSolution &solution) {
     state_y(i) = com.y(i);
   }
 
-  HX = pconstCoM_[sample_num] * state_x;
-  HY = pconstCoM_[sample_num] * state_y;
+  HX = state_variant_[sample_num] * state_x;
+  HY = state_variant_[sample_num] * state_y;
 
-  HX += pconstVc_[sample_num] * select_mats.VcX;
-  HY += pconstVc_[sample_num] * select_mats.VcY;
+  HX += select_variant_[sample_num] * select_mats.VcX;
+  HY += select_variant_[sample_num] * select_mats.VcY;
 
-  HX += pconstRef_[sample_num] * ref_->global.x;
-  HY += pconstRef_[sample_num] * ref_->global.y;
+  HX += ref_variant_vel_[sample_num] * vel_ref_->global.x;
+  HY += ref_variant_vel_[sample_num] * vel_ref_->global.y;
 
-  if (num_steps_previewed>0){
+  if (num_steps_previewed > 0) {
     tmp_vec_.noalias() = select_mats.VT * HX;
     solver_->vector(vectorP).addTerm(tmp_vec_, 2 * num_samples);
     tmp_vec_.noalias() = select_mats.VT * HY;
     solver_->vector(vectorP).addTerm(tmp_vec_, 2 * num_samples + num_steps_previewed);
   }
 
-  H << HX, HY; //TODO: Unnecessary
+  H << HX, HY; //TODO: Unnecessary if rot_mat half the size
   H = rot_mat * H;
 
   solver_->vector(vectorP).addTerm(H, 0 );
@@ -274,36 +277,36 @@ void QPGenerator::computeWarmStart(MPCSolution &solution){
   bool noActiveConstraints;
   for (int i = 0; i<num_samples; i++){
     // Get COP convex hull for current support
-    robot_->convexHull(COPFeasibilityEdges, CoPHull, *prwSS_it, false);
+    robot_->convexHull(cop_hull_edges_, CoPHull, *prwSS_it, false);
 
     // Check if the support foot has changed
     if (prwSS_it->state_changed && prwSS_it->stepNumber>0){
 
       // Get feet convex hull for current support
       prwSS_it--;
-      robot_->convexHull(FootFeasibilityEdges, FootHull,*prwSS_it, false);
+      robot_->convexHull(foot_hull_edges_, FootHull,*prwSS_it, false);
       prwSS_it++;
 
       // Place the foot on active constraints
-      shiftx=shifty=0;
-      noActiveConstraints=true;
-      for(int k=0;k<nbFC;++k){
+      shiftx = shifty = 0;
+      noActiveConstraints = true;
+      for(int k = 0; k < nbFC; ++k){
         if (solution.initialConstraints(k+2*num_samples+j*nbFC)!=0){
-          int k2=(k+1)%5; // k(4) = k(0)
+          int k2 = (k+1)%5; // k(4) = k(0)
           if (solution.initialConstraints(k2+2*num_samples+j*nbFC)!=0){
-            shiftx=FootFeasibilityEdges.x(k2);
-            shifty=FootFeasibilityEdges.y(k2);
+            shiftx=foot_hull_edges_.x(k2);
+            shifty=foot_hull_edges_.y(k2);
           }else{
-            shiftx=(FootFeasibilityEdges.x(k)+FootFeasibilityEdges.x(k2))/2;
-            shifty=(FootFeasibilityEdges.y(k)+FootFeasibilityEdges.y(k2))/2;
+            shiftx = (foot_hull_edges_.x(k) + foot_hull_edges_.x(k2)) / 2.;
+            shifty = (foot_hull_edges_.y(k) + foot_hull_edges_.y(k2)) / 2.;
           }
-          noActiveConstraints=false;
+          noActiveConstraints = false;
           break;
         }
       }
       if (noActiveConstraints){
-        shiftx=(FootFeasibilityEdges.x(4)+FootFeasibilityEdges.x(0))/2;
-        shifty=(FootFeasibilityEdges.y(4)+FootFeasibilityEdges.y(2))/2;
+        shiftx = (foot_hull_edges_.x(4) + foot_hull_edges_.x(0)) / 2.;
+        shifty = (foot_hull_edges_.y(4) + foot_hull_edges_.y(2)) / 2.;
       }
 
       current_support.x += shiftx;
@@ -355,11 +358,11 @@ void QPGenerator::computeWarmStart(MPCSolution &solution){
 
     if (!noActiveConstraints){
       if (k1!=-1){
-        shiftx=(COPFeasibilityEdges.x[k1]+COPFeasibilityEdges.x[k2])/2;
-        shifty=(COPFeasibilityEdges.y[k1]+COPFeasibilityEdges.y[k2])/2;
+        shiftx=(cop_hull_edges_.x[k1]+cop_hull_edges_.x[k2])/2;
+        shifty=(cop_hull_edges_.y[k1]+cop_hull_edges_.y[k2])/2;
       }else{
-        shiftx=COPFeasibilityEdges.x[k2];
-        shifty=COPFeasibilityEdges.y[k2];
+        shiftx=cop_hull_edges_.x[k2];
+        shifty=cop_hull_edges_.y[k2];
       }
     }
 
@@ -373,16 +376,16 @@ void QPGenerator::computeWarmStart(MPCSolution &solution){
 
 void QPGenerator::computeReferenceVector(const MPCSolution &solution)
 {
-  if (ref_->global.x.rows() != mpc_parameters_->num_samples_horizon){
-    ref_->global.x.resize(mpc_parameters_->num_samples_horizon);
-    ref_->global.y.resize(mpc_parameters_->num_samples_horizon);
+  if (vel_ref_->global.x.rows() != mpc_parameters_->num_samples_horizon){
+    vel_ref_->global.x.resize(mpc_parameters_->num_samples_horizon);
+    vel_ref_->global.y.resize(mpc_parameters_->num_samples_horizon);
   }
 
   double YawTrunk;
   for (int i = 0; i < mpc_parameters_->num_samples_horizon; ++i){
     YawTrunk = solution.support_states_vec[i+1].yaw;
-    ref_->global.x(i) = ref_->local.x(i) * cos(YawTrunk) - ref_->local.y(i) * sin(YawTrunk);
-    ref_->global.y(i) = ref_->local.x(i) * sin(YawTrunk) + ref_->local.y(i) * cos(YawTrunk);
+    vel_ref_->global.x(i) = vel_ref_->local.x(i) * cos(YawTrunk) - vel_ref_->local.y(i) * sin(YawTrunk);
+    vel_ref_->global.y(i) = vel_ref_->local.x(i) * sin(YawTrunk) + vel_ref_->local.y(i) * cos(YawTrunk);
   }
 }
 
@@ -554,6 +557,4 @@ void QPGenerator::buildConstraintsCOP(const MPCSolution &solution)
   int first_row = 0;
   solver_->vector(vectorXL).addTerm(tmp_vec_, first_row);
   solver_->vector(vectorXU).addTerm(tmp_vec2_, first_row);
-
-
 }

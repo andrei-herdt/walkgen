@@ -2,14 +2,6 @@
 #ifndef MPC_WALKGEN_RIGID_BODY_H
 #define MPC_WALKGEN_RIGID_BODY_H
 
-////////////////////////////////////////////////////////////////////////////////
-///
-///\file	rigid-body.h
-///\author	Herdt Andrei
-///
-////////////////////////////////////////////////////////////////////////////////
-
-
 #include <mpc-walkgen/types.h>
 #include <mpc-walkgen/interpolation.h>
 #include <mpc-walkgen/dynamics-builder.h>

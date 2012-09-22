@@ -23,7 +23,7 @@ Walkgen::Walkgen()
 ,output_()
 ,output_index_(0)
 ,solution_()
-,velRef_()
+,vel_ref_()
 ,newCurrentSupport_()
 ,isNewCurrentSupport_(false)
 ,first_sample_time_(0)
@@ -32,7 +32,6 @@ Walkgen::Walkgen()
 ,currentTime_(0)
 ,currentRealTime_(0)
 {
-
   orientPrw_ = new OrientationsPreview();
 
   robot_ = new RigidBodySystem();
@@ -41,7 +40,7 @@ Walkgen::Walkgen()
 }
 
 
-Walkgen::~Walkgen(){
+Walkgen::~Walkgen() {
   if (orientPrw_ != 0x0) {
     delete orientPrw_;
     orientPrw_ = NULL;
@@ -95,7 +94,7 @@ void Walkgen::Init(const MPCData &mpc_parameters) {
   solution_.com_prw.resize(mpc_parameters_.num_samples_horizon);
   solution_.cop_prw.resize(mpc_parameters_.num_samples_horizon);
 
-  velRef_.resize(mpc_parameters_.num_samples_horizon);
+  vel_ref_.resize(mpc_parameters_.num_samples_horizon);
   newVelRef_.resize(mpc_parameters_.num_samples_horizon);
 
   // Reset:
@@ -113,27 +112,27 @@ void Walkgen::Init(const RobotData &robot_data) {
 
 }
 
-void Walkgen::Init() {
-
+void Walkgen::Init() 
+{
   robot_->ComputeDynamics();
 
-  preview_ = new QPPreview(&velRef_, robot_, &mpc_parameters_);
+  preview_ = new QPPreview(&pos_ref_, &vel_ref_, robot_, &mpc_parameters_);
 
-  generator_= new QPGenerator(preview_, solver_, &velRef_, &weight_coefficients_, robot_, &mpc_parameters_);
+  generator_= new QPGenerator(preview_, solver_, &pos_ref_, &vel_ref_, &weight_coefficients_, robot_, &mpc_parameters_);
 
   orientPrw_->Init(mpc_parameters_, robotData_);
 
-  generator_->precomputeObjective();
+  generator_->PrecomputeObjective();
 
-  BodyState state_left_foot;
-  state_left_foot.x[0] = robotData_.leftFoot.position[0];
-  state_left_foot.y[0] = robotData_.leftFoot.position[1];
-  robot_->body(LEFT_FOOT)->state(state_left_foot);
+  BodyState left_foot_state;
+  left_foot_state.x[0] = robotData_.leftFoot.position[0];
+  left_foot_state.y[0] = robotData_.leftFoot.position[1];
+  robot_->body(LEFT_FOOT)->state(left_foot_state);
 
-  BodyState state_right_foot;
-  state_right_foot.x[0] = robotData_.rightFoot.position[0];
-  state_right_foot.y[0] = robotData_.rightFoot.position[1];
-  robot_->body(RIGHT_FOOT)->state(state_right_foot);
+  BodyState right_foot_state;
+  right_foot_state.x[0] = robotData_.rightFoot.position[0];
+  right_foot_state.y[0] = robotData_.rightFoot.position[1];
+  robot_->body(RIGHT_FOOT)->state(right_foot_state);
 
   BodyState state_com;
   state_com.x[0] = robotData_.com(0);//TODO: Add macros for x,y,z
@@ -199,32 +198,33 @@ const MPCSolution &Walkgen::online(double time){
   return solution_;
 }
 
-void Walkgen::SetCounters(double time) {
+void Walkgen::SetCounters(double time) {}
 
-}
-void Walkgen::ResetCounters(double time) {
+void Walkgen::ResetCounters(double time) 
+{
   first_sample_time_ = time + mpc_parameters_.period_qpsample;
   next_computation_ = time + mpc_parameters_.period_mpcsample;
   next_act_sample_ = time + mpc_parameters_.period_actsample;
 }
 
-void Walkgen::BuildProblem() {
+void Walkgen::BuildProblem() 
+{
   // UPDATE INTERNAL DATA:
   // ---------------------
   solver_->reset();
   solution_.reset();
-  velRef_ = newVelRef_;
+  vel_ref_ = newVelRef_;
   if (isNewCurrentSupport_){
     robot_->current_support(newCurrentSupport_);
     isNewCurrentSupport_ = false;
   }
 
   if (robot_->current_support().phase == SS && robot_->current_support().nbStepsLeft == 0) {
-    velRef_.local.x.fill(0);
-    velRef_.local.y.fill(0);
-    velRef_.local.yaw.fill(0);
+    vel_ref_.local.x.fill(0);
+    vel_ref_.local.y.fill(0);
+    vel_ref_.local.yaw.fill(0);
   }
-  weight_coefficients_.SetCoefficients(velRef_);
+  weight_coefficients_.SetCoefficients(vel_ref_);
 
   double firstSamplingPeriod = first_sample_time_ - currentTime_;
   robot_->setSelectionNumber(firstSamplingPeriod);
@@ -235,7 +235,7 @@ void Walkgen::BuildProblem() {
 
   preview_->previewSupportStates(firstSamplingPeriod, solution_);
 
-  orientPrw_->preview_orientations( currentTime_, velRef_, 
+  orientPrw_->preview_orientations( currentTime_, vel_ref_, 
     mpc_parameters_.nbqpsamples_step * mpc_parameters_.period_qpsample,
     robot_->body(LEFT_FOOT)->state(), robot_->body(RIGHT_FOOT)->state(),
     solution_ );
@@ -251,7 +251,7 @@ void Walkgen::BuildProblem() {
 void Walkgen::GenerateTrajectories() {
   generator_->ConvertCopToJerk(solution_);
 
-  robot_->Interpolate(solution_, currentTime_, velRef_);
+  robot_->Interpolate(solution_, currentTime_, vel_ref_);
 
   robot_->UpdateState(solution_);
 
@@ -313,22 +313,21 @@ void Walkgen::UpdateOutput() {
   output_.right_foot.ddyaw = robot_->right_foot()->motion_act().acc.yaw_vec[output_index_];
 }
 
-void Walkgen::reference(double dx, double dy, double dyaw){
+void Walkgen::reference(double dx, double dy, double dyaw){//TODO: Is newVelRef_ necessary
   newVelRef_.local.x.fill(dx);
   newVelRef_.local.y.fill(dy);
   newVelRef_.local.yaw.fill(dyaw);
 }
 
 void Walkgen::reference(CommonVectorType dx, CommonVectorType dy, CommonVectorType dyaw){
-  newVelRef_.local.x=dx;
-  newVelRef_.local.y=dy;
-  newVelRef_.local.yaw=dyaw;
+  newVelRef_.local.x = dx;
+  newVelRef_.local.y = dy;
+  newVelRef_.local.yaw = dyaw;
 }
 
-
 const SupportState &Walkgen::currentSupportState() const {
-  return robot_->current_support(); }
-
+  return robot_->current_support(); 
+}
 
 const BodyState &Walkgen::bodyState(BodyType body)const{
   return robot_->body(body)->state();

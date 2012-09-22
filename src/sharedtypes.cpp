@@ -344,10 +344,12 @@ WeightCoefficients::WeightCoefficients(int num_modes)
 ,acc(num_modes)
 ,jerk(num_modes)
 ,cop(num_modes) {
+  pos[0] =  0.;
   cop[0]  = 0.0001;
   jerk[0] = 0.00001;
   vel[0]  = 1;
 
+  pos[1] =  0.;
   cop[1]  = 1.;
   jerk[1] = 0.01;
   vel[1]  = 1.;

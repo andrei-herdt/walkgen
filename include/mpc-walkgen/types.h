@@ -19,7 +19,7 @@ namespace MPCWalkgen{
   //
   // Enums: 
   //
-  enum HullType{ FootHull, CoPHull };
+  enum HullType{ FootHull, CoPHull };//TODO: Remove this
 
   enum QPMatrixType{ matrixQ, matrixA };
 

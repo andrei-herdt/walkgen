@@ -38,8 +38,8 @@ void QPPreview::previewSamplingTimes(double current_time,
 
 }
 
-void QPPreview::previewSupportStates(double firstSamplingPeriod, MPCSolution &solution){
-
+void QPPreview::previewSupportStates(double firstSamplingPeriod, MPCSolution &solution)
+{
   const BodyState *foot;
   SupportState &current_support = robot_->current_support();
 
@@ -84,7 +84,7 @@ void QPPreview::previewSupportStates(double firstSamplingPeriod, MPCSolution &so
                   previewed_support.transitional_ds = true;
                 }
             }
-          if (/*pi > 1 &&*/ previewed_support.stepNumber > 0) {
+          if (previewed_support.stepNumber > 0) {
               previewed_support.x = 0.0;
               previewed_support.y = 0.0;
             }
@@ -116,7 +116,7 @@ void QPPreview::computeRotationMatrix(MPCSolution &solution){
       rotationMatrix_(i  ,i+N) =  sinYaw;
       rotationMatrix_(i+N,i+N) =  cosYaw;
 
-      rotationMatrix2_(2*i  ,2*i  ) =  cosYaw;//TODO: Seems to be not used
+      rotationMatrix2_(2*i  ,2*i  ) =  cosYaw;
       rotationMatrix2_(2*i+1,2*i  ) = -sinYaw;
       rotationMatrix2_(2*i  ,2*i+1) =  sinYaw;
       rotationMatrix2_(2*i+1,2*i+1) =  cosYaw;

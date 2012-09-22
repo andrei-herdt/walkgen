@@ -2,8 +2,8 @@
 
 using namespace MPCWalkgen;
 
-StateFSM::StateFSM(Reference * ref, const MPCData * mpc_parameters)
-:velRef_(ref)
+StateFSM::StateFSM(Reference *ref, const MPCData *mpc_parameters)
+:vel_ref_(ref)
 ,mpc_parameters_(mpc_parameters)
 {}
 
@@ -16,7 +16,7 @@ void StateFSM::setSupportState(int sample, const std::vector<double> &samplingTi
   support.nbInstants++;
 
   bool ReferenceGiven = false;
-  if (fabs(velRef_->local.x(0)) > EPSILON || fabs(velRef_->local.y(0)) > EPSILON || fabs(velRef_->local.yaw(0)) > EPSILON) {
+  if (fabs(vel_ref_->local.x(0)) > EPSILON || fabs(vel_ref_->local.y(0)) > EPSILON || fabs(vel_ref_->local.yaw(0)) > EPSILON) {
     ReferenceGiven = true;
   }
 
