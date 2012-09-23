@@ -50,12 +50,12 @@ namespace MPCWalkgen{
   };
 
   struct SelectionMatrices{
-    CommonMatrixType V, VT;
-    CommonVectorType VcX, VcY;
+    CommonMatrixType sample_step, sample_step_trans;
+    CommonVectorType sample_step_cx, sample_step_cy;
     CommonMatrixType Vf;
-    CommonVectorType VcfX, VcfY;              //\brief Middle of both feet
-    CommonVectorType cm_feet_x, cm_feet_y;  //\brief Middle of both currently supporting feet
-    CommonMatrixType m_feet, m_feet_trans;    //\brief Middle of both feet
+    CommonVectorType VcfX, VcfY;              			//\brief
+    CommonVectorType sample_mstep_cx, sample_mstep_cy;  //\brief Middle of both currently supporting feet
+    CommonMatrixType sample_mstep, sample_mstep_trans;	//\brief Middle of previewed feet
 
     void SetZero();
     SelectionMatrices(int num_rows);

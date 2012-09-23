@@ -140,16 +140,16 @@ void QPGenerator::BuildObjective(const MPCSolution &solution) {
 	}
 
 	if (num_steps_previewed > 0) {
-		tmp_mat_.noalias() = Qconst_[sample_num] * select_mats.V;
+		tmp_mat_.noalias() = Qconst_[sample_num] * select_mats.sample_step;
 		Q.addTerm(tmp_mat_, 0, 2 * num_samples);
 		Q.addTerm(tmp_mat_, num_samples, 2 * num_samples + num_steps_previewed);
 
-		tmp_mat_.noalias() = select_mats.VT * Qconst_[sample_num] * select_mats.V;
+		tmp_mat_.noalias() = select_mats.sample_step_trans * Qconst_[sample_num] * select_mats.sample_step;
 		Q.addTerm(tmp_mat_, 2 * num_samples, 2 * num_samples);
 		Q.addTerm(tmp_mat_, 2 * num_samples + num_steps_previewed, 2 * num_samples + num_steps_previewed);
 
 		if (!solver_->useCholesky()){
-			tmp_mat_.noalias() = select_mats.VT * Qconst_[sample_num];
+			tmp_mat_.noalias() = select_mats.sample_step_trans * Qconst_[sample_num];
 			Q.addTerm(tmp_mat_, 2 * num_samples, 0);
 			Q.addTerm(tmp_mat_, 2 * num_samples + num_steps_previewed, num_samples);
 
@@ -189,16 +189,19 @@ void QPGenerator::BuildObjective(const MPCSolution &solution) {
 	HX = state_variant_[sample_num] * state_x;
 	HY = state_variant_[sample_num] * state_y;
 
-	HX += select_variant_[sample_num] * select_mats.VcX;
-	HY += select_variant_[sample_num] * select_mats.VcY;
+	HX += select_variant_[sample_num] * select_mats.sample_step_cx;
+	HY += select_variant_[sample_num] * select_mats.sample_step_cy;
 
 	HX += ref_variant_vel_[sample_num] * vel_ref_->global.x;
 	HY += ref_variant_vel_[sample_num] * vel_ref_->global.y;
 
+	//HX += ref_variant_pos_[sample_num] * vel_ref_->global.x;
+	//HY += ref_variant_pos_[sample_num] * vel_ref_->global.y;
+
 	if (num_steps_previewed > 0) {
-		tmp_vec_.noalias() = select_mats.VT * HX;
+		tmp_vec_.noalias() = select_mats.sample_step_trans * HX;
 		solver_->vector(vectorP).addTerm(tmp_vec_, 2 * num_samples);
-		tmp_vec_.noalias() = select_mats.VT * HY;
+		tmp_vec_.noalias() = select_mats.sample_step_trans * HY;
 		solver_->vector(vectorP).addTerm(tmp_vec_, 2 * num_samples + num_steps_previewed);
 	}
 
@@ -417,13 +420,13 @@ void QPGenerator::ConvertCopToJerk(MPCSolution &solution)
 	for (int s = 0; s < num_samples_interp; ++s) {
 		// Rotate: Rx*x - Ry*y;
 		cop_x_vec(s) =  rot_mat(s, s) * sol_x_vec(s) - rot_mat(s, num_samples + s) * sol_y_vec(s);
-		cop_x_vec(s) += select.VcX(s);
+		cop_x_vec(s) += select.sample_step_cx(s);
 		cop_y_vec(s) =  rot_mat(num_samples + s, num_samples + s) * sol_y_vec(s) - rot_mat(num_samples + s, s) * sol_x_vec(s);
-		cop_y_vec(s) += select.VcY(s);
+		cop_y_vec(s) += select.sample_step_cy(s);
 	}
 	// Add to global coordinates of the feet
-	cop_x_vec += select.V * feet_x_vec;//TODO(performance): Optimize this for first interpolate_whole_horizon == false
-	cop_y_vec += select.V * feet_y_vec;
+	cop_x_vec += select.sample_step * feet_x_vec;//TODO(performance): Optimize this for first interpolate_whole_horizon == false
+	cop_y_vec += select.sample_step * feet_y_vec;
 
 	CommonVectorType state_x(mpc_parameters_->dynamics_order), state_y(mpc_parameters_->dynamics_order);
 	for (int i = 0; i < mpc_parameters_->dynamics_order; i++) {

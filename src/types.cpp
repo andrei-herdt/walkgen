@@ -3,26 +3,26 @@
 using namespace MPCWalkgen;
 
 SelectionMatrices::SelectionMatrices(int num_rows)
-:V(num_rows, num_rows)
-,VT(num_rows, num_rows)
-,VcX(num_rows)
-,VcY(num_rows)
+:sample_step(num_rows, num_rows)
+,sample_step_trans(num_rows, num_rows)
+,sample_step_cx(num_rows)
+,sample_step_cy(num_rows)
 ,Vf(num_rows, num_rows)
 ,VcfX(num_rows)
 ,VcfY(num_rows)
-,cm_feet_x(num_rows)
-,cm_feet_y(num_rows)
-,m_feet(num_rows, num_rows)
-,m_feet_trans(num_rows, num_rows)
+,sample_mstep_cx(num_rows)
+,sample_mstep_cy(num_rows)
+,sample_mstep(num_rows, num_rows)
+,sample_mstep_trans(num_rows, num_rows)
 {}
 
 void SelectionMatrices::SetZero() {
-    V.setZero(); VT.setZero();
-    VcX.setZero(); VcY.setZero();
+    sample_step.setZero(); sample_step_trans.setZero();
+    sample_step_cx.setZero(); sample_step_cy.setZero();
     Vf.setZero();
     VcfX.setZero();  VcfY.setZero();
-    cm_feet_x.setZero(); cm_feet_y.setZero();  
-    m_feet.setZero(); m_feet_trans.setZero();
+    sample_mstep_cx.setZero(); sample_mstep_cy.setZero();
+    sample_mstep.setZero(); sample_mstep_trans.setZero();
 }
 
 void RelativeInequalities::resize(int rows, int cols){

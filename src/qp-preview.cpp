@@ -108,7 +108,7 @@ void QPPreview::previewSupportStates(double firstSamplingPeriod, MPCSolution &so
 void QPPreview::computeRotationMatrix(MPCSolution &solution){
 	int N = mpc_parameters_->num_samples_horizon;
 
-	for (int i=0; i<N; ++i) {
+	for (int i=0; i<N; ++i) {//TODO:(performance) Vecotrize this?
 		double cosYaw = cos(solution.support_states_vec[i+1].yaw);
 		double sinYaw = sin(solution.support_states_vec[i+1].yaw);
 		rotationMatrix_(i  ,i  ) =  cosYaw;
@@ -125,7 +125,7 @@ void QPPreview::computeRotationMatrix(MPCSolution &solution){
 
 void QPPreview::buildSelectionMatrices(MPCSolution &solution)
 {
-	assert(select_matrices_.V.rows() == mpc_parameters_->num_samples_horizon);
+	assert(select_matrices_.sample_step.rows() == mpc_parameters_->num_samples_horizon);
 
 	const BodyState *left_foot_p = &robot_->body(LEFT_FOOT)->state();
 	const BodyState *right_foot_p = &robot_->body(RIGHT_FOOT)->state();
@@ -133,23 +133,23 @@ void QPPreview::buildSelectionMatrices(MPCSolution &solution)
 	int num_steps_previewed = solution.support_states_vec.back().stepNumber;
 	int num_samples = mpc_parameters_->num_samples_horizon;
 
-	if (select_matrices_.V.cols() != num_steps_previewed){
-		select_matrices_.V.resize(num_samples, num_steps_previewed);
-		select_matrices_.VT.resize(num_steps_previewed, num_samples);
+	if (select_matrices_.sample_step.cols() != num_steps_previewed){
+		select_matrices_.sample_step.resize(num_samples, num_steps_previewed);
+		select_matrices_.sample_step_trans.resize(num_steps_previewed, num_samples);
 		select_matrices_.Vf.resize(num_steps_previewed, num_steps_previewed);
 		select_matrices_.VcfX.resize(num_steps_previewed);
 		select_matrices_.VcfY.resize(num_steps_previewed);
-		select_matrices_.m_feet.resize(num_samples, num_steps_previewed);
-		select_matrices_.m_feet_trans.resize(num_steps_previewed, num_samples);
+		select_matrices_.sample_mstep.resize(num_samples, num_steps_previewed);
+		select_matrices_.sample_mstep_trans.resize(num_steps_previewed, num_samples);
 	}
 	select_matrices_.SetZero();
 
 	std::vector<SupportState>::iterator supp_state_it = solution.support_states_vec.begin();//points at the cur. sup. st.
 	++supp_state_it;
-	for (int i=0; i < num_samples; i++) {
+	for (int i = 0; i < num_samples; i++) {
 		if (supp_state_it->stepNumber > 0) {
-			select_matrices_.V(i, supp_state_it->stepNumber - 1) = select_matrices_.VT(supp_state_it->stepNumber-1, i) = 1.0;
-			select_matrices_.m_feet(i, supp_state_it->stepNumber - 1) = select_matrices_.m_feet_trans(supp_state_it->stepNumber-1, i) = 0.5;
+			select_matrices_.sample_step(i, supp_state_it->stepNumber - 1) = select_matrices_.sample_step_trans(supp_state_it->stepNumber-1, i) = 1.0;
+			select_matrices_.sample_mstep(i, supp_state_it->stepNumber - 1) = select_matrices_.sample_mstep_trans(supp_state_it->stepNumber-1, i) = 1.0;
 			if (supp_state_it->stepNumber == 1 && supp_state_it->state_changed && supp_state_it->phase == SS) {
 				--supp_state_it;
 				select_matrices_.VcfX(0) = supp_state_it->x;
@@ -162,13 +162,13 @@ void QPPreview::buildSelectionMatrices(MPCSolution &solution)
 				select_matrices_.Vf(supp_state_it->stepNumber - 1, supp_state_it->stepNumber - 1) = 1.0;
 			}
 		} else {
-			select_matrices_.VcX(i) = supp_state_it->x;
-			select_matrices_.VcY(i) = supp_state_it->y;
-			solution.pos_ref.global.x(i) = supp_state_it->x;
-			solution.pos_ref.global.y(i) = supp_state_it->y;
+			select_matrices_.sample_step_cx(i) = supp_state_it->x;
+			select_matrices_.sample_step_cy(i) = supp_state_it->y;
+			select_matrices_.sample_mstep_cx(i) = supp_state_it->x;
+			select_matrices_.sample_mstep_cy(i) = supp_state_it->y;
 			if (supp_state_it->phase == DS) {
-				solution.pos_ref.global.x(i) = left_foot_p->x(0) / 2. + right_foot_p->x(0) / 2.;
-				solution.pos_ref.global.y(i) = left_foot_p->y(0) / 2. + right_foot_p->y(0) / 2.;
+				select_matrices_.sample_mstep_cx(i) = left_foot_p->x(0) / 2. + right_foot_p->x(0) / 2.;
+				select_matrices_.sample_mstep_cy(i) = left_foot_p->y(0) / 2. + right_foot_p->y(0) / 2.;
 			}
 		}
 		++supp_state_it;
