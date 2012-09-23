@@ -94,6 +94,8 @@ void Walkgen::Init(const MPCData &mpc_parameters) {
   solution_.com_prw.resize(mpc_parameters_.num_samples_horizon);
   solution_.cop_prw.resize(mpc_parameters_.num_samples_horizon);
 
+  solution_.pos_ref.resize(mpc_parameters_.num_samples_horizon);
+
   vel_ref_.resize(mpc_parameters_.num_samples_horizon);
   newVelRef_.resize(mpc_parameters_.num_samples_horizon);
 
@@ -116,9 +118,9 @@ void Walkgen::Init()
 {
   robot_->ComputeDynamics();
 
-  preview_ = new QPPreview(&pos_ref_, &vel_ref_, robot_, &mpc_parameters_);
+  preview_ = new QPPreview(&vel_ref_, robot_, &mpc_parameters_);
 
-  generator_= new QPGenerator(preview_, solver_, &pos_ref_, &vel_ref_, &weight_coefficients_, robot_, &mpc_parameters_);
+  generator_= new QPGenerator(preview_, solver_, &vel_ref_, &weight_coefficients_, robot_, &mpc_parameters_);
 
   orientPrw_->Init(mpc_parameters_, robotData_);
 

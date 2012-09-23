@@ -229,6 +229,7 @@ namespace MPCWalkgen{
 
   struct MPC_WALKGEN_API RobotData {
     Eigen::Vector3d com;
+
     double max_foot_height;
 
     FootData leftFoot;
@@ -307,6 +308,8 @@ namespace MPCWalkgen{
     Motion com_act, cop_act, left_foot_act, right_foot_act; 
 
     SolutionAnalysis analysis;
+
+    Reference pos_ref;
 
     struct State {
       CommonVectorType CoMTrajX_;

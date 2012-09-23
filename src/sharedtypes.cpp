@@ -139,6 +139,8 @@ MPCSolution& MPCSolution::operator = (MPCSolution const &rhs){
 
   analysis = rhs.analysis;
 
+  pos_ref = rhs.pos_ref;
+
   state_vec = rhs.state_vec;
   return(*this);
 }
