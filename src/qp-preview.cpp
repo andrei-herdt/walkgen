@@ -1,21 +1,29 @@
 #include <mpc-walkgen/qp-preview.h>
 
 #include <cmath>
+#include <iostream>
 
 using namespace MPCWalkgen;
 using namespace Eigen;
 
-const double QPPreview::EPS_ = 1e-6;
-
 //TODO:change name QPPreview to Preview
-QPPreview::QPPreview(Reference *ref, RigidBodySystem *robot, const MPCData *mpc_parameters)
+QPPreview::QPPreview(Reference *ref, RigidBodySystem *robot, const MPCData *mpc_parameters, RealClock *clock)
 :robot_(robot)
 ,mpc_parameters_(mpc_parameters)
 ,select_matrices_(mpc_parameters->num_samples_horizon)
 ,rotationMatrix_ (CommonMatrixType::Zero(2*mpc_parameters_->num_samples_horizon, 2*mpc_parameters_->num_samples_horizon))
-,rotationMatrix2_(CommonMatrixType::Zero(2*mpc_parameters_->num_samples_horizon, 2*mpc_parameters_->num_samples_horizon)) {
+,rotationMatrix2_(CommonMatrixType::Zero(2*mpc_parameters_->num_samples_horizon, 2*mpc_parameters_->num_samples_horizon))
+,rotationMatrix2Trans_(CommonMatrixType::Zero(2*mpc_parameters_->num_samples_horizon, 2*mpc_parameters_->num_samples_horizon))
+,sparse_rot_mat2_(2*mpc_parameters_->num_samples_horizon, 2*mpc_parameters_->num_samples_horizon)
+,sparse_rot_mat2_trans_(2*mpc_parameters_->num_samples_horizon, 2*mpc_parameters_->num_samples_horizon)
+,clock_(clock) {
 
 	statesolver_ = new StateFSM(ref, mpc_parameters);
+	triplet_list1_.reserve(4 * mpc_parameters->num_samples_horizon);
+	triplet_list2_.reserve(4 * mpc_parameters->num_samples_horizon);
+
+	sparse_rot_mat2_.reserve(VectorXi::Constant(2*mpc_parameters_->num_samples_horizon, 2));
+	sparse_rot_mat2_trans_.reserve(VectorXi::Constant(2*mpc_parameters_->num_samples_horizon, 2));
 }
 
 QPPreview::~QPPreview()
@@ -102,25 +110,33 @@ void QPPreview::previewSupportStates(double firstSamplingPeriod, MPCSolution &so
 	buildSelectionMatrices(solution);
 }
 
+
 // Fill the two rotation matrices.
 //  The indexes not given are supposed to be zero and are not reset
 //  to reduce computation time.
 void QPPreview::computeRotationMatrix(MPCSolution &solution){
-	int N = mpc_parameters_->num_samples_horizon;
+	int num_samples = mpc_parameters_->num_samples_horizon;
 
-	for (int i=0; i<N; ++i) {//TODO:(performance) Vecotrize this?
+	for (int i=0; i<num_samples; ++i) {//TODO:(performance) Vecotrize this?
 		double cosYaw = cos(solution.support_states_vec[i+1].yaw);
 		double sinYaw = sin(solution.support_states_vec[i+1].yaw);
 		rotationMatrix_(i  ,i  ) =  cosYaw;
-		rotationMatrix_(i+N,i  ) = -sinYaw;
-		rotationMatrix_(i  ,i+N) =  sinYaw;
-		rotationMatrix_(i+N,i+N) =  cosYaw;
+		rotationMatrix_(i+num_samples,i  ) = -sinYaw;
+		rotationMatrix_(i  ,i+num_samples) =  sinYaw;
+		rotationMatrix_(i+num_samples,i+num_samples) =  cosYaw;
 
-		rotationMatrix2_(2*i  ,2*i  ) =  cosYaw;
-		rotationMatrix2_(2*i+1,2*i  ) = -sinYaw;
-		rotationMatrix2_(2*i  ,2*i+1) =  sinYaw;
-		rotationMatrix2_(2*i+1,2*i+1) =  cosYaw;
+		rotationMatrix2_(2*i  , 2*i  ) =  cosYaw;
+		rotationMatrix2_(2*i+1, 2*i  ) = -sinYaw;
+		rotationMatrix2_(2*i  , 2*i+1) =  sinYaw;
+		rotationMatrix2_(2*i+1, 2*i+1) =  cosYaw;
+
+		rotationMatrix2Trans_(2*i  , 2*i  ) =  cosYaw;
+		rotationMatrix2Trans_(2*i+1, 2*i  ) = sinYaw;
+		rotationMatrix2Trans_(2*i  , 2*i+1) = -sinYaw;
+		rotationMatrix2Trans_(2*i+1, 2*i+1) =  cosYaw;
+
 	}
+
 }
 
 void QPPreview::buildSelectionMatrices(MPCSolution &solution)

@@ -17,6 +17,7 @@
 #include <mpc-walkgen/rigid-body-system.h>
 #include <mpc-walkgen/state-fsm.h>
 #include <mpc-walkgen/types.h>
+#include <mpc-walkgen/realclock.h>//TODO: Add in Makefile
 
 #include <Eigen/Dense>
 
@@ -27,7 +28,9 @@ namespace MPCWalkgen{
       // Public methods:
       //
     public:
-      QPPreview(Reference *ref, RigidBodySystem *robot, const MPCData *mpc_parameters);
+      QPPreview(Reference *ref, RigidBodySystem *robot,
+    		  const MPCData *mpc_parameters,
+    		  RealClock *clock);
       ~QPPreview();
 
       void previewSamplingTimes(double current_time, double firstSamplingPeriod, MPCSolution &solution);
@@ -39,8 +42,11 @@ namespace MPCWalkgen{
       inline SelectionMatrices &selectionMatrices(){return select_matrices_;}
 
       inline const CommonMatrixType &rotationMatrix() const{return rotationMatrix_;}
-
       inline const CommonMatrixType &rotationMatrix2() const{return rotationMatrix2_;}
+      inline const CommonMatrixType &rotationMatrix2Trans() const{return rotationMatrix2Trans_;}
+      inline const SparseMatrixType &sparse_rot_mat2() const{return sparse_rot_mat2_;}
+      inline const SparseMatrixType &sparse_rot_mat2_trans() const{return sparse_rot_mat2_trans_;}
+
 
       //
       // Private methods:
@@ -52,16 +58,21 @@ namespace MPCWalkgen{
       // Private data members:
       //
     private:
-      RigidBodySystem * robot_;
-      const MPCData * mpc_parameters_;
-      StateFSM * statesolver_;	//TODO: Name statesolver is bad
+      RigidBodySystem *robot_;
+      const MPCData *mpc_parameters_;
+      StateFSM *statesolver_;	//TODO: Name statesolver is bad
 
       SelectionMatrices select_matrices_;
+
       CommonMatrixType rotationMatrix_;
       CommonMatrixType rotationMatrix2_;
+      CommonMatrixType rotationMatrix2Trans_;
 
-    private:
-      static const double EPS_;
+      std::vector<TripletType> triplet_list1_, triplet_list2_;
+      SparseMatrixType sparse_rot_mat2_, sparse_rot_mat2_trans_;
+
+      RealClock *clock_;
+
     };
 }
 

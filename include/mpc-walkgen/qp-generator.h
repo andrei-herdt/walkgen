@@ -5,6 +5,7 @@
 #include <mpc-walkgen/types.h>
 #include <mpc-walkgen/qp-solver.h>
 #include <mpc-walkgen/qp-preview.h>
+#include <mpc-walkgen/realclock.h>
 
 #include <Eigen/Dense>
 #include <vector>
@@ -18,7 +19,8 @@ namespace MPCWalkgen{
   public:
     QPGenerator(QPPreview *preview, QPSolver *solver,
       Reference *ref, WeightCoefficients *weight_coefficients,
-      RigidBodySystem *robot, const MPCData *mpc_parameters);
+      RigidBodySystem *robot, const MPCData *mpc_parameters,
+      RealClock *clock);
     ~QPGenerator();
 
     void PrecomputeObjective();
@@ -60,6 +62,8 @@ namespace MPCWalkgen{
     CommonMatrixType tmp_mat_, tmp_mat2_;
 
     double current_time_;
+
+    RealClock *clock_;
 
     RelativeInequalities feetInequalities_;
 

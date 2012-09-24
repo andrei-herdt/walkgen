@@ -10,7 +10,8 @@ using namespace Eigen;
 
 QPGenerator::QPGenerator(QPPreview *preview, QPSolver *solver,
 		Reference *vel_ref, WeightCoefficients *weight_coefficients,
-		RigidBodySystem *robot, const MPCData *mpc_parameters)
+		RigidBodySystem *robot, const MPCData *mpc_parameters,
+		RealClock *clock)
 :preview_(preview)
 ,solver_(solver)
 ,robot_(robot)
@@ -22,6 +23,7 @@ QPGenerator::QPGenerator(QPPreview *preview, QPSolver *solver,
 ,tmp_mat_(1,1)
 ,tmp_mat2_(1,1)
 ,current_time_(0.)
+,clock_(clock)
 {}
 
 QPGenerator::~QPGenerator() {}
@@ -120,6 +122,7 @@ void QPGenerator::BuildProblem(MPCSolution &solution)
 
 void QPGenerator::BuildObjective(const MPCSolution &solution) {
 
+
 	// Choose the precomputed element depending on the nb of "feedback-recomputations" until new qp-sample
 	int sample_num = mpc_parameters_->nbFeedbackSamplesLeft(solution.support_states_vec[1].previousSamplingPeriod);
 	sample_num += weight_coefficients_->active_mode * mpc_parameters_->nbFeedbackSamplesStandard();
@@ -128,15 +131,25 @@ void QPGenerator::BuildObjective(const MPCSolution &solution) {
 	const SelectionMatrices &select_mats = preview_->selectionMatrices();
 	const CommonMatrixType &rot_mat = preview_->rotationMatrix();
 	const CommonMatrixType &rot_mat2 = preview_->rotationMatrix2();
+	const CommonMatrixType &rot_mat2_trans = preview_->rotationMatrix2Trans();
 
 	QPMatrix &Q = solver_->matrix(matrixQ);
 
 	int num_steps_previewed = solution.support_states_vec.back().stepNumber;
 	int num_samples = mpc_parameters_->num_samples_horizon;
 
-	if (!solver_->useCholesky()) {
+	if (!solver_->useCholesky()) {//TODO: This part is the most costly >50%
 		Q.addTerm(QconstN_[sample_num], 0, 0);
 		Q.addTerm(QconstN_[sample_num], num_samples, num_samples);
+
+		CommonMatrixType Qmat = Q().block(0, 0, 2 * num_samples, 2 * num_samples);
+		tmp_mat_.noalias() = rot_mat2 * Qmat * rot_mat2_trans;
+		Q().block(0, 0, 2 * num_samples, 2 * num_samples) = tmp_mat_;
+	} else {
+		// rotate the cholesky matrix
+		CommonMatrixType chol = choleskyConst_[sample_num];
+		rotateCholeskyMatrix(chol, rot_mat2);
+		Q.cholesky(chol);
 	}
 
 	if (num_steps_previewed > 0) {
@@ -148,36 +161,31 @@ void QPGenerator::BuildObjective(const MPCSolution &solution) {
 		Q.addTerm(tmp_mat_, 2 * num_samples, 2 * num_samples);
 		Q.addTerm(tmp_mat_, 2 * num_samples + num_steps_previewed, 2 * num_samples + num_steps_previewed);
 
-		if (!solver_->useCholesky()){
+
+		if (!solver_->useCholesky()) {
 			tmp_mat_.noalias() = select_mats.sample_step_trans * Qconst_[sample_num];
 			Q.addTerm(tmp_mat_, 2 * num_samples, 0);
 			Q.addTerm(tmp_mat_, 2 * num_samples + num_steps_previewed, num_samples);
 
+			int timer_rotate = clock_->StartCounter();
 			// rotate the lower left block
 			// TODO(andrei): Rotation can be done before addition
 			CommonMatrixType dlBlock = Q().block(2 * num_samples, 0, 2 * num_steps_previewed, 2 * num_samples);
 			computeMRt(dlBlock, rot_mat2);
 			Q().block(2 * num_samples, 0, 2 * num_steps_previewed, 2 * num_samples) = dlBlock;
+			clock_->StopCounter(timer_rotate);
 		}
 
+		int timer_rotate = clock_->StartCounter();
 		// rotate the upper right block
 		// TODO(efficiency): Rotation can be done before addition
 		CommonMatrixType urBlock = Q().block(0, 2 * num_samples, 2*num_samples, 2*num_steps_previewed);
 		computeRM(urBlock, rot_mat2);
 		Q().block(0, 2 * num_samples, 2 * num_samples, 2 * num_steps_previewed) = urBlock;
+		clock_->StopCounter(timer_rotate);
 	}
 
-	if (!solver_->useCholesky()) {
-		CommonMatrixType Qmat = Q().block(0, 0, 2 * num_samples, 2 * num_samples);
-		Qmat = rot_mat2 * Qmat * rot_mat2.transpose();
-		Q().block(0, 0, 2 * num_samples, 2 * num_samples) = Qmat;
-	} else {
-		// rotate the cholesky matrix
-		CommonMatrixType chol = choleskyConst_[sample_num];
-		rotateCholeskyMatrix(chol, rot_mat2);
-		Q.cholesky(chol);
-	}
-
+	int timer_buildobjective = clock_->StartCounter();
 	VectorXd HX(num_samples), HY(num_samples), H(2 * num_samples);//TODO: Make this member
 
 	CommonVectorType state_x(mpc_parameters_->dynamics_order), state_y(mpc_parameters_->dynamics_order);
@@ -188,6 +196,7 @@ void QPGenerator::BuildObjective(const MPCSolution &solution) {
 
 	HX = state_variant_[sample_num] * state_x;
 	HY = state_variant_[sample_num] * state_y;
+
 
 	HX += select_variant_[sample_num] * select_mats.sample_step_cx;
 	HY += select_variant_[sample_num] * select_mats.sample_step_cy;
@@ -209,7 +218,7 @@ void QPGenerator::BuildObjective(const MPCSolution &solution) {
 	H = rot_mat * H;
 
 	solver_->vector(vectorP).addTerm(H, 0 );
-
+	clock_->StopCounter(timer_buildobjective);
 }
 
 void QPGenerator::buildConstraints(const MPCSolution &solution){

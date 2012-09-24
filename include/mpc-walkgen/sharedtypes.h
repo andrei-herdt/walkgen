@@ -7,6 +7,7 @@
 #include <mpc-walkgen/api.h>
 
 #include <Eigen/Dense>
+#include <Eigen/Sparse>
 #include <vector>
 
 namespace MPCWalkgen{
@@ -39,6 +40,9 @@ namespace MPCWalkgen{
   typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> EigenMatrixXdRM;
   typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor> EigenMatrixXdCM;
   typedef EigenMatrixXdRM CommonMatrixType;
+
+  typedef Eigen::Triplet<double> TripletType;
+  typedef Eigen::SparseMatrix<double> SparseMatrixType;
 
   typedef Eigen::VectorXd CommonVectorType;
 

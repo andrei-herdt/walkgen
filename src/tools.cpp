@@ -62,12 +62,11 @@ void MPCWalkgen::computeRM(CommonMatrixType &mIn, const CommonMatrixType &rot)
 void MPCWalkgen::computeMRt(CommonMatrixType &mIn, const CommonMatrixType &rot)
 {
 	// compute chol*col^T
-	for (int j=0; j<mIn.cols()/2; ++j)
-	{
-		Matrix2d rot_j = (rot.block<2,2>(2*j, 2*j));
+	for (int j=0; j<mIn.cols()/2; ++j) {
+		Matrix2d rot_j = rot.block<2,2>(2*j, 2*j);
 		rot_j.transposeInPlace();
-		for (int i=0; i<mIn.rows()/2; ++i)
-			mIn.block<2,2>(2*i, 2*j) = mIn.block<2,2>(2*i, 2*j)*rot_j;
+		for (int i=0; i < mIn.rows() / 2; ++i)
+			mIn.block<2,2>(2*i, 2*j) = mIn.block<2,2>(2*i, 2*j) * rot_j;
 	}
 
 

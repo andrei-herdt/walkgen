@@ -14,3 +14,5 @@ ltmain.sh
 *.o
 *.ilk
 *.cmake
+.cproject
+.project

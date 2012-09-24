@@ -4,3 +4,4 @@
 *.lib
 *.a
 *.log
+make_dependencies.mk

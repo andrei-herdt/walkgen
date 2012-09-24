@@ -62,7 +62,9 @@ namespace MPCWalkgen{
 	// \brief Compute the multiplication of the rotation matrix M by the R^t
 	// \param [in out] mInOut = R mInOut R^T
 	// \param [in] R the rotation matrix block diagonal
-	void computeMRt(CommonMatrixType &mInOut, const CommonMatrixType &rot);
+	void computeMRt(CommonMatrixType &mInOut,
+			const CommonMatrixType &rot
+			);
 
 	// \brief This method considers only blocks of matrices 2.2, so as to reduce the
 	// number of multiplications.
