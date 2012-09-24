@@ -19,8 +19,6 @@
 #include <mpc-walkgen/types.h>
 #include <mpc-walkgen/realclock.h>//TODO: Add in Makefile
 
-#include <Eigen/Dense>
-
 namespace MPCWalkgen{
     class QPPreview{
 
@@ -44,8 +42,8 @@ namespace MPCWalkgen{
       inline const CommonMatrixType &rotationMatrix() const{return rotationMatrix_;}
       inline const CommonMatrixType &rotationMatrix2() const{return rotationMatrix2_;}
       inline const CommonMatrixType &rotationMatrix2Trans() const{return rotationMatrix2Trans_;}
-      inline const SparseMatrixType &sparse_rot_mat2() const{return sparse_rot_mat2_;}
-      inline const SparseMatrixType &sparse_rot_mat2_trans() const{return sparse_rot_mat2_trans_;}
+      //inline const SparseMatrixType &sparse_rot_mat2() const{return sparse_rot_mat2_;}
+      //inline const SparseMatrixType &sparse_rot_mat2_trans() const{return sparse_rot_mat2_trans_;}
 
 
       //
@@ -68,8 +66,8 @@ namespace MPCWalkgen{
       CommonMatrixType rotationMatrix2_;
       CommonMatrixType rotationMatrix2Trans_;
 
-      std::vector<TripletType> triplet_list1_, triplet_list2_;
-      SparseMatrixType sparse_rot_mat2_, sparse_rot_mat2_trans_;
+      //std::vector<TripletType> triplet_list1_, triplet_list2_;
+      //SparseMatrixType sparse_rot_mat2_, sparse_rot_mat2_trans_;
 
       RealClock *clock_;
 

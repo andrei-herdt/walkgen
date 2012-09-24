@@ -14,16 +14,16 @@ QPPreview::QPPreview(Reference *ref, RigidBodySystem *robot, const MPCData *mpc_
 ,rotationMatrix_ (CommonMatrixType::Zero(2*mpc_parameters_->num_samples_horizon, 2*mpc_parameters_->num_samples_horizon))
 ,rotationMatrix2_(CommonMatrixType::Zero(2*mpc_parameters_->num_samples_horizon, 2*mpc_parameters_->num_samples_horizon))
 ,rotationMatrix2Trans_(CommonMatrixType::Zero(2*mpc_parameters_->num_samples_horizon, 2*mpc_parameters_->num_samples_horizon))
-,sparse_rot_mat2_(2*mpc_parameters_->num_samples_horizon, 2*mpc_parameters_->num_samples_horizon)
-,sparse_rot_mat2_trans_(2*mpc_parameters_->num_samples_horizon, 2*mpc_parameters_->num_samples_horizon)
+//,sparse_rot_mat2_(2*mpc_parameters_->num_samples_horizon, 2*mpc_parameters_->num_samples_horizon)
+//,sparse_rot_mat2_trans_(2*mpc_parameters_->num_samples_horizon, 2*mpc_parameters_->num_samples_horizon)
 ,clock_(clock) {
 
 	statesolver_ = new StateFSM(ref, mpc_parameters);
-	triplet_list1_.reserve(4 * mpc_parameters->num_samples_horizon);
-	triplet_list2_.reserve(4 * mpc_parameters->num_samples_horizon);
+	//triplet_list1_.reserve(4 * mpc_parameters->num_samples_horizon);
+	//triplet_list2_.reserve(4 * mpc_parameters->num_samples_horizon);
 
-	sparse_rot_mat2_.reserve(VectorXi::Constant(2*mpc_parameters_->num_samples_horizon, 2));
-	sparse_rot_mat2_trans_.reserve(VectorXi::Constant(2*mpc_parameters_->num_samples_horizon, 2));
+	//sparse_rot_mat2_.reserve(VectorXi::Constant(2*mpc_parameters_->num_samples_horizon, 2));
+	//sparse_rot_mat2_trans_.reserve(VectorXi::Constant(2*mpc_parameters_->num_samples_horizon, 2));
 }
 
 QPPreview::~QPPreview()

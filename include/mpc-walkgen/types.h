@@ -30,7 +30,8 @@ namespace MPCWalkgen{
 	  VELOCITY		= 1, 
 	  ACCELERATION	= 2, 
 	  JERK			= 3, 
-	  COP			= 4 };
+	  COP			= 4
+  };
 
   enum SampleRate { QP, ACTUATORS };
 

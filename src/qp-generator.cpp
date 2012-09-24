@@ -4,9 +4,11 @@
 #include <mpc-walkgen/tools.h>
 
 #include <iostream>
+#include <algorithm>
 
 using namespace MPCWalkgen;
 using namespace Eigen;
+using namespace std;
 
 QPGenerator::QPGenerator(QPPreview *preview, QPSolver *solver,
 		Reference *vel_ref, WeightCoefficients *weight_coefficients,
@@ -275,7 +277,7 @@ void QPGenerator::computeWarmStart(MPCSolution &solution){
 
 	// Compute feasible initial ZMP and foot positions:
 	// ------------------------------------------------
-	std::vector<SupportState>::iterator prwSS_it = solution.support_states_vec.begin();
+	vector<SupportState>::iterator prwSS_it = solution.support_states_vec.begin();
 	++prwSS_it;//Point at the first previewed support state
 
 	SupportState current_support = solution.support_states_vec.front();
@@ -516,7 +518,7 @@ void QPGenerator::BuildFootVelConstraints(const MPCSolution &solution)
 
 	int num_steps_previewed = solution.support_states_vec.back().stepNumber;
 	int x_var_pos = mpc_parameters_->num_samples_horizon;
-	int y_var_pos = mpc_parameters_->num_samples_horizon; + num_steps_previewed;
+	int y_var_pos = mpc_parameters_->num_samples_horizon + num_steps_previewed;
 
 	const BodyState *flying_foot;
 	const SupportState &current_support = solution.support_states_vec.front();
@@ -535,7 +537,7 @@ void QPGenerator::BuildFootVelConstraints(const MPCSolution &solution)
 	solver_->vector(vectorXL).addTerm(lower_limit_x, x_var_pos);
 	solver_->vector(vectorXL).addTerm(lower_limit_y, y_var_pos);
 	//std::cout << "x: " << lower_limit_x <<  " : " << upper_limit_x <<std::endl;
-	std::cout << "y:"<<flying_foot->y(0)<<" " << lower_limit_y <<  " : " << upper_limit_y <<std::endl;
+	//std::cout << "y:"<<flying_foot->y(0)<<" " << lower_limit_y <<  " : " << upper_limit_y <<std::endl;
 }
 
 void QPGenerator::buildConstraintsCOP(const MPCSolution &solution) 
@@ -555,11 +557,11 @@ void QPGenerator::buildConstraintsCOP(const MPCSolution &solution)
 		if (prwSS_it->state_changed) {
 			robot_->convexHull(hull, CoPHull, *prwSS_it, false, false);
 		}
-		tmp_vec_(i)  = std::min(hull.x(0), hull.x(3));
-		tmp_vec2_(i) = std::max(hull.x(0), hull.x(3));
+		tmp_vec_(i)  = min(hull.x(0), hull.x(3));
+		tmp_vec2_(i) = max(hull.x(0), hull.x(3));
 
-		tmp_vec_(num_samples + i) = std::min(hull.y(0),hull.y(1));
-		tmp_vec2_(num_samples + i)= std::max(hull.y(0),hull.y(1));
+		tmp_vec_(num_samples + i) = min(hull.y(0),hull.y(1));
+		tmp_vec2_(num_samples + i)= max(hull.y(0),hull.y(1));
 		++prwSS_it;
 	}
 

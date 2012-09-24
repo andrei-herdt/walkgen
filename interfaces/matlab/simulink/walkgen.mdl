@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.359"
+    ComputedModelVersion    "1.368"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Wed Sep 19 14:44:02 2012"
+  LastModifiedDate	  "Mon Sep 24 15:34:19 2012"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:359>"
+  ModelVersionFormat	  "1.%<AutoIncrement:368>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -701,7 +701,7 @@ Model {
       System {
 	Name			"Simulation"
 	Location		[702, 74, 1448, 860]
-	Open			on
+	Open			off
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
 	ScreenColor		"white"
@@ -740,13 +740,13 @@ Model {
 	  Position		  [390, 63, 495, 772]
 	  TreatAsAtomicUnit	  on
 	  MinAlgLoopOccurrences	  off
-	  SystemSampleTime	  "0.001"
+	  SystemSampleTime	  "0.005"
 	  RTWSystemCode		  "Auto"
 	  FunctionWithSeparateData off
 	  System {
 	    Name		    "Atomic Walkgen"
 	    Location		    [403, 74, 1582, 876]
-	    Open		    off
+	    Open		    on
 	    ModelBrowserVisibility  off
 	    ModelBrowserWidth	    200
 	    ScreenColor		    "white"
@@ -949,7 +949,7 @@ Model {
 	      Ports		      [10, 15]
 	      Position		      [300, 168, 390, 542]
 	      FunctionName	      "walkgen_sfun"
-	      Parameters	      "16, 8, 8, 2, 0.1, 0.001, 0.001, 0.02"
+	      Parameters	      "16, 8, 8, 2, 0.1, 0.005, 0.005, 0.02"
 	      Port {
 		PortNumber		1
 		Name			"com"
@@ -1058,8 +1058,8 @@ Model {
 		axes1			"%<SignalLabel>"
 	      }
 	      TimeRange		      "0.007766893178016154"
-	      YMin		      "-0.5"
-	      YMax		      "1"
+	      YMin		      "0.05"
+	      YMax		      "0.95"
 	      SaveName		      "ScopeData4"
 	      DataFormat	      "StructureWithTime"
 	      SampleTime	      "0"
@@ -1136,7 +1136,7 @@ Model {
 	      Orientation	      "up"
 	      ShowName		      off
 	      Floating		      off
-	      Location		      [79, 40, 1595, 891]
+	      Location		      [85, 45, 1601, 899]
 	      Open		      off
 	      NumInputPorts	      "1"
 	      ZoomMode		      "yonly"
@@ -1614,7 +1614,7 @@ Model {
 	  ShowName		  off
 	  FontName		  "Arial"
 	  FontSize		  8
-	  Value			  "[0.0, 0.0, 0.0]"
+	  Value			  "[0.1, 0.0, 0.0]"
 	  OutDataType		  "sfix(16)"
 	  OutScaling		  "2^0"
 	  Port {
