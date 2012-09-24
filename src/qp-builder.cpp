@@ -7,7 +7,6 @@
 #include <algorithm>
 
 using namespace MPCWalkgen;
-using namespace Eigen;
 using namespace std;
 
 QPBuilder::QPBuilder(QPPreview *preview, QPSolver *solver,
@@ -37,7 +36,7 @@ void QPBuilder::PrecomputeObjective()
 	// Define order of variables:
 	// --------------------------
 	int num_samples = mpc_parameters_->num_samples_horizon;
-	VectorXi order(2 * num_samples);
+	Eigen::VectorXi order(2 * num_samples);
 	for (int i = 0; i < num_samples; ++i) {
 		order(i) = 2 * i;
 		order(i + num_samples) = 2 * i + 1;
@@ -242,7 +241,7 @@ void QPBuilder::ComputeWarmStart(MPCSolution &solution){
 	// Preview active set:
 	// -------------------
 	int size = solution.initialConstraints.rows();//TODO: size of what?
-	VectorXi initialConstraintTmp = solution.initialConstraints;//TODO: Copy not necessary for shifting
+	Eigen::VectorXi initialConstraintTmp = solution.initialConstraints;//TODO: Copy not necessary for shifting
 	double TimeFactor = solution.support_states_vec[1].sampleWeight;//TODO: TimeFactor? sampleWeight??
 	int shiftCtr = 0;
 	if (fabs(TimeFactor-1.) < EPSILON) {
@@ -263,7 +262,7 @@ void QPBuilder::ComputeWarmStart(MPCSolution &solution){
 		solution.initialConstraints.segment(2 * num_samples + nbFC*num_steps, nbFC * (nbStepsMax - num_steps))=
 				initialConstraintTmp.segment (2 * num_samples + nbFC * num_steps, nbFC * (nbStepsMax - num_steps));
 	} else {
-		solution.initialConstraints = VectorXi::Zero(2*num_samples+(4+nbFC)*nbStepsMax);//TODO: Why this value?
+		solution.initialConstraints = Eigen::VectorXi::Zero(2*num_samples+(4+nbFC)*nbStepsMax);//TODO: Why this value?
 	}
 
 	//TODO: Checked until here.
@@ -398,19 +397,18 @@ void QPBuilder::computeReferenceVector(const MPCSolution &solution)
 
 void QPBuilder::ConvertCopToJerk(MPCSolution &solution) {
 	int num_samples = mpc_parameters_->num_samples_horizon;
+	int num_steps = solution.support_states_vec.back().step_number;
 
 	const SelectionMatrices &select = preview_->selectionMatrices();
 	const CommonMatrixType &rot_mat = preview_->rotationMatrix();
 	const BodyState &com = robot_->body(COM)->state();
 
-	CommonVectorType solution_x_vec = solution.qp_solution_vec.segment(0, num_samples);//TODO: Solution should not be overwritten
-	CommonVectorType solution_y_vec = solution.qp_solution_vec.segment(num_samples, num_samples);//TODO(performance): sol_x/y_vec has to be
-	int num_steps = solution.support_states_vec.back().step_number;
+	const CommonVectorType &local_cop_vec = solution.qp_solution_vec;
 	const CommonVectorType feet_x_vec = solution.qp_solution_vec.segment(2 * num_samples, num_steps);
 	const CommonVectorType feet_y_vec = solution.qp_solution_vec.segment(2 * num_samples + num_steps, num_steps);
 
-	VectorXd &cop_x_vec = solution.cop_prw.pos.x_vec;
-	VectorXd &cop_y_vec = solution.cop_prw.pos.y_vec;
+	CommonVectorType &global_cop_x_vec = solution.cop_prw.pos.x_vec;
+	CommonVectorType &global_cop_y_vec = solution.cop_prw.pos.y_vec;
 
 	int num_samples_interp = 1;
 	if (mpc_parameters_->interpolate_whole_horizon == true) {
@@ -419,18 +417,18 @@ void QPBuilder::ConvertCopToJerk(MPCSolution &solution) {
 
 	for (int s = 0; s < num_samples_interp; ++s) {
 		// Rotate in local frame: Rx*x - Ry*y;
-		cop_x_vec(s) =  rot_mat(s, s) * solution_x_vec(s) - rot_mat(s, num_samples + s) * solution_y_vec(s);
-		cop_x_vec(s) += select.sample_step_cx(s);
-		cop_y_vec(s) =  rot_mat(num_samples + s, num_samples + s) * solution_y_vec(s) - rot_mat(num_samples + s, s) * solution_x_vec(s);
-		cop_y_vec(s) += select.sample_step_cy(s);
+		global_cop_x_vec(s) =  rot_mat(s, s) * local_cop_vec(s) - rot_mat(s, num_samples + s) * local_cop_vec(num_samples + s);
+		global_cop_x_vec(s) += select.sample_step_cx(s);
+		global_cop_y_vec(s) =  rot_mat(num_samples + s, num_samples + s) * local_cop_vec(num_samples + s) - rot_mat(num_samples + s, s) * local_cop_vec(s);
+		global_cop_y_vec(s) += select.sample_step_cy(s);
 	}
 
 	// CoP position in the global frame
 	//for (int step = 0; step < num_steps; step++) {
 	//
 	//}
-	cop_x_vec += select.sample_step * feet_x_vec;//TODO(performance): Optimize this for first interpolate_whole_horizon == false
-	cop_y_vec += select.sample_step * feet_y_vec;
+	global_cop_x_vec += select.sample_step * feet_x_vec;//TODO(performance): Optimize this for first interpolate_whole_horizon == false
+	global_cop_y_vec += select.sample_step * feet_y_vec;
 
 	CommonVectorType state_x(mpc_parameters_->dynamics_order), state_y(mpc_parameters_->dynamics_order);
 	for (int i = 0; i < mpc_parameters_->dynamics_order; i++) {
@@ -441,13 +439,12 @@ void QPBuilder::ConvertCopToJerk(MPCSolution &solution) {
 	//TODO(performance): Optimize this for first interpolate_whole_horizon == false
 	// Transform to com motion
 	const LinearDynamicsMatrices &copdyn = robot_->body(COM)->dynamics_qp().cop;
-	VectorXd &jerk_x_vec = solution.com_prw.jerk.x_vec;
-	VectorXd &jerk_y_vec = solution.com_prw.jerk.y_vec;
-	tmp_vec_.noalias() = cop_x_vec - copdyn.S * state_x;
+	CommonVectorType &jerk_x_vec = solution.com_prw.jerk.x_vec;
+	CommonVectorType &jerk_y_vec = solution.com_prw.jerk.y_vec;
+	tmp_vec_.noalias() = global_cop_x_vec - copdyn.S * state_x;
 	jerk_x_vec.noalias() = copdyn.UInv * tmp_vec_;
-	tmp_vec_.noalias() = cop_y_vec - copdyn.S * state_y;
+	tmp_vec_.noalias() = global_cop_y_vec - copdyn.S * state_y;
 	jerk_y_vec.noalias() = copdyn.UInv * tmp_vec_;
-
 }
 
 void QPBuilder::BuildInequalitiesFeet(const MPCSolution &solution) {
