@@ -2,7 +2,7 @@
 
 using namespace MPCWalkgen;
 
-StateFSM::StateFSM(Reference *ref, const MPCData *mpc_parameters)
+StateFSM::StateFSM(Reference *ref, const MPCParameters *mpc_parameters)
 :vel_ref_(ref)
 ,mpc_parameters_(mpc_parameters)
 {}

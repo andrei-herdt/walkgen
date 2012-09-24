@@ -41,7 +41,7 @@ OrientationsPreview::OrientationsPreview()
 OrientationsPreview::~OrientationsPreview()
 { }
 
-void OrientationsPreview::Init(const MPCData &data, const RobotData &robot_data) {
+void OrientationsPreview::Init(const MPCParameters &data, const RobotData &robot_data) {
 	T_ 			= data.period_qpsample;
 	Ti_ 		= data.period_mpcsample;
 	N_ 			= data.num_samples_horizon;

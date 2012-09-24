@@ -18,7 +18,7 @@ namespace MPCWalkgen{
       RigidBodySystem();
       ~RigidBodySystem();
 
-      void Init(const MPCData *mpc_parameters_p);
+      void Init(const MPCParameters *mpc_parameters_p);
 
       void Init(const RobotData &robot_data);
 
@@ -37,7 +37,7 @@ namespace MPCWalkgen{
       // Private data members:
       //
     private:
-      const MPCData *mpc_parameters_p_;
+      const MPCParameters *mpc_parameters_p_;
       RobotData robot_data_;
 
       DynamicsBuilder dynamics_builder_;

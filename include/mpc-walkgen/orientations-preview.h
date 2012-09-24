@@ -51,7 +51,7 @@ namespace MPCWalkgen
     OrientationsPreview( );
     ~OrientationsPreview();
 
-    void Init(const MPCData &mpc_parameters, const RobotData &robot_data);
+    void Init(const MPCParameters &mpc_parameters, const RobotData &robot_data);
 
     /// \brief Preview feet and trunk orientations inside the preview window
     /// The orientations of the feet are adapted to the previewed orientation of the hip.

@@ -17,7 +17,7 @@ namespace MPCWalkgen{
     RigidBody();
     virtual ~RigidBody();
 
-    void Init(const MPCData *mpc_parameters_p);
+    void Init(const MPCParameters *mpc_parameters_p);
     void Init(const RobotData *data_robot_p);
     void Init(DynamicsBuilder *dyn_build_p);
 
@@ -42,7 +42,7 @@ namespace MPCWalkgen{
     /// \}
 
   protected:
-    const MPCData *mpc_parameters_;
+    const MPCParameters *mpc_parameters_;
     const RobotData *robot_data_p_;//TODO: Maybe should not be here
     DynamicsBuilder *dyn_build_p_;
 

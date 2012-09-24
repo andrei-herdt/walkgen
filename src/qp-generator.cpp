@@ -12,7 +12,7 @@ using namespace std;
 
 QPGenerator::QPGenerator(QPPreview *preview, QPSolver *solver,
 		Reference *vel_ref, WeightCoefficients *weight_coefficients,
-		RigidBodySystem *robot, const MPCData *mpc_parameters,
+		RigidBodySystem *robot, const MPCParameters *mpc_parameters,
 		RealClock *clock)
 :preview_(preview)
 ,solver_(solver)
@@ -123,7 +123,6 @@ void QPGenerator::BuildProblem(MPCSolution &solution)
 }
 
 void QPGenerator::BuildObjective(const MPCSolution &solution) {
-
 
 	// Choose the precomputed element depending on the nb of "feedback-recomputations" until new qp-sample
 	int sample_num = mpc_parameters_->nbFeedbackSamplesLeft(solution.support_states_vec[1].previousSamplingPeriod);

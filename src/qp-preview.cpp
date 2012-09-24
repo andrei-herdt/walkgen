@@ -7,7 +7,7 @@ using namespace MPCWalkgen;
 using namespace Eigen;
 
 //TODO:change name QPPreview to Preview
-QPPreview::QPPreview(Reference *ref, RigidBodySystem *robot, const MPCData *mpc_parameters, RealClock *clock)
+QPPreview::QPPreview(Reference *ref, RigidBodySystem *robot, const MPCParameters *mpc_parameters, RealClock *clock)
 :robot_(robot)
 ,mpc_parameters_(mpc_parameters)
 ,select_matrices_(mpc_parameters->num_samples_horizon)

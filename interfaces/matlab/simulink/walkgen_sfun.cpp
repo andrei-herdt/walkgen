@@ -88,7 +88,7 @@ extern "C" {
   static void mdlStart(SimStruct *S)
   {
 
-    MPCData mpc_parameters;
+    MPCParameters mpc_parameters;
     mpc_parameters.num_samples_horizon  = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 0)));
     mpc_parameters.nbqpsamples_step     = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 1)));
     mpc_parameters.nbqpsamples_dsss     = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 2)));

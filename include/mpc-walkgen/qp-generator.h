@@ -19,7 +19,7 @@ namespace MPCWalkgen{
   public:
     QPGenerator(QPPreview *preview, QPSolver *solver,
       Reference *ref, WeightCoefficients *weight_coefficients,
-      RigidBodySystem *robot, const MPCData *mpc_parameters,
+      RigidBodySystem *robot, const MPCParameters *mpc_parameters,
       RealClock *clock);
     ~QPGenerator();
 
@@ -54,9 +54,9 @@ namespace MPCWalkgen{
     QPPreview *preview_;
     QPSolver *solver_;
     RigidBodySystem *robot_;
-    Reference *vel_ref_, *pos_ref_;
+    Reference *vel_ref_;
     WeightCoefficients *weight_coefficients_;
-    const MPCData *mpc_parameters_;
+    const MPCParameters *mpc_parameters_;
 
     CommonVectorType tmp_vec_, tmp_vec2_;
     CommonMatrixType tmp_mat_, tmp_mat2_;

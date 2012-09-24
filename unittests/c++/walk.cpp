@@ -22,7 +22,7 @@ int main() {
 
   // Simulation parameters:
   // ----------------------
-  MPCData mpc_parameters;
+  MPCParameters mpc_parameters;
   mpc_parameters.num_samples_horizon    = num_samples_horizon;
   mpc_parameters.nbqpsamples_step       = num_samples_step;
   mpc_parameters.nbqpsamples_dsss       = num_samples_dsss;
@@ -135,28 +135,32 @@ int main() {
   int num_iterations = 0;
   walk.clock().GetFrequency(1000);
 walk.clock().ResetLocal();
-    int online_timer = walk.clock().StartCounter();
   for (; curr_time < 10; curr_time += sample_period_act) {
+    int online_timer = walk.clock().StartCounter();
     const MPCSolution &solution = walk.online(curr_time);
-    walk.clock().StopLastCounter();
-
+    //walk.clock().StopLastCounter();
+    walk.clock().StopCounter(online_timer);
+	walk.clock().ResetLocal();
     num_iterations++;
   }
 walk.reference(0.1, 0, 0.1);
  for (; curr_time < 20; curr_time += sample_period_act) {
+    int online_timer = walk.clock().StartCounter();
     const MPCSolution &solution = walk.online(curr_time);
-    walk.clock().StopLastCounter();
-
+    //walk.clock().StopLastCounter();
+    walk.clock().StopCounter(online_timer);
+walk.clock().ResetLocal();
     num_iterations++;
   }
 walk.reference(0., 0, 0.);
  for (; curr_time < 25; curr_time += sample_period_act) {
+    int online_timer = walk.clock().StartCounter();
     const MPCSolution &solution = walk.online(curr_time);
-    walk.clock().StopLastCounter();
-
+    //walk.clock().StopLastCounter();
+    walk.clock().StopCounter(online_timer);
+walk.clock().ResetLocal();
     num_iterations++;
   }
-    walk.clock().StopCounter(online_timer);
 
   // Print total time:
   int num_counters = walk.clock().GetNumTotalCounters();
@@ -178,7 +182,7 @@ walk.reference(0., 0, 0.);
   passed_time = walk.clock().GetTotalTime(0) / num_iterations;
   std::cout << "total: " << passed_time  << std::endl;
 
-  // Print mean time:
+  // Print max time:
   std::cout << "Max [mus]: ----------------" << std::endl;
   for (int counter = num_counters - 1; counter >= 1; counter--) {
     passed_time = walk.clock().GetMaxTime(counter);

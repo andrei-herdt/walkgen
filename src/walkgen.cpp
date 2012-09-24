@@ -63,7 +63,7 @@ Walkgen::~Walkgen() {
 		delete robot_;
 }
 
-void Walkgen::Init(const MPCData &mpc_parameters) {
+void Walkgen::Init(const MPCParameters &mpc_parameters) {
 	mpc_parameters_ = mpc_parameters;
 
 	robot_->Init(&mpc_parameters_);

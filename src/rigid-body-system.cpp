@@ -26,7 +26,7 @@ RigidBodySystem::~RigidBodySystem() {
 		delete right_foot_;
 }
 
-void RigidBodySystem::Init(const MPCData *mpc_parameters_p) {
+void RigidBodySystem::Init(const MPCParameters *mpc_parameters_p) {
 	mpc_parameters_p_ = mpc_parameters_p;
 
 	com_->Init(mpc_parameters_p_);

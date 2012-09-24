@@ -10,7 +10,7 @@ RigidBody::RigidBody() {}
 
 RigidBody::~RigidBody() {}
 
-void RigidBody::Init(const MPCData *mpc_parameters_p) {
+void RigidBody::Init(const MPCParameters *mpc_parameters_p) {
   mpc_parameters_ = mpc_parameters_p;
   
   int nbdynamics = mpc_parameters_->nbFeedbackSamplesStandard();
