@@ -30,8 +30,8 @@ int main() {
   mpc_parameters.period_qpsample        = sample_period_qp;
   mpc_parameters.period_mpcsample       = sample_period_first;
   mpc_parameters.period_actsample       = sample_period_act;
-  mpc_parameters.weight_coefficients.jerk[0]         = 0.001;
-  mpc_parameters.weight_coefficients.jerk[1]         = 0.01;
+  mpc_parameters.weight_coefficients.jerk[0]         = 0.00001;
+  mpc_parameters.weight_coefficients.jerk[1]         = 0.00001;
   mpc_parameters.warmstart                      = false;
   mpc_parameters.interpolate_whole_horizon      = false;
   mpc_parameters.solver.analysis                = false;
@@ -137,7 +137,7 @@ int main() {
 walk.clock().ResetLocal();
   for (; curr_time < 10; curr_time += sample_period_act) {
     int online_timer = walk.clock().StartCounter();
-    const MPCSolution &solution = walk.online(curr_time);
+    const MPCSolution &solution = walk.Go(curr_time);
     //walk.clock().StopLastCounter();
     walk.clock().StopCounter(online_timer);
 	walk.clock().ResetLocal();
@@ -146,7 +146,7 @@ walk.clock().ResetLocal();
 walk.reference(0.1, 0, 0.1);
  for (; curr_time < 20; curr_time += sample_period_act) {
     int online_timer = walk.clock().StartCounter();
-    const MPCSolution &solution = walk.online(curr_time);
+    const MPCSolution &solution = walk.Go(curr_time);
     //walk.clock().StopLastCounter();
     walk.clock().StopCounter(online_timer);
 walk.clock().ResetLocal();
@@ -155,12 +155,13 @@ walk.clock().ResetLocal();
 walk.reference(0., 0, 0.);
  for (; curr_time < 25; curr_time += sample_period_act) {
     int online_timer = walk.clock().StartCounter();
-    const MPCSolution &solution = walk.online(curr_time);
+    const MPCSolution &solution = walk.Go(curr_time);
     //walk.clock().StopLastCounter();
     walk.clock().StopCounter(online_timer);
 walk.clock().ResetLocal();
     num_iterations++;
   }
+
 
   // Print total time:
   int num_counters = walk.clock().GetNumTotalCounters();

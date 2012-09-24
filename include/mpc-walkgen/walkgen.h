@@ -7,96 +7,104 @@
 
 #include <mpc-walkgen/orientations-preview.h>
 #include <mpc-walkgen/qp-solver.h>
-#include <mpc-walkgen/qp-generator.h>
+#include <mpc-walkgen/qp-builder.h>
 #include <mpc-walkgen/qp-preview.h>
 #include <mpc-walkgen/rigid-body-system.h>
 #include <mpc-walkgen/realclock.h>
 
 namespace MPCWalkgen{
 
-  class Walkgen {
-  public:
-    Walkgen();
-    ~Walkgen();
+class Walkgen {
+	//
+	// Public methods:
+	//
+public:
+	Walkgen();
+	~Walkgen();
 
-    void Init(const MPCParameters &mpc_parameters);
-    void Init(const RobotData &robot_data);
+	void Init(const MPCParameters &mpc_parameters);
+	void Init(const RobotData &robot_data);
 
-    void Init();
+	void Init();
 
-    const MPCSolution &online(double time);
-    const MPCSolution &online();
+	const MPCSolution &Go(double time);
+	const MPCSolution &Go();
 
-  public:
-    // \name Accessors and mutators
-    // \{
-    void reference(double dx, double dy, double dyaw);
-    void reference(CommonVectorType dx, CommonVectorType dy, CommonVectorType dyaw);
+	// \name Accessors and mutators
+	// \{
+	void reference(double dx, double dy, double dyaw);
+	void reference(CommonVectorType dx, CommonVectorType dy, CommonVectorType dyaw);
 
-    const SupportState &currentSupportState() const;
-    inline void currentSupportState(const SupportState &newSupportState){
-      newCurrentSupport_ = newSupportState;
-      isNewCurrentSupport_ = true;
-    }
+	const SupportState &currentSupportState() const;
+	inline void currentSupportState(const SupportState &newSupportState){
+		newCurrentSupport_ = newSupportState;
+		isNewCurrentSupport_ = true;
+	}
 
-    const BodyState &bodyState(BodyType body) const;
-    void bodyState(BodyType body, const BodyState &state);
-    const ControlOutput &output() const { return output_; };
-    RigidBodySystem *robot() { return robot_; };
+	const BodyState &bodyState(BodyType body) const;
+	void bodyState(BodyType body, const BodyState &state);
+	inline const ControlOutput &output() const { return output_; };
+	inline RigidBodySystem *robot() { return robot_; };
 
-    const QPSolver *solver() const { return solver_; };
+	inline const QPSolver *solver() const { return solver_; };
 
-    RealClock &clock() {return clock_;};
+	RealClock &clock() {return clock_;};
 
-    const MPCSolution &solution() {return solution_;};
-    // \}
+	const MPCSolution &solution() {return solution_;};
+	// \}
 
-  private:
-    void BuildProblem();
-    void GenerateTrajectories();
-    void ResetOutputIndex();
-    void IncrementOutputIndex();
-    void UpdateOutput();
-    void ResetCounters(double time);
-    void SetCounters(double time);
+	//
+	// Private methods:
+	//
+private:
+	void BuildProblem();
+	void GenerateTrajectories();
+	void ResetOutputIndex();
+	void IncrementOutputIndex();
+	void UpdateOutput();
+	void ResetCounters(double time);
+	void SetCounters(double time);
 
-  private:
-    MPCParameters mpc_parameters_;
-    RobotData robotData_;
+	//
+	// Private data members:
+	//
+private:
+	MPCParameters mpc_parameters_;
+	RobotData robotData_;
 
-    ::MPCWalkgen::QPSolver *solver_;
-    QPGenerator *generator_;
-    QPPreview *preview_;
-    RigidBodySystem *robot_;
+	::MPCWalkgen::QPSolver *solver_;
+	QPBuilder *builder_;
+	QPPreview *preview_;
+	RigidBodySystem *robot_;
 
-    OrientationsPreview *orientPrw_;
+	OrientationsPreview *orient_preview_;
 
-    RealClock clock_;
+	RealClock clock_;
 
-    // \brief Contains pointers to trajectory values
-    // an internal logic set the pointers the currently relevant indeces
-    ControlOutput output_;
-    int output_index_;
+	// \brief Contains pointers to trajectory values
+	// an internal logic set the pointers the currently relevant indeces
+	ControlOutput output_;
+	int output_index_;
 
-    MPCSolution solution_;
-    Reference vel_ref_, pos_ref_;
-    /// \brief The new value of reference velocity, updated with in online method
-    Reference newVelRef_;
-    WeightCoefficients weight_coefficients_;
+	MPCSolution solution_;
+	Reference vel_ref_, pos_ref_;
+	/// \brief The new value of reference velocity, updated with in online method
+	Reference new_vel_ref_;
+	WeightCoefficients weight_coefficients_;
 
-    /// \brief The new value of current support state, updated with in online method
-    SupportState newCurrentSupport_;
-    bool isNewCurrentSupport_;
+	/// \brief The new value of current support state, updated with in online method
+	SupportState newCurrentSupport_;
+	bool isNewCurrentSupport_;
 
-    /// \brief Time at which the problem should be updated
-    double first_sample_time_;
-    double next_computation_;
-    double next_act_sample_;
+	/// \brief Time at which the problem should be updated
+	double first_sample_time_;
+	double next_computation_;
+	double next_act_sample_;
 
-    /// \brief Synchronised time with QP sampling
-    double currentTime_;
-    double currentRealTime_;
-  };
+	/// \brief Synchronised time with QP sampling
+	double current_time_;
+	double currentRealTime_;
+};
 }
 
 

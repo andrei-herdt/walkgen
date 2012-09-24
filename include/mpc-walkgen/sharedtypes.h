@@ -129,7 +129,7 @@ namespace MPCWalkgen{
     Foot foot;
 
     int nbStepsLeft;
-    int stepNumber;
+    int step_number;
     int nbInstants;
 
     double time_limit;
@@ -330,10 +330,10 @@ namespace MPCWalkgen{
   };
 
   struct MPC_WALKGEN_API StateValues {
-    double x, dx, ddx;
-    double y, dy, ddy;
-    double z, dz, ddz;
-    double yaw, dyaw, ddyaw;
+    double x, 	dx, 	ddx;
+    double y, 	dy, 	ddy;
+    double z, 	dz, 	ddz;
+    double yaw, dyaw, 	ddyaw;
   };
 
   struct MPC_WALKGEN_API ControlOutput {

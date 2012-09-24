@@ -15,10 +15,10 @@ Walkgen::Walkgen()
 : mpc_parameters_()
 ,robotData_()
 ,solver_(NULL)
-,generator_(NULL)
+,builder_(NULL)
 ,preview_(NULL)
 ,robot_(NULL)
-,orientPrw_(NULL)
+,orient_preview_(NULL)
 ,clock_()
 ,output_()
 ,output_index_(0)
@@ -29,10 +29,10 @@ Walkgen::Walkgen()
 ,first_sample_time_(0)
 ,next_computation_(0)
 ,next_act_sample_(0)
-,currentTime_(0)
+,current_time_(0)
 ,currentRealTime_(0)
 {
-	orientPrw_ = new OrientationsPreview();
+	orient_preview_ = new OrientationsPreview();
 
 	robot_ = new RigidBodySystem();
 
@@ -41,26 +41,30 @@ Walkgen::Walkgen()
 
 
 Walkgen::~Walkgen() {
-	if (orientPrw_ != 0x0) {
-		delete orientPrw_;
-		orientPrw_ = NULL;
+	if (orient_preview_ != NULL) {
+		delete orient_preview_;
+		orient_preview_ = NULL;
 	}
 
-	if (solver_ != 0x0) {
+	if (solver_ != NULL) {
 		delete solver_;
 		solver_ = NULL;
 	}
 
-	if (generator_ != 0x0) {
-		delete generator_;
-		generator_ = NULL;
+	if (builder_ != NULL) {
+		delete builder_;
+		builder_ = NULL;
 	}
 
-	if (preview_ != 0x0)
+	if (preview_ != NULL) {
 		delete preview_;
+		preview_ = NULL;
+	}
 
-	if (robot_ != 0x0)
+	if (robot_ != NULL) {
 		delete robot_;
+		robot_ = NULL;
+	}
 }
 
 void Walkgen::Init(const MPCParameters &mpc_parameters) {
@@ -97,7 +101,7 @@ void Walkgen::Init(const MPCParameters &mpc_parameters) {
 	solution_.pos_ref.resize(mpc_parameters_.num_samples_horizon);
 
 	vel_ref_.resize(mpc_parameters_.num_samples_horizon);
-	newVelRef_.resize(mpc_parameters_.num_samples_horizon);
+	new_vel_ref_.resize(mpc_parameters_.num_samples_horizon);
 
 	// Reset:
 	// ------
@@ -120,11 +124,11 @@ void Walkgen::Init()
 
 	preview_ = new QPPreview(&vel_ref_, robot_, &mpc_parameters_, &clock_);
 
-	generator_= new QPGenerator(preview_, solver_, &vel_ref_, &weight_coefficients_, robot_, &mpc_parameters_, &clock_);
+	builder_= new QPBuilder(preview_, solver_, &vel_ref_, &weight_coefficients_, robot_, &mpc_parameters_, &clock_);
 
-	orientPrw_->Init(mpc_parameters_, robotData_);
+	orient_preview_->Init(mpc_parameters_, robotData_);
 
-	generator_->PrecomputeObjective();
+	builder_->PrecomputeObjective();
 
 	BodyState left_foot_state;
 	left_foot_state.x[0] = robotData_.leftFoot.position[0];
@@ -149,13 +153,13 @@ void Walkgen::Init()
 	solver_->Init();
 }
 
-const MPCSolution &Walkgen::online(){
+const MPCSolution &Walkgen::Go(){
 	currentRealTime_ += mpc_parameters_.period_mpcsample;
-	return online(currentRealTime_);
+	return Go(currentRealTime_);
 }
 
-const MPCSolution &Walkgen::online(double time){
-	currentTime_ = time;
+const MPCSolution &Walkgen::Go(double time){
+	current_time_ = time;
 
 	if (time  > next_computation_ - EPSILON) {
 		//int first_timer = clock_.StartCounter();
@@ -170,7 +174,7 @@ const MPCSolution &Walkgen::online(double time){
 			}
 		}
 		ResetOutputIndex();
-		generator_->current_time(currentTime_);
+		builder_->current_time(current_time_);
 		//clock_.StopCounter(first_timer);
 
 		int timer_build_problem = clock_.StartCounter();
@@ -181,9 +185,9 @@ const MPCSolution &Walkgen::online(double time){
 		solver_->Solve(solution_, mpc_parameters_.warmstart, mpc_parameters_.solver.analysis);
 		clock_.StopCounter(timer_solve);
 
-		//int timer_generate_traj = clock_.StartCounter();
+		int timer_generate_traj = clock_.StartCounter();
 		GenerateTrajectories();
-		//clock_.StopCounter(timer_generate_traj);
+		clock_.StopCounter(timer_generate_traj);
 	}
 
 	//int timer_update_output = clock_.StartCounter();
@@ -202,20 +206,18 @@ const MPCSolution &Walkgen::online(double time){
 
 void Walkgen::SetCounters(double time) {}
 
-void Walkgen::ResetCounters(double time) 
-{
+void Walkgen::ResetCounters(double time) {
 	first_sample_time_ = time + mpc_parameters_.period_qpsample;
 	next_computation_ = time + mpc_parameters_.period_mpcsample;
 	next_act_sample_ = time + mpc_parameters_.period_actsample;
 }
 
-void Walkgen::BuildProblem() 
-{
+void Walkgen::BuildProblem() {
 	// UPDATE INTERNAL DATA:
 	// ---------------------
 	solver_->reset();
 	solution_.reset();
-	vel_ref_ = newVelRef_;
+	vel_ref_ = new_vel_ref_;
 	if (isNewCurrentSupport_){
 		robot_->current_support(newCurrentSupport_);
 		isNewCurrentSupport_ = false;
@@ -228,36 +230,36 @@ void Walkgen::BuildProblem()
 	}
 	weight_coefficients_.SetCoefficients(vel_ref_);
 
-	double firstSamplingPeriod = first_sample_time_ - currentTime_;
+	double firstSamplingPeriod = first_sample_time_ - current_time_;
 	robot_->setSelectionNumber(firstSamplingPeriod);
 
 	// PREVIEW:
 	// --------
-	preview_->previewSamplingTimes(currentTime_, firstSamplingPeriod, solution_);
+	preview_->previewSamplingTimes(current_time_, firstSamplingPeriod, solution_);
 
 	preview_->previewSupportStates(firstSamplingPeriod, solution_);
 
-	orientPrw_->preview_orientations( currentTime_, vel_ref_,
+	orient_preview_->preview_orientations( current_time_, vel_ref_,
 			mpc_parameters_.nbqpsamples_step * mpc_parameters_.period_qpsample,
 			robot_->body(LEFT_FOOT)->state(), robot_->body(RIGHT_FOOT)->state(),
 			solution_ );
 	preview_->computeRotationMatrix(solution_);
 
-	generator_->computeReferenceVector(solution_);
+	builder_->computeReferenceVector(solution_);
 
 	// BUILD:
 	// ------
-	generator_->BuildProblem(solution_);
+	builder_->BuildProblem(solution_);
 }
 
 void Walkgen::GenerateTrajectories() {
-	generator_->ConvertCopToJerk(solution_);
+	builder_->ConvertCopToJerk(solution_);	//Half of the time spent here. Can be reduced.
 
-	robot_->Interpolate(solution_, currentTime_, vel_ref_);
+	robot_->Interpolate(solution_, current_time_, vel_ref_);
 
 	robot_->UpdateState(solution_);
 
-	orientPrw_->interpolate_trunk_orientation(robot_);
+	orient_preview_->InterpolateTrunkYaw(robot_);
 
 	ResetOutputIndex();
 	UpdateOutput();
@@ -316,15 +318,15 @@ void Walkgen::UpdateOutput() {
 }
 
 void Walkgen::reference(double dx, double dy, double dyaw){//TODO: Is newVelRef_ necessary
-	newVelRef_.local.x.fill(dx);
-	newVelRef_.local.y.fill(dy);
-	newVelRef_.local.yaw.fill(dyaw);
+	new_vel_ref_.local.x.fill(dx);
+	new_vel_ref_.local.y.fill(dy);
+	new_vel_ref_.local.yaw.fill(dyaw);
 }
 
 void Walkgen::reference(CommonVectorType dx, CommonVectorType dy, CommonVectorType dyaw){
-	newVelRef_.local.x = dx;
-	newVelRef_.local.y = dy;
-	newVelRef_.local.yaw = dyaw;
+	new_vel_ref_.local.x = dx;
+	new_vel_ref_.local.y = dy;
+	new_vel_ref_.local.yaw = dyaw;
 }
 
 const SupportState &Walkgen::currentSupportState() const {

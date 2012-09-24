@@ -1,8 +1,9 @@
 #include <mpc-walkgen/com-body.h>
 #include <mpc-walkgen/tools.h>
 
-using namespace MPCWalkgen;
+#include <iostream>
 
+using namespace MPCWalkgen;
 using namespace Eigen;
 
 

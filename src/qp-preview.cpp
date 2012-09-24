@@ -72,7 +72,7 @@ void QPPreview::previewSupportStates(double firstSamplingPeriod, MPCSolution &so
 	// -----------------------
 	// initialize the previewed support state before previewing
 	SupportState previewed_support = current_support;//TODO: Replace =operator by CopyFrom or give to constructor
-	previewed_support.stepNumber = 0;
+	previewed_support.step_number = 0;
 	for (int sample = 1; sample <= mpc_parameters_->num_samples_horizon; sample++) {
 		statesolver_->setSupportState(sample, solution.samplingTimes_vec, previewed_support);
 		// special treatment for the first instant of transitionalDS
@@ -92,7 +92,7 @@ void QPPreview::previewSupportStates(double firstSamplingPeriod, MPCSolution &so
 					previewed_support.transitional_ds = true;
 				}
 			}
-			if (previewed_support.stepNumber > 0) {
+			if (previewed_support.step_number > 0) {
 				previewed_support.x = 0.0;
 				previewed_support.y = 0.0;
 			}
@@ -146,7 +146,7 @@ void QPPreview::buildSelectionMatrices(MPCSolution &solution)
 	const BodyState *left_foot_p = &robot_->body(LEFT_FOOT)->state();
 	const BodyState *right_foot_p = &robot_->body(RIGHT_FOOT)->state();
 
-	int num_steps_previewed = solution.support_states_vec.back().stepNumber;
+	int num_steps_previewed = solution.support_states_vec.back().step_number;
 	int num_samples = mpc_parameters_->num_samples_horizon;
 
 	if (select_matrices_.sample_step.cols() != num_steps_previewed){
@@ -163,19 +163,19 @@ void QPPreview::buildSelectionMatrices(MPCSolution &solution)
 	std::vector<SupportState>::iterator supp_state_it = solution.support_states_vec.begin();//points at the cur. sup. st.
 	++supp_state_it;
 	for (int i = 0; i < num_samples; i++) {
-		if (supp_state_it->stepNumber > 0) {
-			select_matrices_.sample_step(i, supp_state_it->stepNumber - 1) = select_matrices_.sample_step_trans(supp_state_it->stepNumber-1, i) = 1.0;
-			select_matrices_.sample_mstep(i, supp_state_it->stepNumber - 1) = select_matrices_.sample_mstep_trans(supp_state_it->stepNumber-1, i) = 1.0;
-			if (supp_state_it->stepNumber == 1 && supp_state_it->state_changed && supp_state_it->phase == SS) {
+		if (supp_state_it->step_number > 0) {
+			select_matrices_.sample_step(i, supp_state_it->step_number - 1) = select_matrices_.sample_step_trans(supp_state_it->step_number-1, i) = 1.0;
+			select_matrices_.sample_mstep(i, supp_state_it->step_number - 1) = select_matrices_.sample_mstep_trans(supp_state_it->step_number-1, i) = 1.0;
+			if (supp_state_it->step_number == 1 && supp_state_it->state_changed && supp_state_it->phase == SS) {
 				--supp_state_it;
 				select_matrices_.VcfX(0) = supp_state_it->x;
 				select_matrices_.VcfY(0) = supp_state_it->y;
 				++supp_state_it;
 
 				select_matrices_.Vf(0,0) = 1.0;
-			} else if(supp_state_it->stepNumber > 1) {
-				select_matrices_.Vf(supp_state_it->stepNumber - 1, supp_state_it->stepNumber - 2) = -1.0;
-				select_matrices_.Vf(supp_state_it->stepNumber - 1, supp_state_it->stepNumber - 1) = 1.0;
+			} else if(supp_state_it->step_number > 1) {
+				select_matrices_.Vf(supp_state_it->step_number - 1, supp_state_it->step_number - 2) = -1.0;
+				select_matrices_.Vf(supp_state_it->step_number - 1, supp_state_it->step_number - 1) = 1.0;
 			}
 		} else {
 			select_matrices_.sample_step_cx(i) = supp_state_it->x;

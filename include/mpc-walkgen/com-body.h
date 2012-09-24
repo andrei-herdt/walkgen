@@ -2,17 +2,8 @@
 #ifndef MPC_WALKGEN_COM_BODY_H
 #define MPC_WALKGEN_COM_BODY_H
 
-////////////////////////////////////////////////////////////////////////////////
-///
-///\file	com-body.h
-///\author	Herdt Andrei
-///
-////////////////////////////////////////////////////////////////////////////////
-
 #include <mpc-walkgen/types.h>
 #include <mpc-walkgen/rigid-body.h>
-
-#include <Eigen/Dense>
 
 namespace MPCWalkgen{
 

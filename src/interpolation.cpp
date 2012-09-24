@@ -13,14 +13,14 @@ Interpolation::Interpolation()
 Interpolation::~Interpolation(){}
 
 
-void Interpolation::Interpolate(VectorXd &solution_vec, const LinearDynamicsMatrices &dyn, 
-                                const CommonVectorType &state_vec, const VectorXd &u_vec) 
+void Interpolation::Interpolate(CommonVectorType &solution_vec, const LinearDynamicsMatrices &dyn, 
+                                const CommonVectorType &state_vec, const CommonVectorType &u_vec) 
 {
   solution_vec.setZero();
   solution_vec.noalias() = dyn.S * state_vec + dyn.U * u_vec;
 }
 
-void Interpolation::Interpolate(VectorXd &solution_vec, const LinearDynamicsMatrices &dyn, 
+void Interpolation::Interpolate(CommonVectorType &solution_vec, const LinearDynamicsMatrices &dyn, 
                                 const CommonVectorType &state_vec, double u) 
 {
   solution_vec.setZero();

@@ -16,14 +16,12 @@ include make_linux.mk
 ##
 ##	flags
 ##
-
 IFLAGS      =  -I. \
                -I${IDIR} \
 			   -I${DIR_EIGEN} \
 			   -I${QPOASES_IDIR}
 
 MPC_WALKGEN_OBJECTS = \
-	walkgen-abstract.${OBJEXT} \
 	walkgen.${OBJEXT} \
 	types.${OBJEXT} \
 	tools.${OBJEXT} \
@@ -36,7 +34,7 @@ MPC_WALKGEN_OBJECTS = \
 	qp-preview.${OBJEXT} \
 	qpoases-parser.${OBJEXT} \
 	qp-matrix.${OBJEXT} \
-	qp-generator.${OBJEXT} \
+	qp-builder.${OBJEXT} \
 	orientations-preview.${OBJEXT} \
 	lssol-parser.${OBJEXT} \
 	interpolation.${OBJEXT} \
@@ -56,17 +54,8 @@ libmpc-walkgen.${LIBEXT}: ${MPC_WALKGEN_OBJECTS}
 ##
 ##	targets
 ##
-walkgen-abstract.${OBJEXT}: walkgen-abstract.cpp \
-	${IDIR}/mpc-walkgen/walkgen-abstract.h \
-	${IDIR}/mpc-walkgen/sharedtypes.h \
-	${IDIR}/mpc-walkgen/api.h 
-	@echo "Creating" $@
-	${CPP} ${DEF_TARGET} -c ${IFLAGS} ${CPPFLAGS} walkgen-abstract.cpp
-
-
 walkgen.${OBJEXT}:  walkgen.cpp \
 	${IDIR}/mpc-walkgen/walkgen.h \
-	${IDIR}/mpc-walkgen/walkgen-abstract.h \
 	${IDIR}/mpc-walkgen/orientations-preview.h \
 	${IDIR}/mpc-walkgen/qp-solver.h \
 	${IDIR}/mpc-walkgen/qp-matrix.h \
@@ -203,8 +192,8 @@ qp-matrix.${OBJEXT}: qp-matrix.cpp \
 	@echo "Creating"  $@
 	${CPP} ${DEF_TARGET} -c ${IFLAGS} ${CPPFLAGS} qp-matrix.cpp
 	
-qp-generator.${OBJEXT}: qp-generator.cpp \
-	${IDIR}/mpc-walkgen/qp-generator.h \
+qp-builder.${OBJEXT}: qp-builder.cpp \
+	${IDIR}/mpc-walkgen/qp-builder.h \
 	${IDIR}/mpc-walkgen/types.h \
 	${IDIR}/mpc-walkgen/sharedtypes.h \
 	${IDIR}/mpc-walkgen/api.h \
@@ -221,7 +210,7 @@ qp-generator.${OBJEXT}: qp-generator.cpp \
 	${IDIR}/mpc-walkgen/rigid-body-system-inl.h \
 	${IDIR}/mpc-walkgen/state-fsm.h 
 	@echo "Creating"  $@
-	${CPP} ${DEF_TARGET} -c ${IFLAGS} ${CPPFLAGS} qp-generator.cpp
+	${CPP} ${DEF_TARGET} -c ${IFLAGS} ${CPPFLAGS} qp-builder.cpp
 
 orientations-preview.${OBJEXT}: orientations-preview.cpp \
 	${IDIR}/mpc-walkgen/orientations-preview.h \
@@ -302,11 +291,6 @@ clean:
 	${RM} -f *.${OBJEXT} *.${LIBEXT}
 
 clobber: clean
-
-#%.${OBJEXT}: %.cpp
-	#@echo "Creating" $@
-	#${CPP} ${DEF_TARGET} ${IFLAGS} ${CPPFLAGS} -c $<
-
 	
 shared:	${MPC_WALKGEN_OBJECTS}
 	${CPP} -shared -Wl,-soname,libmpc-walkgen.so -o libmpc-walkgen.so ${MPC_WALKGEN_OBJECTS} -lm
