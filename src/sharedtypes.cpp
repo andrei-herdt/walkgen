@@ -160,7 +160,7 @@ void Motion::resize(int size) {
 }
 
 
-MPCData::MPCData()
+MPCParameters::MPCParameters()
 :period_qpsample(0.1)
 ,period_mpcsample(0.005)
 ,period_actsample(0.005)
@@ -176,33 +176,33 @@ MPCData::MPCData()
 ,weight_coefficients(2)
 {}
 
-MPCData::~MPCData(){}
+MPCParameters::~MPCParameters(){}
 
-int MPCData::nbFeedbackSamplesLeft(double firstIterationduration) const{
+int MPCParameters::nbFeedbackSamplesLeft(double firstIterationduration) const{
   return static_cast<int> (round(firstIterationduration / period_mpcsample)-1 );
 }
 
-int MPCData::nbFeedbackSamplesStandard() const{
+int MPCParameters::nbFeedbackSamplesStandard() const{
   return static_cast<int> (round(period_qpsample / period_mpcsample) );
 }
 
-int MPCData::num_samples_act() const{
+int MPCParameters::num_samples_act() const{
   return static_cast<int> (round(period_mpcsample / period_actsample) );
 }
 
-int MPCData::num_qpsamples_ss() const {
+int MPCParameters::num_qpsamples_ss() const {
   return nbqpsamples_step - 1;
 }
 
-int MPCData::num_steps_max() const {
+int MPCParameters::num_steps_max() const {
   return static_cast<int>(num_samples_horizon / nbqpsamples_step) + 1;
 }
 
-double MPCData::period_ss() const {
+double MPCParameters::period_ss() const {
   return nbqpsamples_step * period_qpsample - period_trans_ds();
 }
 
-double MPCData::period_trans_ds() const {
+double MPCParameters::period_trans_ds() const {
   return period_qpsample;
 }
 

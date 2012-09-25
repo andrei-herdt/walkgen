@@ -88,7 +88,7 @@ extern "C" {
   static void mdlStart(SimStruct *S)
   {
 
-    MPCData mpc_parameters;
+    MPCParameters mpc_parameters;
     mpc_parameters.num_samples_horizon  = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 0)));
     mpc_parameters.nbqpsamples_step     = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 1)));
     mpc_parameters.nbqpsamples_dsss     = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 2)));
@@ -243,7 +243,7 @@ extern "C" {
     double curr_time = ssGetT(S);
     walk->clock().ResetLocal();
     int time_online = walk->clock().StartCounter();
-    const MPCSolution &solution = walk->online(curr_time);
+    const MPCSolution &solution = walk->Go(curr_time);
     walk->clock().StopCounter(time_online);
 
     // Assign to the output:
@@ -303,7 +303,7 @@ extern "C" {
       cop_prw[2 * nbsamples + sample] = solution.cop_prw.pos.y_vec[sample];
     }
 
-    int nbsteps_prw = solution.support_states_vec.back().stepNumber;
+    int nbsteps_prw = solution.support_states_vec.back().step_number;
     if (nbsteps_prw > 0) {
       first_foot_prw[0] = solution.qp_solution_vec[2 * nbsamples];
       first_foot_prw[1] = solution.qp_solution_vec[2 * nbsamples + nbsteps_prw];

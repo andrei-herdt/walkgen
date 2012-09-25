@@ -25,7 +25,7 @@ QPVector::QPVector(const int num_rows)
 
 QPVector::~QPVector(){}
 
-void QPVector::addTerm(const VectorXd &vec, const int first_row) {
+void QPVector::addTerm(const CommonVectorType &vec, const int first_row) {
   int num_rows = vec.rows();
   /*const double *vec_p = vec.data();
   const int *row_p = index_order_.data() + first_row;
@@ -46,7 +46,7 @@ void QPVector::addTerm(double value, int first_row) {
   vector_(index_order_(first_row)) += value;
 }
 
-void QPVector::setConstantPart(const VectorXd &mat) {
+void QPVector::setConstantPart(const CommonVectorType &mat) {
   int nbRows = mat.rows();
   for (int i = 0; i <= nbRows; ++i) {
     constantPart_(index_order_(i)) = mat(i);

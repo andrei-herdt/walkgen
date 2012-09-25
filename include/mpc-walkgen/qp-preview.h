@@ -27,7 +27,7 @@ namespace MPCWalkgen{
       //
     public:
       QPPreview(Reference *ref, RigidBodySystem *robot,
-    		  const MPCData *mpc_parameters,
+    		  const MPCParameters *mpc_parameters,
     		  RealClock *clock);
       ~QPPreview();
 
@@ -57,7 +57,7 @@ namespace MPCWalkgen{
       //
     private:
       RigidBodySystem *robot_;
-      const MPCData *mpc_parameters_;
+      const MPCParameters *mpc_parameters_;
       StateFSM *statesolver_;	//TODO: Name statesolver is bad
 
       SelectionMatrices select_matrices_;

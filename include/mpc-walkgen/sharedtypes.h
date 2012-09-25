@@ -2,8 +2,6 @@
 #ifndef MPC_WALKGEN_SHAREDTYPES_H
 #define  MPC_WALKGEN_SHAREDTYPES_H
 
-///\author  Herdt Andrei
-
 #include <mpc-walkgen/api.h>
 
 #include <Eigen/Dense>
@@ -18,11 +16,11 @@ namespace MPCWalkgen{
 
   /// \name Enum types
   /// \{
-  enum Phase{  SS, DS };
+  enum Phase { SS, DS };
 
-  enum Foot{ LEFT, RIGHT };
+  enum Foot { LEFT, RIGHT };
 
-  enum BodyType{ LEFT_FOOT, RIGHT_FOOT, COM  };
+  enum BodyType { LEFT_FOOT, RIGHT_FOOT, COM  };
 
   enum SolverName { QPOASES, LSSOL };
 
@@ -39,9 +37,6 @@ namespace MPCWalkgen{
   typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> EigenMatrixXdRM;
   typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor> EigenMatrixXdCM;
   typedef EigenMatrixXdRM CommonMatrixType;
-
-  //typedef Eigen::Triplet<double> TripletType;
-  //typedef Eigen::SparseMatrix<double> SparseMatrixType;
 
   typedef Eigen::VectorXd CommonVectorType;
 
@@ -134,7 +129,7 @@ namespace MPCWalkgen{
     Foot foot;
 
     int nbStepsLeft;
-    int stepNumber;
+    int step_number;
     int nbInstants;
 
     double time_limit;
@@ -161,7 +156,7 @@ namespace MPCWalkgen{
     CommonVectorType y;
     CommonVectorType z;
 
-    /// \brief Set of inequalities A*x+B*y+C*z+D>0
+    /// \brief Set of inequalities A*x + B*y + C*z + D>0
     CommonVectorType A;
     CommonVectorType B;
     CommonVectorType C;
@@ -170,7 +165,7 @@ namespace MPCWalkgen{
     ConvexHull();
     ~ConvexHull();
 
-    ConvexHull &operator= (const ConvexHull &hull); // TODO: copyFrom() instead of =
+    ConvexHull &operator= (const ConvexHull &hull); // TODO: CopyFrom() instead of =
     void resize(int size);
     void rotate(double yaw);
     void computeLinearSystem(const Foot &foot);
@@ -178,32 +173,26 @@ namespace MPCWalkgen{
 
   struct SolverData {
     SolverName name;
-    int num_wsrec;  // Maximal number of working set recomputations
+    int num_wsrec;  	//Maximal number of working set recomputations
     bool analysis;
   };
 
-  struct MPC_WALKGEN_API MPCData {
-    // The following parameters are fixed once and for all at initialization
-    /// \brief Sampling period considered in the QP
-    double period_qpsample;    //blocked - precomputeObjective
-    double period_mpcsample;   //blocked - precomputeObjective / RigidBodySystem::computeDynamicMatrix
-    double period_actsample;   //blocked - precomputeObjective / RigidBodySystem::computeDynamicMatrix
+  struct MPC_WALKGEN_API MPCParameters {
+    double period_qpsample;		//Standard sampling period
+    double period_mpcsample;	//Period between recomputations of the QP
+    double period_actsample;	//Sampling period of the actuators
 
-    /// \brief Nb. samplings inside preview window
-    int num_samples_horizon;  //blocked - precomputeObjective
+    int num_samples_horizon;  	//Number of samplings inside horizon
 
-    // \brief Step period ss_left<->ss_right in qp sample periods
-    int nbqpsamples_step;  //blocked by orientPrw_ ? can be solved --
-    // \brief Transition period ds->ss in qp sample periods
-    int nbqpsamples_dsss;
-    // \brief Steps to be done before ss->ds
-    int nbsteps_ssds;
-    // \brief Double support phase length (should be a large value)
-    double period_ds;
+    int nbqpsamples_step;		//Step period ss_left<->ss_right in qp sample periods
+    int nbqpsamples_dsss;		//Transition period ds->ss in qp sample periods
+    int nbsteps_ssds;			//Steps to be done before ss->ds
+
+    double period_ds;			//Length of the (permanent) double support phase (should be a large value)
 
     bool warmstart;
-    /// \brief Interpolate not only the control (first element) but the whole preview vector
-    bool interpolate_whole_horizon;
+
+    bool interpolate_whole_horizon;			//Interpolate not only the control (first element) but for the whole preview period
 
     bool closed_loop;
 
@@ -226,8 +215,8 @@ namespace MPCWalkgen{
     double period_ss() const;
     double period_trans_ds() const;
 
-    MPCData();
-    ~MPCData();
+    MPCParameters();
+    ~MPCParameters();
   };
 
   struct MPC_WALKGEN_API RobotData {
@@ -285,7 +274,6 @@ namespace MPCWalkgen{
 
 
   struct MPC_WALKGEN_API MPCSolution {
-
     CommonVectorType qp_solution_vec;
     CommonVectorType initialSolution;
 
@@ -342,10 +330,10 @@ namespace MPCWalkgen{
   };
 
   struct MPC_WALKGEN_API StateValues {
-    double x, dx, ddx;
-    double y, dy, ddy;
-    double z, dz, ddz;
-    double yaw, dyaw, ddyaw;
+    double x, 	dx, 	ddx;
+    double y, 	dy, 	ddy;
+    double z, 	dz, 	ddz;
+    double yaw, dyaw, 	ddyaw;
   };
 
   struct MPC_WALKGEN_API ControlOutput {

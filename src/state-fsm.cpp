@@ -2,7 +2,7 @@
 
 using namespace MPCWalkgen;
 
-StateFSM::StateFSM(Reference *ref, const MPCData *mpc_parameters)
+StateFSM::StateFSM(Reference *ref, const MPCParameters *mpc_parameters)
 :vel_ref_(ref)
 ,mpc_parameters_(mpc_parameters)
 {}
@@ -53,7 +53,7 @@ void StateFSM::setSupportState(int sample, const std::vector<double> &samplingTi
       support.nbInstants 		= 0;
       support.time_limit 		= samplingTimes_vec[sample] + mpc_parameters_->nbqpsamples_step * mpc_parameters_->period_qpsample;
       if (sample != 1) {//Flying foot is not down
-        ++support.stepNumber;
+        ++support.step_number;
       }
       if (!ReferenceGiven) {
         support.nbStepsLeft = support.nbStepsLeft-1;

@@ -99,12 +99,12 @@ void QPSolver::ctrOrder(const Eigen::VectorXi &order) {
 
 
 
-void QPSolver::reorderInitialSolution(VectorXd &initialSolution,
+void QPSolver::reorderInitialSolution(CommonVectorType &initialSolution,
 		VectorXi &initialConstraints)
 {
 	assert(initialSolution.size() >= num_vars_);
 	assert(initialConstraints.size() >= num_constr_ + num_vars_);
-	VectorXd initialSolutionTmp = initialSolution;
+	CommonVectorType initialSolutionTmp = initialSolution;
 	VectorXi initialConstraintsTmp = initialConstraints;
 	for (int i = 0; i < num_vars_; ++i) {
 		initialSolution(var_indices_vec_(i)) = initialSolutionTmp(i);
@@ -116,10 +116,10 @@ void QPSolver::reorderInitialSolution(VectorXd &initialSolution,
 
 }
 
-void QPSolver::reorderSolution(VectorXd &qp_solution_vec, VectorXi &constraints,
+void QPSolver::reorderSolution(CommonVectorType &qp_solution_vec, VectorXi &constraints,
 		VectorXi &initialConstraints)
 {
-	VectorXd solutionTmp = qp_solution_vec;
+	CommonVectorType solutionTmp = qp_solution_vec;
 	VectorXi constraintsTmp = constraints;
 
 	for (int i = 0; i < num_vars_; ++i) {

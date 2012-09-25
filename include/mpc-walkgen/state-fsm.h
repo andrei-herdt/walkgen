@@ -7,14 +7,14 @@
 namespace MPCWalkgen{
     class StateFSM{
     public:
-      StateFSM(Reference *ref, const MPCData *mpc_parameters);
+      StateFSM(Reference *ref, const MPCParameters *mpc_parameters);
       ~StateFSM();
 
       void setSupportState(int sample, const std::vector<double> &samplingTimes_vec, SupportState &Support);
 
     protected:
       Reference *vel_ref_;
-      const MPCData *mpc_parameters_;
+      const MPCParameters *mpc_parameters_;
 
     };
 }
