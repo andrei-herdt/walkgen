@@ -32,7 +32,7 @@ public:
 
 	void ConvertCopToJerk(MPCSolution &solution);
 
-	void computeReferenceVector(const MPCSolution &solution);
+	void BuildReferenceVector(const MPCSolution &solution);
 
 	inline void current_time(double time) {current_time_ = time;};
 
@@ -72,7 +72,7 @@ private:
 
 	RealClock *clock_;
 
-	RelativeInequalities feetInequalities_;
+	RelativeInequalities foot_inequalities_;
 
 	std::vector<CommonMatrixType> Qconst_;
 	std::vector<CommonMatrixType> QconstN_;

@@ -45,7 +45,7 @@ void QPBuilder::PrecomputeObjective()
 	chol.rowOrder(order);
 	chol.colOrder(order);
 
-	int num_modes = weight_coefficients_->jerk.size();
+	int num_modes = weight_coefficients_->control.size();
 	int num_recomp = mpc_parameters_->nbFeedbackSamplesStandard();
 	Qconst_.resize(num_recomp * num_modes);
 	QconstN_.resize(num_recomp * num_modes);
@@ -73,7 +73,7 @@ void QPBuilder::PrecomputeObjective()
 			tmp_mat_.noalias() = cop_dyn.UInvT * vel_dyn.UT * vel_dyn.U * cop_dyn.UInv;
 			G = weight_coefficients_->vel[i] * tmp_mat_;
 			tmp_mat_.noalias() = cop_dyn.UInvT * cop_dyn.UInv;
-			G += weight_coefficients_->jerk[i] * tmp_mat_;
+			G += weight_coefficients_->control[i] * tmp_mat_;
 			tmp_mat_.noalias() = cop_dyn.UInvT * pos_dyn.UT * pos_dyn.U * cop_dyn.UInv;/*position*/
 			G +=  weight_coefficients_->pos[i] * tmp_mat_;
 
@@ -81,8 +81,8 @@ void QPBuilder::PrecomputeObjective()
 			QconstN_[nb] = G + weight_coefficients_->cop[i] * CommonMatrixType::Identity(num_samples, num_samples);//TODO: What is difference??
 
 			chol.reset();
-			chol.addTerm(QconstN_[nb], 0, 0);
-			chol.addTerm(QconstN_[nb], num_samples, num_samples);
+			chol.AddTerm(QconstN_[nb], 0, 0);
+			chol.AddTerm(QconstN_[nb], num_samples, num_samples);
 
 			choleskyConst_[nb] = chol.cholesky();
 
@@ -90,9 +90,9 @@ void QPBuilder::PrecomputeObjective()
 			state_variant_[nb] = cop_dyn.UInvT * vel_dyn.UT * weight_coefficients_->vel[i] * tmp_mat_;
 			tmp_mat_.noalias() = pos_dyn.S - pos_dyn.U * cop_dyn.UInv * cop_dyn.S;/*position*/
 			state_variant_[nb] += cop_dyn.UInvT * pos_dyn.UT * weight_coefficients_->pos[i] * tmp_mat_;/*position*/
-			state_variant_[nb] -= cop_dyn.UInvT * weight_coefficients_->jerk[i] * cop_dyn.UInv * cop_dyn.S;
+			state_variant_[nb] -= cop_dyn.UInvT * weight_coefficients_->control[i] * cop_dyn.UInv * cop_dyn.S;
 
-			select_variant_[nb]  = cop_dyn.UInvT * weight_coefficients_->jerk[i] * cop_dyn.UInv;
+			select_variant_[nb]  = cop_dyn.UInvT * weight_coefficients_->control[i] * cop_dyn.UInv;
 			select_variant_[nb] += cop_dyn.UInvT * vel_dyn.UT * weight_coefficients_->vel[i] * vel_dyn.U * cop_dyn.UInv;
 			select_variant_[nb] += cop_dyn.UInvT * pos_dyn.UT * weight_coefficients_->pos[i] * pos_dyn.U * cop_dyn.UInv;/*position*/
 
@@ -103,8 +103,7 @@ void QPBuilder::PrecomputeObjective()
 
 }
 
-void QPBuilder::BuildProblem(MPCSolution &solution) 
-{
+void QPBuilder::BuildProblem(MPCSolution &solution) {
 	// DIMENSION OF QP:
 	// ----------------
 	int nbvars = 2 * mpc_parameters_->num_samples_horizon +				// com
@@ -121,6 +120,10 @@ void QPBuilder::BuildProblem(MPCSolution &solution)
 
 }
 
+//
+// Private methods:
+//
+
 void QPBuilder::BuildObjective(const MPCSolution &solution) {
 
 	// Choose the precomputed element depending on the nb of "feedback-recomputations" until new qp-sample
@@ -133,14 +136,14 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	const CommonMatrixType &rot_mat2 = preview_->rotationMatrix2();
 	const CommonMatrixType &rot_mat2_trans = preview_->rotationMatrix2Trans();
 
-	QPMatrix &Q = solver_->matrix(matrixQ);
+	QPMatrix &Q = solver_->hessian_mat();
 
 	int num_steps_previewed = solution.support_states_vec.back().step_number;
 	int num_samples = mpc_parameters_->num_samples_horizon;
 
 	if (!solver_->useCholesky()) {//TODO: This part is the most costly >50%
-		Q.addTerm(QconstN_[sample_num], 0, 0);
-		Q.addTerm(QconstN_[sample_num], num_samples, num_samples);
+		Q.AddTerm(QconstN_[sample_num], 0, 0);
+		Q.AddTerm(QconstN_[sample_num], num_samples, num_samples);
 
 		CommonMatrixType Qmat = Q().block(0, 0, 2 * num_samples, 2 * num_samples);
 		tmp_mat_.noalias() = rot_mat2 * Qmat * rot_mat2_trans;
@@ -148,24 +151,24 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	} else {
 		// rotate the cholesky matrix
 		CommonMatrixType chol = choleskyConst_[sample_num];
-		rotateCholeskyMatrix(chol, rot_mat2);
+		RotateCholeskyMatrix(chol, rot_mat2);
 		Q.cholesky(chol);
 	}
 
 	if (num_steps_previewed > 0) {
 		tmp_mat_.noalias() = Qconst_[sample_num] * select_mats.sample_step;
-		Q.addTerm(tmp_mat_, 0, 2 * num_samples);
-		Q.addTerm(tmp_mat_, num_samples, 2 * num_samples + num_steps_previewed);
+		Q.AddTerm(tmp_mat_, 0, 2 * num_samples);
+		Q.AddTerm(tmp_mat_, num_samples, 2 * num_samples + num_steps_previewed);
 
 		tmp_mat_.noalias() = select_mats.sample_step_trans * Qconst_[sample_num] * select_mats.sample_step;
-		Q.addTerm(tmp_mat_, 2 * num_samples, 2 * num_samples);
-		Q.addTerm(tmp_mat_, 2 * num_samples + num_steps_previewed, 2 * num_samples + num_steps_previewed);
+		Q.AddTerm(tmp_mat_, 2 * num_samples, 2 * num_samples);
+		Q.AddTerm(tmp_mat_, 2 * num_samples + num_steps_previewed, 2 * num_samples + num_steps_previewed);
 
 
 		if (!solver_->useCholesky()) {
 			tmp_mat_.noalias() = select_mats.sample_step_trans * Qconst_[sample_num];
-			Q.addTerm(tmp_mat_, 2 * num_samples, 0);
-			Q.addTerm(tmp_mat_, 2 * num_samples + num_steps_previewed, num_samples);
+			Q.AddTerm(tmp_mat_, 2 * num_samples, 0);
+			Q.AddTerm(tmp_mat_, 2 * num_samples + num_steps_previewed, num_samples);
 
 			// rotate the lower left block
 			// TODO(andrei): Rotation can be done before addition
@@ -177,7 +180,7 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 		// rotate the upper right block
 		// TODO(efficiency): Rotation can be done before addition
 		CommonMatrixType urBlock = Q().block(0, 2 * num_samples, 2*num_samples, 2*num_steps_previewed);
-		computeRM(urBlock, rot_mat2);
+		ComputeRM(urBlock, rot_mat2);
 		Q().block(0, 2 * num_samples, 2 * num_samples, 2 * num_steps_previewed) = urBlock;
 	}
 
@@ -199,8 +202,8 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	HX += ref_variant_vel_[sample_num] * vel_ref_->global.x;
 	HY += ref_variant_vel_[sample_num] * vel_ref_->global.y;
 
-	//HX += ref_variant_pos_[sample_num] * vel_ref_->global.x;
-	//HY += ref_variant_pos_[sample_num] * vel_ref_->global.y;
+	//HX += ref_variant_pos_[sample_num] * pos_ref_->global.x;
+	//HY += ref_variant_pos_[sample_num] * pos_ref_->global.y;
 
 	if (num_steps_previewed > 0) {
 		tmp_vec_.noalias() = select_mats.sample_step_trans * HX;
@@ -244,7 +247,7 @@ void QPBuilder::ComputeWarmStart(MPCSolution &solution){
 	Eigen::VectorXi initialConstraintTmp = solution.initialConstraints;//TODO: Copy not necessary for shifting
 	double TimeFactor = solution.support_states_vec[1].sampleWeight;//TODO: TimeFactor? sampleWeight??
 	int shiftCtr = 0;
-	if (fabs(TimeFactor-1.) < EPSILON) {
+	if (fabs(TimeFactor-1.) < kEps) {
 		shiftCtr = 1;//if sampleWeight == 1
 	}
 	if (size >= 2*num_samples){//TODO: Verification wouldn't be necessary without copying
@@ -283,14 +286,14 @@ void QPBuilder::ComputeWarmStart(MPCSolution &solution){
 	bool noActiveConstraints;
 	for (int i = 0; i<num_samples; i++){
 		// Get COP convex hull for current support
-		robot_->convexHull(cop_hull_edges_, CoPHull, *prwSS_it, false);
+		robot_->convexHull(cop_hull_edges_, COP_HULL, *prwSS_it, false);
 
 		// Check if the support foot has changed
 		if (prwSS_it->state_changed && prwSS_it->step_number>0){
 
 			// Get feet convex hull for current support
 			prwSS_it--;
-			robot_->convexHull(foot_hull_edges_, FootHull,*prwSS_it, false);
+			robot_->convexHull(foot_hull_edges_, FOOT_HULL,*prwSS_it, false);
 			prwSS_it++;
 
 			// Place the foot on active constraints
@@ -380,7 +383,7 @@ void QPBuilder::ComputeWarmStart(MPCSolution &solution){
 
 }
 
-void QPBuilder::computeReferenceVector(const MPCSolution &solution)
+void QPBuilder::BuildReferenceVector(const MPCSolution &solution)
 {
 	if (vel_ref_->global.x.rows() != mpc_parameters_->num_samples_horizon){
 		vel_ref_->global.x.resize(mpc_parameters_->num_samples_horizon);
@@ -451,45 +454,44 @@ void QPBuilder::BuildInequalitiesFeet(const MPCSolution &solution) {
 	int num_ineqs = 5;
 	int num_steps = solution.support_states_vec.back().step_number;
 
-	feetInequalities_.resize(num_ineqs * num_steps , num_steps);
+	foot_inequalities_.resize(num_ineqs * num_steps , num_steps);
 
-	std::vector<SupportState>::const_iterator prwSS_it = solution.support_states_vec.begin();
-	++prwSS_it;//Point at the first previewed instant
+	std::vector<SupportState>::const_iterator prev_ss_it = solution.support_states_vec.begin();
+	++prev_ss_it;//Point at the first previewed instant
 	for( int i = 0; i < mpc_parameters_->num_samples_horizon; ++i ){
 		//foot positioning constraints
-		if( prwSS_it->state_changed && prwSS_it->step_number > 0 && prwSS_it->phase != DS){
+		if( prev_ss_it->state_changed && prev_ss_it->step_number > 0 && prev_ss_it->phase != DS){
 
-			--prwSS_it;//Foot polygons are defined with respect to the supporting foot
-			robot_->convexHull(hull_, FootHull, *prwSS_it);
-			++prwSS_it;
+			--prev_ss_it;//Foot polygons are defined with respect to the supporting foot
+			robot_->convexHull(hull_, FOOT_HULL, *prev_ss_it);
+			++prev_ss_it;
 
-			int stepNumber = (prwSS_it->step_number-1);
+			int stepNumber = (prev_ss_it->step_number-1);
 
-			feetInequalities_.DX.block( stepNumber * num_ineqs, stepNumber, num_ineqs, 1) = hull_.A.segment(0, num_ineqs);
-			feetInequalities_.DY.block( stepNumber * num_ineqs, stepNumber, num_ineqs, 1) = hull_.B.segment(0, num_ineqs);
-			feetInequalities_.Dc.segment(stepNumber * num_ineqs, num_ineqs) = hull_.D.segment(0, num_ineqs);
+			foot_inequalities_.DX.block( stepNumber * num_ineqs, stepNumber, num_ineqs, 1) = hull_.A.segment(0, num_ineqs);
+			foot_inequalities_.DY.block( stepNumber * num_ineqs, stepNumber, num_ineqs, 1) = hull_.B.segment(0, num_ineqs);
+			foot_inequalities_.Dc.segment(stepNumber * num_ineqs, num_ineqs) = hull_.D.segment(0, num_ineqs);
 		}
-		++prwSS_it;
+		++prev_ss_it;
 	}
 
 }
 
-void QPBuilder::BuildConstraintsFeet(const MPCSolution &solution){
-
+void QPBuilder::BuildConstraintsFeet(const MPCSolution &solution) {
 	int num_steps_previewed = solution.support_states_vec.back().step_number;
 	const SelectionMatrices &select = preview_->selectionMatrices();
 	int num_samples = mpc_parameters_->num_samples_horizon;
 
-	tmp_mat_.noalias() = feetInequalities_.DX * select.Vf;
-	solver_->matrix(matrixA).addTerm(tmp_mat_,  0,  2 * num_samples);
+	tmp_mat_.noalias() = foot_inequalities_.DX * select.Vf;
+	solver_->constr_mat().AddTerm(tmp_mat_,  0,  2 * num_samples);
 
-	tmp_mat_.noalias() = feetInequalities_.DY * select.Vf;
-	solver_->matrix(matrixA).addTerm(tmp_mat_,  0, 2 * num_samples + num_steps_previewed);
+	tmp_mat_.noalias() = foot_inequalities_.DY * select.Vf;
+	solver_->constr_mat().AddTerm(tmp_mat_,  0, 2 * num_samples + num_steps_previewed);
 
-	solver_->vector(vectorBL).addTerm(feetInequalities_.Dc, 0);
+	solver_->vector(vectorBL).addTerm(foot_inequalities_.Dc, 0);
 
-	tmp_vec_.noalias() =  feetInequalities_.DX * select.VcfX;
-	tmp_vec_ += feetInequalities_.DY * select.VcfY;
+	tmp_vec_.noalias() =  foot_inequalities_.DX * select.VcfX;
+	tmp_vec_ += foot_inequalities_.DY * select.VcfY;
 	solver_->vector(vectorBL).addTerm(tmp_vec_,  0);
 
 	solver_->vector(vectorBU)().segment(0, tmp_vec_.size()).fill(10e10);
@@ -528,26 +530,26 @@ void QPBuilder::BuildFootVelConstraints(const MPCSolution &solution)
 void QPBuilder::BuildConstraintsCOP(const MPCSolution &solution) 
 {
 	int num_samples = mpc_parameters_->num_samples_horizon;
-	std::vector<SupportState>::const_iterator prwSS_it = solution.support_states_vec.begin();
+	std::vector<SupportState>::const_iterator prev_ss_it = solution.support_states_vec.begin();
 
-	robot_->convexHull(hull_, CoPHull, *prwSS_it, false, false);
+	robot_->convexHull(hull_, COP_HULL, *prev_ss_it, false, false);
 
 	int num_steps_previewed = solution.support_states_vec.back().step_number;
 	int size = 2 * num_samples + 2 * num_steps_previewed;
 	tmp_vec_.resize(size);
 	tmp_vec2_.resize(size);
 
-	++prwSS_it;//Point at the first previewed instant
+	++prev_ss_it;//Points at the first previewed instant
 	for (int i = 0; i < num_samples; ++i) {
-		if (prwSS_it->state_changed) {
-			robot_->convexHull(hull_, CoPHull, *prwSS_it, false, false);
+		if (prev_ss_it->state_changed) {
+			robot_->convexHull(hull_, COP_HULL, *prev_ss_it, false, false);
 		}
 		tmp_vec_(i)  = min(hull_.x(0), hull_.x(3));
 		tmp_vec2_(i) = max(hull_.x(0), hull_.x(3));
 
 		tmp_vec_(num_samples + i) = min(hull_.y(0),hull_.y(1));
 		tmp_vec2_(num_samples + i)= max(hull_.y(0),hull_.y(1));
-		++prwSS_it;
+		++prev_ss_it;
 	}
 
 	tmp_vec_.segment(2 * num_samples, 2 * num_steps_previewed).fill(-10e10);

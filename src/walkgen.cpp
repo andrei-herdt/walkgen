@@ -161,15 +161,15 @@ const MPCSolution &Walkgen::Go(){
 const MPCSolution &Walkgen::Go(double time){
 	current_time_ = time;
 
-	if (time  > next_computation_ - EPSILON) {
+	if (time  > next_computation_ - kEps) {
 		//int first_timer = clock_.StartCounter();
 		next_computation_ += mpc_parameters_.period_mpcsample;
-		if (time > next_computation_ - EPSILON) {
+		if (time > next_computation_ - kEps) {
 			ResetCounters(time);
 		}
-		if(time  > first_sample_time_ - EPSILON){
+		if(time  > first_sample_time_ - kEps){
 			first_sample_time_ += mpc_parameters_.period_qpsample;
-			if (time > first_sample_time_ - EPSILON) {
+			if (time > first_sample_time_ - kEps) {
 				ResetCounters(time);
 			}
 		}
@@ -191,7 +191,7 @@ const MPCSolution &Walkgen::Go(double time){
 	}
 
 	//int timer_update_output = clock_.StartCounter();
-	if (time > next_act_sample_ - EPSILON) {
+	if (time > next_act_sample_ - kEps) {
 		next_act_sample_ += mpc_parameters_.period_actsample;
 
 		IncrementOutputIndex();
@@ -245,7 +245,7 @@ void Walkgen::BuildProblem() {
 			solution_ );
 	preview_->computeRotationMatrix(solution_);
 
-	builder_->computeReferenceVector(solution_);
+	builder_->BuildReferenceVector(solution_);
 
 	// BUILD:
 	// ------

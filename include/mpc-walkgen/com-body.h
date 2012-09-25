@@ -21,7 +21,7 @@ namespace MPCWalkgen{
     // Private methods:
     //
   private:
-    void interpolateTrunkOrientation(MPCSolution &solution,
+    void InterpolateTrunkYaw(MPCSolution &solution,
       double /*current_time*/, const Reference &ref);
 
   };

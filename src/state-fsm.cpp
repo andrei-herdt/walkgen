@@ -16,19 +16,19 @@ void StateFSM::setSupportState(int sample, const std::vector<double> &samplingTi
   support.nbInstants++;
 
   bool ReferenceGiven = false;
-  if (fabs(vel_ref_->local.x(0)) > EPSILON || fabs(vel_ref_->local.y(0)) > EPSILON || fabs(vel_ref_->local.yaw(0)) > EPSILON) {
+  if (fabs(vel_ref_->local.x(0)) > kEps || fabs(vel_ref_->local.y(0)) > kEps || fabs(vel_ref_->local.yaw(0)) > kEps) {
     ReferenceGiven = true;
   }
 
   // Update time limit for double support phase
   if (ReferenceGiven && support.phase == DS && 
-      support.time_limit > samplingTimes_vec[mpc_parameters_->nbqpsamples_dsss] - EPSILON) {
+      support.time_limit > samplingTimes_vec[mpc_parameters_->nbqpsamples_dsss] - kEps) {
       support.time_limit = samplingTimes_vec[mpc_parameters_->nbqpsamples_dsss];
       support.nbStepsLeft = mpc_parameters_->nbsteps_ssds;
   }
 
   //FSM logic
-  if (samplingTimes_vec[sample] >= support.time_limit - EPSILON) {
+  if (samplingTimes_vec[sample] >= support.time_limit - kEps) {
     //SS->DS
     if (support.phase == SS && !ReferenceGiven && support.nbStepsLeft == 0){
       support.phase 			  = DS;

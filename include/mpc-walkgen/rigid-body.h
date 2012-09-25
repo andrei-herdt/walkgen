@@ -32,13 +32,13 @@ namespace MPCWalkgen{
 
     inline void state(const BodyState &s){state_=s;}
 
-    inline const LinearDynamics &dynamics_qp() const { return dynamics_qp_vec_[dynamics_iter_];};
+    inline const LinearDynamics &dynamics_qp() const { return dynamics_qp_vec_[dynamics_index_];};
     inline const LinearDynamics &dynamics_act() const {return dynamics_act_;};
 
     inline Motion &motion_act() {return motion_act_;};
     inline Motion &motion_prw() {return motion_prw_;};
 
-    void setSelectionNumber(double firstSamplingPeriod);
+    void SetSelectionNumber(double firstSamplingPeriod);
     /// \}
 
   protected:
@@ -46,13 +46,14 @@ namespace MPCWalkgen{
     const RobotData *robot_data_p_;//TODO: Maybe should not be here
     DynamicsBuilder *dyn_build_p_;
 
+    int dynamics_index_; /// \brief Pointer to the currently relevant dynamics matrices
+
     Interpolation interpolation_;
 
     BodyState state_;
     /// \brief Dynamics sampled with the QP sampling rate
     std::vector<LinearDynamics> dynamics_qp_vec_;
-    /// \brief Pointer to the currently relevant dynamics
-    int dynamics_iter_;
+
     /// \brief Dynamics sampled with the actuator sampling rate
     LinearDynamics dynamics_act_;
 

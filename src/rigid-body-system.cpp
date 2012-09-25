@@ -113,9 +113,9 @@ void RigidBodySystem::UpdateState(const MPCSolution &solution) {
 }
 
 void RigidBodySystem::setSelectionNumber(double firstSamplingPeriod){
-	com_->setSelectionNumber(firstSamplingPeriod);
-	left_foot_->setSelectionNumber(firstSamplingPeriod);
-	right_foot_->setSelectionNumber(firstSamplingPeriod);
+	com_->SetSelectionNumber(firstSamplingPeriod);
+	left_foot_->SetSelectionNumber(firstSamplingPeriod);
+	right_foot_->SetSelectionNumber(firstSamplingPeriod);
 }
 
 RigidBody *RigidBodySystem::body(BodyType type){
@@ -142,25 +142,25 @@ const RigidBody *RigidBodySystem::body(BodyType type) const{
 
 void RigidBodySystem::convexHull(ConvexHull &hull, HullType type, const SupportState &prwSupport, bool computeLinearSystem, bool rotateHull) const {
 	switch (type){
-	case FootHull:
+	case FOOT_HULL:
 		if (prwSupport.foot == LEFT){
-			hull = robot_data_.leftFootHull;
+			hull = robot_data_.left_foot_pos_hull;
 		}else{
-			hull = robot_data_.rightFootHull;
+			hull = robot_data_.right_foot_pos_hull;
 		}
 		break;
-	case CoPHull:
+	case COP_HULL:
 		if (prwSupport.foot == LEFT){
 			if (prwSupport.phase == SS){
-				hull = robot_data_.CoPLeftSSHull;
+				hull = robot_data_.left_foot_ss_hull;
 			}else{
-				hull = robot_data_.CoPLeftDSHull;
+				hull = robot_data_.left_foot_ds_hull;
 			}
 		}else{
 			if (prwSupport.phase==SS){
-				hull = robot_data_.CoPRightSSHull;
+				hull = robot_data_.right_foot_ss_hull;
 			}else{
-				hull =  robot_data_.CoPRightDSHull;
+				hull =  robot_data_.right_foot_ds_hull;
 			}
 		}
 		break;

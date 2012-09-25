@@ -20,6 +20,9 @@ namespace MPCWalkgen{
 
 class QPSolver{
 
+	//
+	// Public methods:
+	//
 public:
 	QPSolver(const SolverData *parameters, int nbvar_max, int nbcstr_max);
 	virtual ~QPSolver() = 0;
@@ -32,8 +35,12 @@ public:
 
 	void DumpProblem(const char *filename);
 
-public:
-	QPMatrix &matrix(const QPMatrixType type);
+
+	//\name Accessors and mutators
+	//\{
+	inline QPMatrix &hessian_mat() {return hessian_mat_;}
+	inline QPMatrix &constr_mat() {return cstr_mat_;}
+
 	QPVector &vector(const QPVectorType type);
 
 	inline void nbvar (int nbvar)
@@ -46,7 +53,7 @@ public:
 	inline int num_constr() const {return num_constr_;}
 	inline void nbcstr_max(const int num_constr) {num_constr_max_ = num_constr;}
 	inline int nbcstr_max() const {return num_constr_max_;}
-
+	//\}
 
 	void SetVarOrder(const Eigen::VectorXi &order);
 	void ctrOrder(const Eigen::VectorXi &order);

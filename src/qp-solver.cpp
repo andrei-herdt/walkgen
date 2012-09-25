@@ -45,16 +45,6 @@ QPSolver::~QPSolver() {
 	}
 }
 
-QPMatrix &QPSolver::matrix(const QPMatrixType type) {
-	switch(type) {
-	case matrixA:
-		return cstr_mat_;
-	default:
-		return hessian_mat_;
-	}
-}
-
-
 QPVector &QPSolver::vector(const QPVectorType type) {
 	switch(type) {
 	case vectorP:

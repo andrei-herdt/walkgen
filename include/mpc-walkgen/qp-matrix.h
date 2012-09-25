@@ -2,19 +2,9 @@
 #ifndef MPC_WALKGEN_QP_MATRIX_H
 #define MPC_WALKGEN_QP_MATRIX_H
 
-////////////////////////////////////////////////////////////////////////////////
-///
-///\file	qp-matrix.h
-///\brief	A class to store QP matrices
-///\author  Herdt Andrei
-///\author	Lafaye Jory
-///\author      Keith François
-////////////////////////////////////////////////////////////////////////////////
-
 #include <mpc-walkgen/types.h>
 
 #include <vector>
-#include <Eigen/Dense>
 
 namespace MPCWalkgen{
 
@@ -27,7 +17,7 @@ namespace MPCWalkgen{
 
     ~QPMatrix();
 
-    void addTerm(const EigenMatrixXdRM &mat,
+    void AddTerm(const EigenMatrixXdRM &mat,
       const int first_row, const int first_col);
 
     void setConstantPart(const CommonMatrixType &mat);
@@ -45,7 +35,8 @@ namespace MPCWalkgen{
     void relative_col_order(const Eigen::VectorXi &order);
 
 
-    // accessors
+    // \name Accessors and mutators
+    // \{
     inline CommonMatrixType &operator()(void) {
       cholesky_old_mat_ = true;
       return matrix_;
@@ -58,12 +49,13 @@ namespace MPCWalkgen{
 
     inline int num_rows() const	 {return num_rows_;}
     inline int num_cols() const    {return num_cols_;}
+    // \}
 
     //
     // Private methods:
     //
   private:
-    void computeCholesky(const CommonMatrixType &partialCholesky);
+    void BuildCholesky(const CommonMatrixType &partialCholesky);
     void computeCholesky();
 
     //

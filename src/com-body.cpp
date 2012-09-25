@@ -65,11 +65,10 @@ void CoMBody::Interpolate(MPCSolution &solution, double current_time, const Refe
       state_y, solution.com_prw.jerk.y_vec);
   }
 
-  interpolateTrunkOrientation(solution, current_time, ref);
+  InterpolateTrunkYaw(solution, current_time, ref);
 }
 
-void CoMBody::interpolateTrunkOrientation(MPCSolution &solution,
-                                          double /*current_time*/, const Reference &ref) 
+void CoMBody::InterpolateTrunkYaw(MPCSolution &solution, double /*current_time*/, const Reference &ref)
 {
   double T = mpc_parameters_->nbqpsamples_step * mpc_parameters_->period_qpsample;
 

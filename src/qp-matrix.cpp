@@ -32,7 +32,7 @@ QPMatrix::QPMatrix(const int num_rows, const int num_cols)
 
 QPMatrix::~QPMatrix(){}
 
-void QPMatrix::addTerm(const EigenMatrixXdRM &mat,
+void QPMatrix::AddTerm(const EigenMatrixXdRM &mat,
 		const int first_row, const int first_col) {
 	// The following is optimized for row major matrices.
 	// It has to be adapted if colum major ones are used.
@@ -89,7 +89,7 @@ CommonMatrixType &QPMatrix::cholesky() {
 }
 
 CommonMatrixType &QPMatrix::cholesky(CommonMatrixType &partialCholesky) {
-	computeCholesky(partialCholesky);
+	BuildCholesky(partialCholesky);
 	return cholesky_mat_;
 }
 
@@ -101,7 +101,7 @@ void QPMatrix::rowOrder(const Eigen::VectorXi &order) {
 	row_indices_vec_ = order;
 }
 
-void QPMatrix::computeCholesky(const CommonMatrixType &partialCholesky) {
+void QPMatrix::BuildCholesky(const CommonMatrixType &partialCholesky) {
 	if (cholesky_old_mat_) {
 		int imin = partialCholesky.rows();
 		if (imin>0) {
@@ -116,7 +116,7 @@ void QPMatrix::computeCholesky(const CommonMatrixType &partialCholesky) {
 					for (int k=0; k<j; ++k) {
 						tmp -= pow2(cholesky_mat_(k,j));
 					}
-					if (tmp>EPSILON){
+					if (tmp>kEps){
 						cholesky_mat_(j,j) = sqrt(tmp);
 					} else {
 						cholesky_mat_(j,j) = 0;
@@ -128,7 +128,7 @@ void QPMatrix::computeCholesky(const CommonMatrixType &partialCholesky) {
 					for (int k = 0; k < j; ++k) {
 						tmp -= cholesky_mat_(k,j) * cholesky_mat_(k,i);
 					}
-					if (fabs(tmp) > EPSILON && fabs(cholesky_mat_(j,j)) > EPSILON){
+					if (fabs(tmp) > kEps && fabs(cholesky_mat_(j,j)) > kEps){
 						cholesky_mat_(j,i) = tmp / cholesky_mat_(j,j);
 					} else {
 						cholesky_mat_(j,i) = 0;

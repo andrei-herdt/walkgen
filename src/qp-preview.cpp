@@ -130,10 +130,10 @@ void QPPreview::computeRotationMatrix(MPCSolution &solution){
 		rotationMatrix2_(2*i  , 2*i+1) =  sinYaw;
 		rotationMatrix2_(2*i+1, 2*i+1) =  cosYaw;
 
-		rotationMatrix2Trans_(2*i  , 2*i  ) =  cosYaw;
+		rotationMatrix2Trans_(2*i  , 2*i  ) = cosYaw;
 		rotationMatrix2Trans_(2*i+1, 2*i  ) = sinYaw;
 		rotationMatrix2Trans_(2*i  , 2*i+1) = -sinYaw;
-		rotationMatrix2Trans_(2*i+1, 2*i+1) =  cosYaw;
+		rotationMatrix2Trans_(2*i+1, 2*i+1) = cosYaw;
 
 	}
 

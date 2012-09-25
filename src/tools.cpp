@@ -33,7 +33,7 @@ bool MPCWalkgen::isUpperTriangular(const CommonMatrixType &m)
 	return true;
 }
 
-void MPCWalkgen::rotateCholeskyMatrix(CommonMatrixType &mInOut, const CommonMatrixType &rot)
+void MPCWalkgen::RotateCholeskyMatrix(CommonMatrixType &mInOut, const CommonMatrixType &rot)
 {
 	int N = mInOut.rows();
 	int n2 = N/2;
@@ -48,7 +48,7 @@ void MPCWalkgen::rotateCholeskyMatrix(CommonMatrixType &mInOut, const CommonMatr
 	}
 }
 
-void MPCWalkgen::computeRM(CommonMatrixType &mIn, const CommonMatrixType &rot)
+void MPCWalkgen::ComputeRM(CommonMatrixType &mIn, const CommonMatrixType &rot)
 {
 	// first step: compute rot*chol
 	for (int i=0; i<mIn.rows()/2; ++i)

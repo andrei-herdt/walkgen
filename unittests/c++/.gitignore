@@ -5,3 +5,4 @@
 *.a
 *.log
 make_dependencies.mk
+walk

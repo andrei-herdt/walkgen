@@ -2,28 +2,18 @@
 #ifndef MPC_WALKGEN_TYPES_H
 #define MPC_WALKGEN_TYPES_H
 
-////////////////////////////////////////////////////////////////////////////////
-///
-///\file	types.h
-///\brief	Definition of types used in MPC
-///\author	Herdt Andrei
-////////////////////////////////////////////////////////////////////////////////
-
-#include <mpc-walkgen/sharedtypes.h>//TODO: Include this?
+#include <mpc-walkgen/sharedtypes.h>
 
 namespace MPCWalkgen{
-
-
-  static const double EPSILON = 0.000001;
 
   //
   // Enums: 
   //
-  enum HullType{ FootHull, CoPHull };//TODO: Remove this
+  enum HullType{ FOOT_HULL, COP_HULL };//TODO: Remove this
 
-  enum QPMatrixType{ matrixQ, matrixA };
+  enum QPMatrixType{ HESSIAN, matrixA };//TODO: Remove this
 
-  enum QPVectorType{ vectorP,  vectorBU,  vectorBL,  vectorXU,  vectorXL };
+  enum QPVectorType{ vectorP,  vectorBU,  vectorBL,  vectorXU,  vectorXL };//TODO: Remove this
 
   enum Derivative { 
 	  POSITION		= 0, 
@@ -33,7 +23,7 @@ namespace MPCWalkgen{
 	  COP			= 4
   };
 
-  enum SampleRate { QP, ACTUATORS };
+  enum SampleRate { QP, ACTUATORS };//TODO: Needed?
 
   //
   // Data structures:
@@ -62,7 +52,7 @@ namespace MPCWalkgen{
     SelectionMatrices(int num_rows);
   };
 
-  struct RelativeInequalities{
+  struct RelativeInequalities{//TODO: Obsolete
     CommonMatrixType DX;
     CommonMatrixType DY;
     CommonVectorType Dc;

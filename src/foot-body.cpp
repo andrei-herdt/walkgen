@@ -37,12 +37,12 @@ void FootBody::Interpolate(MPCSolution &solution, double current_time, const Ref
       goal_state.x(0) = state_.x(0);
       goal_state.y(0) = state_.y(0);
       goal_state.yaw(0) = state_.yaw(0);
-    } else if (time_spent_flying < raise_period - EPSILON) {
+    } else if (time_spent_flying < raise_period - kEps) {
       time_left_xy = raise_period - time_spent_flying;
       goal_state.x(0) = state_.x(0);
       goal_state.y(0) = state_.y(0);
       goal_state.yaw(0) = state_.yaw(0);
-    }  else if (time_left_flying < raise_period + EPSILON) {
+    }  else if (time_left_flying < raise_period + kEps) {
       time_left_xy = 1.;
       goal_state.x(0) = state_.x(0);
       goal_state.y(0) = state_.y(0);
@@ -64,7 +64,7 @@ void FootBody::Interpolate(MPCSolution &solution, double current_time, const Ref
     if (time_left_flying - halftime_rounded > mpc_parameters_->period_actsample) {
       goal_state.z(0) = robot_data_p_->max_foot_height;
       time_left_z = time_left_flying - halftime_rounded;
-    } else if (time_left_flying < halftime_rounded && time_left_flying > EPSILON) { // Half-time passed
+    } else if (time_left_flying < halftime_rounded && time_left_flying > kEps) { // Half-time passed
       time_left_z = time_left_flying;
     } else {
       // time_left_z stays 1
