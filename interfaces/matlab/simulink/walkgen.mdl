@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.370"
+    ComputedModelVersion    "1.379"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Tue Sep 25 14:38:14 2012"
+  LastModifiedDate	  "Tue Sep 25 18:23:33 2012"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:370>"
+  ModelVersionFormat	  "1.%<AutoIncrement:379>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -668,7 +668,7 @@ Model {
   System {
     Name		    "walkgen"
     Location		    [403, 74, 678, 375]
-    Open		    off
+    Open		    on
     ModelBrowserVisibility  off
     ModelBrowserWidth	    200
     ScreenColor		    "white"
@@ -701,7 +701,7 @@ Model {
       System {
 	Name			"Simulation"
 	Location		[702, 74, 1448, 860]
-	Open			on
+	Open			off
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
 	ScreenColor		"white"
@@ -740,13 +740,28 @@ Model {
 	  Position		  [390, 63, 495, 772]
 	  TreatAsAtomicUnit	  on
 	  MinAlgLoopOccurrences	  off
-	  SystemSampleTime	  "0.1"
+	  SystemSampleTime	  "0.005"
 	  RTWSystemCode		  "Auto"
 	  FunctionWithSeparateData off
+	  MaskPromptString	  "Length of horizon [num. samples]|Step period [num. samples]|Length of initial double support phase [num. samples]|Steps before halt|Sampling period [s]|Time between recomputations [s]|Actuator sampling period [s]|Security margin [m]|Max number of working set recomputations"
+	  MaskStyleString	  "edit,edit,edit,edit,edit,edit,edit,edit,edit"
+	  MaskTunableValueString  "on,on,on,on,on,on,on,on,on"
+	  MaskCallbackString	  "||||||||"
+	  MaskEnableString	  "on,on,on,on,on,on,on,on,on"
+	  MaskVisibilityString	  "on,on,on,on,on,on,on,on,on"
+	  MaskToolTipString	  "on,on,on,on,on,on,on,on,on"
+	  MaskVarAliasString	  ",,,,,,,,"
+	  MaskVariables		  "num_samples_horizon=@1;num_samples_step=@2;num_samples_dsss=@3;num_steps_ssds=@4;period_qpsample=@5;period_mpcsample=@6;period_actsample=@7;security_margin=@8;num_wsrec=@9;"
+	  MaskIconFrame		  on
+	  MaskIconOpaque	  on
+	  MaskIconRotate	  "none"
+	  MaskIconUnits		  "autoscale"
+	  MaskValueString	  "16|8|8|2|0.1|0.005|0.005|0.02|20"
+	  MaskTabNameString	  ",,,,,,,,"
 	  System {
 	    Name		    "Atomic Walkgen"
 	    Location		    [403, 74, 1582, 876]
-	    Open		    off
+	    Open		    on
 	    ModelBrowserVisibility  off
 	    ModelBrowserWidth	    200
 	    ScreenColor		    "white"
@@ -949,7 +964,7 @@ Model {
 	      Ports		      [10, 15]
 	      Position		      [300, 168, 390, 542]
 	      FunctionName	      "walkgen_sfun"
-	      Parameters	      "16, 8, 8, 2, 0.1, 0.1, 0.005, 0.02"
+	      Parameters	      "num_samples_horizon, num_samples_step, num_samples_dsss, num_steps_ssds, period_qpsample, period_mpcsample, period_actsample, security_margin, num_wsrec"
 	      Port {
 		PortNumber		1
 		Name			"com"
@@ -1094,7 +1109,7 @@ Model {
 	      Position		      [540, 264, 560, 286]
 	      ShowName		      off
 	      Floating		      off
-	      Location		      [79, 40, 1595, 891]
+	      Location		      [79, 40, 1595, 894]
 	      Open		      off
 	      NumInputPorts	      "1"
 	      List {
@@ -1115,7 +1130,7 @@ Model {
 	      Position		      [545, 335, 565, 355]
 	      ShowName		      off
 	      Floating		      off
-	      Location		      [79, 40, 1595, 894]
+	      Location		      [85, 45, 1601, 899]
 	      Open		      off
 	      NumInputPorts	      "1"
 	      List {
@@ -1278,7 +1293,7 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "S-Function"
 	      SrcPort		      8
-	      Points		      [55, 0; 0, 15; 25, 0]
+	      Points		      [55, 0; 0, 15; 10, 0]
 	      Branch {
 		Points			[0, -25]
 		DstBlock		"Scope3"

@@ -178,15 +178,15 @@ struct SolverData {
 };
 
 struct MPC_WALKGEN_API MPCParameters {
-	double period_qpsample;		//Standard sampling period
-	double period_mpcsample;	//Period between recomputations of the QP
-	double period_actsample;	//Sampling period of the actuators
+	double period_qpsample;		//Sampling period [sec]
+	double period_mpcsample;	//Time between recomputations [sec]
+	double period_actsample;	//Actuator sampling period [sec]
 
 	int num_samples_horizon;  	//Number of samplings inside horizon
 
 	int nbqpsamples_step;		//Step period ss_left<->ss_right in qp sample periods
-	int nbqpsamples_dsss;		//Transition period ds->ss in qp sample periods
-	int nbsteps_ssds;			//Steps to be done before ss->ds
+	int nbqpsamples_dsss;		//Length of initial double support phase [num. samples]
+	int nbsteps_ssds;			//Steps before halt
 
 	double period_ds;			//Length of the (permanent) double support phase (should be a large value)
 
@@ -206,8 +206,8 @@ struct MPC_WALKGEN_API MPCParameters {
 	int nbFeedbackSamplesLeft(double firstSamplingPeriod) const;
 	/// \brief Number of simulation iterations between two feedback call
 	int num_samples_act() const;
-	/// \brief Number of feedback iterations between two QP instants
-	int nbFeedbackSamplesStandard() const;
+
+	int nbFeedbackSamplesStandard() const;			/// \brief Number of feedback iterations between two QP instants
 
 	int num_qpsamples_ss() const;
 	int num_steps_max() const;
@@ -223,13 +223,14 @@ struct MPC_WALKGEN_API RobotData {
 	double mass;
 	double max_foot_height;
 	double max_foot_vel;
+	double security_margin;
 
 	Eigen::Vector3d com;
 
 	FootData leftFoot;
 	FootData rightFoot;
 
-	HipYawData leftHipYaw;
+	HipYawData left_hip_yaw;
 	HipYawData rightHipYaw;
 
 	ConvexHull left_foot_pos_hull;

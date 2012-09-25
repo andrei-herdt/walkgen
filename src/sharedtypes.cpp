@@ -291,13 +291,13 @@ void ConvexHull::computeLinearSystem(const Foot &foot) {
 }
 
 RobotData::RobotData(const FootData &leftFoot, const FootData &rightFoot,
-		const HipYawData &leftHipYaw, const HipYawData &rightHipYaw,
+		const HipYawData &left_hip_yaw, const HipYawData &rightHipYaw,
 		double mass)
 :	com()
 ,max_foot_height(0.03)
 ,leftFoot(leftFoot)
 ,rightFoot(rightFoot)
-,leftHipYaw(leftHipYaw)
+,left_hip_yaw(left_hip_yaw)
 ,rightHipYaw(rightHipYaw)
 ,mass(mass)
 ,max_foot_vel(0.)

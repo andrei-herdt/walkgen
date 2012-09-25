@@ -31,9 +31,6 @@ namespace MPCWalkgen{
 
     void colOrder(const Eigen::VectorXi &order);
     void rowOrder(const Eigen::VectorXi &order);
-    void relative_row_order(const Eigen::VectorXi &order);
-    void relative_col_order(const Eigen::VectorXi &order);
-
 
     // \name Accessors and mutators
     // \{

@@ -35,8 +35,8 @@ void OrientationsPreview::Init(const MPCParameters &data, const RobotData &robot
 	N_ 			= data.num_samples_horizon;
 	SSPeriod_ 	= data.nbqpsamples_step * data.period_qpsample;//TODO: Incoherent
 
-	lLimitLeftHipYaw_ = robot_data.leftHipYaw.lowerBound;
-	uLimitLeftHipYaw_ = robot_data.leftHipYaw.upperBound;
+	lLimitLeftHipYaw_ = robot_data.left_hip_yaw.lowerBound;
+	uLimitLeftHipYaw_ = robot_data.left_hip_yaw.upperBound;
 
 	lLimitRightHipYaw_ = robot_data.rightHipYaw.lowerBound;
 	uLimitRightHipYaw_ = robot_data.rightHipYaw.upperBound;

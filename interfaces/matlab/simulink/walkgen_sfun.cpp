@@ -19,7 +19,7 @@ using namespace std;
 static void mdlInitializeSizes(SimStruct *S)
 {
 	// Expected number of parameters
-	ssSetNumSFcnParams(S, 9);
+	ssSetNumSFcnParams(S, 10);
 
 	// Parameter mismatch?
 	if (ssGetNumSFcnParams(S) != ssGetSFcnParamsCount(S)) {
@@ -81,7 +81,7 @@ static void mdlInitializeSizes(SimStruct *S)
 
 static void mdlInitializeSampleTimes(SimStruct *S)
 {
-    const double kSamplingTime = *mxGetPr(ssGetSFcnParam(S, 5));
+    const double kSamplingTime = *mxGetPr(ssGetSFcnParam(S, 6));
 	ssSetSampleTime(S, 0, kSamplingTime);
 }
 
@@ -103,7 +103,7 @@ static void mdlStart(SimStruct *S)
 	mpc_parameters.solver.analysis			    = false;
 	mpc_parameters.solver.name                  = QPOASES;
 
-	mpc_parameters.dynamics_order               = THIRD_ORDER;
+	mpc_parameters.dynamics_order               = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 9)));
 
 	Walkgen *walk = new Walkgen;
 	walk->Init(mpc_parameters);
