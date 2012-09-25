@@ -15,8 +15,10 @@ QPOasesParser::QPOasesParser(const SolverData *parameters, int nbvars, int num_c
 }
 
 QPOasesParser::~QPOasesParser() {
-  if (qp_ != 0x0)
+  if (qp_ != 0x0) {
     delete qp_;
+    qp_ = NULL;
+  }
   if (solution_vec_ != 0x0)
     delete [] solution_vec_;
   if (cstr_init_vec_ != 0x0)
@@ -66,8 +68,6 @@ void QPOasesParser::Solve(MPCSolution &solution_data,
     }
 
   } else {
-    //		cstr_init_vec_->setupAllInactive();
-    //		bounds_init_vec_->setupAllFree();
     if (solution_data.qp_solution_vec.rows() != num_vars_) {
       solution_data.qp_solution_vec.setZero(num_vars_);
     } else {
@@ -80,12 +80,8 @@ void QPOasesParser::Solve(MPCSolution &solution_data,
     }
   }
 
-//  if (analyze_resolution == true) {
-//    debug_.GetFrequency();
-//    debug_.StartCounting();
-//  }
 
-  int num_wsr = parameters_->num_wsrec; //num_wsr has to be non-const
+  int num_wsr = parameters_->num_wsrec;
   if (warmstart) {
     qp_->hotstart(hessian_mat_().data(), gradient_vec_().data(), cstr_mat_().data(),
       var_l_bounds_vec_().data(), var_u_bounds_vec_().data(),
@@ -98,17 +94,10 @@ void QPOasesParser::Solve(MPCSolution &solution_data,
       num_wsr, NULL);
   }
 
-//  if (analyze_resolution == true) {
-//    debug_.StopCounting();
-//    solution_data.resolution_data.resolution_time = debug_.GetTime();
-//    solution_data.resolution_data.num_iterations = nWSR;
-//  }
-
   qp_->getPrimalSolution(solution_vec_);
   for (int i = 0; i < num_vars_; ++i) {
     solution_data.qp_solution_vec(i) = solution_vec_[i];
   }
-  //qp_->printProperties();
 
   /////// TODO: checked until here
   qpOASES::Constraints ctr;

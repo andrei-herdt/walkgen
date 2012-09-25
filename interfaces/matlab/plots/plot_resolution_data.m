@@ -3,11 +3,11 @@ figure;
 subplot(3,1,1);
 lines_res_time = plot(resolution_data.time, resolution_data.signals.values(:,1),'blue');
 ylim = get(gca,'ylim');
-lines_support_1 = line([support.signals.values';support.signals.values'],ylim.', 'LineStyle',':', 'LineWidth',1,'Color',[.5 .5 .5]);%
+lines_support_1 = line([support.signals.values(:,1)';support.signals.values(:,1)'],ylim.', 'LineStyle',':', 'LineWidth',1,'Color',[.5 .5 .5]);%
 subplot(3,1,2);               
 lines_ws_recomput = plot(resolution_data.time, resolution_data.signals.values(:,2),'blue');
 ylim=get(gca,'ylim');
-lines_support_2 = line([support.signals.values';support.signals.values'],ylim.', 'LineStyle',':', 'LineWidth',1,'Color',[.5 .5 .5]);%
+lines_support_2 = line([support.signals.values(:,1)';support.signals.values(:,1)'],ylim.', 'LineStyle',':', 'LineWidth',1,'Color',[.5 .5 .5]);%
 subplot(3,1,3);
 com_lines = plot(com.signals.values(:,1), com.signals.values(:,2),'red');
 hold on

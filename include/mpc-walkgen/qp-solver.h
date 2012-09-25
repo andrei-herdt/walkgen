@@ -2,16 +2,6 @@
 #ifndef MPC_WALKGEN_QP_SOLVER_H
 #define MPC_WALKGEN_QP_SOLVER_H
 
-////////////////////////////////////////////////////////////////////////////////
-///
-///\file	qp-solver.hc
-///\brief	A class to solver the QP problem
-///\author  Andrei Herdt
-///\author	Lafaye Jory
-///\author      Keith François
-///
-////////////////////////////////////////////////////////////////////////////////
-
 #include <mpc-walkgen/qp-matrix.h>
 #include <mpc-walkgen/qp-vector.h>
 #include <mpc-walkgen/types.h>
@@ -91,6 +81,8 @@ protected:
 	Eigen::VectorXi constr_indices_vec_;
 
 	const SolverData *parameters_;
+
+    RealClock *clock_;
 };
 
 QPSolver* createQPSolver(const SolverData &parameters, int nbvar_max, int nbcstr_max);

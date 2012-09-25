@@ -44,8 +44,6 @@ namespace MPCWalkgen{
 			qpOASES::Constraints *cstr_init_vec_;
 			qpOASES::Bounds *bounds_init_vec_;
 
-      //StopWatch debug_;
-
 	};
 
 }

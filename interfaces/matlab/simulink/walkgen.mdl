@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.379"
+    ComputedModelVersion    "1.385"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Tue Sep 25 18:23:33 2012"
+  LastModifiedDate	  "Tue Sep 25 19:48:10 2012"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:379>"
+  ModelVersionFormat	  "1.%<AutoIncrement:385>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -668,7 +668,7 @@ Model {
   System {
     Name		    "walkgen"
     Location		    [403, 74, 678, 375]
-    Open		    on
+    Open		    off
     ModelBrowserVisibility  off
     ModelBrowserWidth	    200
     ScreenColor		    "white"
@@ -701,7 +701,7 @@ Model {
       System {
 	Name			"Simulation"
 	Location		[702, 74, 1448, 860]
-	Open			off
+	Open			on
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
 	ScreenColor		"white"
@@ -743,25 +743,25 @@ Model {
 	  SystemSampleTime	  "0.005"
 	  RTWSystemCode		  "Auto"
 	  FunctionWithSeparateData off
-	  MaskPromptString	  "Length of horizon [num. samples]|Step period [num. samples]|Length of initial double support phase [num. samples]|Steps before halt|Sampling period [s]|Time between recomputations [s]|Actuator sampling period [s]|Security margin [m]|Max number of working set recomputations"
-	  MaskStyleString	  "edit,edit,edit,edit,edit,edit,edit,edit,edit"
-	  MaskTunableValueString  "on,on,on,on,on,on,on,on,on"
-	  MaskCallbackString	  "||||||||"
-	  MaskEnableString	  "on,on,on,on,on,on,on,on,on"
-	  MaskVisibilityString	  "on,on,on,on,on,on,on,on,on"
-	  MaskToolTipString	  "on,on,on,on,on,on,on,on,on"
-	  MaskVarAliasString	  ",,,,,,,,"
-	  MaskVariables		  "num_samples_horizon=@1;num_samples_step=@2;num_samples_dsss=@3;num_steps_ssds=@4;period_qpsample=@5;period_mpcsample=@6;period_actsample=@7;security_margin=@8;num_wsrec=@9;"
+	  MaskPromptString	  "Length of horizon [num. samples]|Step period [num. samples]|Length of initial double support phase [num. samples]|Steps before halt|Sampling period [s]|Time between recomputations [s]|Actuator sampling period [s]|Security margin [m]|Max number of working set recomputations|Dynamics order|Debug mode"
+	  MaskStyleString	  "edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit"
+	  MaskTunableValueString  "on,on,on,on,on,on,on,on,on,on,on"
+	  MaskCallbackString	  "||||||||||"
+	  MaskEnableString	  "on,on,on,on,on,on,on,on,on,on,on"
+	  MaskVisibilityString	  "on,on,on,on,on,on,on,on,on,on,on"
+	  MaskToolTipString	  "on,on,on,on,on,on,on,on,on,on,on"
+	  MaskVarAliasString	  ",,,,,,,,,,"
+	  MaskVariables		  "num_samples_horizon=@1;num_samples_step=@2;num_samples_dsss=@3;num_steps_ssds=@4;period_qpsample=@5;period_mpcsample=@6;period_actsample=@7;security_margin=@8;num_wsrec=@9;dynamics_order=@10;debug_mode=@11;"
 	  MaskIconFrame		  on
 	  MaskIconOpaque	  on
 	  MaskIconRotate	  "none"
 	  MaskIconUnits		  "autoscale"
-	  MaskValueString	  "16|8|8|2|0.1|0.005|0.005|0.02|20"
-	  MaskTabNameString	  ",,,,,,,,"
+	  MaskValueString	  "16|8|8|2|0.1|0.1|0.005|0.02|20|2|1"
+	  MaskTabNameString	  ",,,,,,,,,,"
 	  System {
 	    Name		    "Atomic Walkgen"
 	    Location		    [403, 74, 1582, 876]
-	    Open		    on
+	    Open		    off
 	    ModelBrowserVisibility  off
 	    ModelBrowserWidth	    200
 	    ScreenColor		    "white"
@@ -964,7 +964,7 @@ Model {
 	      Ports		      [10, 15]
 	      Position		      [300, 168, 390, 542]
 	      FunctionName	      "walkgen_sfun"
-	      Parameters	      "num_samples_horizon, num_samples_step, num_samples_dsss, num_steps_ssds, period_qpsample, period_mpcsample, period_actsample, security_margin, num_wsrec"
+	      Parameters	      "num_samples_horizon, num_samples_step, num_samples_dsss, num_steps_ssds, period_qpsample, period_mpcsample, period_actsample, security_margin, num_wsrec, dynamics_order, debug_mode"
 	      Port {
 		PortNumber		1
 		Name			"com"
@@ -1596,7 +1596,7 @@ Model {
 	Block {
 	  BlockType		  Constant
 	  Name			  "Constant11"
-	  Position		  [35, 310, 185, 330]
+	  Position		  [35, 305, 185, 325]
 	  ShowName		  off
 	  FontName		  "Arial"
 	  FontSize		  8
@@ -1629,7 +1629,7 @@ Model {
 	  ShowName		  off
 	  FontName		  "Arial"
 	  FontSize		  8
-	  Value			  "[0.1, 0.0, 0.0]"
+	  Value			  "[0.001, 0.0, 0.0]"
 	  OutDataType		  "sfix(16)"
 	  OutScaling		  "2^0"
 	  Port {
@@ -1930,7 +1930,7 @@ Model {
 	Block {
 	  BlockType		  Constant
 	  Name			  "cop_real1"
-	  Position		  [70, 331, 185, 349]
+	  Position		  [70, 336, 185, 354]
 	  ShowName		  off
 	  Value			  "[-0.0144 0.105]"
 	  OutDataType		  "sfix(16)"
@@ -2007,6 +2007,7 @@ Model {
 	  Labels		  [0, 0]
 	  SrcBlock		  "Constant11"
 	  SrcPort		  1
+	  Points		  [0, 5]
 	  DstBlock		  "Bus\nCreator3"
 	  DstPort		  1
 	}
@@ -2015,6 +2016,7 @@ Model {
 	  Labels		  [0, 0]
 	  SrcBlock		  "cop_real1"
 	  SrcPort		  1
+	  Points		  [0, -5]
 	  DstBlock		  "Bus\nCreator3"
 	  DstPort		  2
 	}

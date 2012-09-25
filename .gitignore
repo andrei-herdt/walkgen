@@ -16,3 +16,6 @@ ltmain.sh
 *.cmake
 .cproject
 .project
+*.lib
+*.log
+*.bat

@@ -315,7 +315,8 @@ RobotData::RobotData(const FootData &leftFoot, const FootData &rightFoot,
 
 RobotData::RobotData():mass(0.)
 ,max_foot_height(0.)
-,max_foot_vel(0.) {
+,max_foot_vel(0.)
+,security_margin(-1.) {
 	left_foot_ss_hull.resize(4);
 	right_foot_ss_hull.resize(4);
 	left_foot_ds_hull.resize(4);

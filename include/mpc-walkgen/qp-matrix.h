@@ -20,7 +20,7 @@ namespace MPCWalkgen{
     void AddTerm(const EigenMatrixXdRM &mat,
       const int first_row, const int first_col);
 
-    void setConstantPart(const CommonMatrixType &mat);
+    void SetConstantPart(const CommonMatrixType &mat);
 
     void reset();
 
@@ -69,8 +69,8 @@ namespace MPCWalkgen{
 
     bool cholesky_old_mat_;
 
-    Eigen::VectorXi row_indices_vec_;
-    Eigen::VectorXi col_indices_vec_;
+    Eigen::VectorXi row_indices_vec_;//TODO: replace by std::vector
+    Eigen::VectorXi col_indices_vec_;//TODO: replace by std::vector
 
   };
 

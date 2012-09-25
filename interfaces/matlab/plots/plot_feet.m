@@ -21,10 +21,10 @@ lines_real_cop_y = plot(cop.time(1:length(cop.time),1), cop.signals.values(1:len
 %% Support states
 subplot(1,2,1);
 ylim=get(gca,'ylim');
-lines_support_x = line([support.signals.values';support.signals.values'],ylim.', 'LineStyle',':', 'LineWidth',1,'Color',[.5 .5 .5]);%
+lines_support_x = line([support.signals.values(:,1)';support.signals.values(:,1)'],ylim.', 'LineStyle',':', 'LineWidth',1,'Color',[.5 .5 .5]);%
 subplot(1,2,2);
 ylim=get(gca,'ylim');
-lines_support_y = line([support.signals.values';support.signals.values'],ylim.', 'LineStyle',':', 'LineWidth',1,'Color',[.5 .5 .5]);%[.8 .8 .8]
+lines_support_y = line([support.signals.values(:,1)';support.signals.values(:,1)'],ylim.', 'LineStyle',':', 'LineWidth',1,'Color',[.5 .5 .5]);%[.8 .8 .8]
 
 %% Graph description
 subplot(1,2,1)

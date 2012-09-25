@@ -22,7 +22,8 @@ QPSolver::QPSolver(const SolverData *parameters, int nbvar_max, int nbcstr_max)
 ,num_constr_max_(nbcstr_max)
 ,var_indices_vec_(nbvar_max)
 ,constr_indices_vec_(nbvar_max + nbcstr_max)
-,parameters_(parameters) {
+,parameters_(parameters)
+,clock_(NULL) {
 	for (int i = 0; i < nbvar_max; ++i) {
 		var_indices_vec_(i) = i;
 	}

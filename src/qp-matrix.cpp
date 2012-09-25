@@ -62,7 +62,7 @@ void QPMatrix::AddTerm(const EigenMatrixXdRM &mat,
 
 }
 
-void QPMatrix::setConstantPart(const CommonMatrixType &mat) {
+void QPMatrix::SetConstantPart(const CommonMatrixType &mat) {
 	int num_rows = mat.rows();
 	int num_cols = mat.cols();
 	for (int i = 0; i <= num_rows; ++i) {
@@ -128,7 +128,7 @@ void QPMatrix::BuildCholesky(const CommonMatrixType &partialCholesky) {
 					for (int k = 0; k < j; ++k) {
 						tmp -= cholesky_mat_(k,j) * cholesky_mat_(k,i);
 					}
-					if (fabs(tmp) > kEps && fabs(cholesky_mat_(j,j)) > kEps){
+					if (fabs(tmp) > kEps && fabs(cholesky_mat_(j,j)) > kEps) {
 						cholesky_mat_(j,i) = tmp / cholesky_mat_(j,j);
 					} else {
 						cholesky_mat_(j,i) = 0;
