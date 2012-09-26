@@ -38,14 +38,14 @@ void OrientationsPreview::Init(const MPCParameters &data, const RobotData &robot
 	lLimitLeftHipYaw_ = robot_data.left_hip_yaw.lowerBound;
 	uLimitLeftHipYaw_ = robot_data.left_hip_yaw.upperBound;
 
-	lLimitRightHipYaw_ = robot_data.rightHipYaw.lowerBound;
-	uLimitRightHipYaw_ = robot_data.rightHipYaw.upperBound;
+	lLimitRightHipYaw_ = robot_data.right_hip_yaw.lowerBound;
+	uLimitRightHipYaw_ = robot_data.right_hip_yaw.upperBound;
 
 	//Velocity limit
-	uvLimitFoot_ = fabs(robot_data.rightHipYaw.upperVelocityBound);
+	uvLimitFoot_ = fabs(robot_data.right_hip_yaw.upperVelocityBound);
 
 	//Acceleration limit not given by HRP2JRLmain.wrl
-	uaLimitHipYaw_ = robot_data.rightHipYaw.upperAccelerationBound;
+	uaLimitHipYaw_ = robot_data.right_hip_yaw.upperAccelerationBound;
 
 	//Maximal cross angle between the feet
 	uLimitFeet_ = 5.0/180.0*M_PI;
@@ -59,8 +59,8 @@ void OrientationsPreview::preview_orientations(double Time,
 		MPCSolution &Solution) {
 
 	const vector<SupportState> &PrwSupportStates_deq = Solution.support_states_vec;
-	vector<double> &PreviewedSupportAngles_deq=Solution.supportOrientations_vec;
-	vector<double> &PreviewedTrunkOrientations_deq=Solution.supportTrunkOrientations_vec;
+	vector<double> &PreviewedSupportAngles_deq=Solution.support_yaw_vec;
+	vector<double> &PreviewedTrunkOrientations_deq=Solution.trunk_yaw_vec;
 
 
 
@@ -207,7 +207,7 @@ void OrientationsPreview::preview_orientations(double Time,
 	prwSS_it++;//Point at the first previewed instant
 	for(unsigned i = 0; i<N_; i++ ) {
 		if(prwSS_it->state_changed) {
-			supportAngle = Solution.supportOrientations_vec[j];
+			supportAngle = Solution.support_yaw_vec[j];
 			j++;
 		}
 		prwSS_it->yaw = supportAngle;

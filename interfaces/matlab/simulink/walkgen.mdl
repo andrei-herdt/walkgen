@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.385"
+    ComputedModelVersion    "1.394"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Tue Sep 25 19:48:10 2012"
+  LastModifiedDate	  "Wed Sep 26 15:16:15 2012"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:385>"
+  ModelVersionFormat	  "1.%<AutoIncrement:394>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -107,7 +107,7 @@ Model {
 	  $ObjectID		  2
 	  Version		  "1.3.0"
 	  StartTime		  "0.0"
-	  StopTime		  "10"
+	  StopTime		  "20"
 	  AbsTol		  "auto"
 	  FixedStep		  "1e-3"
 	  InitialStep		  "auto"
@@ -667,7 +667,7 @@ Model {
   }
   System {
     Name		    "walkgen"
-    Location		    [403, 74, 678, 375]
+    Location		    [702, 74, 977, 375]
     Open		    off
     ModelBrowserVisibility  off
     ModelBrowserWidth	    200
@@ -701,7 +701,7 @@ Model {
       System {
 	Name			"Simulation"
 	Location		[702, 74, 1448, 860]
-	Open			on
+	Open			off
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
 	ScreenColor		"white"
@@ -723,7 +723,7 @@ Model {
 	  BlockType		  Step
 	  Name			  "Activate2"
 	  Position		  [90, 173, 110, 187]
-	  Time			  "3"
+	  Time			  "10"
 	  SampleTime		  "0.001"
 	}
 	Block {
@@ -761,7 +761,7 @@ Model {
 	  System {
 	    Name		    "Atomic Walkgen"
 	    Location		    [403, 74, 1582, 876]
-	    Open		    off
+	    Open		    on
 	    ModelBrowserVisibility  off
 	    ModelBrowserWidth	    200
 	    ScreenColor		    "white"
@@ -776,7 +776,7 @@ Model {
 	    Block {
 	      BlockType		      Inport
 	      Name		      "reference"
-	      Position		      [55, 188, 85, 202]
+	      Position		      [55, 183, 85, 197]
 	      IconDisplay	      "Port number"
 	      OutDataType	      "sfix(16)"
 	      OutScaling	      "2^0"
@@ -784,7 +784,7 @@ Model {
 	    Block {
 	      BlockType		      Inport
 	      Name		      "state"
-	      Position		      [55, 238, 85, 252]
+	      Position		      [55, 233, 85, 247]
 	      Port		      "2"
 	      IconDisplay	      "Port number"
 	      OutDataType	      "sfix(16)"
@@ -802,7 +802,7 @@ Model {
 	    Block {
 	      BlockType		      Inport
 	      Name		      "options"
-	      Position		      [60, 448, 90, 462]
+	      Position		      [60, 463, 90, 477]
 	      Port		      "4"
 	      IconDisplay	      "Port number"
 	      OutDataType	      "sfix(16)"
@@ -819,15 +819,15 @@ Model {
 	    Block {
 	      BlockType		      BusCreator
 	      Name		      "Bus\nCreator1"
-	      Ports		      [5, 1]
-	      Position		      [505, 419, 510, 541]
+	      Ports		      [6, 1]
+	      Position		      [505, 415, 510, 570]
 	      ShowName		      off
-	      Inputs		      "5"
+	      Inputs		      "6"
 	      DisplayOption	      "bar"
 	      Port {
 		PortNumber		1
 		Name			"preview"
-		PropagatedSignals	"next_foot, com_prw, cop_prw, support, resolution_data"
+		PropagatedSignals	"next_foot, com_prw, cop_prw, support, resolution_data, com_control"
 		RTWStorageClass		"Auto"
 		DataLoggingNameMode	"SignalName"
 	      }
@@ -836,7 +836,7 @@ Model {
 	      BlockType		      BusCreator
 	      Name		      "Bus\nCreator2"
 	      Ports		      [3, 1]
-	      Position		      [510, 186, 515, 224]
+	      Position		      [505, 186, 510, 224]
 	      ShowName		      off
 	      Inputs		      "3"
 	      DisplayOption	      "bar"
@@ -852,7 +852,7 @@ Model {
 	      BlockType		      BusCreator
 	      Name		      "Bus\nCreator3"
 	      Ports		      [3, 1]
-	      Position		      [510, 286, 515, 324]
+	      Position		      [505, 286, 510, 324]
 	      ShowName		      off
 	      Inputs		      "3"
 	      DisplayOption	      "bar"
@@ -868,7 +868,7 @@ Model {
 	      BlockType		      BusCreator
 	      Name		      "Bus\nCreator4"
 	      Ports		      [3, 1]
-	      Position		      [515, 361, 520, 399]
+	      Position		      [510, 361, 515, 399]
 	      ShowName		      off
 	      Inputs		      "3"
 	      DisplayOption	      "bar"
@@ -884,7 +884,7 @@ Model {
 	      BlockType		      BusSelector
 	      Name		      "Bus\nSelector1"
 	      Ports		      [1, 2]
-	      Position		      [110, 226, 115, 264]
+	      Position		      [110, 221, 115, 259]
 	      ShowName		      off
 	      OutputSignals	      "com,cop"
 	      Port {
@@ -941,7 +941,7 @@ Model {
 	    Block {
 	      BlockType		      Constant
 	      Name		      "Constant"
-	      Position		      [225, 504, 245, 526]
+	      Position		      [190, 539, 210, 561]
 	      Value		      "0"
 	      OutDataType	      "sfix(16)"
 	      OutScaling	      "2^0"
@@ -955,14 +955,14 @@ Model {
 	    Block {
 	      BlockType		      RateTransition
 	      Name		      "Protected RT2"
-	      Position		      [580, 470, 600, 490]
+	      Position		      [580, 485, 600, 505]
 	      Deterministic	      off
 	    }
 	    Block {
 	      BlockType		      "S-Function"
 	      Name		      "S-Function"
-	      Ports		      [10, 15]
-	      Position		      [300, 168, 390, 542]
+	      Ports		      [10, 16]
+	      Position		      [300, 163, 390, 572]
 	      FunctionName	      "walkgen_sfun"
 	      Parameters	      "num_samples_horizon, num_samples_step, num_samples_dsss, num_steps_ssds, period_qpsample, period_mpcsample, period_actsample, security_margin, num_wsrec, dynamics_order, debug_mode"
 	      Port {
@@ -1055,6 +1055,12 @@ Model {
 		RTWStorageClass		"Auto"
 		DataLoggingNameMode	"SignalName"
 	      }
+	      Port {
+		PortNumber		16
+		Name			"com_control"
+		RTWStorageClass		"Auto"
+		DataLoggingNameMode	"SignalName"
+	      }
 	    }
 	    Block {
 	      BlockType		      Scope
@@ -1088,7 +1094,7 @@ Model {
 	      NamePlacement	      "alternate"
 	      ShowName		      off
 	      Floating		      off
-	      Location		      [79, 40, 1595, 891]
+	      Location		      [85, 45, 1601, 899]
 	      Open		      off
 	      NumInputPorts	      "1"
 	      List {
@@ -1130,7 +1136,7 @@ Model {
 	      Position		      [545, 335, 565, 355]
 	      ShowName		      off
 	      Floating		      off
-	      Location		      [85, 45, 1601, 899]
+	      Location		      [79, 40, 1595, 894]
 	      Open		      off
 	      NumInputPorts	      "1"
 	      List {
@@ -1147,7 +1153,7 @@ Model {
 	      BlockType		      Scope
 	      Name		      "Scope4"
 	      Ports		      [1]
-	      Position		      [210, 155, 230, 175]
+	      Position		      [210, 150, 230, 170]
 	      Orientation	      "up"
 	      ShowName		      off
 	      Floating		      off
@@ -1159,9 +1165,9 @@ Model {
 		ListType		AxesTitles
 		axes1			"%<SignalLabel>"
 	      }
-	      TimeRange		      "0.007766893178016154"
-	      YMin		      "-1"
-	      YMax		      "1"
+	      TimeRange		      "20"
+	      YMin		      "0"
+	      YMax		      "0.1"
 	      DataFormat	      "StructureWithTime"
 	      SampleTime	      "0"
 	    }
@@ -1176,7 +1182,7 @@ Model {
 	    Block {
 	      BlockType		      Outport
 	      Name		      "preview"
-	      Position		      [715, 473, 745, 487]
+	      Position		      [715, 488, 745, 502]
 	      Port		      "2"
 	      IconDisplay	      "Port number"
 	      OutDataType	      "sfix(16)"
@@ -1232,7 +1238,7 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "Bus\nCreator4"
 	      SrcPort		      1
-	      Points		      [65, 0; 0, -105]
+	      Points		      [70, 0; 0, -105]
 	      DstBlock		      "Bus\nCreator"
 	      DstPort		      4
 	    }
@@ -1249,7 +1255,7 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "Bus\nCreator2"
 	      SrcPort		      1
-	      Points		      [55, 0; 0, 40]
+	      Points		      [60, 0; 0, 40]
 	      DstBlock		      "Bus\nCreator"
 	      DstPort		      1
 	    }
@@ -1275,7 +1281,7 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "Bus\nCreator3"
 	      SrcPort		      1
-	      Points		      [55, 0; 0, -40]
+	      Points		      [60, 0; 0, -40]
 	      DstBlock		      "Bus\nCreator"
 	      DstPort		      3
 	    }
@@ -1382,7 +1388,6 @@ Model {
 	      SrcPort		      1
 	      Points		      [130, 0]
 	      Branch {
-		Points			[65, 0]
 		DstBlock		"S-Function"
 		DstPort			1
 	      }
@@ -1410,7 +1415,7 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "Bus\nSelector1"
 	      SrcPort		      2
-	      Points		      [15, 0; 0, 225]
+	      Points		      [15, 0; 0, 260]
 	      DstBlock		      "S-Function"
 	      DstPort		      9
 	    }
@@ -1433,7 +1438,6 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "Bus\nSelector2"
 	      SrcPort		      2
-	      Points		      [100, 0]
 	      DstBlock		      "S-Function"
 	      DstPort		      4
 	    }
@@ -1442,7 +1446,6 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "Bus\nSelector2"
 	      SrcPort		      3
-	      Points		      [100, 0]
 	      DstBlock		      "S-Function"
 	      DstPort		      5
 	    }
@@ -1451,7 +1454,6 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "Bus\nSelector2"
 	      SrcPort		      4
-	      Points		      [100, 0]
 	      DstBlock		      "S-Function"
 	      DstPort		      6
 	    }
@@ -1460,22 +1462,14 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "Bus\nSelector2"
 	      SrcPort		      5
-	      Points		      [100, 0]
 	      DstBlock		      "S-Function"
 	      DstPort		      7
 	    }
 	    Line {
 	      SrcBlock		      "options"
 	      SrcPort		      1
-	      Points		      [190, 0]
 	      DstBlock		      "S-Function"
 	      DstPort		      8
-	    }
-	    Line {
-	      SrcBlock		      "Protected RT2"
-	      SrcPort		      1
-	      DstBlock		      "preview"
-	      DstPort		      1
 	    }
 	    Line {
 	      SrcBlock		      "Protected RT1"
@@ -1488,6 +1482,20 @@ Model {
 	      SrcPort		      1
 	      DstBlock		      "S-Function"
 	      DstPort		      10
+	    }
+	    Line {
+	      Name		      "com_control"
+	      Labels		      [0, 0]
+	      SrcBlock		      "S-Function"
+	      SrcPort		      16
+	      DstBlock		      "Bus\nCreator1"
+	      DstPort		      6
+	    }
+	    Line {
+	      SrcBlock		      "Protected RT2"
+	      SrcPort		      1
+	      DstBlock		      "preview"
+	      DstPort		      1
 	    }
 	  }
 	}
@@ -1526,10 +1534,10 @@ Model {
 	Block {
 	  BlockType		  BusSelector
 	  Name			  "Bus\nSelector"
-	  Ports			  [1, 5]
-	  Position		  [570, 535, 575, 655]
+	  Ports			  [1, 6]
+	  Position		  [570, 522, 575, 663]
 	  ShowName		  off
-	  OutputSignals		  "next_foot,com_prw,cop_prw,support,resolution_data"
+	  OutputSignals		  "next_foot,com_prw,cop_prw,support,resolution_data,com_control"
 	  Port {
 	    PortNumber		    1
 	    Name		    "<next_foot>"
@@ -1557,6 +1565,12 @@ Model {
 	  Port {
 	    PortNumber		    5
 	    Name		    "<resolution_data>"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	  Port {
+	    PortNumber		    6
+	    Name		    "<com_control>"
 	    RTWStorageClass	    "Auto"
 	    DataLoggingNameMode	    "SignalName"
 	  }
@@ -1629,7 +1643,7 @@ Model {
 	  ShowName		  off
 	  FontName		  "Arial"
 	  FontSize		  8
-	  Value			  "[0.001, 0.0, 0.0]"
+	  Value			  "[0.1, 0.0, 0.0]"
 	  OutDataType		  "sfix(16)"
 	  OutScaling		  "2^0"
 	  Port {
@@ -1646,7 +1660,7 @@ Model {
 	  ShowName		  off
 	  FontName		  "Arial"
 	  FontSize		  8
-	  Value			  "[0.0, 0.0, 0.0]"
+	  Value			  "[0.1, 0.0, 0.1]"
 	  OutDataType		  "sfix(16)"
 	  OutScaling		  "2^0"
 	}
@@ -1824,8 +1838,18 @@ Model {
 	}
 	Block {
 	  BlockType		  ToWorkspace
+	  Name			  "To Workspace1"
+	  Position		  [670, 645, 745, 665]
+	  ShowName		  off
+	  VariableName		  "com_control"
+	  MaxDataPoints		  "inf"
+	  SampleTime		  "-1"
+	  SaveFormat		  "Structure With Time"
+	}
+	Block {
+	  BlockType		  ToWorkspace
 	  Name			  "To Workspace10"
-	  Position		  [670, 560, 745, 580]
+	  Position		  [670, 545, 745, 565]
 	  ShowName		  off
 	  VariableName		  "com_prw"
 	  MaxDataPoints		  "inf"
@@ -1835,7 +1859,7 @@ Model {
 	Block {
 	  BlockType		  ToWorkspace
 	  Name			  "To Workspace11"
-	  Position		  [670, 585, 745, 605]
+	  Position		  [670, 570, 745, 590]
 	  ShowName		  off
 	  VariableName		  "cop_prw"
 	  MaxDataPoints		  "inf"
@@ -1845,7 +1869,7 @@ Model {
 	Block {
 	  BlockType		  ToWorkspace
 	  Name			  "To Workspace12"
-	  Position		  [670, 610, 745, 630]
+	  Position		  [670, 595, 745, 615]
 	  ShowName		  off
 	  VariableName		  "support"
 	  MaxDataPoints		  "inf"
@@ -1855,7 +1879,7 @@ Model {
 	Block {
 	  BlockType		  ToWorkspace
 	  Name			  "To Workspace13"
-	  Position		  [670, 635, 745, 655]
+	  Position		  [670, 620, 745, 640]
 	  ShowName		  off
 	  VariableName		  "resolution_data"
 	  MaxDataPoints		  "inf"
@@ -1905,7 +1929,7 @@ Model {
 	Block {
 	  BlockType		  ToWorkspace
 	  Name			  "To Workspace9"
-	  Position		  [670, 535, 745, 555]
+	  Position		  [670, 520, 745, 540]
 	  ShowName		  off
 	  VariableName		  "next_foot"
 	  MaxDataPoints		  "inf"
@@ -2200,6 +2224,14 @@ Model {
 	  SrcPort		  1
 	  DstBlock		  "Atomic Walkgen"
 	  DstPort		  4
+	}
+	Line {
+	  Name			  "<com_control>"
+	  Labels		  [0, 0]
+	  SrcBlock		  "Bus\nSelector"
+	  SrcPort		  6
+	  DstBlock		  "To Workspace1"
+	  DstPort		  1
 	}
       }
     }

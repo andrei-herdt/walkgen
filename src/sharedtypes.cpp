@@ -117,12 +117,12 @@ MPCSolution& MPCSolution::operator = (MPCSolution const &rhs) {
 
 	/// \brief Sampling times
 	/// starting with 0, i.e. all times are relative to the current time
-	samplingTimes_vec = rhs.samplingTimes_vec;
+	sampling_times_vec = rhs.sampling_times_vec;
 
 	support_states_vec = rhs.support_states_vec;
 
-	supportOrientations_vec = rhs.supportOrientations_vec;//TODO: supportOrientations_vec
-	supportTrunkOrientations_vec = rhs.supportTrunkOrientations_vec;//TODO: TrunkOrientations_vec
+	support_yaw_vec = rhs.support_yaw_vec;//TODO: supportOrientations_vec
+	trunk_yaw_vec = rhs.trunk_yaw_vec;//TODO: TrunkOrientations_vec
 
 	CoPTrajX = rhs.CoPTrajX;
 	CoPTrajY = rhs.CoPTrajY;
@@ -148,8 +148,8 @@ MPCSolution& MPCSolution::operator = (MPCSolution const &rhs) {
 
 void MPCSolution::reset(){
 	support_states_vec.resize(0);
-	supportOrientations_vec.resize(0);
-	supportTrunkOrientations_vec.resize(0);
+	support_yaw_vec.resize(0);
+	trunk_yaw_vec.resize(0);
 }
 
 void Motion::resize(int size) {
@@ -157,6 +157,7 @@ void Motion::resize(int size) {
 	vel.x_vec.setZero(size); vel.y_vec.setZero(size); vel.z_vec.setZero(size); vel.yaw_vec.setZero(size);
 	acc.x_vec.setZero(size); acc.y_vec.setZero(size); acc.z_vec.setZero(size); acc.yaw_vec.setZero(size);
 	jerk.x_vec.setZero(size); jerk.y_vec.setZero(size); jerk.z_vec.setZero(size); jerk.yaw_vec.setZero(size);
+	control.x_vec.setZero(size); control.y_vec.setZero(size); control.z_vec.setZero(size); control.yaw_vec.setZero(size);
 }
 
 
@@ -292,15 +293,16 @@ void ConvexHull::computeLinearSystem(const Foot &foot) {
 
 RobotData::RobotData(const FootData &leftFoot, const FootData &rightFoot,
 		const HipYawData &left_hip_yaw, const HipYawData &rightHipYaw,
-		double mass)
-:	com()
+		double mass)//TODO: Obsolete constructor
+:mass(mass)
 ,max_foot_height(0.03)
+,max_foot_vel(0.)
+,security_margin(-1.)
+,com()
 ,leftFoot(leftFoot)
 ,rightFoot(rightFoot)
 ,left_hip_yaw(left_hip_yaw)
-,rightHipYaw(rightHipYaw)
-,mass(mass)
-,max_foot_vel(0.)
+,right_hip_yaw(rightHipYaw)
 ,left_foot_pos_hull()
 ,right_foot_pos_hull()
 ,left_foot_ss_hull()
@@ -358,7 +360,7 @@ WeightCoefficients::WeightCoefficients(int num_modes)
 	pos[1] =  0.;
 	vel[1]  = 1.;
 	cop[1]  = 1.;
-	control[1] = 0.01;
+	control[1] = 0.00001;
 
 
 	active_mode  = 0;

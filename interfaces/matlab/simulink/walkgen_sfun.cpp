@@ -50,7 +50,7 @@ static void mdlInitializeSizes(SimStruct *S) {
 	ssSetInputPortDirectFeedThrough(S, 8, 1);
 	ssSetInputPortDirectFeedThrough(S, 9, 1);
 
-	if (!ssSetNumOutputPorts(S,15)) return;
+	if (!ssSetNumOutputPorts(S,16)) return;
 	// Realized motions
 	ssSetOutputPortWidth(S, 0, 3);        //com
 	ssSetOutputPortWidth(S, 1, 3);        //dcom
@@ -71,6 +71,7 @@ static void mdlInitializeSizes(SimStruct *S) {
 	ssSetOutputPortWidth(S, 12, 3 * kNumSamplesHorizon);     //cop_prw (sample_instants, x, y)
 	ssSetOutputPortWidth(S, 13, 3);       //support
 	ssSetOutputPortWidth(S, 14, 30);      //analysis
+	ssSetOutputPortWidth(S, 15, 3 * kNumSamplesHorizon);	//com_control_prw
 
 	ssSetNumSampleTimes(S, 1);
 
@@ -150,6 +151,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 	real_T *cop_prw        = ssGetOutputPortRealSignal(S, 12);
 	real_T *support        = ssGetOutputPortRealSignal(S, 13);
 	real_T *analysis       = ssGetOutputPortRealSignal(S, 14);
+	real_T *com_control_prw= ssGetOutputPortRealSignal(S, 15);
 
 	Walkgen *walk = (Walkgen *)ssGetPWorkValue(S, 0);
 
@@ -296,14 +298,18 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 	int nbsamples = solution.support_states_vec.size() - 1;
 	for (int sample = 0; sample < nbsamples; ++sample) {
 		// CoM:
-		com_prw[sample] = solution.samplingTimes_vec[sample+1];
+		com_prw[sample] = solution.sampling_times_vec[sample+1];
 		com_prw[nbsamples + sample] = solution.com_prw.pos.x_vec[sample];
 		com_prw[2 * nbsamples + sample] = solution.com_prw.pos.y_vec[sample];
 		com_prw[3 * nbsamples + sample] = walk->bodyState(COM).z(0);
 		// CoP:
-		cop_prw[sample] = solution.samplingTimes_vec[sample+1];
+		cop_prw[sample] = solution.sampling_times_vec[sample+1];
 		cop_prw[nbsamples + sample] = solution.cop_prw.pos.x_vec[sample];
 		cop_prw[2 * nbsamples + sample] = solution.cop_prw.pos.y_vec[sample];
+		// CoM control vector:
+		com_control_prw[sample] = solution.sampling_times_vec[sample+1];
+		com_control_prw[nbsamples + sample] = solution.com_prw.control.x_vec[sample];
+		com_control_prw[2 * nbsamples + sample] = solution.com_prw.control.y_vec[sample];
 	}
 
 	int nbsteps_prw = solution.support_states_vec.back().step_number;

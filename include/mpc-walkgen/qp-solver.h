@@ -5,6 +5,7 @@
 #include <mpc-walkgen/qp-matrix.h>
 #include <mpc-walkgen/qp-vector.h>
 #include <mpc-walkgen/types.h>
+#include <mpc-walkgen/realclock.h>
 
 namespace MPCWalkgen{
 

@@ -34,13 +34,13 @@ QPPreview::~QPPreview()
 void QPPreview::previewSamplingTimes(double current_time, 
 		double firstSamplingPeriod, MPCSolution &solution) {
 
-	solution.samplingTimes_vec.resize(mpc_parameters_->num_samples_horizon + 1, 0);
-	std::fill(solution.samplingTimes_vec.begin(), solution.samplingTimes_vec.end(), 0);
+	solution.sampling_times_vec.resize(mpc_parameters_->num_samples_horizon + 1, 0);
+	std::fill(solution.sampling_times_vec.begin(), solution.sampling_times_vec.end(), 0);
 	// As for now, only the first sampling period varies
-	solution.samplingTimes_vec[0] = current_time;
-	solution.samplingTimes_vec[1] = solution.samplingTimes_vec[0] + firstSamplingPeriod;// mpc_parameters_->QPSamplingPeriod;////// //
+	solution.sampling_times_vec[0] = current_time;
+	solution.sampling_times_vec[1] = solution.sampling_times_vec[0] + firstSamplingPeriod;// mpc_parameters_->QPSamplingPeriod;////// //
 	for (int sample = 2; sample < mpc_parameters_->num_samples_horizon + 1; sample++) {
-		solution.samplingTimes_vec[sample] += solution.samplingTimes_vec[sample - 1] +
+		solution.sampling_times_vec[sample] += solution.sampling_times_vec[sample - 1] +
 				mpc_parameters_->period_qpsample;
 	}
 
@@ -53,7 +53,7 @@ void QPPreview::previewSupportStates(double firstSamplingPeriod, MPCSolution &so
 
 	// SET CURRENT SUPPORT STATE:
 	// --------------------------
-	statesolver_->setSupportState(0, solution.samplingTimes_vec, current_support);
+	statesolver_->setSupportState(0, solution.sampling_times_vec, current_support);
 	current_support.transitional_ds = false;
 	if (current_support.state_changed) {
 		if (current_support.foot == LEFT) {
@@ -64,7 +64,7 @@ void QPPreview::previewSupportStates(double firstSamplingPeriod, MPCSolution &so
 		current_support.x = foot->x(0);
 		current_support.y = foot->y(0);
 		current_support.yaw = foot->yaw(0);
-		current_support.start_time = solution.samplingTimes_vec[0];
+		current_support.start_time = solution.sampling_times_vec[0];
 	}
 	solution.support_states_vec.push_back(current_support);
 
@@ -74,7 +74,7 @@ void QPPreview::previewSupportStates(double firstSamplingPeriod, MPCSolution &so
 	SupportState previewed_support = current_support;//TODO: Replace =operator by CopyFrom or give to constructor
 	previewed_support.step_number = 0;
 	for (int sample = 1; sample <= mpc_parameters_->num_samples_horizon; sample++) {
-		statesolver_->setSupportState(sample, solution.samplingTimes_vec, previewed_support);
+		statesolver_->setSupportState(sample, solution.sampling_times_vec, previewed_support);
 		// special treatment for the first instant of transitionalDS
 		previewed_support.transitional_ds = false;
 		if (previewed_support.state_changed) {
@@ -87,7 +87,7 @@ void QPPreview::previewSupportStates(double firstSamplingPeriod, MPCSolution &so
 				previewed_support.x = foot->x(0);
 				previewed_support.y = foot->y(0);
 				previewed_support.yaw = foot->yaw(0);
-				previewed_support.start_time = solution.samplingTimes_vec[sample];
+				previewed_support.start_time = solution.sampling_times_vec[sample];
 				if (current_support.phase == SS && previewed_support.phase == SS) {
 					previewed_support.transitional_ds = true;
 				}

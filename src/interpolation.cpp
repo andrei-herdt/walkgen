@@ -16,14 +16,14 @@ Interpolation::~Interpolation(){}
 void Interpolation::Interpolate(CommonVectorType &solution_vec, const LinearDynamicsMatrices &dyn, 
                                 const CommonVectorType &state_vec, const CommonVectorType &u_vec) 
 {
-  solution_vec.setZero();
+  solution_vec.setZero();//TODO: Unnecessary
   solution_vec.noalias() = dyn.S * state_vec + dyn.U * u_vec;
 }
 
 void Interpolation::Interpolate(CommonVectorType &solution_vec, const LinearDynamicsMatrices &dyn, 
                                 const CommonVectorType &state_vec, double u) 
 {
-  solution_vec.setZero();
+  solution_vec.setZero();//TODO: Unnecessary
   tmp_vec_.setZero(dyn.U.cols());
   tmp_vec_.fill(u);
   solution_vec.noalias() = dyn.S * state_vec + dyn.U * tmp_vec_;

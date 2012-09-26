@@ -231,7 +231,7 @@ struct MPC_WALKGEN_API RobotData {
 	FootData rightFoot;
 
 	HipYawData left_hip_yaw;
-	HipYawData rightHipYaw;
+	HipYawData right_hip_yaw;
 
 	ConvexHull left_foot_pos_hull;
 	ConvexHull right_foot_pos_hull;
@@ -256,6 +256,7 @@ struct MPC_WALKGEN_API Trajectory {
 
 struct Motion {
 	Trajectory pos, vel, acc, jerk;
+	Trajectory control;
 
 	void resize(int size);
 };
@@ -280,16 +281,14 @@ struct MPC_WALKGEN_API MPCSolution {
 	Eigen::VectorXi initialConstraints;
 
 	/// \brief True if a new trajectory is computed in online loop
-	bool newTraj;
+	bool newTraj;//TODO: Remove this
 
-	/// \brief Sampling times
-	/// starting with 0, i.e. all times are relative to the current time
-	std::vector<double> samplingTimes_vec;
+	std::vector<double> sampling_times_vec;	/// starting with 0, i.e. all times are relative to the current time
 
 	std::vector<SupportState> support_states_vec;
 
-	std::vector<double> supportOrientations_vec;//TODO: supportOrientations_vec
-	std::vector<double> supportTrunkOrientations_vec;//TODO: TrunkOrientations_vec
+	std::vector<double> support_yaw_vec;
+	std::vector<double> trunk_yaw_vec;
 
 	CommonVectorType CoPTrajX;
 	CommonVectorType CoPTrajY;

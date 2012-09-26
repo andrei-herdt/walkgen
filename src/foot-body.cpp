@@ -53,7 +53,7 @@ void FootBody::Interpolate(MPCSolution &solution, double current_time, const Ref
       if (nbPreviewedSteps > 0) {
         goal_state.x(0) = solution.qp_solution_vec(2 * mpc_parameters_->num_samples_horizon);
         goal_state.y(0) = solution.qp_solution_vec(2 * mpc_parameters_->num_samples_horizon + nbStepsPreviewed);
-        goal_state.yaw(0) = solution.supportOrientations_vec[0];
+        goal_state.yaw(0) = solution.support_yaw_vec[0];
       } else {
         goal_state.x(0) = state_.x(0);
         goal_state.y(0) = state_.y(0);

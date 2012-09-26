@@ -21,27 +21,27 @@ void CoMBody::Interpolate(MPCSolution &solution, double current_time, const Refe
   }
   // Position:
   interpolation_.Interpolate(solution.com_act.pos.x_vec, dynamics_act().pos, 
-    state_x, solution.com_prw.jerk.x_vec[0]);
+    state_x, solution.com_act.jerk.x_vec);
   interpolation_.Interpolate(solution.com_act.pos.y_vec, dynamics_act().pos, 
-    state_y, solution.com_prw.jerk.y_vec[0]);
+    state_y, solution.com_act.jerk.y_vec);
 
   // Velocity:
   interpolation_.Interpolate(solution.com_act.vel.x_vec, dynamics_act().vel, 
-    state_x, solution.com_prw.jerk.x_vec[0]);
+    state_x, solution.com_act.jerk.x_vec);
   interpolation_.Interpolate(solution.com_act.vel.y_vec, dynamics_act().vel, 
-    state_y, solution.com_prw.jerk.y_vec[0]);
+    state_y, solution.com_act.jerk.y_vec);
 
   // Acceleration:
   interpolation_.Interpolate(solution.com_act.acc.x_vec, dynamics_act().acc, 
-    state_x, solution.com_prw.jerk.x_vec[0]);
+    state_x, solution.com_act.jerk.x_vec);
   interpolation_.Interpolate(solution.com_act.acc.y_vec, dynamics_act().acc, 
-    state_y, solution.com_prw.jerk.y_vec[0]);
+    state_y, solution.com_act.jerk.y_vec);
 
   // CoP:
   interpolation_.Interpolate(solution.cop_act.pos.x_vec, dynamics_act().cop, 
-    state_x, solution.com_prw.jerk.x_vec[0]);
+    state_x, solution.com_act.jerk.x_vec);
   interpolation_.Interpolate(solution.cop_act.pos.y_vec, dynamics_act().cop, 
-    state_y, solution.com_prw.jerk.y_vec[0]);
+    state_y, solution.com_act.jerk.y_vec);
 
   // QP sampling rate:
   // -----------------
@@ -80,12 +80,12 @@ void CoMBody::InterpolateTrunkYaw(MPCSolution &solution, double /*current_time*/
     }
   }
 
-  double orientation0 = solution.supportTrunkOrientations_vec[0];
+  double orientation0 = solution.trunk_yaw_vec[0];
   double orientation1;
 
-  int size = solution.supportTrunkOrientations_vec.size();
+  int size = solution.trunk_yaw_vec.size();
   if (size >= 2) {
-    orientation1 = solution.supportTrunkOrientations_vec[1];
+    orientation1 = solution.trunk_yaw_vec[1];
   } else {
     orientation1 = orientation0;
   }
