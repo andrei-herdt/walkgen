@@ -21,23 +21,19 @@ void Interpolation::Interpolate(CommonVectorType &solution_vec, const LinearDyna
 }
 
 void Interpolation::Interpolate(CommonVectorType &solution_vec, const LinearDynamicsMatrices &dyn, 
-                                const CommonVectorType &state_vec, double u) 
-{
-  solution_vec.setZero();//TODO: Unnecessary
-  tmp_vec_.setZero(dyn.U.cols());
+                                const CommonVectorType &state_vec, double u) {
+  tmp_vec_.resize(dyn.U.cols());
   tmp_vec_.fill(u);
   solution_vec.noalias() = dyn.S * state_vec + dyn.U * tmp_vec_;
 }
 
 void Interpolation::computePolynomialNormalisedFactors( Eigen::Matrix<double,6,1> &factor,
-                                                       const Vector3d &initialstate, const Vector3d &finalState, double T) const
-{
-  Vector3d b;
-
+                                                       const Vector3d &initialstate, const Vector3d &finalState, double T) const {
   factor(5) = initialstate(0);
   factor(4) = T*initialstate(1);
   factor(3) = T*T*initialstate(2)/2;
 
+  Vector3d b;
   b(0) = finalState(0) - factor(5) - factor(4) - factor(3);
   b(1) = finalState(1) - factor(4) - 2*factor(3);
   b(2) = finalState(2) - 2*factor(3);
@@ -45,8 +41,6 @@ void Interpolation::computePolynomialNormalisedFactors( Eigen::Matrix<double,6,1
   Vector3d abc;
 
   abc = AinvNorm_ * b;
-
-
   factor(2) = abc(2);
   factor(1) = abc(1);
   factor(0) = abc(0);

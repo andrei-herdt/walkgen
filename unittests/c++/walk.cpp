@@ -16,7 +16,7 @@ int main() {
 	int num_samples_dsss = 8;
 	int num_steps_ssds = 2;
 	double sample_period_qp = 0.1;
-	double sample_period_first = 0.005;
+	double sample_period_first = 0.1;
 	double sample_period_act = 0.005;
 	const double kSecurityMargin = 0.02;
 
@@ -34,7 +34,7 @@ int main() {
 	mpc_parameters.interpolate_whole_horizon      = false;
 	mpc_parameters.solver.analysis                = false;
 	mpc_parameters.solver.name                    = QPOASES;
-	mpc_parameters.solver.num_wsrec               = 2;
+	mpc_parameters.solver.num_wsrec               = 20;
 	mpc_parameters.dynamics_order                 = THIRD_ORDER;
 
 

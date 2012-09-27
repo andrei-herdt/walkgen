@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.394"
+    ComputedModelVersion    "1.401"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Wed Sep 26 15:16:15 2012"
+  LastModifiedDate	  "Thu Sep 27 18:23:58 2012"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:394>"
+  ModelVersionFormat	  "1.%<AutoIncrement:401>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -107,7 +107,7 @@ Model {
 	  $ObjectID		  2
 	  Version		  "1.3.0"
 	  StartTime		  "0.0"
-	  StopTime		  "20"
+	  StopTime		  "5"
 	  AbsTol		  "auto"
 	  FixedStep		  "1e-3"
 	  InitialStep		  "auto"
@@ -668,7 +668,7 @@ Model {
   System {
     Name		    "walkgen"
     Location		    [702, 74, 977, 375]
-    Open		    off
+    Open		    on
     ModelBrowserVisibility  off
     ModelBrowserWidth	    200
     ScreenColor		    "white"
@@ -701,7 +701,7 @@ Model {
       System {
 	Name			"Simulation"
 	Location		[702, 74, 1448, 860]
-	Open			off
+	Open			on
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
 	ScreenColor		"white"
@@ -740,7 +740,7 @@ Model {
 	  Position		  [390, 63, 495, 772]
 	  TreatAsAtomicUnit	  on
 	  MinAlgLoopOccurrences	  off
-	  SystemSampleTime	  "0.005"
+	  SystemSampleTime	  "0.001"
 	  RTWSystemCode		  "Auto"
 	  FunctionWithSeparateData off
 	  MaskPromptString	  "Length of horizon [num. samples]|Step period [num. samples]|Length of initial double support phase [num. samples]|Steps before halt|Sampling period [s]|Time between recomputations [s]|Actuator sampling period [s]|Security margin [m]|Max number of working set recomputations|Dynamics order|Debug mode"
@@ -756,12 +756,12 @@ Model {
 	  MaskIconOpaque	  on
 	  MaskIconRotate	  "none"
 	  MaskIconUnits		  "autoscale"
-	  MaskValueString	  "16|8|8|2|0.1|0.1|0.005|0.02|20|2|1"
+	  MaskValueString	  "16|8|8|2|0.1|0.001|0.001|0.02|20|2|1"
 	  MaskTabNameString	  ",,,,,,,,,,"
 	  System {
 	    Name		    "Atomic Walkgen"
-	    Location		    [403, 74, 1582, 876]
-	    Open		    on
+	    Location		    [702, 74, 1881, 876]
+	    Open		    off
 	    ModelBrowserVisibility  off
 	    ModelBrowserWidth	    200
 	    ScreenColor		    "white"
@@ -1094,16 +1094,16 @@ Model {
 	      NamePlacement	      "alternate"
 	      ShowName		      off
 	      Floating		      off
-	      Location		      [85, 45, 1601, 899]
+	      Location		      [79, 40, 1595, 891]
 	      Open		      off
 	      NumInputPorts	      "1"
 	      List {
 		ListType		AxesTitles
 		axes1			"%<SignalLabel>"
 	      }
-	      TimeRange		      "10"
-	      YMin		      "-0.075"
-	      YMax		      "0.275"
+	      TimeRange		      "5               "
+	      YMin		      "0.025"
+	      YMax		      "0.35"
 	      SaveName		      "ScopeData5"
 	      DataFormat	      "StructureWithTime"
 	      SampleTime	      "0"
@@ -1115,7 +1115,7 @@ Model {
 	      Position		      [540, 264, 560, 286]
 	      ShowName		      off
 	      Floating		      off
-	      Location		      [79, 40, 1595, 894]
+	      Location		      [79, 49, 1595, 903]
 	      Open		      off
 	      NumInputPorts	      "1"
 	      List {
@@ -1157,7 +1157,7 @@ Model {
 	      Orientation	      "up"
 	      ShowName		      off
 	      Floating		      off
-	      Location		      [85, 45, 1601, 899]
+	      Location		      [79, 40, 1595, 894]
 	      Open		      off
 	      NumInputPorts	      "1"
 	      ZoomMode		      "yonly"
@@ -1610,7 +1610,7 @@ Model {
 	Block {
 	  BlockType		  Constant
 	  Name			  "Constant11"
-	  Position		  [35, 305, 185, 325]
+	  Position		  [35, 310, 185, 330]
 	  ShowName		  off
 	  FontName		  "Arial"
 	  FontSize		  8
@@ -1954,7 +1954,7 @@ Model {
 	Block {
 	  BlockType		  Constant
 	  Name			  "cop_real1"
-	  Position		  [70, 336, 185, 354]
+	  Position		  [70, 331, 185, 349]
 	  ShowName		  off
 	  Value			  "[-0.0144 0.105]"
 	  OutDataType		  "sfix(16)"
@@ -2031,7 +2031,6 @@ Model {
 	  Labels		  [0, 0]
 	  SrcBlock		  "Constant11"
 	  SrcPort		  1
-	  Points		  [0, 5]
 	  DstBlock		  "Bus\nCreator3"
 	  DstPort		  1
 	}
@@ -2040,7 +2039,6 @@ Model {
 	  Labels		  [0, 0]
 	  SrcBlock		  "cop_real1"
 	  SrcPort		  1
-	  Points		  [0, -5]
 	  DstBlock		  "Bus\nCreator3"
 	  DstPort		  2
 	}

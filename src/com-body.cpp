@@ -21,48 +21,48 @@ void CoMBody::Interpolate(MPCSolution &solution, double current_time, const Refe
   }
   // Position:
   interpolation_.Interpolate(solution.com_act.pos.x_vec, dynamics_act().pos, 
-    state_x, solution.com_act.jerk.x_vec);
+    state_x, solution.com_prw.control.x_vec[0]);
   interpolation_.Interpolate(solution.com_act.pos.y_vec, dynamics_act().pos, 
-    state_y, solution.com_act.jerk.y_vec);
+    state_y, solution.com_prw.control.y_vec[0]);
 
   // Velocity:
   interpolation_.Interpolate(solution.com_act.vel.x_vec, dynamics_act().vel, 
-    state_x, solution.com_act.jerk.x_vec);
+    state_x, solution.com_prw.control.x_vec[0]);
   interpolation_.Interpolate(solution.com_act.vel.y_vec, dynamics_act().vel, 
-    state_y, solution.com_act.jerk.y_vec);
+    state_y, solution.com_prw.control.y_vec[0]);
 
   // Acceleration:
   interpolation_.Interpolate(solution.com_act.acc.x_vec, dynamics_act().acc, 
-    state_x, solution.com_act.jerk.x_vec);
+    state_x, solution.com_prw.control.x_vec[0]);
   interpolation_.Interpolate(solution.com_act.acc.y_vec, dynamics_act().acc, 
-    state_y, solution.com_act.jerk.y_vec);
+    state_y, solution.com_prw.control.y_vec[0]);
 
   // CoP:
   interpolation_.Interpolate(solution.cop_act.pos.x_vec, dynamics_act().cop, 
-    state_x, solution.com_act.jerk.x_vec);
+    state_x, solution.com_prw.control.x_vec[0]);
   interpolation_.Interpolate(solution.cop_act.pos.y_vec, dynamics_act().cop, 
-    state_y, solution.com_act.jerk.y_vec);
+    state_y, solution.com_prw.control.y_vec[0]);
 
   // QP sampling rate:
   // -----------------
   // Position:
   if (mpc_parameters_->interpolate_whole_horizon) {
       interpolation_.Interpolate(solution.com_prw.pos.x_vec, dynamics_qp().pos,
-      state_x, solution.com_prw.jerk.x_vec);
+      state_x, solution.com_prw.control.x_vec);
       interpolation_.Interpolate(solution.com_prw.pos.y_vec, dynamics_qp().pos,
-      state_y, solution.com_prw.jerk.y_vec);
+      state_y, solution.com_prw.control.y_vec);
       
       // Velocity:
       interpolation_.Interpolate(solution.com_prw.vel.x_vec, dynamics_qp().vel,
-      state_x, solution.com_prw.jerk.x_vec);
+      state_x, solution.com_prw.control.x_vec);
       interpolation_.Interpolate(solution.com_prw.vel.y_vec, dynamics_qp().vel,
-      state_y, solution.com_prw.jerk.y_vec);
+      state_y, solution.com_prw.control.y_vec);
       
       // Acceleration:
       interpolation_.Interpolate(solution.com_prw.acc.x_vec, dynamics_qp().acc,
-      state_x, solution.com_prw.jerk.x_vec);
+      state_x, solution.com_prw.control.x_vec);
       interpolation_.Interpolate(solution.com_prw.acc.y_vec, dynamics_qp().acc,
-      state_y, solution.com_prw.jerk.y_vec);
+      state_y, solution.com_prw.control.y_vec);
   }
 
   InterpolateTrunkYaw(solution, current_time, ref);

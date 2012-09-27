@@ -187,13 +187,15 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamicsMatrices &dyn, double heigh
         dyn.S(row, 0) = 1;
         dyn.S(row, 1) = row * sp2 + sp1;
 
-        dyn.U(row, 0) = dyn.UT(0, row) = sp1sp1 / 2 + sp1 * row * sp2 - height / kGravity;
+        dyn.U(row, 0) = dyn.UT(0, row) = sp1sp1 / 2 + sp1 * row * sp2;
         for (int col = 1; col <= row; col++) {
-          dyn.U(row, col) = dyn.UT(col, row) = sp2sp2 / 2 + (row - col) * sp2sp2 - height / kGravity;
+          dyn.U(row, col) = dyn.UT(col, row) = sp2sp2 / 2 + (row - col) * sp2sp2;
         }
+
+        dyn.U(row, row) = dyn.UT(row, row) -= height / kGravity;
       }
       inverse(dyn.U, dyn.UInv);
-      dyn.UInvT=dyn.UInv.transpose();
+      dyn.UInvT = dyn.UInv.transpose();
       break;
 
     case JERK:

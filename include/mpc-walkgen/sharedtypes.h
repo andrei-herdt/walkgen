@@ -9,10 +9,13 @@
 
 namespace MPCWalkgen{
 
+inline double round( double d )
+{	return floor( d + 0.5 );	}
+
 //
 // Constants
 //
-const double kEps = 0.00000001;
+const static double kEps = 1e-9;
 
 /// \name Enum types
 /// \{
@@ -337,6 +340,7 @@ struct MPC_WALKGEN_API StateValues {
 struct MPC_WALKGEN_API ControlOutput {
 	StateValues com, cop, left_foot, right_foot;
 };
+
 }
 
 

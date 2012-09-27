@@ -2,15 +2,6 @@
 #ifndef MPC_WALKGEN_TOOLS_H
 #define MPC_WALKGEN_TOOLS_H
 
-////////////////////////////////////////////////////////////////////////////////
-///
-///\file	tools.h
-///\brief	A class of tools
-///\author      Keith François
-///\author	Lafaye Jory
-///
-////////////////////////////////////////////////////////////////////////////////
-
 #include <mpc-walkgen/types.h>
 
 #include <Eigen/Dense>
@@ -18,13 +9,9 @@
 #ifdef WIN32
 #include <cmath>
 #endif /* WIN32 */
-inline double round( double d )
-{	return floor( d + 0.5 );	}
-
-const static double kEps = 1e-8;
 
 namespace MPCWalkgen{
-	void inverse(const CommonMatrixType &X, CommonMatrixType &Xinv, double eps = 1e-8);
+	void inverse(const CommonMatrixType &X, CommonMatrixType &Xinv);
 
 	inline double pow2(double v);
 

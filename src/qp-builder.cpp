@@ -433,11 +433,6 @@ void QPBuilder::ConvertCopToJerk(MPCSolution &solution) {
 	global_cop_x_vec += select.sample_step * feet_x_vec;//TODO(performance): Optimize this for first interpolate_whole_horizon == false
 	global_cop_y_vec += select.sample_step * feet_y_vec;
 
-	for (int sample = 0; sample < num_samples; sample++) {
-		solution.com_prw.control.x_vec[sample] = global_cop_x_vec[sample];
-		solution.com_prw.control.y_vec[sample] = global_cop_y_vec[sample];
-	}
-
 	CommonVectorType state_x(mpc_parameters_->dynamics_order), state_y(mpc_parameters_->dynamics_order);
 	for (int i = 0; i < mpc_parameters_->dynamics_order; i++) {
 		state_x(i) = com.x(i);
@@ -447,21 +442,11 @@ void QPBuilder::ConvertCopToJerk(MPCSolution &solution) {
 	//TODO(performance): Optimize this for first interpolate_whole_horizon == false
 	// Transform to com motion
 	const LinearDynamicsMatrices &copdyn = robot_->body(COM)->dynamics_qp().cop;
-	CommonVectorType &jerk_x_vec = solution.com_prw.jerk.x_vec;
-	CommonVectorType &jerk_y_vec = solution.com_prw.jerk.y_vec;
 	tmp_vec_.noalias() = global_cop_x_vec - copdyn.S * state_x;
-	jerk_x_vec.noalias() = copdyn.UInv * tmp_vec_;
+	solution.com_prw.control.x_vec.noalias() = copdyn.UInv * tmp_vec_;
 	tmp_vec_.noalias() = global_cop_y_vec - copdyn.S * state_y;
-	jerk_y_vec.noalias() = copdyn.UInv * tmp_vec_;
+	solution.com_prw.control.y_vec.noalias() = copdyn.UInv * tmp_vec_;
 
-	const LinearDynamicsMatrices &copdyn_act = robot_->body(COM)->dynamics_act().cop;
-	Trajectory &control = solution.com_act.control;
-	control.x_vec.setConstant(global_cop_x_vec[0]);
-	control.y_vec.setConstant(global_cop_y_vec[0]);
-	tmp_vec_.noalias() = control.x_vec - copdyn_act.S * state_x;
-	solution.com_act.jerk.x_vec.noalias() = copdyn_act.UInv * tmp_vec_;
-	tmp_vec_.noalias() = control.y_vec - copdyn_act.S * state_y;
-	solution.com_act.jerk.y_vec.noalias() = copdyn_act.UInv * tmp_vec_;
 }
 
 void QPBuilder::BuildInequalitiesFeet(const MPCSolution &solution) {

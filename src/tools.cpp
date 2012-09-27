@@ -10,12 +10,12 @@
 
 using namespace Eigen;
 
-void MPCWalkgen::inverse(const CommonMatrixType &A, CommonMatrixType &Ap, double eps) {
+void MPCWalkgen::inverse(const CommonMatrixType &A, CommonMatrixType &Ap) {
 	FullPivLU<CommonMatrixType> lu(A);
-	Ap = lu.inverse();
-	for(int i = 0;i < Ap.rows(); ++i){
+	Ap = A.inverse();//lu.inverse();
+	for(int i = 0;i < Ap.rows(); ++i){//TODO: Remove this
 		for(int j = 0;j < Ap.cols(); ++j){
-			if (fabs(Ap(i,j)) < eps){
+			if (fabs(Ap(i,j)) < kEps){
 				Ap(i,j) = 0;
 			}
 		}
