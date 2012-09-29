@@ -29,15 +29,19 @@ namespace MPCWalkgen{
   // Data structures:
   //
   struct LinearDynamicsMatrices{
-    CommonMatrixType S;
-    CommonMatrixType U;
-    CommonMatrixType UT;
-    CommonMatrixType UInv;
-    CommonMatrixType UInvT;
+    CommonMatrixType state_mat;
+    CommonMatrixType input_mat;
+    CommonMatrixType input_mat_tr;
+    CommonMatrixType input_mat_inv;
+    CommonMatrixType input_mat_inv_tr;
+
+    void SetZero(double state_dimension, double num_samples);
   };
 
   struct LinearDynamics {
     LinearDynamicsMatrices pos, vel, acc, jerk, cop;
+
+    void SetZero(double state_dimension, double input_dimension);
   };
 
   struct SelectionMatrices{

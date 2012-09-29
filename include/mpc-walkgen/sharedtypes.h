@@ -16,6 +16,7 @@ inline double round( double d )
 // Constants
 //
 const static double kEps = 1e-9;
+const static double kGravity = 9.81;
 
 /// \name Enum types
 /// \{
@@ -39,8 +40,10 @@ enum Mode { INITIAL = 0, STANDING = 1, WALK = 2 };
 //
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> EigenMatrixXdRM;
 typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor> EigenMatrixXdCM;
+typedef Eigen::Matrix2d Matrix2D;
 typedef EigenMatrixXdRM CommonMatrixType;
 
+typedef Eigen::Vector2d Vector2D;
 typedef Eigen::VectorXd CommonVectorType;
 
 /// \name Data structs

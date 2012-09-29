@@ -2,6 +2,23 @@
 
 using namespace MPCWalkgen;
 
+void LinearDynamicsMatrices::SetZero(double state_dimension, double num_samples) {
+    state_mat.setZero(num_samples, state_dimension);
+    input_mat.setZero(num_samples, num_samples);
+    input_mat_tr.setZero(num_samples, num_samples);
+    input_mat_inv.setZero(num_samples, num_samples);
+    input_mat_inv_tr.setZero(num_samples, num_samples);
+}
+
+void LinearDynamics::SetZero(double state_dimension, double num_samples) {
+	pos.SetZero(state_dimension, num_samples);
+	vel.SetZero(state_dimension, num_samples);
+	acc.SetZero(state_dimension, num_samples);
+	jerk.SetZero(state_dimension, num_samples);
+	cop.SetZero(state_dimension, num_samples);
+}
+
+
 SelectionMatrices::SelectionMatrices(int num_rows)
 :sample_step(num_rows, num_rows)
 ,sample_step_trans(num_rows, num_rows)
