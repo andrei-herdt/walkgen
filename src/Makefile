@@ -26,7 +26,6 @@ MPC_WALKGEN_OBJECTS = \
 	types.${OBJEXT} \
 	tools.${OBJEXT} \
 	state-fsm.${OBJEXT} \
-	sharedtypes.${OBJEXT} \
 	rigid-body-system.${OBJEXT} \
 	rigid-body.${OBJEXT} \
 	qp-vector.${OBJEXT} \
@@ -63,7 +62,6 @@ walkgen.${OBJEXT}:  walkgen.cpp \
 	${IDIR}/mpc-walkgen/state-fsm.h \
 	${IDIR}/mpc-walkgen/rigid-body-system.h \
 	${IDIR}/mpc-walkgen/types.h \
-	${IDIR}/mpc-walkgen/sharedtypes.h \
 	${IDIR}/mpc-walkgen/api.h \
 	${IDIR}/mpc-walkgen/rigid-body.h \
 	${IDIR}/mpc-walkgen/interpolation.h \
@@ -77,7 +75,6 @@ walkgen.${OBJEXT}:  walkgen.cpp \
 
 types.${OBJEXT}: types.cpp \
 	${IDIR}/mpc-walkgen/types.h \
-	${IDIR}/mpc-walkgen/sharedtypes.h \
 	${IDIR}/mpc-walkgen/api.h 
 	@echo "Creating"  $@
 	${CPP} ${DEF_TARGET} -c ${IFLAGS} ${CPPFLAGS} types.cpp
@@ -91,21 +88,13 @@ tools.${OBJEXT}: tools.cpp \
 state-fsm.${OBJEXT}: state-fsm.cpp \
 	${IDIR}/mpc-walkgen/state-fsm.h \
 	${IDIR}/mpc-walkgen/types.h \
-	${IDIR}/mpc-walkgen/sharedtypes.h \
 	${IDIR}/mpc-walkgen/api.h 
 	@echo "Creating"  $@
 	${CPP} ${DEF_TARGET} -c ${IFLAGS} ${CPPFLAGS} state-fsm.cpp
 
-sharedtypes.${OBJEXT}: sharedtypes.cpp \
-	${IDIR}/mpc-walkgen/sharedtypes.h \
-	${IDIR}/mpc-walkgen/api.h 
-	@echo "Creating"  $@
-	${CPP} ${DEF_TARGET} -c ${IFLAGS} ${CPPFLAGS} sharedtypes.cpp
-	
 rigid-body-system.${OBJEXT}: rigid-body-system.cpp \
 	${IDIR}/mpc-walkgen/rigid-body-system.h \
 	${IDIR}/mpc-walkgen/types.h \
-	${IDIR}/mpc-walkgen/sharedtypes.h \
 	${IDIR}/mpc-walkgen/api.h \
 	${IDIR}/mpc-walkgen/rigid-body.h \
 	${IDIR}/mpc-walkgen/interpolation.h \
@@ -119,7 +108,6 @@ rigid-body-system.${OBJEXT}: rigid-body-system.cpp \
 rigid-body.${OBJEXT}: rigid-body.cpp \
 	${IDIR}/mpc-walkgen/rigid-body.h \
 	${IDIR}/mpc-walkgen/types.h \
-	${IDIR}/mpc-walkgen/sharedtypes.h \
 	${IDIR}/mpc-walkgen/api.h \
 	${IDIR}/mpc-walkgen/interpolation.h \
 	${IDIR}/mpc-walkgen/tools.h \
@@ -138,7 +126,6 @@ qp-solver.${OBJEXT}: qp-solver.cpp \
 	${IDIR}/mpc-walkgen/qp-matrix.h \
 	${IDIR}/mpc-walkgen/qp-vector.h \
 	${IDIR}/mpc-walkgen/types.h \
-	${IDIR}/mpc-walkgen/sharedtypes.h \
 	${IDIR}/mpc-walkgen/api.h 
 	@echo "Creating"  $@
 	${CPP} ${DEF_TARGET} -c ${IFLAGS} ${CPPFLAGS} qp-solver.cpp
@@ -147,7 +134,6 @@ heuristic-preview.${OBJEXT}: heuristic-preview.cpp \
 	${IDIR}/mpc-walkgen/heuristic-preview.h \
 	${IDIR}/mpc-walkgen/rigid-body-system.h \
 	${IDIR}/mpc-walkgen/types.h \
-	${IDIR}/mpc-walkgen/sharedtypes.h \
 	${IDIR}/mpc-walkgen/api.h \
 	${IDIR}/mpc-walkgen/rigid-body.h \
 	${IDIR}/mpc-walkgen/interpolation.h \
@@ -165,7 +151,6 @@ qpoases-parser.${OBJEXT}: qpoases-parser.cpp \
 	${IDIR}/mpc-walkgen/qp-matrix.h \
 	${IDIR}/mpc-walkgen/qp-vector.h \
 	${IDIR}/mpc-walkgen/types.h \
-	${IDIR}/mpc-walkgen/sharedtypes.h \
 	${IDIR}/mpc-walkgen/api.h \
 	${QPOASES_IDIR}/qpOASES.hpp \
 	${QPOASES_IDIR}/qpOASES/SQProblem.hpp \
@@ -187,7 +172,6 @@ qpoases-parser.${OBJEXT}: qpoases-parser.cpp \
 qp-matrix.${OBJEXT}: qp-matrix.cpp \
 	${IDIR}/mpc-walkgen/qp-matrix.h \
 	${IDIR}/mpc-walkgen/types.h \
-	${IDIR}/mpc-walkgen/sharedtypes.h \
 	${IDIR}/mpc-walkgen/api.h 
 	@echo "Creating"  $@
 	${CPP} ${DEF_TARGET} -c ${IFLAGS} ${CPPFLAGS} qp-matrix.cpp
@@ -195,7 +179,6 @@ qp-matrix.${OBJEXT}: qp-matrix.cpp \
 qp-builder.${OBJEXT}: qp-builder.cpp \
 	${IDIR}/mpc-walkgen/qp-builder.h \
 	${IDIR}/mpc-walkgen/types.h \
-	${IDIR}/mpc-walkgen/sharedtypes.h \
 	${IDIR}/mpc-walkgen/api.h \
 	${IDIR}/mpc-walkgen/qp-solver.h \
 	${IDIR}/mpc-walkgen/qp-matrix.h \
@@ -216,7 +199,6 @@ orientations-preview.${OBJEXT}: orientations-preview.cpp \
 	${IDIR}/mpc-walkgen/orientations-preview.h \
 	${IDIR}/mpc-walkgen/rigid-body-system.h \
 	${IDIR}/mpc-walkgen/types.h \
-	${IDIR}/mpc-walkgen/sharedtypes.h \
 	${IDIR}/mpc-walkgen/api.h \
 	${IDIR}/mpc-walkgen/rigid-body.h \
 	${IDIR}/mpc-walkgen/interpolation.h \
@@ -230,7 +212,6 @@ orientations-preview.${OBJEXT}: orientations-preview.cpp \
 interpolation.${OBJEXT}: interpolation.cpp \
 	${IDIR}/mpc-walkgen/interpolation.h \
 	${IDIR}/mpc-walkgen/types.h \
-	${IDIR}/mpc-walkgen/sharedtypes.h \
 	${IDIR}/mpc-walkgen/api.h \
 	${IDIR}/mpc-walkgen/tools.h \
 	${IDIR}/mpc-walkgen/tools-inl.h 
@@ -243,7 +224,6 @@ lssol-parser.${OBJEXT}: lssol-parser.cpp \
 	${IDIR}/mpc-walkgen/qp-matrix.h \
 	${IDIR}/mpc-walkgen/qp-vector.h \
 	${IDIR}/mpc-walkgen/types.h \
-	${IDIR}/mpc-walkgen/sharedtypes.h \
 	${IDIR}/mpc-walkgen/api.h 
 	@echo "Creating"  $@
 	${CPP} ${DEF_TARGET} -c ${IFLAGS} ${CPPFLAGS} lssol-parser.cpp	
@@ -251,7 +231,6 @@ lssol-parser.${OBJEXT}: lssol-parser.cpp \
 foot-body.${OBJEXT}: foot-body.cpp \
 	${IDIR}/mpc-walkgen/foot-body.h \
 	${IDIR}/mpc-walkgen/types.h \
-	${IDIR}/mpc-walkgen/sharedtypes.h \
 	${IDIR}/mpc-walkgen/api.h \
 	${IDIR}/mpc-walkgen/rigid-body.h \
 	${IDIR}/mpc-walkgen/interpolation.h \
@@ -264,7 +243,6 @@ foot-body.${OBJEXT}: foot-body.cpp \
 com-body.${OBJEXT}: com-body.cpp \
 	${IDIR}/mpc-walkgen/com-body.h \
 	${IDIR}/mpc-walkgen/types.h \
-	${IDIR}/mpc-walkgen/sharedtypes.h \
 	${IDIR}/mpc-walkgen/api.h \
 	${IDIR}/mpc-walkgen/rigid-body.h \
 	${IDIR}/mpc-walkgen/interpolation.h \
@@ -282,7 +260,6 @@ realclock.${OBJEXT}: realclock.cpp \
 dynamics-builder.${OBJEXT}: dynamics-builder.cpp \
 	${IDIR}/mpc-walkgen/dynamics-builder.h \
 	${IDIR}/mpc-walkgen/types.h \
-	${IDIR}/mpc-walkgen/sharedtypes.h \
 	${IDIR}/mpc-walkgen/api.h 
 	@echo "Creating"  $@
 	${CPP} ${DEF_TARGET} -c ${IFLAGS} ${CPPFLAGS} dynamics-builder.cpp

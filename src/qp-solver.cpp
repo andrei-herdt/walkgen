@@ -142,7 +142,7 @@ void QPSolver::DumpProblem(const char *filename) {
 # include <mpc-walkgen/lssol-parser.h>
 
 QPSolver *MPCWalkgen::createQPSolver(const SolverData &parameters, int num_vars, int num_constr) 
-{
+{//TODO: Remove this
 	QPSolver *solver = NULL;
 	if (parameters.name == LSSOL) {
 		solver = new LSSOLParser(&parameters, num_vars, num_constr);
