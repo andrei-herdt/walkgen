@@ -110,9 +110,9 @@ struct MPC_WALKGEN_API FootData{
 
 	FootData();
 	FootData(const FootData &f);//TODO: LocalAnklePosition_ better?
-			~FootData();
+	~FootData();
 
-			void SetEdges(double front, double back, double left, double right, double security_margin);
+	void SetEdges(double front, double back, double left, double right, double security_margin);
 };
 
 struct MPC_WALKGEN_API HipYawData {
