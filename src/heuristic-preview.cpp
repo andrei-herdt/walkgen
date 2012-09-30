@@ -99,10 +99,10 @@ void HeuristicPreview::PreviewSupportStates(double first_sample_period, MPCSolut
 	BuildSelectionMatrices(solution);
 }
 
-void HeuristicPreview::BuildRotationMatrix(MPCSolution &solution){
+void HeuristicPreview::BuildRotationMatrix(MPCSolution &solution){//TODO: Move to qp-builder
 	int num_samples = mpc_parameters_->num_samples_horizon;
 
-	for (int i=0; i<num_samples; ++i) {//TODO:(performance) Vecotrize this?
+	for (int i=0; i<num_samples; ++i) {//TODO:(performance)
 		double cosYaw = cos(solution.support_states_vec[i+1].yaw);
 		double sinYaw = sin(solution.support_states_vec[i+1].yaw);
 		rot_mat_(i  ,i  ) =  cosYaw;
@@ -127,7 +127,7 @@ void HeuristicPreview::BuildRotationMatrix(MPCSolution &solution){
 //
 // Private methods:
 //
-void HeuristicPreview::BuildSelectionMatrices(MPCSolution &solution) {
+void HeuristicPreview::BuildSelectionMatrices(MPCSolution &solution) {//Move to qp-builder
 	assert(select_matrices_.sample_step.rows() == mpc_parameters_->num_samples_horizon);
 
 	const BodyState *left_foot_p = &robot_->body(LEFT_FOOT)->state();

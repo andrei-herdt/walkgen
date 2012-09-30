@@ -16,7 +16,7 @@ int main() {
 	int num_samples_dsss = 8;
 	int num_steps_ssds = 2;
 	double sample_period_qp = 0.1;
-	double sample_period_first = 0.005;
+	double sample_period_first = 0.1;
 	double sample_period_act = 0.005;
 	const double kSecurityMargin = 0.02;
 

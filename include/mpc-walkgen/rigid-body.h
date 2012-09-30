@@ -46,16 +46,16 @@ namespace MPCWalkgen{
     const RobotData *robot_data_p_;//TODO: Maybe should not be here
     DynamicsBuilder *dyn_build_p_;
 
-    int dynamics_index_; /// \brief Pointer to the currently relevant dynamics matrices
+    int dynamics_index_; // \brief Index to dynamics matrices
 
     Interpolation interpolation_;
 
     BodyState state_;
-    /// \brief Dynamics sampled with the QP sampling rate
-    std::vector<LinearDynamics> dynamics_qp_vec_;
 
-    /// \brief Dynamics sampled with the actuator sampling rate
-    LinearDynamics dynamics_act_;
+    std::vector<LinearDynamics> dynamics_qp_vec_; // \brief Dynamics sampled with the QP sampling rate
+
+    LinearDynamics dynamics_act_;    // \brief Dynamics sampled with the actuator sampling rate
+
 
     Motion motion_act_, motion_prw_;    
 
