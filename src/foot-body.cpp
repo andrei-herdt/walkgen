@@ -87,8 +87,7 @@ void FootBody::Interpolate(MPCSolution &solution, double current_time, const Ref
 // Private methods:
 //
 void FootBody::InterpolatePolynomial(MPCSolution &solution, CommonVectorType &pos_vec, CommonVectorType &vel_vec, CommonVectorType &acc_vec, 
-		int num_samples, double T, const Eigen::Vector3d &init_state_vec, const Eigen::Vector3d &final_state_vec)
-{
+		int num_samples, double T, const Eigen::Vector3d &init_state_vec, const Eigen::Vector3d &final_state_vec) {
 	if (pos_vec.rows() < num_samples) {
 		pos_vec.resize(num_samples);
 		vel_vec.resize(num_samples);

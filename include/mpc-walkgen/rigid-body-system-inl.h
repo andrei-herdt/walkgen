@@ -2,14 +2,6 @@
 #ifndef RIGID_BODY_SYSTEM_INL_H
 #define RIGID_BODY_SYSTEM_INL_H
 
-////////////////////////////////////////////////////////////////////////////////
-///
-///\file	rigid-body-system_inl.h
-///\author Andrei Herdt
-///
-////////////////////////////////////////////////////////////////////////////////
-
-
 
 public:
   inline ConvexHull convexHull(HullType type, const SupportState &prwSupport, bool computeLinearSystem=true, bool rotateHull=true) const {

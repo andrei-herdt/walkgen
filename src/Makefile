@@ -31,7 +31,7 @@ MPC_WALKGEN_OBJECTS = \
 	rigid-body.${OBJEXT} \
 	qp-vector.${OBJEXT} \
 	qp-solver.${OBJEXT} \
-	qp-preview.${OBJEXT} \
+	heuristic-preview.${OBJEXT} \
 	qpoases-parser.${OBJEXT} \
 	qp-matrix.${OBJEXT} \
 	qp-builder.${OBJEXT} \
@@ -143,8 +143,8 @@ qp-solver.${OBJEXT}: qp-solver.cpp \
 	@echo "Creating"  $@
 	${CPP} ${DEF_TARGET} -c ${IFLAGS} ${CPPFLAGS} qp-solver.cpp
 	
-qp-preview.${OBJEXT}: qp-preview.cpp \
-	${IDIR}/mpc-walkgen/qp-preview.h \
+heuristic-preview.${OBJEXT}: heuristic-preview.cpp \
+	${IDIR}/mpc-walkgen/heuristic-preview.h \
 	${IDIR}/mpc-walkgen/rigid-body-system.h \
 	${IDIR}/mpc-walkgen/types.h \
 	${IDIR}/mpc-walkgen/sharedtypes.h \
@@ -157,7 +157,7 @@ qp-preview.${OBJEXT}: qp-preview.cpp \
 	${IDIR}/mpc-walkgen/rigid-body-system-inl.h \
 	${IDIR}/mpc-walkgen/state-fsm.h 
 	@echo "Creating"  $@
-	${CPP} ${DEF_TARGET} -c ${IFLAGS} ${CPPFLAGS} qp-preview.cpp	
+	${CPP} ${DEF_TARGET} -c ${IFLAGS} ${CPPFLAGS} heuristic-preview.cpp	
 	
 qpoases-parser.${OBJEXT}: qpoases-parser.cpp \
 	${IDIR}/mpc-walkgen/qpoases-parser.h \
@@ -200,7 +200,7 @@ qp-builder.${OBJEXT}: qp-builder.cpp \
 	${IDIR}/mpc-walkgen/qp-solver.h \
 	${IDIR}/mpc-walkgen/qp-matrix.h \
 	${IDIR}/mpc-walkgen/qp-vector.h \
-	${IDIR}/mpc-walkgen/qp-preview.h \
+	${IDIR}/mpc-walkgen/heuristic-preview.h \
 	${IDIR}/mpc-walkgen/rigid-body-system.h \
 	${IDIR}/mpc-walkgen/rigid-body.h \
 	${IDIR}/mpc-walkgen/interpolation.h \

@@ -9,7 +9,7 @@
 using namespace MPCWalkgen;
 using namespace std;
 
-QPBuilder::QPBuilder(QPPreview *preview, QPSolver *solver,
+QPBuilder::QPBuilder(HeuristicPreview *preview, QPSolver *solver,
 		Reference *vel_ref, WeightCoefficients *weight_coefficients,
 		RigidBodySystem *robot, const MPCParameters *mpc_parameters,
 		RealClock *clock)
@@ -131,10 +131,10 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	sample_num += weight_coefficients_->active_mode * mpc_parameters_->nbFeedbackSamplesStandard();
 
 	const BodyState &com = robot_->body(COM)->state();
-	const SelectionMatrices &select_mats = preview_->selectionMatrices();
-	const CommonMatrixType &rot_mat = preview_->rotationMatrix();
-	const CommonMatrixType &rot_mat2 = preview_->rotationMatrix2();
-	const CommonMatrixType &rot_mat2_trans = preview_->rotationMatrix2Trans();
+	const SelectionMatrices &select_mats = preview_->selection_matrices();
+	const CommonMatrixType &rot_mat = preview_->rot_mat();
+	const CommonMatrixType &rot_mat2 = preview_->rot_mat2();
+	const CommonMatrixType &rot_mat2_trans = preview_->rot_mat2_tr();
 
 	QPMatrix &Q = solver_->hessian_mat();
 
@@ -398,12 +398,12 @@ void QPBuilder::BuildReferenceVector(const MPCSolution &solution)
 	}
 }
 
-void QPBuilder::ConvertCopToJerk(MPCSolution &solution) {
+void QPBuilder::TransformControlVector(MPCSolution &solution) {
 	int num_samples = mpc_parameters_->num_samples_horizon;
 	int num_steps = solution.support_states_vec.back().step_number;
 
-	const SelectionMatrices &select = preview_->selectionMatrices();
-	const CommonMatrixType &rot_mat = preview_->rotationMatrix();
+	const SelectionMatrices &select = preview_->selection_matrices();
+	const CommonMatrixType &rot_mat = preview_->rot_mat();
 	const BodyState &com = robot_->body(COM)->state();
 
 	const CommonVectorType &local_cop_vec = solution.qp_solution_vec;
@@ -478,7 +478,7 @@ void QPBuilder::BuildInequalitiesFeet(const MPCSolution &solution) {
 
 void QPBuilder::BuildConstraintsFeet(const MPCSolution &solution) {
 	int num_steps_previewed = solution.support_states_vec.back().step_number;
-	const SelectionMatrices &select = preview_->selectionMatrices();
+	const SelectionMatrices &select = preview_->selection_matrices();
 	int num_samples = mpc_parameters_->num_samples_horizon;
 
 	tmp_mat_.noalias() = foot_inequalities_.DX * select.Vf;
