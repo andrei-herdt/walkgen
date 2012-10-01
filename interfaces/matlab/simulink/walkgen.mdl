@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.401"
+    ComputedModelVersion    "1.402"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Thu Sep 27 18:23:58 2012"
+  LastModifiedDate	  "Fri Sep 28 11:09:20 2012"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:401>"
+  ModelVersionFormat	  "1.%<AutoIncrement:402>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -668,7 +668,7 @@ Model {
   System {
     Name		    "walkgen"
     Location		    [702, 74, 977, 375]
-    Open		    on
+    Open		    off
     ModelBrowserVisibility  off
     ModelBrowserWidth	    200
     ScreenColor		    "white"
@@ -701,7 +701,7 @@ Model {
       System {
 	Name			"Simulation"
 	Location		[702, 74, 1448, 860]
-	Open			on
+	Open			off
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
 	ScreenColor		"white"
@@ -761,7 +761,7 @@ Model {
 	  System {
 	    Name		    "Atomic Walkgen"
 	    Location		    [702, 74, 1881, 876]
-	    Open		    off
+	    Open		    on
 	    ModelBrowserVisibility  off
 	    ModelBrowserWidth	    200
 	    ScreenColor		    "white"
@@ -1070,7 +1070,7 @@ Model {
 	      Orientation	      "up"
 	      ShowName		      off
 	      Floating		      off
-	      Location		      [79, 40, 1595, 891]
+	      Location		      [85, 45, 1601, 899]
 	      Open		      off
 	      NumInputPorts	      "1"
 	      ZoomMode		      "yonly"
@@ -1094,14 +1094,14 @@ Model {
 	      NamePlacement	      "alternate"
 	      ShowName		      off
 	      Floating		      off
-	      Location		      [79, 40, 1595, 891]
-	      Open		      off
+	      Location		      [85, 45, 1601, 899]
+	      Open		      on
 	      NumInputPorts	      "1"
 	      List {
 		ListType		AxesTitles
 		axes1			"%<SignalLabel>"
 	      }
-	      TimeRange		      "5               "
+	      TimeRange		      "5"
 	      YMin		      "0.025"
 	      YMax		      "0.35"
 	      SaveName		      "ScopeData5"
@@ -1168,6 +1168,29 @@ Model {
 	      TimeRange		      "20"
 	      YMin		      "0"
 	      YMax		      "0.1"
+	      DataFormat	      "StructureWithTime"
+	      SampleTime	      "0"
+	    }
+	    Block {
+	      BlockType		      Scope
+	      Name		      "Scope5"
+	      Ports		      [1]
+	      Position		      [415, 130, 435, 150]
+	      Orientation	      "up"
+	      ShowName		      off
+	      Floating		      off
+	      Location		      [79, 40, 1595, 891]
+	      Open		      off
+	      NumInputPorts	      "1"
+	      ZoomMode		      "yonly"
+	      List {
+		ListType		AxesTitles
+		axes1			"%<SignalLabel>"
+	      }
+	      TimeRange		      "0.007766893178016154"
+	      YMin		      "0.2"
+	      YMax		      "0.95"
+	      SaveName		      "ScopeData1"
 	      DataFormat	      "StructureWithTime"
 	      SampleTime	      "0"
 	    }
@@ -1272,9 +1295,16 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "S-Function"
 	      SrcPort		      3
-	      Points		      [70, 0; 0, -15]
-	      DstBlock		      "Bus\nCreator2"
-	      DstPort		      3
+	      Points		      [30, 0]
+	      Branch {
+		Points			[40, 0; 0, -15]
+		DstBlock		"Bus\nCreator2"
+		DstPort			3
+	      }
+	      Branch {
+		DstBlock		"Scope5"
+		DstPort			1
+	      }
 	    }
 	    Line {
 	      Name		      "left_foot"
