@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.401"
+    ComputedModelVersion    "1.405"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Thu Sep 27 18:23:58 2012"
+  LastModifiedDate	  "Mon Oct 01 13:53:17 2012"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:401>"
+  ModelVersionFormat	  "1.%<AutoIncrement:405>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -667,8 +667,8 @@ Model {
   }
   System {
     Name		    "walkgen"
-    Location		    [702, 74, 977, 375]
-    Open		    on
+    Location		    [848, 74, 1123, 375]
+    Open		    off
     ModelBrowserVisibility  off
     ModelBrowserWidth	    200
     ScreenColor		    "white"
@@ -701,7 +701,7 @@ Model {
       System {
 	Name			"Simulation"
 	Location		[702, 74, 1448, 860]
-	Open			on
+	Open			off
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
 	ScreenColor		"white"
@@ -740,7 +740,7 @@ Model {
 	  Position		  [390, 63, 495, 772]
 	  TreatAsAtomicUnit	  on
 	  MinAlgLoopOccurrences	  off
-	  SystemSampleTime	  "0.001"
+	  SystemSampleTime	  "0.005"
 	  RTWSystemCode		  "Auto"
 	  FunctionWithSeparateData off
 	  MaskPromptString	  "Length of horizon [num. samples]|Step period [num. samples]|Length of initial double support phase [num. samples]|Steps before halt|Sampling period [s]|Time between recomputations [s]|Actuator sampling period [s]|Security margin [m]|Max number of working set recomputations|Dynamics order|Debug mode"
@@ -756,12 +756,12 @@ Model {
 	  MaskIconOpaque	  on
 	  MaskIconRotate	  "none"
 	  MaskIconUnits		  "autoscale"
-	  MaskValueString	  "16|8|8|2|0.1|0.001|0.001|0.02|20|2|1"
+	  MaskValueString	  "16|8|8|2|0.1|0.1|0.005|0.02|20|3|1"
 	  MaskTabNameString	  ",,,,,,,,,,"
 	  System {
 	    Name		    "Atomic Walkgen"
 	    Location		    [702, 74, 1881, 876]
-	    Open		    off
+	    Open		    on
 	    ModelBrowserVisibility  off
 	    ModelBrowserWidth	    200
 	    ScreenColor		    "white"
@@ -1079,7 +1079,7 @@ Model {
 		axes1			"%<SignalLabel>"
 	      }
 	      TimeRange		      "0.007766893178016154"
-	      YMin		      "0.2"
+	      YMin		      "0.15"
 	      YMax		      "0.95"
 	      SaveName		      "ScopeData4"
 	      DataFormat	      "StructureWithTime"
@@ -1115,7 +1115,7 @@ Model {
 	      Position		      [540, 264, 560, 286]
 	      ShowName		      off
 	      Floating		      off
-	      Location		      [79, 49, 1595, 903]
+	      Location		      [79, 40, 1595, 894]
 	      Open		      off
 	      NumInputPorts	      "1"
 	      List {
@@ -1139,12 +1139,14 @@ Model {
 	      Location		      [79, 40, 1595, 894]
 	      Open		      off
 	      NumInputPorts	      "1"
+	      ZoomMode		      "yonly"
 	      List {
 		ListType		AxesTitles
 		axes1			"%<SignalLabel>"
 	      }
-	      YMin		      "-0.05"
-	      YMax		      "0.6"
+	      TimeRange		      "5"
+	      YMin		      "-0.1"
+	      YMax		      "0.6000000000000001"
 	      SaveName		      "ScopeData7"
 	      DataFormat	      "StructureWithTime"
 	      SampleTime	      "0"
