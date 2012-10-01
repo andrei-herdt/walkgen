@@ -350,12 +350,12 @@ WeightCoefficients::WeightCoefficients(int num_modes)
 	pos[0] =  0.;
 	vel[0]  = 1.;
 	cop[0]  = 0.00001;
-	control[0] = 0.00001;
+	control[0] = 0.001;
 
 	pos[1] =  0.;
 	vel[1]  = 1.;
 	cop[1]  = 1.;
-	control[1] = 0.00001;
+	control[1] = 0.001;
 
 
 	active_mode  = 0;

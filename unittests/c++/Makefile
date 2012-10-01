@@ -3,9 +3,9 @@
 
 # select your operating system here!
 include make_dependencies.mk
-include ../../src/make_linux.mk
+# include ../../src/make_linux.mk
 # include ../../src/make_windows.mk
-# include ../../src/make_vxworks.mk
+include ../../src/make_vxworks.mk
 # include ../../src/make_vxworks_intel.mk
 
 
