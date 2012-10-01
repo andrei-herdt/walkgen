@@ -18,9 +18,12 @@ namespace MPCWalkgen{
     ~QPMatrix();
 
     void AddTerm(const EigenMatrixXdRM &mat,
-      const int first_row, const int first_col);
+      const int first_row,
+      const int first_col
+      );
 
-    void SetConstantPart(const CommonMatrixType &mat);
+    void SetConstantPart(const CommonMatrixType &mat
+    		);
 
     void reset();
 

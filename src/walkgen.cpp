@@ -1,17 +1,8 @@
 #include <mpc-walkgen/walkgen.h>
 
-#include <iostream>
-#include <Eigen/Dense>
-#include <stdio.h>
-
 using namespace MPCWalkgen;
 
-using namespace Eigen;
-
-
-// Implementation of the private interface
 Walkgen::Walkgen()
-/*: WalkgenAbstract()*/
 : mpc_parameters_()
 ,robotData_()
 ,solver_(NULL)
@@ -30,7 +21,6 @@ Walkgen::Walkgen()
 ,next_computation_(0)
 ,next_act_sample_(0)
 ,current_time_(0)
-,currentRealTime_(0)
 {
 	orient_preview_ = new OrientationsPreview();
 
@@ -81,7 +71,7 @@ void Walkgen::Init(const MPCParameters &mpc_parameters) {
 	solver_ = createQPSolver(mpc_parameters_.solver, num_vars_max,  num_constr_max );
 
 	// Set order of optimization variables
-	VectorXi order(solver_->nbvar_max());
+	Eigen::VectorXi order(solver_->nbvar_max());
 	for (int i = 0; i < mpc_parameters_.num_samples_horizon; ++i) {// 0,2,4,1,3,5 (CoM)
 		order(i) = 2 * i;
 		order(i + mpc_parameters_.num_samples_horizon) = 2*i+1;
@@ -122,7 +112,7 @@ void Walkgen::Init()
 {
 	robot_->ComputeDynamics();
 
-	preview_ = new QPPreview(&vel_ref_, robot_, &mpc_parameters_, &clock_);
+	preview_ = new HeuristicPreview(&vel_ref_, robot_, &mpc_parameters_, &clock_);
 
 	builder_= new QPBuilder(preview_, solver_, &vel_ref_, &weight_coefficients_, robot_, &mpc_parameters_, &clock_);
 
@@ -154,8 +144,8 @@ void Walkgen::Init()
 }
 
 const MPCSolution &Walkgen::Go(){
-	currentRealTime_ += mpc_parameters_.period_mpcsample;
-	return Go(currentRealTime_);
+	current_time_ += mpc_parameters_.period_mpcsample;
+	return Go(current_time_);
 }
 
 const MPCSolution &Walkgen::Go(double time){
@@ -235,15 +225,15 @@ void Walkgen::BuildProblem() {
 
 	// PREVIEW:
 	// --------
-	preview_->previewSamplingTimes(current_time_, firstSamplingPeriod, solution_);
+	preview_->PreviewSamplingTimes(current_time_, firstSamplingPeriod, solution_);
 
-	preview_->previewSupportStates(firstSamplingPeriod, solution_);
+	preview_->PreviewSupportStates(firstSamplingPeriod, solution_);
 
 	orient_preview_->preview_orientations( current_time_, vel_ref_,
 			mpc_parameters_.nbqpsamples_step * mpc_parameters_.period_qpsample,
 			robot_->body(LEFT_FOOT)->state(), robot_->body(RIGHT_FOOT)->state(),
 			solution_ );
-	preview_->computeRotationMatrix(solution_);
+	preview_->BuildRotationMatrix(solution_);
 
 	builder_->BuildReferenceVector(solution_);
 
@@ -253,7 +243,7 @@ void Walkgen::BuildProblem() {
 }
 
 void Walkgen::GenerateTrajectories() {
-	builder_->ConvertCopToJerk(solution_);	//Half of the time spent here. Can be reduced.
+	builder_->TransformControlVector(solution_);	//Half of the time spent here. Can be reduced.
 
 	robot_->Interpolate(solution_, current_time_, vel_ref_);
 

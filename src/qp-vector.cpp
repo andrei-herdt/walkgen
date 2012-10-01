@@ -8,7 +8,7 @@ using namespace Eigen;
 
 
 
-
+//TODO: QPVector is not necessary since qpmatrix can replace it
 QPVector::QPVector(const int num_rows)
 :constantPart_(num_rows)
 ,vector_(num_rows)

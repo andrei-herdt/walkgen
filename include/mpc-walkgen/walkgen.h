@@ -8,7 +8,7 @@
 #include <mpc-walkgen/orientations-preview.h>
 #include <mpc-walkgen/qp-solver.h>
 #include <mpc-walkgen/qp-builder.h>
-#include <mpc-walkgen/qp-preview.h>
+#include <mpc-walkgen/heuristic-preview.h>
 #include <mpc-walkgen/rigid-body-system.h>
 #include <mpc-walkgen/realclock.h>
 
@@ -74,7 +74,7 @@ private:
 
 	::MPCWalkgen::QPSolver *solver_;
 	QPBuilder *builder_;
-	QPPreview *preview_;
+	HeuristicPreview *preview_;
 	RigidBodySystem *robot_;
 
 	OrientationsPreview *orient_preview_;
@@ -103,7 +103,6 @@ private:
 
 	/// \brief Synchronised time with QP sampling
 	double current_time_;
-	double currentRealTime_;
 };
 }
 

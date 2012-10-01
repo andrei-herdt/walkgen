@@ -1,37 +1,26 @@
-#include <mpc-walkgen/qp-preview.h>
+#include <mpc-walkgen/heuristic-preview.h>
 
 #include <cmath>
-#include <iostream>
 
 using namespace MPCWalkgen;
-using namespace Eigen;
 
-//TODO:change name QPPreview to Preview
-QPPreview::QPPreview(Reference *ref, RigidBodySystem *robot, const MPCParameters *mpc_parameters, RealClock *clock)
+HeuristicPreview::HeuristicPreview(Reference *ref, RigidBodySystem *robot,
+		const MPCParameters *mpc_parameters, RealClock *clock)
 :robot_(robot)
 ,mpc_parameters_(mpc_parameters)
 ,select_matrices_(mpc_parameters->num_samples_horizon)
-,rotationMatrix_ (CommonMatrixType::Zero(2*mpc_parameters_->num_samples_horizon, 2*mpc_parameters_->num_samples_horizon))
-,rotationMatrix2_(CommonMatrixType::Zero(2*mpc_parameters_->num_samples_horizon, 2*mpc_parameters_->num_samples_horizon))
-,rotationMatrix2Trans_(CommonMatrixType::Zero(2*mpc_parameters_->num_samples_horizon, 2*mpc_parameters_->num_samples_horizon))
-//,sparse_rot_mat2_(2*mpc_parameters_->num_samples_horizon, 2*mpc_parameters_->num_samples_horizon)
-//,sparse_rot_mat2_trans_(2*mpc_parameters_->num_samples_horizon, 2*mpc_parameters_->num_samples_horizon)
+,rot_mat_ (CommonMatrixType::Zero(2*mpc_parameters_->num_samples_horizon, 2*mpc_parameters_->num_samples_horizon))
+,rot_mat2_(CommonMatrixType::Zero(2*mpc_parameters_->num_samples_horizon, 2*mpc_parameters_->num_samples_horizon))
+,rot_mat2_tr_(CommonMatrixType::Zero(2*mpc_parameters_->num_samples_horizon, 2*mpc_parameters_->num_samples_horizon))
 ,clock_(clock) {
-
-	statesolver_ = new StateFSM(ref, mpc_parameters);
-	//triplet_list1_.reserve(4 * mpc_parameters->num_samples_horizon);
-	//triplet_list2_.reserve(4 * mpc_parameters->num_samples_horizon);
-
-	//sparse_rot_mat2_.reserve(VectorXi::Constant(2*mpc_parameters_->num_samples_horizon, 2));
-	//sparse_rot_mat2_trans_.reserve(VectorXi::Constant(2*mpc_parameters_->num_samples_horizon, 2));
+	support_fsm_ = new StateFSM(ref, mpc_parameters);
 }
 
-QPPreview::~QPPreview()
-{
-	delete statesolver_;
+HeuristicPreview::~HeuristicPreview() {
+	delete support_fsm_;
 }
 
-void QPPreview::previewSamplingTimes(double current_time, 
+void HeuristicPreview::PreviewSamplingTimes(double current_time,
 		double firstSamplingPeriod, MPCSolution &solution) {
 
 	solution.sampling_times_vec.resize(mpc_parameters_->num_samples_horizon + 1, 0);
@@ -46,14 +35,14 @@ void QPPreview::previewSamplingTimes(double current_time,
 
 }
 
-void QPPreview::previewSupportStates(double firstSamplingPeriod, MPCSolution &solution)
+void HeuristicPreview::PreviewSupportStates(double first_sample_period, MPCSolution &solution)
 {
 	const BodyState *foot;
 	SupportState &current_support = robot_->current_support();
 
 	// SET CURRENT SUPPORT STATE:
 	// --------------------------
-	statesolver_->setSupportState(0, solution.sampling_times_vec, current_support);
+	support_fsm_->setSupportState(0, solution.sampling_times_vec, current_support);
 	current_support.transitional_ds = false;
 	if (current_support.state_changed) {
 		if (current_support.foot == LEFT) {
@@ -74,7 +63,7 @@ void QPPreview::previewSupportStates(double firstSamplingPeriod, MPCSolution &so
 	SupportState previewed_support = current_support;//TODO: Replace =operator by CopyFrom or give to constructor
 	previewed_support.step_number = 0;
 	for (int sample = 1; sample <= mpc_parameters_->num_samples_horizon; sample++) {
-		statesolver_->setSupportState(sample, solution.sampling_times_vec, previewed_support);
+		support_fsm_->setSupportState(sample, solution.sampling_times_vec, previewed_support);
 		// special treatment for the first instant of transitionalDS
 		previewed_support.transitional_ds = false;
 		if (previewed_support.state_changed) {
@@ -98,7 +87,7 @@ void QPPreview::previewSupportStates(double firstSamplingPeriod, MPCSolution &so
 			}
 		}
 		if (sample == 1) {
-			previewed_support.previousSamplingPeriod = firstSamplingPeriod;
+			previewed_support.previousSamplingPeriod = first_sample_period;
 			previewed_support.sampleWeight = 1;
 		} else {
 			previewed_support.previousSamplingPeriod = mpc_parameters_->period_qpsample;
@@ -107,40 +96,38 @@ void QPPreview::previewSupportStates(double firstSamplingPeriod, MPCSolution &so
 		solution.support_states_vec.push_back(previewed_support);
 	}
 
-	buildSelectionMatrices(solution);
+	BuildSelectionMatrices(solution);
 }
 
-
-// Fill the two rotation matrices.
-//  The indexes not given are supposed to be zero and are not reset
-//  to reduce computation time.
-void QPPreview::computeRotationMatrix(MPCSolution &solution){
+void HeuristicPreview::BuildRotationMatrix(MPCSolution &solution){//TODO: Move to qp-builder
 	int num_samples = mpc_parameters_->num_samples_horizon;
 
-	for (int i=0; i<num_samples; ++i) {//TODO:(performance) Vecotrize this?
+	for (int i=0; i<num_samples; ++i) {//TODO:(performance)
 		double cosYaw = cos(solution.support_states_vec[i+1].yaw);
 		double sinYaw = sin(solution.support_states_vec[i+1].yaw);
-		rotationMatrix_(i  ,i  ) =  cosYaw;
-		rotationMatrix_(i+num_samples,i  ) = -sinYaw;
-		rotationMatrix_(i  ,i+num_samples) =  sinYaw;
-		rotationMatrix_(i+num_samples,i+num_samples) =  cosYaw;
+		rot_mat_(i  ,i  ) =  cosYaw;
+		rot_mat_(i+num_samples,i  ) = -sinYaw;
+		rot_mat_(i  ,i+num_samples) =  sinYaw;
+		rot_mat_(i+num_samples,i+num_samples) =  cosYaw;
 
-		rotationMatrix2_(2*i  , 2*i  ) =  cosYaw;
-		rotationMatrix2_(2*i+1, 2*i  ) = -sinYaw;
-		rotationMatrix2_(2*i  , 2*i+1) =  sinYaw;
-		rotationMatrix2_(2*i+1, 2*i+1) =  cosYaw;
+		rot_mat2_(2*i  , 2*i  ) =  cosYaw;
+		rot_mat2_(2*i+1, 2*i  ) = -sinYaw;
+		rot_mat2_(2*i  , 2*i+1) =  sinYaw;
+		rot_mat2_(2*i+1, 2*i+1) =  cosYaw;
 
-		rotationMatrix2Trans_(2*i  , 2*i  ) = cosYaw;
-		rotationMatrix2Trans_(2*i+1, 2*i  ) = sinYaw;
-		rotationMatrix2Trans_(2*i  , 2*i+1) = -sinYaw;
-		rotationMatrix2Trans_(2*i+1, 2*i+1) = cosYaw;
+		rot_mat2_tr_(2*i  , 2*i  ) = cosYaw;
+		rot_mat2_tr_(2*i+1, 2*i  ) = sinYaw;
+		rot_mat2_tr_(2*i  , 2*i+1) = -sinYaw;
+		rot_mat2_tr_(2*i+1, 2*i+1) = cosYaw;
 
 	}
 
 }
 
-void QPPreview::buildSelectionMatrices(MPCSolution &solution)
-{
+//
+// Private methods:
+//
+void HeuristicPreview::BuildSelectionMatrices(MPCSolution &solution) {//Move to qp-builder
 	assert(select_matrices_.sample_step.rows() == mpc_parameters_->num_samples_horizon);
 
 	const BodyState *left_foot_p = &robot_->body(LEFT_FOOT)->state();

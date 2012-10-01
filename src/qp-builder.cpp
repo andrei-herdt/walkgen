@@ -9,7 +9,7 @@
 using namespace MPCWalkgen;
 using namespace std;
 
-QPBuilder::QPBuilder(QPPreview *preview, QPSolver *solver,
+QPBuilder::QPBuilder(HeuristicPreview *preview, QPSolver *solver,
 		Reference *vel_ref, WeightCoefficients *weight_coefficients,
 		RigidBodySystem *robot, const MPCParameters *mpc_parameters,
 		RealClock *clock)
@@ -70,11 +70,11 @@ void QPBuilder::PrecomputeObjective()
 			const LinearDynamicsMatrices &vel_dyn = robot_->body(COM)->dynamics_qp().vel;
 			const LinearDynamicsMatrices &cop_dyn = robot_->body(COM)->dynamics_qp().cop;
 
-			tmp_mat_.noalias() = cop_dyn.UInvT * vel_dyn.UT * vel_dyn.U * cop_dyn.UInv;
+			tmp_mat_.noalias() = cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * vel_dyn.input_mat * cop_dyn.input_mat_inv;
 			G = weight_coefficients_->vel[i] * tmp_mat_;
-			tmp_mat_.noalias() = cop_dyn.UInvT * cop_dyn.UInv;
+			tmp_mat_.noalias() = cop_dyn.input_mat_inv_tr * cop_dyn.input_mat_inv;
 			G += weight_coefficients_->control[i] * tmp_mat_;
-			tmp_mat_.noalias() = cop_dyn.UInvT * pos_dyn.UT * pos_dyn.U * cop_dyn.UInv;/*position*/
+			tmp_mat_.noalias() = cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * pos_dyn.input_mat * cop_dyn.input_mat_inv;/*position*/
 			G +=  weight_coefficients_->pos[i] * tmp_mat_;
 
 			Qconst_[nb] = G;
@@ -86,18 +86,18 @@ void QPBuilder::PrecomputeObjective()
 
 			choleskyConst_[nb] = chol.cholesky();
 
-			tmp_mat_.noalias() = vel_dyn.S - vel_dyn.U * cop_dyn.UInv * cop_dyn.S;
-			state_variant_[nb] = cop_dyn.UInvT * vel_dyn.UT * weight_coefficients_->vel[i] * tmp_mat_;
-			tmp_mat_.noalias() = pos_dyn.S - pos_dyn.U * cop_dyn.UInv * cop_dyn.S;/*position*/
-			state_variant_[nb] += cop_dyn.UInvT * pos_dyn.UT * weight_coefficients_->pos[i] * tmp_mat_;/*position*/
-			state_variant_[nb] -= cop_dyn.UInvT * weight_coefficients_->control[i] * cop_dyn.UInv * cop_dyn.S;
+			tmp_mat_.noalias() = vel_dyn.state_mat - vel_dyn.input_mat * cop_dyn.input_mat_inv * cop_dyn.state_mat;
+			state_variant_[nb] = cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * weight_coefficients_->vel[i] * tmp_mat_;
+			tmp_mat_.noalias() = pos_dyn.state_mat - pos_dyn.input_mat * cop_dyn.input_mat_inv * cop_dyn.state_mat;/*position*/
+			state_variant_[nb] += cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * weight_coefficients_->pos[i] * tmp_mat_;/*position*/
+			state_variant_[nb] -= cop_dyn.input_mat_inv_tr * weight_coefficients_->control[i] * cop_dyn.input_mat_inv * cop_dyn.state_mat;
 
-			select_variant_[nb]  = cop_dyn.UInvT * weight_coefficients_->control[i] * cop_dyn.UInv;
-			select_variant_[nb] += cop_dyn.UInvT * vel_dyn.UT * weight_coefficients_->vel[i] * vel_dyn.U * cop_dyn.UInv;
-			select_variant_[nb] += cop_dyn.UInvT * pos_dyn.UT * weight_coefficients_->pos[i] * pos_dyn.U * cop_dyn.UInv;/*position*/
+			select_variant_[nb]  = cop_dyn.input_mat_inv_tr * weight_coefficients_->control[i] * cop_dyn.input_mat_inv;
+			select_variant_[nb] += cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * weight_coefficients_->vel[i] * vel_dyn.input_mat * cop_dyn.input_mat_inv;
+			select_variant_[nb] += cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * weight_coefficients_->pos[i] * pos_dyn.input_mat * cop_dyn.input_mat_inv;/*position*/
 
-			ref_variant_vel_[nb] = -cop_dyn.UInvT * vel_dyn.UT * weight_coefficients_->vel[i];
-			ref_variant_pos_[nb] = -cop_dyn.UInvT * pos_dyn.UT * weight_coefficients_->pos[i];/*position*/
+			ref_variant_vel_[nb] = -cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * weight_coefficients_->vel[i];
+			ref_variant_pos_[nb] = -cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * weight_coefficients_->pos[i];/*position*/
 		}
 	}
 
@@ -131,10 +131,10 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	sample_num += weight_coefficients_->active_mode * mpc_parameters_->nbFeedbackSamplesStandard();
 
 	const BodyState &com = robot_->body(COM)->state();
-	const SelectionMatrices &select_mats = preview_->selectionMatrices();
-	const CommonMatrixType &rot_mat = preview_->rotationMatrix();
-	const CommonMatrixType &rot_mat2 = preview_->rotationMatrix2();
-	const CommonMatrixType &rot_mat2_trans = preview_->rotationMatrix2Trans();
+	const SelectionMatrices &select_mats = preview_->selection_matrices();
+	const CommonMatrixType &rot_mat = preview_->rot_mat();
+	const CommonMatrixType &rot_mat2 = preview_->rot_mat2();
+	const CommonMatrixType &rot_mat2_trans = preview_->rot_mat2_tr();
 
 	QPMatrix &Q = solver_->hessian_mat();
 
@@ -398,12 +398,12 @@ void QPBuilder::BuildReferenceVector(const MPCSolution &solution)
 	}
 }
 
-void QPBuilder::ConvertCopToJerk(MPCSolution &solution) {
+void QPBuilder::TransformControlVector(MPCSolution &solution) {
 	int num_samples = mpc_parameters_->num_samples_horizon;
 	int num_steps = solution.support_states_vec.back().step_number;
 
-	const SelectionMatrices &select = preview_->selectionMatrices();
-	const CommonMatrixType &rot_mat = preview_->rotationMatrix();
+	const SelectionMatrices &select = preview_->selection_matrices();
+	const CommonMatrixType &rot_mat = preview_->rot_mat();
 	const BodyState &com = robot_->body(COM)->state();
 
 	const CommonVectorType &local_cop_vec = solution.qp_solution_vec;
@@ -442,10 +442,10 @@ void QPBuilder::ConvertCopToJerk(MPCSolution &solution) {
 	//TODO(performance): Optimize this for first interpolate_whole_horizon == false
 	// Transform to com motion
 	const LinearDynamicsMatrices &copdyn = robot_->body(COM)->dynamics_qp().cop;
-	tmp_vec_.noalias() = global_cop_x_vec - copdyn.S * state_x;
-	solution.com_prw.control.x_vec.noalias() = copdyn.UInv * tmp_vec_;
-	tmp_vec_.noalias() = global_cop_y_vec - copdyn.S * state_y;
-	solution.com_prw.control.y_vec.noalias() = copdyn.UInv * tmp_vec_;
+	tmp_vec_.noalias() = global_cop_x_vec - copdyn.state_mat * state_x;
+	solution.com_prw.control.x_vec.noalias() = copdyn.input_mat_inv * tmp_vec_;
+	tmp_vec_.noalias() = global_cop_y_vec - copdyn.state_mat * state_y;
+	solution.com_prw.control.y_vec.noalias() = copdyn.input_mat_inv * tmp_vec_;
 
 }
 
@@ -478,7 +478,7 @@ void QPBuilder::BuildInequalitiesFeet(const MPCSolution &solution) {
 
 void QPBuilder::BuildConstraintsFeet(const MPCSolution &solution) {
 	int num_steps_previewed = solution.support_states_vec.back().step_number;
-	const SelectionMatrices &select = preview_->selectionMatrices();
+	const SelectionMatrices &select = preview_->selection_matrices();
 	int num_samples = mpc_parameters_->num_samples_horizon;
 
 	tmp_mat_.noalias() = foot_inequalities_.DX * select.Vf;

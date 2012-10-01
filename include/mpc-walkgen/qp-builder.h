@@ -4,7 +4,7 @@
 
 #include <mpc-walkgen/types.h>
 #include <mpc-walkgen/qp-solver.h>
-#include <mpc-walkgen/qp-preview.h>
+#include <mpc-walkgen/heuristic-preview.h>
 #include <mpc-walkgen/realclock.h>
 
 namespace MPCWalkgen{
@@ -14,7 +14,7 @@ class QPBuilder{
 	// Public methods:
 	//
 public:
-	QPBuilder(QPPreview *preview,
+	QPBuilder(HeuristicPreview *preview,
 			QPSolver *solver,
 			Reference *ref,
 			WeightCoefficients *weight_coefficients,
@@ -30,7 +30,7 @@ public:
 
 	void ComputeWarmStart(MPCSolution &solution);
 
-	void ConvertCopToJerk(MPCSolution &solution);
+	void TransformControlVector(MPCSolution &solution);
 
 	void BuildReferenceVector(const MPCSolution &solution);
 
@@ -58,7 +58,7 @@ private:
 	//
 private:
 
-	QPPreview *preview_;
+	HeuristicPreview *preview_;
 	QPSolver *solver_;
 	RigidBodySystem *robot_;
 	Reference *vel_ref_;
