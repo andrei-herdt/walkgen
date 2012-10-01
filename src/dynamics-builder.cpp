@@ -9,11 +9,14 @@ using namespace MPCWalkgen;
 //
 // Public methods:
 //
-DynamicsBuilder::DynamicsBuilder() {}
+DynamicsBuilder::DynamicsBuilder() {
+	Init();
+}
 
 DynamicsBuilder::~DynamicsBuilder() {}
 
 void DynamicsBuilder::Init() {
+	/*
 	identity_mat_.setIdentity();
 	cont_state_mat_.setZero(); cont_state_mat_inv_.setZero(); cont_input_vec_.setZero();
 
@@ -21,6 +24,7 @@ void DynamicsBuilder::Init() {
 	diag_exp_eig_mat_.setZero();
 
 	precomp_input_mat_.setZero();  // \f[ -A^{-1}\mathbb{I}B
+	*/
 }
 
 void DynamicsBuilder::Build(DynamicsOrder dynamics_order, LinearDynamics &dyn, double height, double sample_period_first, 
@@ -46,8 +50,8 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, doubl
 	BuildSecondOrder(dyn.acc, height, sample_period_first, sample_period_rest, num_samples, ACCELERATION);
 	BuildSecondOrder(dyn.cop, height, sample_period_first, sample_period_rest, num_samples, COP);
 
-	BuildSecondOrderCoP(dyn, height, sample_period_first, sample_period_rest, num_samples);
-	std::cout << dyn.vel.state_mat << std::endl;
+	//BuildSecondOrderCoP(dyn, height, sample_period_first, sample_period_rest, num_samples);
+	//std::cout << dyn.vel.state_mat << std::endl;
 }
 
 void DynamicsBuilder::BuildThirdOrder(LinearDynamics &dyn, double height, double sample_period_first, double sample_period_rest, int num_samples) {
@@ -226,6 +230,7 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamicsMatrices &dyn, double heigh
 
 void DynamicsBuilder::BuildSecondOrderCoP(LinearDynamics &dyn, double height,
 		double sample_period_first, double sample_period_rest, int num_samples) {
+	/*
 	assert(height > 0.);
 	assert(num_samples > 0.);
 	assert(sample_period_first > 0.);
@@ -236,13 +241,13 @@ void DynamicsBuilder::BuildSecondOrderCoP(LinearDynamics &dyn, double height,
 	cont_state_mat_(0, 1) = 1.; cont_state_mat_(1, 0) = kGravity / height;
 	cont_state_mat_inv_ = cont_state_mat_.inverse();
 
-	/*
+
 	//Eigenvalue decomposition of cont_state_mat_: \f[ S e^{\lambda T}S^{-1} \f]
-	Eigen::SelfAdjointEigenSolver<Matrix2D> eigensolver(cont_state_mat_);
-	assert(eigensolver.info() == Eigen::Success);
-	eigenval_vec_ = eigensolver.eigenvalues();
-	eigenvec_mat_ = eigensolver.eigenvectors();
-	*/
+	//Eigen::SelfAdjointEigenSolver<Matrix2D> eigensolver(cont_state_mat_);
+	//assert(eigensolver.info() == Eigen::Success);
+	//eigenval_vec_ = eigensolver.eigenvalues();
+	//eigenvec_mat_ = eigensolver.eigenvectors();
+
 	eigenval_vec_(0) = 3.471541019489;
 	eigenval_vec_(1) = -3.471541019489;
 	eigenvec_mat_ << 0.276801329319, -0.2768013293194052,
@@ -278,8 +283,9 @@ void DynamicsBuilder::BuildSecondOrderCoP(LinearDynamics &dyn, double height,
 	// ACCELERATION:
 	dyn.acc.state_mat = kGravity / height * (dyn.pos.state_mat - dyn.cop.state_mat);//cop.state_mat should be zero
 	dyn.acc.input_mat = kGravity / height * (dyn.pos.input_mat - dyn.cop.input_mat);
+	*/
 }
-
+/*
 void DynamicsBuilder::ComputeDiscreteStateMat(Matrix2D &mat, double sample_period) {
 	diag_exp_eig_mat_(0, 0) = exp(eigenval_vec_(0) * sample_period);
 	diag_exp_eig_mat_(1, 1) = exp(eigenval_vec_(1) * sample_period);
@@ -291,3 +297,4 @@ void DynamicsBuilder::ComputeDiscreteInputVec(Vector2D &vec, const Matrix2D &dis
 	tmp_vec_.noalias() = -cont_state_mat_inv_ * identity_mat_ * cont_input_vec_;
 	vec.noalias() = cont_state_mat_inv_ * discr_state_mat * cont_input_vec_ + tmp_vec_;
 }
+*/
