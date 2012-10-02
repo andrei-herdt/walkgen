@@ -46,7 +46,8 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, doubl
 	BuildSecondOrder(dyn.acc, height, sample_period_first, sample_period_rest, num_samples, ACCELERATION);
 	BuildSecondOrder(dyn.cop, height, sample_period_first, sample_period_rest, num_samples, COP);
 
-	BuildSecondOrderCoP(dyn, height, sample_period_first, sample_period_rest, num_samples);
+	LinearDynamics dyn_so;
+	BuildSecondOrderCoP(dyn_so, height, sample_period_first, sample_period_rest, num_samples);
 	std::cout << dyn.vel.state_mat << std::endl;
 }
 

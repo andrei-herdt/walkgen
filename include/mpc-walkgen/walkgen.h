@@ -25,21 +25,13 @@ public:
 	void Init(const MPCParameters &mpc_parameters);
 	void Init(const RobotData &robot_data);
 
-	void Init();
-
 	const MPCSolution &Go(double time);
 	const MPCSolution &Go();
 
 	// \name Accessors and mutators
 	// \{
-	void reference(double dx, double dy, double dyaw);
-	void reference(CommonVectorType dx, CommonVectorType dy, CommonVectorType dyaw);
-
-	const SupportState &currentSupportState() const;
-	inline void currentSupportState(const SupportState &newSupportState){
-		newCurrentSupport_ = newSupportState;
-		isNewCurrentSupport_ = true;
-	}
+	void SetReference(double dx, double dy, double dyaw);
+	void SetReference(CommonVectorType dx, CommonVectorType dy, CommonVectorType dyaw);
 
 	const BodyState &bodyState(BodyType body) const;
 	void bodyState(BodyType body, const BodyState &state);
@@ -57,6 +49,7 @@ public:
 	// Private methods:
 	//
 private:
+	void Init();
 	void BuildProblem();
 	void GenerateTrajectories();
 	void ResetOutputIndex();
@@ -70,7 +63,7 @@ private:
 	//
 private:
 	MPCParameters mpc_parameters_;
-	RobotData robotData_;
+	RobotData robot_data_;
 
 	::MPCWalkgen::QPSolver *solver_;
 	QPBuilder *builder_;
@@ -91,10 +84,6 @@ private:
 	/// \brief The new value of reference velocity, updated with in online method
 	Reference new_vel_ref_;
 	WeightCoefficients weight_coefficients_;
-
-	/// \brief The new value of current support state, updated with in online method
-	SupportState newCurrentSupport_;
-	bool isNewCurrentSupport_;
 
 	/// \brief Time at which the problem should be updated
 	double first_sample_time_;

@@ -295,7 +295,7 @@ RobotData::RobotData(const FootData &leftFoot, const FootData &rightFoot,
 ,security_margin(-1.)
 ,com()
 ,leftFoot(leftFoot)
-,rightFoot(rightFoot)
+,right_foot(rightFoot)
 ,left_hip_yaw(left_hip_yaw)
 ,right_hip_yaw(rightHipYaw)
 ,left_foot_pos_hull()
@@ -329,10 +329,10 @@ void RobotData::SetCoPHulls(double ds_distance) {
 		left_foot_ds_hull.x(i) = leftFoot.edges_x_vec[i];
 		left_foot_ds_hull.y(i) = leftFoot.edges_y_vec[i];
 
-		right_foot_ss_hull.x(i) = rightFoot.edges_x_vec[i];
-		right_foot_ss_hull.y(i) = -rightFoot.edges_y_vec[i]; // Counter-clockwise
-		right_foot_ds_hull.x(i) = rightFoot.edges_x_vec[i];
-		right_foot_ds_hull.y(i) = -rightFoot.edges_y_vec[i]; // Counter-clockwise
+		right_foot_ss_hull.x(i) = right_foot.edges_x_vec[i];
+		right_foot_ss_hull.y(i) = -right_foot.edges_y_vec[i]; // Counter-clockwise
+		right_foot_ds_hull.x(i) = right_foot.edges_x_vec[i];
+		right_foot_ds_hull.y(i) = -right_foot.edges_y_vec[i]; // Counter-clockwise
 	}
 	left_foot_ds_hull.y(1)  -= ds_distance;
 	left_foot_ds_hull.y(2)  -= ds_distance;
