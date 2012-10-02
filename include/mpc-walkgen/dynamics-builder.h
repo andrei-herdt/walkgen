@@ -7,6 +7,8 @@
 namespace MPCWalkgen{
 class DynamicsBuilder{
 
+
+	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 	//
 	// Public methods:
 	//
@@ -55,17 +57,20 @@ private:
 			Derivative derivative
 	);
 
+	/*
 	void ComputeDiscreteStateMat(Matrix2D &mat,
 			double sample_period_first
 	);
 	void ComputeDiscreteInputVec(Vector2D &vec,
 			const Matrix2D &discr_state_mat
 	);
+	*/
 
 	//
 	// Private data members:
 	//
 private:
+	/*
 	Matrix2D cont_state_mat_, cont_state_mat_inv_;
 	Vector2D eigenval_vec_;
 	Matrix2D eigenvec_mat_, eigenvec_mat_inv_;
@@ -77,7 +82,7 @@ private:
 	Matrix2D precomp_input_mat_;  // \f[ -A^{-1}\mathbb{I}B
 
 	Vector2D tmp_vec_;
-
+*/
 };
 }
 #endif // MPC_WALKGEN_DYNAMICS_BUILDER_H
