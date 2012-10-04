@@ -390,8 +390,7 @@ struct SelectionMatrices{
 };
 
 struct RelativeInequalities{//TODO: Obsolete
-	CommonMatrixType DX;
-	CommonMatrixType DY;
+	CommonMatrixType DX, DY;
 	CommonVectorType Dc;
 
 	void resize(int rows, int cols);

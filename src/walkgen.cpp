@@ -20,8 +20,7 @@ Walkgen::Walkgen()
 ,first_sample_time_(0)
 ,next_computation_(0)
 ,next_act_sample_(0)
-,current_time_(0)
-{
+,current_time_(0) {
 	orient_preview_ = new OrientationsPreview();
 
 	robot_ = new RigidBodySystem();
@@ -237,8 +236,6 @@ void Walkgen::BuildProblem() {
 
 	builder_->BuildReferenceVector(solution_);
 
-	// BUILD:
-	// ------
 	builder_->BuildProblem(solution_);
 }
 

@@ -91,8 +91,7 @@ void QPSolver::ctrOrder(const Eigen::VectorXi &order) {
 
 
 void QPSolver::reorderInitialSolution(CommonVectorType &initialSolution,
-		VectorXi &initialConstraints)
-{
+		VectorXi &initialConstraints) {
 	assert(initialSolution.size() >= num_vars_);
 	assert(initialConstraints.size() >= num_constr_ + num_vars_);
 	CommonVectorType initialSolutionTmp = initialSolution;
@@ -138,8 +137,8 @@ void QPSolver::DumpProblem(const char *filename) {
 	}
 }
 
-# include <mpc-walkgen/qpoases-parser.h>
-# include <mpc-walkgen/lssol-parser.h>
+#include <mpc-walkgen/qpoases-parser.h>
+#include <mpc-walkgen/lssol-parser.h>
 
 QPSolver *MPCWalkgen::createQPSolver(const SolverData &parameters, int num_vars, int num_constr) 
 {//TODO: Remove this
