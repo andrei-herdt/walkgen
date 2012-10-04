@@ -43,7 +43,9 @@ bool hasCholeskyForm(const CommonMatrixType &m);
 // \brief Compute the multiplication of the rotation matrix R by M
 // \param [in out] mInOut = R mInOut R^T
 // \param [in] R the rotation matrix block diagonal
-void ComputeRM(CommonMatrixType &mInOut, const CommonMatrixType &rot);
+void ComputeRM(CommonMatrixType &mInOut,
+		const CommonMatrixType &rot
+		);
 
 
 // \brief Compute the multiplication of the rotation matrix M by the R^t
@@ -57,7 +59,9 @@ void computeMRt(CommonMatrixType &mInOut,
 // number of multiplications.
 // \param [in out] mInOut = R mInOut R^T
 // \param [in] R the rotation matrix block diagonal
-void RotateCholeskyMatrix(CommonMatrixType &mInOut, const CommonMatrixType &rot);
+void RotateCholeskyMatrix(CommonMatrixType &mInOut,
+		const CommonMatrixType &rot
+		);
 }
 
 #include <mpc-walkgen/tools-inl.h>

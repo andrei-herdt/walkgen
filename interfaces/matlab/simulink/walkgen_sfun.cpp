@@ -186,9 +186,9 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 		robot_data.leftFoot.position[0] = *left_ankle_in[0];
 		robot_data.leftFoot.position[1] = *left_ankle_in[1];
 		robot_data.leftFoot.position[2] = *left_ankle_in[2];
-		robot_data.rightFoot.position[0]  = *right_ankle_in[0];
-		robot_data.rightFoot.position[1]  = *right_ankle_in[1];
-		robot_data.rightFoot.position[2]  = *right_ankle_in[2];
+		robot_data.right_foot.position[0]  = *right_ankle_in[0];
+		robot_data.right_foot.position[1]  = *right_ankle_in[1];
+		robot_data.right_foot.position[2]  = *right_ankle_in[2];
 		robot_data.max_foot_vel = 1.;
 		robot_data.security_margin = kSecurityMargin;
 
@@ -213,7 +213,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 
 		robot_data.max_foot_height = kMaxFootHeight;
 
-		walk->reference(0.0, 0.0, 0.0);
+		walk->SetReference(0.0, 0.0, 0.0);
 		walk->Init(robot_data);
 		RigidBodySystem *robot = walk->robot();
 		robot->com()->state().x[0] = *com_in[0];
@@ -231,7 +231,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 
 	// INPUT:
 	// ------
-	walk->reference(*vel_ref[0], *vel_ref[1], *vel_ref[2]);
+	walk->SetReference(*vel_ref[0], *vel_ref[1], *vel_ref[2]);
 	RigidBodySystem *robot = walk->robot();
 	if (*closed_loop_in[0] > 0.5) {// TODO: Is there a better way for switching?
 		robot->com()->state().x[0] = *com_in[0];
@@ -257,10 +257,10 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 	com[2] = walk->output().com.z;
 	dcom[0] = walk->output().com.dx;
 	dcom[1] = walk->output().com.dy;
-	dcom[2] = walk->bodyState(COM).z(1);
+	dcom[2] = walk->output().com.dz;
 	ddcom[0] = walk->output().com.ddx;
 	ddcom[1] = walk->output().com.ddy;
-	ddcom[2] = walk->bodyState(COM).z(2);
+	ddcom[2] = walk->output().com.ddz;  //TODO: 
 
 	cop[0] = walk->output().cop.x;
 	cop[1] = walk->output().cop.y;
@@ -301,7 +301,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 		com_prw[sample] = solution.sampling_times_vec[sample+1];
 		com_prw[nbsamples + sample] = solution.com_prw.pos.x_vec[sample];
 		com_prw[2 * nbsamples + sample] = solution.com_prw.pos.y_vec[sample];
-		com_prw[3 * nbsamples + sample] = walk->bodyState(COM).z(0);
+		com_prw[3 * nbsamples + sample] = walk->output().com.z;
 		// CoP:
 		cop_prw[sample] = solution.sampling_times_vec[sample+1];
 		cop_prw[nbsamples + sample] = solution.cop_prw.pos.x_vec[sample];

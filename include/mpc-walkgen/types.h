@@ -251,7 +251,7 @@ struct MPC_WALKGEN_API RobotData {
 	Eigen::Vector3d com;
 
 	FootData leftFoot;
-	FootData rightFoot;
+	FootData right_foot;
 
 	HipYawData left_hip_yaw;
 	HipYawData right_hip_yaw;
@@ -368,13 +368,13 @@ struct LinearDynamicsMatrices{
 	CommonMatrixType input_mat_inv;
 	CommonMatrixType input_mat_inv_tr;
 
-	void SetZero(double state_dimension, double num_samples);
+	void SetZero(int state_dimension, int num_samples);
 };
 
 struct LinearDynamics {
 	LinearDynamicsMatrices pos, vel, acc, jerk, cop;
 
-	void SetZero(double state_dimension, double input_dimension);
+	void SetZero(int state_dimension, int input_dimension);
 };
 
 struct SelectionMatrices{
@@ -390,8 +390,7 @@ struct SelectionMatrices{
 };
 
 struct RelativeInequalities{//TODO: Obsolete
-	CommonMatrixType DX;
-	CommonMatrixType DY;
+	CommonMatrixType DX, DY;
 	CommonVectorType Dc;
 
 	void resize(int rows, int cols);

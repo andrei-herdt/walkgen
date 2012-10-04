@@ -30,8 +30,7 @@ QPBuilder::QPBuilder(HeuristicPreview *preview, QPSolver *solver,
 QPBuilder::~QPBuilder() {}
 
 
-void QPBuilder::PrecomputeObjective() 
-{
+void QPBuilder::PrecomputeObjective() {
 	//TODO: The following has already been done in Walkgen::Init()
 	// Define order of variables:
 	// --------------------------
@@ -54,6 +53,14 @@ void QPBuilder::PrecomputeObjective()
 	select_variant_.resize(num_recomp * num_modes);
 	ref_variant_vel_.resize(num_recomp * num_modes);
 	ref_variant_pos_.resize(num_recomp * num_modes);
+
+	CommonMatrixType contr_weighting_mat;
+	contr_weighting_mat.setIdentity(num_samples, num_samples);
+	if (mpc_parameters_->dynamics_order == SECOND_ORDER) {
+		for (int row = 1; row < num_samples; row++) {
+			contr_weighting_mat(row, row - 1) = -1.;
+		}
+	}
 
 	// Precompute:
 	// -----------
@@ -78,7 +85,7 @@ void QPBuilder::PrecomputeObjective()
 			G +=  weight_coefficients_->pos[i] * tmp_mat_;
 
 			Qconst_[nb] = G;
-			QconstN_[nb] = G + weight_coefficients_->cop[i] * CommonMatrixType::Identity(num_samples, num_samples);//TODO: What is difference??
+			QconstN_[nb] = G + weight_coefficients_->cop[i] * contr_weighting_mat;//TODO: What is difference?
 
 			chol.reset();
 			chol.AddTerm(QconstN_[nb], 0, 0);
@@ -100,7 +107,6 @@ void QPBuilder::PrecomputeObjective()
 			ref_variant_pos_[nb] = -cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * weight_coefficients_->pos[i];/*position*/
 		}
 	}
-
 }
 
 void QPBuilder::BuildProblem(MPCSolution &solution) {
@@ -123,9 +129,7 @@ void QPBuilder::BuildProblem(MPCSolution &solution) {
 //
 // Private methods:
 //
-
 void QPBuilder::BuildObjective(const MPCSolution &solution) {
-
 	// Choose the precomputed element depending on the nb of "feedback-recomputations" until new qp-sample
 	int sample_num = mpc_parameters_->nbFeedbackSamplesLeft(solution.support_states_vec[1].previousSamplingPeriod);
 	sample_num += weight_coefficients_->active_mode * mpc_parameters_->nbFeedbackSamplesStandard();
@@ -195,7 +199,6 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	HX = state_variant_[sample_num] * state_x;
 	HY = state_variant_[sample_num] * state_y;
 
-
 	HX += select_variant_[sample_num] * select_mats.sample_step_cx;
 	HY += select_variant_[sample_num] * select_mats.sample_step_cy;
 
@@ -218,7 +221,7 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	solver_->vector(vectorP).addTerm(H, 0 );
 }
 
-void QPBuilder::BuildConstraints(const MPCSolution &solution){
+void QPBuilder::BuildConstraints(const MPCSolution &solution) {
 	int num_steps_previewed = solution.support_states_vec.back().step_number;
 
 	BuildConstraintsCOP(solution);
@@ -229,7 +232,7 @@ void QPBuilder::BuildConstraints(const MPCSolution &solution){
 	}
 }
 
-void QPBuilder::ComputeWarmStart(MPCSolution &solution){
+void QPBuilder::ComputeWarmStart(MPCSolution &solution) {
 	//TODO: Review and possibly devide this function in two parts:
 	// Initialize:
 	// -----------
@@ -383,8 +386,7 @@ void QPBuilder::ComputeWarmStart(MPCSolution &solution){
 
 }
 
-void QPBuilder::BuildReferenceVector(const MPCSolution &solution)
-{
+void QPBuilder::BuildReferenceVector(const MPCSolution &solution) {
 	if (vel_ref_->global.x.rows() != mpc_parameters_->num_samples_horizon){
 		vel_ref_->global.x.resize(mpc_parameters_->num_samples_horizon);
 		vel_ref_->global.y.resize(mpc_parameters_->num_samples_horizon);
@@ -496,8 +498,7 @@ void QPBuilder::BuildConstraintsFeet(const MPCSolution &solution) {
 	solver_->vector(vectorBU)().segment(0, tmp_vec_.size()).fill(10e10);
 }
 
-void QPBuilder::BuildFootVelConstraints(const MPCSolution &solution)
-{
+void QPBuilder::BuildFootVelConstraints(const MPCSolution &solution) {
 	assert(robot_->robot_data().max_foot_vel > kEps);
 
 	double raise_time = 0.05;//TODO: Hard coded value has to come from robot_
@@ -526,8 +527,7 @@ void QPBuilder::BuildFootVelConstraints(const MPCSolution &solution)
 	solver_->vector(vectorXL).addTerm(lower_limit_y, y_var_pos);
 }
 
-void QPBuilder::BuildConstraintsCOP(const MPCSolution &solution) 
-{
+void QPBuilder::BuildConstraintsCOP(const MPCSolution &solution) {
 	int num_samples = mpc_parameters_->num_samples_horizon;
 	std::vector<SupportState>::const_iterator prev_ss_it = solution.support_states_vec.begin();
 
@@ -546,8 +546,8 @@ void QPBuilder::BuildConstraintsCOP(const MPCSolution &solution)
 		tmp_vec_(i)  = min(hull_.x(0), hull_.x(3));
 		tmp_vec2_(i) = max(hull_.x(0), hull_.x(3));
 
-		tmp_vec_(num_samples + i) = min(hull_.y(0),hull_.y(1));
-		tmp_vec2_(num_samples + i)= max(hull_.y(0),hull_.y(1));
+		tmp_vec_(num_samples + i) = min(hull_.y(0), hull_.y(1));
+		tmp_vec2_(num_samples + i)= max(hull_.y(0), hull_.y(1));
 		++prev_ss_it;
 	}
 
