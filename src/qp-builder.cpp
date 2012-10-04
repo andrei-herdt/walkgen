@@ -54,6 +54,14 @@ void QPBuilder::PrecomputeObjective() {
 	ref_variant_vel_.resize(num_recomp * num_modes);
 	ref_variant_pos_.resize(num_recomp * num_modes);
 
+	CommonMatrixType contr_weighting_mat;
+	contr_weighting_mat.setIdentity(num_samples, num_samples);
+	if (mpc_parameters_->dynamics_order == SECOND_ORDER) {
+		for (int row = 1; row < num_samples; row++) {
+			contr_weighting_mat(row, row - 1) = -1.;
+		}
+	}
+
 	// Precompute:
 	// -----------
 	CommonMatrixType G(num_samples, num_samples);
@@ -77,7 +85,7 @@ void QPBuilder::PrecomputeObjective() {
 			G +=  weight_coefficients_->pos[i] * tmp_mat_;
 
 			Qconst_[nb] = G;
-			QconstN_[nb] = G + weight_coefficients_->cop[i] * CommonMatrixType::Identity(num_samples, num_samples);//TODO: What is difference??
+			QconstN_[nb] = G + weight_coefficients_->cop[i] * contr_weighting_mat;//TODO: What is difference?
 
 			chol.reset();
 			chol.AddTerm(QconstN_[nb], 0, 0);
@@ -99,7 +107,6 @@ void QPBuilder::PrecomputeObjective() {
 			ref_variant_pos_[nb] = -cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * weight_coefficients_->pos[i];/*position*/
 		}
 	}
-
 }
 
 void QPBuilder::BuildProblem(MPCSolution &solution) {
@@ -122,7 +129,6 @@ void QPBuilder::BuildProblem(MPCSolution &solution) {
 //
 // Private methods:
 //
-
 void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	// Choose the precomputed element depending on the nb of "feedback-recomputations" until new qp-sample
 	int sample_num = mpc_parameters_->nbFeedbackSamplesLeft(solution.support_states_vec[1].previousSamplingPeriod);
@@ -192,7 +198,6 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 
 	HX = state_variant_[sample_num] * state_x;
 	HY = state_variant_[sample_num] * state_y;
-
 
 	HX += select_variant_[sample_num] * select_mats.sample_step_cx;
 	HY += select_variant_[sample_num] * select_mats.sample_step_cy;

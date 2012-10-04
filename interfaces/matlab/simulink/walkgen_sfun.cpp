@@ -186,9 +186,9 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 		robot_data.leftFoot.position[0] = *left_ankle_in[0];
 		robot_data.leftFoot.position[1] = *left_ankle_in[1];
 		robot_data.leftFoot.position[2] = *left_ankle_in[2];
-		robot_data.rightFoot.position[0]  = *right_ankle_in[0];
-		robot_data.rightFoot.position[1]  = *right_ankle_in[1];
-		robot_data.rightFoot.position[2]  = *right_ankle_in[2];
+		robot_data.right_foot.position[0]  = *right_ankle_in[0];
+		robot_data.right_foot.position[1]  = *right_ankle_in[1];
+		robot_data.right_foot.position[2]  = *right_ankle_in[2];
 		robot_data.max_foot_vel = 1.;
 		robot_data.security_margin = kSecurityMargin;
 
@@ -213,7 +213,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 
 		robot_data.max_foot_height = kMaxFootHeight;
 
-		walk->reference(0.0, 0.0, 0.0);
+		walk->SetReference(0.0, 0.0, 0.0);
 		walk->Init(robot_data);
 		RigidBodySystem *robot = walk->robot();
 		robot->com()->state().x[0] = *com_in[0];
@@ -231,7 +231,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 
 	// INPUT:
 	// ------
-	walk->reference(*vel_ref[0], *vel_ref[1], *vel_ref[2]);
+	walk->SetReference(*vel_ref[0], *vel_ref[1], *vel_ref[2]);
 	RigidBodySystem *robot = walk->robot();
 	if (*closed_loop_in[0] > 0.5) {// TODO: Is there a better way for switching?
 		robot->com()->state().x[0] = *com_in[0];

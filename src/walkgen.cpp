@@ -4,7 +4,7 @@ using namespace MPCWalkgen;
 
 Walkgen::Walkgen()
 : mpc_parameters_()
-,robotData_()
+,robot_data_()
 ,solver_(NULL)
 ,builder_(NULL)
 ,preview_(NULL)
@@ -15,8 +15,6 @@ Walkgen::Walkgen()
 ,output_index_(0)
 ,solution_()
 ,vel_ref_()
-,newCurrentSupport_()
-,isNewCurrentSupport_(false)
 ,first_sample_time_(0)
 ,next_computation_(0)
 ,next_act_sample_(0)
@@ -98,48 +96,10 @@ void Walkgen::Init(const MPCParameters &mpc_parameters) {
 }
 
 void Walkgen::Init(const RobotData &robot_data) {
-
-	robotData_ = robot_data;
-
-	robot_->Init(robotData_);
-
+	robot_data_ = robot_data;
+	robot_->Init(robot_data_);
 	Init();
 
-}
-
-void Walkgen::Init() 
-{
-	robot_->ComputeDynamics();
-
-	preview_ = new HeuristicPreview(&vel_ref_, robot_, &mpc_parameters_, &clock_);
-
-	builder_= new QPBuilder(preview_, solver_, &vel_ref_, &weight_coefficients_, robot_, &mpc_parameters_, &clock_);
-
-	orient_preview_->Init(mpc_parameters_, robotData_);
-
-	builder_->PrecomputeObjective();
-
-	BodyState left_foot_state;
-	left_foot_state.x[0] = robotData_.leftFoot.position[0];
-	left_foot_state.y[0] = robotData_.leftFoot.position[1];
-	robot_->body(LEFT_FOOT)->state(left_foot_state);
-
-	BodyState right_foot_state;
-	right_foot_state.x[0] = robotData_.rightFoot.position[0];
-	right_foot_state.y[0] = robotData_.rightFoot.position[1];
-	robot_->body(RIGHT_FOOT)->state(right_foot_state);
-
-	BodyState state_com;
-	state_com.x[0] = robotData_.com(0);//TODO: Add macros for x,y,z
-	state_com.y[0] = robotData_.com(1);
-	state_com.z[0] = robotData_.com(2);
-	robot_->body(COM)->state(state_com);
-
-	weight_coefficients_.active_mode = 0;
-
-	BuildProblem();
-
-	solver_->Init();
 }
 
 const MPCSolution &Walkgen::Go(){
@@ -193,6 +153,43 @@ const MPCSolution &Walkgen::Go(double time){
 	return solution_;
 }
 
+//
+// Private methods:
+//
+void Walkgen::Init() {
+	robot_->ComputeDynamics();
+
+	preview_ = new HeuristicPreview(&vel_ref_, robot_, &mpc_parameters_, &clock_);
+
+	builder_= new QPBuilder(preview_, solver_, &vel_ref_, &weight_coefficients_, robot_, &mpc_parameters_, &clock_);
+
+	orient_preview_->Init(mpc_parameters_, robot_data_);
+
+	builder_->PrecomputeObjective();
+
+	BodyState left_foot_state;
+	left_foot_state.x[0] = robot_data_.leftFoot.position[0];
+	left_foot_state.y[0] = robot_data_.leftFoot.position[1];
+	robot_->body(LEFT_FOOT)->state(left_foot_state);
+
+	BodyState right_foot_state;
+	right_foot_state.x[0] = robot_data_.right_foot.position[0];
+	right_foot_state.y[0] = robot_data_.right_foot.position[1];
+	robot_->body(RIGHT_FOOT)->state(right_foot_state);
+
+	BodyState state_com;
+	state_com.x[0] = robot_data_.com(0);//TODO: Add macros for x,y,z
+	state_com.y[0] = robot_data_.com(1);
+	state_com.z[0] = robot_data_.com(2);
+	robot_->body(COM)->state(state_com);
+
+	weight_coefficients_.active_mode = 0;
+
+	BuildProblem();
+
+	solver_->Init();
+}
+
 void Walkgen::SetCounters(double time) {}
 
 void Walkgen::ResetCounters(double time) {
@@ -207,10 +204,6 @@ void Walkgen::BuildProblem() {
 	solver_->reset();
 	solution_.reset();
 	vel_ref_ = new_vel_ref_;
-	if (isNewCurrentSupport_){
-		robot_->current_support(newCurrentSupport_);
-		isNewCurrentSupport_ = false;
-	}
 
 	if (robot_->current_support().phase == SS && robot_->current_support().nbStepsLeft == 0) {
 		vel_ref_.local.x.fill(0);
@@ -219,14 +212,14 @@ void Walkgen::BuildProblem() {
 	}
 	weight_coefficients_.SetCoefficients(vel_ref_);
 
-	double firstSamplingPeriod = first_sample_time_ - current_time_;
-	robot_->setSelectionNumber(firstSamplingPeriod);
+	double first_sampling_period = first_sample_time_ - current_time_;
+	robot_->setSelectionNumber(first_sampling_period);
 
 	// PREVIEW:
 	// --------
-	preview_->PreviewSamplingTimes(current_time_, firstSamplingPeriod, solution_);
+	preview_->PreviewSamplingTimes(current_time_, first_sampling_period, solution_);
 
-	preview_->PreviewSupportStates(firstSamplingPeriod, solution_);
+	preview_->PreviewSupportStates(first_sampling_period, solution_);
 
 	orient_preview_->preview_orientations( current_time_, vel_ref_,
 			mpc_parameters_.nbqpsamples_step * mpc_parameters_.period_qpsample,
@@ -304,27 +297,16 @@ void Walkgen::UpdateOutput() {
 	output_.right_foot.ddyaw = robot_->right_foot()->motion_act().acc.yaw_vec[output_index_];
 }
 
-void Walkgen::reference(double dx, double dy, double dyaw){//TODO: Is newVelRef_ necessary
+void Walkgen::SetReference(double dx, double dy, double dyaw){//TODO: Is newVelRef_ necessary
 	new_vel_ref_.local.x.fill(dx);
 	new_vel_ref_.local.y.fill(dy);
 	new_vel_ref_.local.yaw.fill(dyaw);
 }
 
-void Walkgen::reference(CommonVectorType dx, CommonVectorType dy, CommonVectorType dyaw){
+void Walkgen::SetReference(CommonVectorType dx, CommonVectorType dy, CommonVectorType dyaw){
 	new_vel_ref_.local.x = dx;
 	new_vel_ref_.local.y = dy;
 	new_vel_ref_.local.yaw = dyaw;
 }
 
-const SupportState &Walkgen::currentSupportState() const {
-	return robot_->current_support();
-}
-
-const BodyState &Walkgen::bodyState(BodyType body)const{
-	return robot_->body(body)->state();
-}
-
-void Walkgen::bodyState(BodyType body, const BodyState &state){
-	robot_->body(body)->state(state);
-}
 

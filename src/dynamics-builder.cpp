@@ -9,9 +9,7 @@ using namespace MPCWalkgen;
 //
 // Public methods:
 //
-DynamicsBuilder::DynamicsBuilder() {
-	Init();
-}
+DynamicsBuilder::DynamicsBuilder() {}
 
 DynamicsBuilder::~DynamicsBuilder() {}
 
@@ -70,8 +68,6 @@ void DynamicsBuilder::BuildThirdOrder(LinearDynamicsMatrices &dyn, double height
 	assert(sample_period_first > 0.);
 	assert(sample_period_rest > 0.);
 
-	const double kGravity = 9.81;
-
 	int N = num_samples;
 	double s = sample_period_first;
 	double T = sample_period_rest;
@@ -85,9 +81,9 @@ void DynamicsBuilder::BuildThirdOrder(LinearDynamicsMatrices &dyn, double height
 	switch (derivative){
 	case POSITION:
 		for (int row = 0; row < N; ++row) {
-			dyn.state_mat(row,0) = 1;
-			dyn.state_mat(row,1) = row * T + s;
-			dyn.state_mat(row,2) = s * s / 2 + row * T * s + row * row * T * T / 2;
+			dyn.state_mat(row, 0) = 1;
+			dyn.state_mat(row, 1) = row * T + s;
+			dyn.state_mat(row, 2) = s * s / 2 + row * T * s + row * row * T * T / 2;
 
 			dyn.input_mat(row,0) = dyn.input_mat_tr(0,row) = s*s*s/6 + row*T*s*s/2 + s*(row*row*T*T/2 );
 			for (int col=1; col<N; col++) {
@@ -285,6 +281,7 @@ void DynamicsBuilder::BuildSecondOrderCoP(LinearDynamics &dyn, double height,
 	dyn.acc.input_mat = kGravity / height * (dyn.pos.input_mat - dyn.cop.input_mat);
 	*/
 }
+
 /*
 void DynamicsBuilder::ComputeDiscreteStateMat(Matrix2D &mat, double sample_period) {
 	diag_exp_eig_mat_(0, 0) = exp(eigenval_vec_(0) * sample_period);
