@@ -350,12 +350,12 @@ WeightCoefficients::WeightCoefficients(int num_modes)
 	pos[0] =  0.;
 	vel[0]  = 1.;
 	cop[0]  = 0.00001;
-	control[0] = 0.00001;
+	control[0] = 0.001;
 
 	pos[1] =  0.;
 	vel[1]  = 1.;
 	cop[1]  = 1.;
-	control[1] = 0.00001;
+	control[1] = 0.001;
 
 
 	active_mode  = 0;
@@ -377,7 +377,7 @@ void WeightCoefficients::SetCoefficients(Reference &ref) {
 	}
 }
 
-void LinearDynamicsMatrices::SetZero(double state_dimension, double num_samples) {
+void LinearDynamicsMatrices::SetZero(int state_dimension, int num_samples) {
 	state_mat.setZero(num_samples, state_dimension);
 	input_mat.setZero(num_samples, num_samples);
 	input_mat_tr.setZero(num_samples, num_samples);
@@ -385,7 +385,7 @@ void LinearDynamicsMatrices::SetZero(double state_dimension, double num_samples)
 	input_mat_inv_tr.setZero(num_samples, num_samples);
 }
 
-void LinearDynamics::SetZero(double state_dimension, double num_samples) {
+void LinearDynamics::SetZero(int state_dimension, int num_samples) {
 	pos.SetZero(state_dimension, num_samples);
 	vel.SetZero(state_dimension, num_samples);
 	acc.SetZero(state_dimension, num_samples);

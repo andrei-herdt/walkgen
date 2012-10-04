@@ -257,10 +257,10 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 	com[2] = walk->output().com.z;
 	dcom[0] = walk->output().com.dx;
 	dcom[1] = walk->output().com.dy;
-	dcom[2] = walk->bodyState(COM).z(1);
+	dcom[2] = walk->output().com.dz;
 	ddcom[0] = walk->output().com.ddx;
 	ddcom[1] = walk->output().com.ddy;
-	ddcom[2] = walk->bodyState(COM).z(2);
+	ddcom[2] = walk->output().com.ddz;  //TODO: 
 
 	cop[0] = walk->output().cop.x;
 	cop[1] = walk->output().cop.y;
@@ -301,7 +301,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 		com_prw[sample] = solution.sampling_times_vec[sample+1];
 		com_prw[nbsamples + sample] = solution.com_prw.pos.x_vec[sample];
 		com_prw[2 * nbsamples + sample] = solution.com_prw.pos.y_vec[sample];
-		com_prw[3 * nbsamples + sample] = walk->bodyState(COM).z(0);
+		com_prw[3 * nbsamples + sample] = walk->output().com.z;
 		// CoP:
 		cop_prw[sample] = solution.sampling_times_vec[sample+1];
 		cop_prw[nbsamples + sample] = solution.cop_prw.pos.x_vec[sample];
