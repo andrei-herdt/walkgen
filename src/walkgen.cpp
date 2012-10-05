@@ -205,7 +205,7 @@ void Walkgen::BuildProblem() {
 	solution_.reset();
 	vel_ref_ = new_vel_ref_;
 
-	if (robot_->current_support().phase == SS && robot_->current_support().nbStepsLeft == 0) {
+	if (robot_->current_support().phase == SS && robot_->current_support().num_steps_left == 0) {
 		vel_ref_.local.x.fill(0);
 		vel_ref_.local.y.fill(0);
 		vel_ref_.local.yaw.fill(0);

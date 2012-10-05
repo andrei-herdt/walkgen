@@ -49,12 +49,12 @@ void RigidBodySystem::Init(const RobotData &robot_data) {//TODO: Remove object r
 	currentSupport_.phase         = DS;
 	currentSupport_.foot          = LEFT;
 	currentSupport_.time_limit    = 1e9;
-	currentSupport_.nbStepsLeft   = 1;
+	currentSupport_.num_steps_left   = 1;
 	currentSupport_.state_changed = true;
 	currentSupport_.x             = robot_data.leftFoot.position[0];
 	currentSupport_.y             = robot_data.leftFoot.position[1];
 	currentSupport_.yaw           = 0.0;
-	currentSupport_.yawTrunk      = 0.0;
+	currentSupport_.trunk_yaw      = 0.0;
 	currentSupport_.start_time    = 0.0;
 }
 

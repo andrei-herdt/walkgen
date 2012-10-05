@@ -151,26 +151,21 @@ struct MPC_WALKGEN_API SupportState {
 	Phase phase;
 	Foot foot;
 
-	int nbStepsLeft;
+	int num_steps_left;
 	int step_number;
-	int nbInstants;
+	int num_instants;
 
 	double time_limit;
 	double start_time;
 
 	double x, y, yaw;
-	double yawTrunk;//TODO: Why in SupportState? -> for compatibility with temporary previewROrientation class
+	double trunk_yaw;//TODO: Why in SupportState? -> for compatibility with temporary previewROrientation class
 
 	bool state_changed;
 
-	/// \brief Define if the support state is in a (transitional) double support phase
-	bool transitional_ds;
+	bool transitional_ds;	/// \brief Define if the support state is in a (transitional) double support phase
 
-	/// \brief The length of the previous sampling period (can be different from period_qpsample)
-	double previousSamplingPeriod;//TODO: change name
-
-	// \brief The relative weight of this support state in the QP (A support state duration of QPSamplingTime have : iterationWeight = 1)
-	double sampleWeight;//TODO: shouldn't it be outside... somewhere...?
+	double previous_sampling_period;	/// \brief The length of the previous sampling period (can be different from period_qpsample)
 };
 
 struct MPC_WALKGEN_API ConvexHull {

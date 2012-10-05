@@ -10,10 +10,10 @@ StateFSM::StateFSM(Reference *ref, const MPCParameters *mpc_parameters)
 StateFSM::~StateFSM(){}
 
 
-void StateFSM::setSupportState(int sample, const std::vector<double> &samplingTimes_vec, SupportState &support) {
+void StateFSM::SetSupportState(int sample, const std::vector<double> &sampling_times_vec, SupportState &support) {
 
   support.state_changed = false;
-  support.nbInstants++;
+  support.num_instants++;
 
   bool ReferenceGiven = false;
   if (fabs(vel_ref_->local.x(0)) > kEps || fabs(vel_ref_->local.y(0)) > kEps || fabs(vel_ref_->local.yaw(0)) > kEps) {
@@ -22,44 +22,44 @@ void StateFSM::setSupportState(int sample, const std::vector<double> &samplingTi
 
   // Update time limit for double support phase
   if (ReferenceGiven && support.phase == DS && 
-      support.time_limit > samplingTimes_vec[mpc_parameters_->nbqpsamples_dsss] - kEps) {
-      support.time_limit = samplingTimes_vec[mpc_parameters_->nbqpsamples_dsss];
-      support.nbStepsLeft = mpc_parameters_->nbsteps_ssds;
+      support.time_limit > sampling_times_vec[mpc_parameters_->nbqpsamples_dsss] - kEps) {
+      support.time_limit = sampling_times_vec[mpc_parameters_->nbqpsamples_dsss];
+      support.num_steps_left = mpc_parameters_->nbsteps_ssds;
   }
 
   //FSM logic
-  if (samplingTimes_vec[sample] >= support.time_limit - kEps) {
+  if (sampling_times_vec[sample] >= support.time_limit - kEps) {
     //SS->DS
-    if (support.phase == SS && !ReferenceGiven && support.nbStepsLeft == 0){
+    if (support.phase == SS && !ReferenceGiven && support.num_steps_left == 0){
       support.phase 			  = DS;
-      support.time_limit 		= samplingTimes_vec[sample] + mpc_parameters_->period_ds;
+      support.time_limit 		= sampling_times_vec[sample] + mpc_parameters_->period_ds;
       support.state_changed 	= true;
-      support.nbInstants 		= 0;
+      support.num_instants 		= 0;
       //DS->SS
-    } else if (((support.phase == DS) && ReferenceGiven) || ((support.phase == DS) && (support.nbStepsLeft > 0))){
+    } else if (((support.phase == DS) && ReferenceGiven) || ((support.phase == DS) && (support.num_steps_left > 0))){
       support.phase         = SS;
-      support.time_limit 		= samplingTimes_vec[sample] + mpc_parameters_->nbqpsamples_step * mpc_parameters_->period_qpsample;
-      support.nbStepsLeft 	= mpc_parameters_->nbsteps_ssds;
+      support.time_limit 		= sampling_times_vec[sample] + mpc_parameters_->nbqpsamples_step * mpc_parameters_->period_qpsample;
+      support.num_steps_left 	= mpc_parameters_->nbsteps_ssds;
       support.state_changed 	= true;
-      support.nbInstants 		= 0;
+      support.num_instants 		= 0;
       //SS->SS
-    } else if ((support.phase == SS && support.nbStepsLeft > 0) || (support.nbStepsLeft == 0 && ReferenceGiven)){
+    } else if ((support.phase == SS && support.num_steps_left > 0) || (support.num_steps_left == 0 && ReferenceGiven)){
       if (support.foot == LEFT){
         support.foot = RIGHT;
       } else {
         support.foot = LEFT;
       }
       support.state_changed 	= true;
-      support.nbInstants 		= 0;
-      support.time_limit 		= samplingTimes_vec[sample] + mpc_parameters_->nbqpsamples_step * mpc_parameters_->period_qpsample;
+      support.num_instants 		= 0;
+      support.time_limit 		= sampling_times_vec[sample] + mpc_parameters_->nbqpsamples_step * mpc_parameters_->period_qpsample;
       if (sample != 1) {//Flying foot is not down
         ++support.step_number;
       }
       if (!ReferenceGiven) {
-        support.nbStepsLeft = support.nbStepsLeft-1;
+        support.num_steps_left = support.num_steps_left-1;
       }
       if (ReferenceGiven) {
-        support.nbStepsLeft = mpc_parameters_->nbsteps_ssds;
+        support.num_steps_left = mpc_parameters_->nbsteps_ssds;
       }
     }
   }

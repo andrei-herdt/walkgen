@@ -131,7 +131,7 @@ void QPBuilder::BuildProblem(MPCSolution &solution) {
 //
 void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	// Choose the precomputed element depending on the nb of "feedback-recomputations" until new qp-sample
-	int sample_num = mpc_parameters_->nbFeedbackSamplesLeft(solution.support_states_vec[1].previousSamplingPeriod);
+	int sample_num = mpc_parameters_->nbFeedbackSamplesLeft(solution.support_states_vec[1].previous_sampling_period);
 	sample_num += weight_coefficients_->active_mode * mpc_parameters_->nbFeedbackSamplesStandard();
 
 	const BodyState &com = robot_->body(COM)->state();
@@ -248,11 +248,11 @@ void QPBuilder::ComputeWarmStart(MPCSolution &solution) {
 	// -------------------
 	int size = solution.initialConstraints.rows();//TODO: size of what?
 	Eigen::VectorXi initialConstraintTmp = solution.initialConstraints;//TODO: Copy not necessary for shifting
-	double TimeFactor = solution.support_states_vec[1].sampleWeight;//TODO: TimeFactor? sampleWeight??
+	//double TimeFactor = solution.support_states_vec[1].sampleWeight;//TODO: TimeFactor? sampleWeight??
 	int shiftCtr = 0;
-	if (fabs(TimeFactor-1.) < kEps) {
-		shiftCtr = 1;//if sampleWeight == 1
-	}
+	//if (fabs(TimeFactor-1.) < kEps) {
+	//	shiftCtr = 1;//if sampleWeight == 1
+	//}
 	if (size >= 2*num_samples){//TODO: Verification wouldn't be necessary without copying
 		// Shift active set by
 		solution.initialConstraints.segment(0,         num_samples-1) = initialConstraintTmp.segment(shiftCtr,    num_samples-1);

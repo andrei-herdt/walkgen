@@ -42,7 +42,7 @@ void HeuristicPreview::PreviewSupportStates(double first_sample_period, MPCSolut
 
 	// SET CURRENT SUPPORT STATE:
 	// --------------------------
-	support_fsm_->setSupportState(0, solution.sampling_times_vec, current_support);
+	support_fsm_->SetSupportState(0, solution.sampling_times_vec, current_support);
 	current_support.transitional_ds = false;
 	if (current_support.state_changed) {
 		if (current_support.foot == LEFT) {
@@ -63,7 +63,7 @@ void HeuristicPreview::PreviewSupportStates(double first_sample_period, MPCSolut
 	SupportState previewed_support = current_support;//TODO: Replace =operator by CopyFrom or give to constructor
 	previewed_support.step_number = 0;
 	for (int sample = 1; sample <= mpc_parameters_->num_samples_horizon; sample++) {
-		support_fsm_->setSupportState(sample, solution.sampling_times_vec, previewed_support);
+		support_fsm_->SetSupportState(sample, solution.sampling_times_vec, previewed_support);
 		// special treatment for the first instant of transitionalDS
 		previewed_support.transitional_ds = false;
 		if (previewed_support.state_changed) {
@@ -87,11 +87,9 @@ void HeuristicPreview::PreviewSupportStates(double first_sample_period, MPCSolut
 			}
 		}
 		if (sample == 1) {
-			previewed_support.previousSamplingPeriod = first_sample_period;
-			previewed_support.sampleWeight = 1;
+			previewed_support.previous_sampling_period = first_sample_period;
 		} else {
-			previewed_support.previousSamplingPeriod = mpc_parameters_->period_qpsample;
-			previewed_support.sampleWeight = 1;
+			previewed_support.previous_sampling_period = mpc_parameters_->period_qpsample;
 		}
 		solution.support_states_vec.push_back(previewed_support);
 	}
