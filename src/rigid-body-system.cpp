@@ -117,28 +117,6 @@ void RigidBodySystem::setSelectionNumber(double firstSamplingPeriod){
 	right_foot_->SetSelectionNumber(firstSamplingPeriod);
 }
 
-RigidBody *RigidBodySystem::body(BodyType type){//TODO:Remove this
-	switch(type){
-	case COM:
-		return com_;
-	case LEFT_FOOT:
-		return left_foot_;
-	default:
-		return right_foot_;
-	}
-}
-
-const RigidBody *RigidBodySystem::body(BodyType type) const{//TODO: Remove this
-	switch(type){
-	case COM:
-		return com_;
-	case LEFT_FOOT:
-		return left_foot_;
-	default:
-		return right_foot_;
-	}
-}
-
 void RigidBodySystem::convexHull(ConvexHull &hull, HullType type, const SupportState &prwSupport, bool computeLinearSystem, bool rotateHull) const {
 	switch (type){
 	case FOOT_HULL:

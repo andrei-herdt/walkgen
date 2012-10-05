@@ -11,9 +11,6 @@ public:
   }
   void convexHull(ConvexHull &hull, HullType type, const SupportState &prwSupport, bool computeLinearSystem=true, bool rotateHull=true) const;//TODO: Change this
 
-  RigidBody *body(BodyType type);// TODO:To be removed
-  const RigidBody *body(BodyType type) const;
-
   inline SupportState &current_support() {
     return currentSupport_;
   };

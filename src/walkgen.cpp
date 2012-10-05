@@ -170,18 +170,18 @@ void Walkgen::Init() {
 	BodyState left_foot_state;
 	left_foot_state.x[0] = robot_data_.leftFoot.position[0];
 	left_foot_state.y[0] = robot_data_.leftFoot.position[1];
-	robot_->body(LEFT_FOOT)->state(left_foot_state);
+	robot_->left_foot()->state(left_foot_state);
 
 	BodyState right_foot_state;
 	right_foot_state.x[0] = robot_data_.right_foot.position[0];
 	right_foot_state.y[0] = robot_data_.right_foot.position[1];
-	robot_->body(RIGHT_FOOT)->state(right_foot_state);
+	robot_->right_foot()->state(right_foot_state);
 
 	BodyState state_com;
 	state_com.x[0] = robot_data_.com(0);//TODO: Add macros for x,y,z
 	state_com.y[0] = robot_data_.com(1);
 	state_com.z[0] = robot_data_.com(2);
-	robot_->body(COM)->state(state_com);
+	robot_->com()->state(state_com);
 
 	weight_coefficients_.active_mode = 0;
 
@@ -223,7 +223,7 @@ void Walkgen::BuildProblem() {
 
 	orient_preview_->preview_orientations( current_time_, vel_ref_,
 			mpc_parameters_.num_samples_step * mpc_parameters_.period_qpsample,
-			robot_->body(LEFT_FOOT)->state(), robot_->body(RIGHT_FOOT)->state(),
+			robot_->left_foot()->state(), robot_->right_foot()->state(),
 			solution_ );
 	preview_->BuildRotationMatrix(solution_);
 
@@ -259,13 +259,13 @@ void Walkgen::IncrementOutputIndex() {
 void Walkgen::UpdateOutput() {
 	output_.com.x = solution_.com_act.pos.x_vec[output_index_];
 	output_.com.y = solution_.com_act.pos.y_vec[output_index_];
-	output_.com.z = robot_->body(COM)->state().z(0);
+	output_.com.z = robot_->com()->state().z(0);
 	output_.com.dx = solution_.com_act.vel.x_vec[output_index_];
 	output_.com.dy = solution_.com_act.vel.y_vec[output_index_];
-	output_.com.dz = robot_->body(COM)->state().z(1);
+	output_.com.dz = robot_->com()->state().z(1);
 	output_.com.ddx = solution_.com_act.acc.x_vec[output_index_];
 	output_.com.ddy = solution_.com_act.acc.y_vec[output_index_];
-	output_.com.ddz = robot_->body(COM)->state().z(2);
+	output_.com.ddz = robot_->com()->state().z(2);
 
 	output_.cop.x =   solution_.cop_act.pos.x_vec[output_index_];
 	output_.cop.y =   solution_.cop_act.pos.y_vec[output_index_];

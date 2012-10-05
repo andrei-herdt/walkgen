@@ -73,9 +73,9 @@ void QPBuilder::PrecomputeObjective() {
 			nb += i * num_recomp;
 			robot_->setSelectionNumber(first_period);//TODO: ?
 			// TODO: Get access to entire vector and do all operations here
-			const LinearDynamicsMatrices &pos_dyn = robot_->body(COM)->dynamics_qp().pos;
-			const LinearDynamicsMatrices &vel_dyn = robot_->body(COM)->dynamics_qp().vel;
-			const LinearDynamicsMatrices &cop_dyn = robot_->body(COM)->dynamics_qp().cop;
+			const LinearDynamicsMatrices &pos_dyn = robot_->com()->dynamics_qp().pos;
+			const LinearDynamicsMatrices &vel_dyn = robot_->com()->dynamics_qp().vel;
+			const LinearDynamicsMatrices &cop_dyn = robot_->com()->dynamics_qp().cop;
 
 			tmp_mat_.noalias() = cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * vel_dyn.input_mat * cop_dyn.input_mat_inv;
 			G = weight_coefficients_->vel[i] * tmp_mat_;
@@ -134,7 +134,7 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	int sample_num = mpc_parameters_->nbFeedbackSamplesLeft(solution.support_states_vec[1].previous_sampling_period);
 	sample_num += weight_coefficients_->active_mode * mpc_parameters_->nbFeedbackSamplesStandard();
 
-	const BodyState &com = robot_->body(COM)->state();
+	const BodyState &com = robot_->com()->state();
 	const SelectionMatrices &select_mats = preview_->selection_matrices();
 	const CommonMatrixType &rot_mat = preview_->rot_mat();
 	const CommonMatrixType &rot_mat2 = preview_->rot_mat2();
@@ -406,7 +406,7 @@ void QPBuilder::TransformControlVector(MPCSolution &solution) {
 
 	const SelectionMatrices &select = preview_->selection_matrices();
 	const CommonMatrixType &rot_mat = preview_->rot_mat();
-	const BodyState &com = robot_->body(COM)->state();
+	const BodyState &com = robot_->com()->state();
 
 	const CommonVectorType &local_cop_vec = solution.qp_solution_vec;
 	const CommonVectorType feet_x_vec = solution.qp_solution_vec.segment(2 * num_samples, num_steps);
@@ -443,7 +443,7 @@ void QPBuilder::TransformControlVector(MPCSolution &solution) {
 
 	//TODO(performance): Optimize this for first interpolate_whole_horizon == false
 	// Transform to com motion
-	const LinearDynamicsMatrices &copdyn = robot_->body(COM)->dynamics_qp().cop;
+	const LinearDynamicsMatrices &copdyn = robot_->com()->dynamics_qp().cop;
 	tmp_vec_.noalias() = global_cop_x_vec - copdyn.state_mat * state_x;
 	solution.com_prw.control.x_vec.noalias() = copdyn.input_mat_inv * tmp_vec_;
 	tmp_vec_.noalias() = global_cop_y_vec - copdyn.state_mat * state_y;
@@ -512,9 +512,9 @@ void QPBuilder::BuildFootVelConstraints(const MPCSolution &solution) {
 	const BodyState *flying_foot;
 	const SupportState &current_support = solution.support_states_vec.front();
 	if (current_support.foot == LEFT) {
-		flying_foot = &robot_->body(RIGHT_FOOT)->state();
+		flying_foot = &robot_->right_foot()->state();
 	} else {
-		flying_foot = &robot_->body(LEFT_FOOT)->state();
+		flying_foot = &robot_->left_foot()->state();
 	}
 
 	double upper_limit_x = max_vel * time_left + flying_foot->x(0);

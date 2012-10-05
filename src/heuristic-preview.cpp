@@ -46,9 +46,9 @@ void HeuristicPreview::PreviewSupportStates(double first_sample_period, MPCSolut
 	current_support.transitional_ds = false;
 	if (current_support.state_changed) {
 		if (current_support.foot == LEFT) {
-			foot = &robot_->body(LEFT_FOOT)->state();
+			foot = &robot_->left_foot()->state();
 		} else {
-			foot = &robot_->body(RIGHT_FOOT)->state();
+			foot = &robot_->right_foot()->state();
 		}
 		current_support.x = foot->x(0);
 		current_support.y = foot->y(0);
@@ -69,9 +69,9 @@ void HeuristicPreview::PreviewSupportStates(double first_sample_period, MPCSolut
 		if (previewed_support.state_changed) {
 			if (sample == 1) {// robot is already in ds phase
 				if (previewed_support.foot == LEFT) {
-					foot = &robot_->body(LEFT_FOOT)->state();
+					foot = &robot_->left_foot()->state();
 				} else {
-					foot = &robot_->body(RIGHT_FOOT)->state();
+					foot = &robot_->right_foot()->state();
 				}
 				previewed_support.x = foot->x(0);
 				previewed_support.y = foot->y(0);
@@ -128,8 +128,8 @@ void HeuristicPreview::BuildRotationMatrix(MPCSolution &solution){//TODO: Move t
 void HeuristicPreview::BuildSelectionMatrices(MPCSolution &solution) {//Move to qp-builder
 	assert(select_matrices_.sample_step.rows() == mpc_parameters_->num_samples_horizon);
 
-	const BodyState *left_foot_p = &robot_->body(LEFT_FOOT)->state();
-	const BodyState *right_foot_p = &robot_->body(RIGHT_FOOT)->state();
+	const BodyState *left_foot_p = &robot_->left_foot()->state();
+	const BodyState *right_foot_p = &robot_->right_foot()->state();
 
 	int num_steps_previewed = solution.support_states_vec.back().step_number;
 	int num_samples = mpc_parameters_->num_samples_horizon;

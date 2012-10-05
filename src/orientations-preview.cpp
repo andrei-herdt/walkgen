@@ -314,8 +314,8 @@ void OrientationsPreview::VerifyVelocityHipYaw(double Time,
 void
 OrientationsPreview::InterpolateTrunkYaw(const RigidBodySystem * robot)
 {
-	TrunkState_.yaw[0] = robot->body(COM)->state().yaw[0];
-	TrunkState_.yaw[1] = robot->body(COM)->state().yaw[1];
-	TrunkState_.yaw[2] = robot->body(COM)->state().yaw[2];
+	TrunkState_.yaw[0] = robot->com()->state().yaw[0];
+	TrunkState_.yaw[1] = robot->com()->state().yaw[1];
+	TrunkState_.yaw[2] = robot->com()->state().yaw[2];
 }
 
