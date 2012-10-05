@@ -159,7 +159,6 @@ struct MPC_WALKGEN_API SupportState {
 	double start_time;
 
 	double x, y, yaw;
-	double trunk_yaw;//TODO: Why in SupportState? -> for compatibility with temporary previewROrientation class
 
 	bool state_changed;
 
