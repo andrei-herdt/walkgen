@@ -22,9 +22,9 @@ void StateFSM::SetSupportState(int sample, const std::vector<double> &sampling_t
 
   // Update time limit for double support phase
   if (ReferenceGiven && support.phase == DS && 
-      support.time_limit > sampling_times_vec[mpc_parameters_->nbqpsamples_dsss] - kEps) {
-      support.time_limit = sampling_times_vec[mpc_parameters_->nbqpsamples_dsss];
-      support.num_steps_left = mpc_parameters_->nbsteps_ssds;
+      support.time_limit > sampling_times_vec[mpc_parameters_->num_samples_dsss] - kEps) {
+      support.time_limit = sampling_times_vec[mpc_parameters_->num_samples_dsss];
+      support.num_steps_left = mpc_parameters_->num_steps_ssds;
   }
 
   //FSM logic
@@ -38,8 +38,8 @@ void StateFSM::SetSupportState(int sample, const std::vector<double> &sampling_t
       //DS->SS
     } else if (((support.phase == DS) && ReferenceGiven) || ((support.phase == DS) && (support.num_steps_left > 0))){
       support.phase         = SS;
-      support.time_limit 		= sampling_times_vec[sample] + mpc_parameters_->nbqpsamples_step * mpc_parameters_->period_qpsample;
-      support.num_steps_left 	= mpc_parameters_->nbsteps_ssds;
+      support.time_limit 		= sampling_times_vec[sample] + mpc_parameters_->num_samples_step * mpc_parameters_->period_qpsample;
+      support.num_steps_left 	= mpc_parameters_->num_steps_ssds;
       support.state_changed 	= true;
       support.num_instants 		= 0;
       //SS->SS
@@ -51,7 +51,7 @@ void StateFSM::SetSupportState(int sample, const std::vector<double> &sampling_t
       }
       support.state_changed 	= true;
       support.num_instants 		= 0;
-      support.time_limit 		= sampling_times_vec[sample] + mpc_parameters_->nbqpsamples_step * mpc_parameters_->period_qpsample;
+      support.time_limit 		= sampling_times_vec[sample] + mpc_parameters_->num_samples_step * mpc_parameters_->period_qpsample;
       if (sample != 1) {//Flying foot is not down
         ++support.step_number;
       }
@@ -59,7 +59,7 @@ void StateFSM::SetSupportState(int sample, const std::vector<double> &sampling_t
         support.num_steps_left = support.num_steps_left-1;
       }
       if (ReferenceGiven) {
-        support.num_steps_left = mpc_parameters_->nbsteps_ssds;
+        support.num_steps_left = mpc_parameters_->num_steps_ssds;
       }
     }
   }

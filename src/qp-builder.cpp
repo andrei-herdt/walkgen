@@ -306,19 +306,19 @@ void QPBuilder::ComputeWarmStart(MPCSolution &solution) {
 				if (solution.initialConstraints(k+2*num_samples+j*nbFC)!=0){
 					int k2 = (k+1)%5; // k(4) = k(0)
 					if (solution.initialConstraints(k2+2*num_samples+j*nbFC)!=0){
-						shiftx=foot_hull_edges_.x(k2);
-						shifty=foot_hull_edges_.y(k2);
+						shiftx=foot_hull_edges_.x_vec(k2);
+						shifty=foot_hull_edges_.y_vec(k2);
 					}else{
-						shiftx = (foot_hull_edges_.x(k) + foot_hull_edges_.x(k2)) / 2.;
-						shifty = (foot_hull_edges_.y(k) + foot_hull_edges_.y(k2)) / 2.;
+						shiftx = (foot_hull_edges_.x_vec(k) + foot_hull_edges_.x_vec(k2)) / 2.;
+						shifty = (foot_hull_edges_.y_vec(k) + foot_hull_edges_.y_vec(k2)) / 2.;
 					}
 					noActiveConstraints = false;
 					break;
 				}
 			}
 			if (noActiveConstraints){
-				shiftx = (foot_hull_edges_.x(4) + foot_hull_edges_.x(0)) / 2.;
-				shifty = (foot_hull_edges_.y(4) + foot_hull_edges_.y(2)) / 2.;
+				shiftx = (foot_hull_edges_.x_vec(4) + foot_hull_edges_.x_vec(0)) / 2.;
+				shifty = (foot_hull_edges_.y_vec(4) + foot_hull_edges_.y_vec(2)) / 2.;
 			}
 
 			current_support.x += shiftx;
@@ -370,11 +370,11 @@ void QPBuilder::ComputeWarmStart(MPCSolution &solution) {
 
 		if (!noActiveConstraints){
 			if (k1!=-1){
-				shiftx=(cop_hull_edges_.x[k1]+cop_hull_edges_.x[k2])/2;
-				shifty=(cop_hull_edges_.y[k1]+cop_hull_edges_.y[k2])/2;
+				shiftx=(cop_hull_edges_.x_vec[k1]+cop_hull_edges_.x_vec[k2])/2;
+				shifty=(cop_hull_edges_.y_vec[k1]+cop_hull_edges_.y_vec[k2])/2;
 			}else{
-				shiftx=cop_hull_edges_.x[k2];
-				shifty=cop_hull_edges_.y[k2];
+				shiftx=cop_hull_edges_.x_vec[k2];
+				shifty=cop_hull_edges_.y_vec[k2];
 			}
 		}
 
@@ -455,7 +455,7 @@ void QPBuilder::BuildInequalitiesFeet(const MPCSolution &solution) {
 	int num_ineqs = 5;
 	int num_steps = solution.support_states_vec.back().step_number;
 
-	foot_inequalities_.resize(num_ineqs * num_steps , num_steps);
+	foot_inequalities_.Resize(num_ineqs * num_steps , num_steps);
 
 	std::vector<SupportState>::const_iterator prev_ss_it = solution.support_states_vec.begin();
 	++prev_ss_it;//Point at the first previewed instant
@@ -469,9 +469,9 @@ void QPBuilder::BuildInequalitiesFeet(const MPCSolution &solution) {
 
 			int stepNumber = (prev_ss_it->step_number-1);
 
-			foot_inequalities_.DX.block( stepNumber * num_ineqs, stepNumber, num_ineqs, 1) = hull_.A.segment(0, num_ineqs);
-			foot_inequalities_.DY.block( stepNumber * num_ineqs, stepNumber, num_ineqs, 1) = hull_.B.segment(0, num_ineqs);
-			foot_inequalities_.Dc.segment(stepNumber * num_ineqs, num_ineqs) = hull_.D.segment(0, num_ineqs);
+			foot_inequalities_.x_mat.block( stepNumber * num_ineqs, stepNumber, num_ineqs, 1) = hull_.a_vec.segment(0, num_ineqs);
+			foot_inequalities_.y_mat.block( stepNumber * num_ineqs, stepNumber, num_ineqs, 1) = hull_.b_vec.segment(0, num_ineqs);
+			foot_inequalities_.c_vec.segment(stepNumber * num_ineqs, num_ineqs) = hull_.d_vec.segment(0, num_ineqs);
 		}
 		++prev_ss_it;
 	}
@@ -483,16 +483,16 @@ void QPBuilder::BuildConstraintsFeet(const MPCSolution &solution) {
 	const SelectionMatrices &select = preview_->selection_matrices();
 	int num_samples = mpc_parameters_->num_samples_horizon;
 
-	tmp_mat_.noalias() = foot_inequalities_.DX * select.Vf;
+	tmp_mat_.noalias() = foot_inequalities_.x_mat * select.Vf;
 	solver_->constr_mat().AddTerm(tmp_mat_,  0,  2 * num_samples);
 
-	tmp_mat_.noalias() = foot_inequalities_.DY * select.Vf;
+	tmp_mat_.noalias() = foot_inequalities_.y_mat * select.Vf;
 	solver_->constr_mat().AddTerm(tmp_mat_,  0, 2 * num_samples + num_steps_previewed);
 
-	solver_->vector(vectorBL).addTerm(foot_inequalities_.Dc, 0);
+	solver_->vector(vectorBL).addTerm(foot_inequalities_.c_vec, 0);
 
-	tmp_vec_.noalias() =  foot_inequalities_.DX * select.VcfX;
-	tmp_vec_ += foot_inequalities_.DY * select.VcfY;
+	tmp_vec_.noalias() =  foot_inequalities_.x_mat * select.VcfX;
+	tmp_vec_ += foot_inequalities_.y_mat * select.VcfY;
 	solver_->vector(vectorBL).addTerm(tmp_vec_,  0);
 
 	solver_->vector(vectorBU)().segment(0, tmp_vec_.size()).fill(10e10);
@@ -543,11 +543,11 @@ void QPBuilder::BuildConstraintsCOP(const MPCSolution &solution) {
 		if (prev_ss_it->state_changed) {
 			robot_->convexHull(hull_, COP_HULL, *prev_ss_it, false, false);
 		}
-		tmp_vec_(i)  = min(hull_.x(0), hull_.x(3));
-		tmp_vec2_(i) = max(hull_.x(0), hull_.x(3));
+		tmp_vec_(i)  = min(hull_.x_vec(0), hull_.x_vec(3));
+		tmp_vec2_(i) = max(hull_.x_vec(0), hull_.x_vec(3));
 
-		tmp_vec_(num_samples + i) = min(hull_.y(0), hull_.y(1));
-		tmp_vec2_(num_samples + i)= max(hull_.y(0), hull_.y(1));
+		tmp_vec_(num_samples + i) = min(hull_.y_vec(0), hull_.y_vec(1));
+		tmp_vec2_(num_samples + i)= max(hull_.y_vec(0), hull_.y_vec(1));
 		++prev_ss_it;
 	}
 

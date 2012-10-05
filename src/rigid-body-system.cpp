@@ -166,10 +166,10 @@ void RigidBodySystem::convexHull(ConvexHull &hull, HullType type, const SupportS
 	}
 
 	if (rotateHull){
-		hull.rotate(prwSupport.yaw);
+		hull.Rotate(prwSupport.yaw);
 	}
 
 	if (computeLinearSystem){
-		hull.computeLinearSystem(prwSupport.foot);
+		hull.ComputeLinearSystem(prwSupport.foot);
 	}
 }

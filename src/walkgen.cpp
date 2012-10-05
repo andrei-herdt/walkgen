@@ -80,10 +80,10 @@ void Walkgen::Init(const MPCParameters &mpc_parameters) {
 
 	// Resize:
 	// -------
-	solution_.com_act.resize(mpc_parameters_.num_samples_act());
-	solution_.cop_act.resize(mpc_parameters_.num_samples_act());
-	solution_.com_prw.resize(mpc_parameters_.num_samples_horizon);
-	solution_.cop_prw.resize(mpc_parameters_.num_samples_horizon);
+	solution_.com_act.Resize(mpc_parameters_.num_samples_act());
+	solution_.cop_act.Resize(mpc_parameters_.num_samples_act());
+	solution_.com_prw.Resize(mpc_parameters_.num_samples_horizon);
+	solution_.cop_prw.Resize(mpc_parameters_.num_samples_horizon);
 
 	solution_.pos_ref.resize(mpc_parameters_.num_samples_horizon);
 
@@ -202,7 +202,7 @@ void Walkgen::BuildProblem() {
 	// UPDATE INTERNAL DATA:
 	// ---------------------
 	solver_->reset();
-	solution_.reset();
+	solution_.Reset();
 	vel_ref_ = new_vel_ref_;
 
 	if (robot_->current_support().phase == SS && robot_->current_support().num_steps_left == 0) {
@@ -222,7 +222,7 @@ void Walkgen::BuildProblem() {
 	preview_->PreviewSupportStates(first_sampling_period, solution_);
 
 	orient_preview_->preview_orientations( current_time_, vel_ref_,
-			mpc_parameters_.nbqpsamples_step * mpc_parameters_.period_qpsample,
+			mpc_parameters_.num_samples_step * mpc_parameters_.period_qpsample,
 			robot_->body(LEFT_FOOT)->state(), robot_->body(RIGHT_FOOT)->state(),
 			solution_ );
 	preview_->BuildRotationMatrix(solution_);

@@ -24,9 +24,9 @@ int main() {
 	// ----------------------
 	MPCParameters mpc_parameters;
 	mpc_parameters.num_samples_horizon    = num_samples_horizon;
-	mpc_parameters.nbqpsamples_step       = num_samples_step;
-	mpc_parameters.nbqpsamples_dsss       = num_samples_dsss;
-	mpc_parameters.nbsteps_ssds           = num_steps_ssds;
+	mpc_parameters.num_samples_step       = num_samples_step;
+	mpc_parameters.num_samples_dsss       = num_samples_dsss;
+	mpc_parameters.num_steps_ssds           = num_steps_ssds;
 	mpc_parameters.period_qpsample        = sample_period_qp;
 	mpc_parameters.period_mpcsample       = sample_period_first;
 	mpc_parameters.period_actsample       = sample_period_act;
@@ -85,13 +85,13 @@ int main() {
 	double DefaultFPosEdgesX[nbVertFeet] = {-0.28, -0.2, 0.0, 0.2, 0.28};
 	double DefaultFPosEdgesY[nbVertFeet] = {-0.2, -0.3, -0.4, -0.3, -0.2};
 
-	robot_data.left_foot_pos_hull.resize(nbVertFeet);
-	robot_data.right_foot_pos_hull.resize(nbVertFeet);
+	robot_data.left_foot_pos_hull.Resize(nbVertFeet);
+	robot_data.right_foot_pos_hull.Resize(nbVertFeet);
 	for (int i=0; i < nbVertFeet; ++i) {
-		robot_data.left_foot_pos_hull.x(i) = DefaultFPosEdgesX[i];
-		robot_data.left_foot_pos_hull.y(i) = DefaultFPosEdgesY[i];
-		robot_data.right_foot_pos_hull.x(i) = DefaultFPosEdgesX[i];
-		robot_data.right_foot_pos_hull.y(i) = -DefaultFPosEdgesY[i];
+		robot_data.left_foot_pos_hull.x_vec(i) = DefaultFPosEdgesX[i];
+		robot_data.left_foot_pos_hull.y_vec(i) = DefaultFPosEdgesY[i];
+		robot_data.right_foot_pos_hull.x_vec(i) = DefaultFPosEdgesX[i];
+		robot_data.right_foot_pos_hull.y_vec(i) = -DefaultFPosEdgesY[i];
 	}
 
 
@@ -102,20 +102,20 @@ int main() {
 	double DefaultCoPDSEdgesX[nbVertCoP] = {0.0686, 0.0686, -0.0686, -0.0686};
 	double DefaultCoPDSEdgesY[nbVertCoP] = {0.029, -0.229, -0.229, 0.029};
 
-	robot_data.left_foot_ss_hull.resize(nbVertCoP);
-	robot_data.right_foot_ss_hull.resize(nbVertCoP);
-	robot_data.left_foot_ds_hull.resize(nbVertCoP);
-	robot_data.right_foot_ds_hull.resize(nbVertCoP);
+	robot_data.left_foot_ss_hull.Resize(nbVertCoP);
+	robot_data.right_foot_ss_hull.Resize(nbVertCoP);
+	robot_data.left_foot_ds_hull.Resize(nbVertCoP);
+	robot_data.right_foot_ds_hull.Resize(nbVertCoP);
 	for (int i = 0; i < nbVertCoP; ++i) {
-		robot_data.left_foot_ss_hull.x(i) = DefaultCoPSSEdgesX[i];
-		robot_data.left_foot_ss_hull.y(i) = DefaultCoPSSEdgesY[i];
-		robot_data.left_foot_ds_hull.x(i) = DefaultCoPDSEdgesX[i];
-		robot_data.left_foot_ds_hull.y(i) = DefaultCoPDSEdgesY[i];
+		robot_data.left_foot_ss_hull.x_vec(i) = DefaultCoPSSEdgesX[i];
+		robot_data.left_foot_ss_hull.y_vec(i) = DefaultCoPSSEdgesY[i];
+		robot_data.left_foot_ds_hull.x_vec(i) = DefaultCoPDSEdgesX[i];
+		robot_data.left_foot_ds_hull.y_vec(i) = DefaultCoPDSEdgesY[i];
 
-		robot_data.right_foot_ss_hull.x(i) = DefaultCoPSSEdgesX[i];
-		robot_data.right_foot_ss_hull.y(i) =- DefaultCoPSSEdgesY[i];
-		robot_data.right_foot_ds_hull.x(i) = DefaultCoPDSEdgesX[i];
-		robot_data.right_foot_ds_hull.y(i) =- DefaultCoPDSEdgesY[i];
+		robot_data.right_foot_ss_hull.x_vec(i) = DefaultCoPSSEdgesX[i];
+		robot_data.right_foot_ss_hull.y_vec(i) =- DefaultCoPSSEdgesY[i];
+		robot_data.right_foot_ds_hull.x_vec(i) = DefaultCoPDSEdgesX[i];
+		robot_data.right_foot_ds_hull.y_vec(i) =- DefaultCoPDSEdgesY[i];
 	}
 
 

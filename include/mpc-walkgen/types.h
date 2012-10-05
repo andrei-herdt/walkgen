@@ -169,23 +169,23 @@ struct MPC_WALKGEN_API SupportState {
 
 struct MPC_WALKGEN_API ConvexHull {
 	/// \brief Set of vertices
-	CommonVectorType x;
-	CommonVectorType y;
-	CommonVectorType z;
+	CommonVectorType x_vec;
+	CommonVectorType y_vec;
+	CommonVectorType z_vec;
 
 	/// \brief Set of inequalities A*x + B*y + C*z + D>0
-	CommonVectorType A;
-	CommonVectorType B;
-	CommonVectorType C;
-	CommonVectorType D;
+	CommonVectorType a_vec;
+	CommonVectorType b_vec;
+	CommonVectorType c_vec;
+	CommonVectorType d_vec;
 
 	ConvexHull();
 	~ConvexHull();
 
 	ConvexHull &operator= (const ConvexHull &hull); // TODO: CopyFrom() instead of =
-	void resize(int size);
-	void rotate(double yaw);
-	void computeLinearSystem(const Foot &foot);
+	void Resize(int size);
+	void Rotate(double yaw);
+	void ComputeLinearSystem(const Foot &foot);
 };
 
 struct SolverData {
@@ -201,9 +201,9 @@ struct MPC_WALKGEN_API MPCParameters {
 
 	int num_samples_horizon;  	//Number of samplings inside horizon
 
-	int nbqpsamples_step;		//Step period ss_left<->ss_right in qp sample periods
-	int nbqpsamples_dsss;		//Length of initial double support phase [num. samples]
-	int nbsteps_ssds;			//Steps before halt
+	int num_samples_step;		//Step period ss_left<->ss_right in qp sample periods
+	int num_samples_dsss;		//Length of initial double support phase [num. samples]
+	int num_steps_ssds;			//Steps before halt
 
 	double period_ds;			//Length of the (permanent) double support phase (should be a large value)
 
@@ -275,7 +275,7 @@ struct Motion {
 	Trajectory pos, vel, acc, jerk;
 	Trajectory control;
 
-	void resize(int size);
+	void Resize(int size);
 };
 
 
@@ -311,9 +311,9 @@ struct MPC_WALKGEN_API MPCSolution {
 
 	Reference pos_ref;
 
-	MPCSolution& operator = (MPCSolution const &);
+	MPCSolution& operator = (MPCSolution const &);	//This operator helps to avoid alignment errors
 
-	void reset();
+	void Reset();
 
 	MPCSolution();
 	~MPCSolution();
@@ -359,10 +359,10 @@ struct SelectionMatrices{
 };
 
 struct RelativeInequalities{//TODO: Obsolete
-	CommonMatrixType DX, DY;
-	CommonVectorType Dc;
+	CommonMatrixType x_mat, y_mat;
+	CommonVectorType c_vec;
 
-	void resize(int rows, int cols);
+	void Resize(int rows, int cols);
 };
 }
 

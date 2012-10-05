@@ -69,7 +69,7 @@ void CoMBody::Interpolate(MPCSolution &solution, double current_time, const Refe
 }
 
 void CoMBody::InterpolateTrunkYaw(MPCSolution &solution, const Reference &ref) {
-	double T = mpc_parameters_->nbqpsamples_step * mpc_parameters_->period_qpsample;
+	double T = mpc_parameters_->num_samples_step * mpc_parameters_->period_qpsample;
 
 	int num_samples = mpc_parameters_->num_samples_act();
 

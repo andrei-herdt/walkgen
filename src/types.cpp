@@ -132,13 +132,13 @@ MPCSolution& MPCSolution::operator = (MPCSolution const &rhs) {
 }
 
 
-void MPCSolution::reset(){
+void MPCSolution::Reset(){
 	support_states_vec.resize(0);
 	support_yaw_vec.resize(0);
 	trunk_yaw_vec.resize(0);
 }
 
-void Motion::resize(int size) {
+void Motion::Resize(int size) {
 	pos.x_vec.setZero(size); pos.y_vec.setZero(size); pos.z_vec.setZero(size); pos.yaw_vec.setZero(size);
 	vel.x_vec.setZero(size); vel.y_vec.setZero(size); vel.z_vec.setZero(size); vel.yaw_vec.setZero(size);
 	acc.x_vec.setZero(size); acc.y_vec.setZero(size); acc.z_vec.setZero(size); acc.yaw_vec.setZero(size);
@@ -152,9 +152,9 @@ MPCParameters::MPCParameters()
 ,period_mpcsample(0.005)
 ,period_actsample(0.005)
 ,num_samples_horizon(16)
-,nbqpsamples_step(8)
-,nbqpsamples_dsss(8)
-,nbsteps_ssds(2)
+,num_samples_step(8)
+,num_samples_dsss(8)
+,num_steps_ssds(2)
 ,period_ds(1000000000.0)
 ,warmstart(false)
 ,interpolate_whole_horizon(false)
@@ -178,15 +178,15 @@ int MPCParameters::num_samples_act() const{
 }
 
 int MPCParameters::num_qpsamples_ss() const {
-	return nbqpsamples_step - 1;
+	return num_samples_step - 1;
 }
 
 int MPCParameters::num_steps_max() const {
-	return static_cast<int>(num_samples_horizon / nbqpsamples_step) + 1;
+	return static_cast<int>(num_samples_horizon / num_samples_step) + 1;
 }
 
 double MPCParameters::period_ss() const {
-	return nbqpsamples_step * period_qpsample - period_trans_ds();
+	return num_samples_step * period_qpsample - period_trans_ds();
 }
 
 double MPCParameters::period_trans_ds() const {
@@ -194,65 +194,65 @@ double MPCParameters::period_trans_ds() const {
 }
 
 ConvexHull::ConvexHull()
-:x(1)
-,y(1)
-,z(1)
-,A(1)
-,B(1)
-,C(1)
-,D(1) {
+:x_vec(1)
+,y_vec(1)
+,z_vec(1)
+,a_vec(1)
+,b_vec(1)
+,c_vec(1)
+,d_vec(1) {
 }
 
 ConvexHull::~ConvexHull() {}
 
 // TODO: Necessary?
 ConvexHull &ConvexHull::operator=(const ConvexHull &hull){
-	x = hull.x;
-	y = hull.y;
-	z = hull.z;
-	A = hull.A;
-	B = hull.B;
-	C = hull.C;
-	D = hull.D;
+	x_vec = hull.x_vec;
+	y_vec = hull.y_vec;
+	z_vec = hull.z_vec;
+	a_vec = hull.a_vec;
+	b_vec = hull.b_vec;
+	c_vec = hull.c_vec;
+	d_vec = hull.d_vec;
 
 	return *this;
 }
 
-void ConvexHull::resize(int size){
-	if (size != x.rows()){
-		x.setZero(size);
-		y.setZero(size);
-		A.setZero(size);
-		B.setZero(size);
-		C.setZero(size);
-		D.setZero(size);
-	}else{
-		x.fill(0);
-		y.fill(0);
-		A.fill(0);
-		B.fill(0);
-		C.fill(0);
-		D.fill(0);
+void ConvexHull::Resize(int size) {
+	if (size != x_vec.rows()) {
+		x_vec.setZero(size);
+		y_vec.setZero(size);
+		a_vec.setZero(size);
+		b_vec.setZero(size);
+		c_vec.setZero(size);
+		d_vec.setZero(size);
+	} else {
+		x_vec.fill(0);
+		y_vec.fill(0);
+		a_vec.fill(0);
+		b_vec.fill(0);
+		c_vec.fill(0);
+		d_vec.fill(0);
 	}
 }
 
-void ConvexHull::rotate(double yaw) {
+void ConvexHull::Rotate(double yaw) {
 	if (fabs(yaw) < kEps)
 		return;
 
-	double xOld, yOld;
-	int size = x.rows();
+	double x_old, y_old;
+	int size = x_vec.rows();
 	for(int i = 0; i < size; ++i){
-		xOld = x(i);
-		yOld = y(i);
-		x(i) = (xOld * std::cos(yaw) - yOld * std::sin(yaw));
-		y(i) = (xOld * std::sin(yaw) + yOld * std::cos(yaw));
+		x_old = x_vec(i);
+		y_old = y_vec(i);
+		x_vec(i) = (x_old * std::cos(yaw) - y_old * std::sin(yaw));
+		y_vec(i) = (x_old * std::sin(yaw) + y_old * std::cos(yaw));
 	}
 }
 
-void ConvexHull::computeLinearSystem(const Foot &foot) {
+void ConvexHull::ComputeLinearSystem(const Foot &foot) {
 	double dx,dy,dc,x1,y1,x2,y2;
-	unsigned nbRows = x.rows();
+	unsigned nbRows = x_vec.rows();
 
 	double sign;
 	if(foot == LEFT){
@@ -261,25 +261,25 @@ void ConvexHull::computeLinearSystem(const Foot &foot) {
 		sign = -1.0;
 	}
 	for( unsigned i=0; i<nbRows;++i ){
-		y1 = y(i);
-		y2 = y((i+1)%nbRows);
-		x1 = x(i);
-		x2 = x((i+1)%nbRows);
+		y1 = y_vec(i);
+		y2 = y_vec((i+1)%nbRows);
+		x1 = x_vec(i);
+		x2 = x_vec((i+1)%nbRows);
 
 		dx = sign*(y1-y2);
 		dy = sign*(x2-x1);
 		dc = dx*x1+dy*y1;
 
 
-		A(i) = dx;
-		B(i) = dy;
-		D(i) = dc;
+		a_vec(i) = dx;
+		b_vec(i) = dy;
+		d_vec(i) = dc;
 	}
 }
 
 RobotData::RobotData(const FootData &leftFoot, const FootData &rightFoot,
 		const HipYawData &left_hip_yaw, const HipYawData &rightHipYaw,
-		double mass)//TODO: Obsolete constructor
+		double mass)
 :mass(mass)
 ,max_foot_height(0.03)
 ,max_foot_vel(0.)
@@ -295,40 +295,40 @@ RobotData::RobotData(const FootData &leftFoot, const FootData &rightFoot,
 ,right_foot_ss_hull()
 ,left_foot_ds_hull()
 ,right_foot_ds_hull() {
-	left_foot_ss_hull.resize(4);
-	right_foot_ss_hull.resize(4);
-	left_foot_ds_hull.resize(4);
-	right_foot_ds_hull.resize(4);
+	left_foot_ss_hull.Resize(4);
+	right_foot_ss_hull.Resize(4);
+	left_foot_ds_hull.Resize(4);
+	right_foot_ds_hull.Resize(4);
 }
 
 RobotData::RobotData():mass(0.)
 ,max_foot_height(0.)
 ,max_foot_vel(0.)
 ,security_margin(-1.) {
-	left_foot_ss_hull.resize(4);
-	right_foot_ss_hull.resize(4);
-	left_foot_ds_hull.resize(4);
-	right_foot_ds_hull.resize(4);
+	left_foot_ss_hull.Resize(4);
+	right_foot_ss_hull.Resize(4);
+	left_foot_ds_hull.Resize(4);
+	right_foot_ds_hull.Resize(4);
 }
 RobotData::~RobotData(){}
 
 // TODO: This function should be moved to a separate object for hulls/constraints
 void RobotData::SetCoPHulls(double ds_distance) {
 	for (int i = 0; i < 4; ++i) {
-		left_foot_ss_hull.x(i) = leftFoot.edges_x_vec[i];
-		left_foot_ss_hull.y(i) = leftFoot.edges_y_vec[i];
-		left_foot_ds_hull.x(i) = leftFoot.edges_x_vec[i];
-		left_foot_ds_hull.y(i) = leftFoot.edges_y_vec[i];
+		left_foot_ss_hull.x_vec(i) = leftFoot.edges_x_vec[i];
+		left_foot_ss_hull.y_vec(i) = leftFoot.edges_y_vec[i];
+		left_foot_ds_hull.x_vec(i) = leftFoot.edges_x_vec[i];
+		left_foot_ds_hull.y_vec(i) = leftFoot.edges_y_vec[i];
 
-		right_foot_ss_hull.x(i) = right_foot.edges_x_vec[i];
-		right_foot_ss_hull.y(i) = -right_foot.edges_y_vec[i]; // Counter-clockwise
-		right_foot_ds_hull.x(i) = right_foot.edges_x_vec[i];
-		right_foot_ds_hull.y(i) = -right_foot.edges_y_vec[i]; // Counter-clockwise
+		right_foot_ss_hull.x_vec(i) = right_foot.edges_x_vec[i];
+		right_foot_ss_hull.y_vec(i) = -right_foot.edges_y_vec[i]; // Counter-clockwise
+		right_foot_ds_hull.x_vec(i) = right_foot.edges_x_vec[i];
+		right_foot_ds_hull.y_vec(i) = -right_foot.edges_y_vec[i]; // Counter-clockwise
 	}
-	left_foot_ds_hull.y(1)  -= ds_distance;
-	left_foot_ds_hull.y(2)  -= ds_distance;
-	right_foot_ds_hull.y(1) += ds_distance;
-	right_foot_ds_hull.y(2) += ds_distance;
+	left_foot_ds_hull.y_vec(1)  -= ds_distance;
+	left_foot_ds_hull.y_vec(2)  -= ds_distance;
+	right_foot_ds_hull.y_vec(1) += ds_distance;
+	right_foot_ds_hull.y_vec(2) += ds_distance;
 }
 
 WeightCoefficients::WeightCoefficients(int num_modes)
@@ -408,15 +408,15 @@ void SelectionMatrices::SetZero() {
 	sample_mstep.setZero(); sample_mstep_trans.setZero();
 }
 
-void RelativeInequalities::resize(int rows, int cols){
-	if (rows!=DX.rows() || cols!=DX.cols()){
-		DX.setZero(rows, cols);
-		DY.setZero(rows, cols);
-		Dc.setZero(rows, cols);
+void RelativeInequalities::Resize(int rows, int cols){
+	if (rows != x_mat.rows() || cols != x_mat.cols()){
+		x_mat.setZero(rows, cols);
+		y_mat.setZero(rows, cols);
+		c_vec.setZero(rows, cols);
 	}else{
-		DX.fill(0);
-		DY.fill(0);
-		Dc.fill(0);
+		x_mat.fill(0);
+		y_mat.fill(0);
+		c_vec.fill(0);
 	}
 
 }

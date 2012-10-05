@@ -91,9 +91,9 @@ static void mdlStart(SimStruct *S) {
 
 	MPCParameters mpc_parameters;
 	mpc_parameters.num_samples_horizon  = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 0)));
-	mpc_parameters.nbqpsamples_step     = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 1)));
-	mpc_parameters.nbqpsamples_dsss     = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 2)));
-	mpc_parameters.nbsteps_ssds         = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 3)));
+	mpc_parameters.num_samples_step     = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 1)));
+	mpc_parameters.num_samples_dsss     = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 2)));
+	mpc_parameters.num_steps_ssds         = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 3)));
 	mpc_parameters.period_qpsample      = *mxGetPr(ssGetSFcnParam(S, 4));
 	mpc_parameters.period_mpcsample     = *mxGetPr(ssGetSFcnParam(S, 5));
 	mpc_parameters.period_actsample     = *mxGetPr(ssGetSFcnParam(S, 6));
@@ -199,13 +199,13 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 		double DefaultFPosEdgesX[nbVertFeet] = {-0.2, -0.2, 0.0, 0.2, 0.2};
 		double DefaultFPosEdgesY[nbVertFeet] = {-0.2, -0.3, -0.4, -0.3, -0.2};
 
-		robot_data.left_foot_pos_hull.resize(nbVertFeet);
-		robot_data.right_foot_pos_hull.resize(nbVertFeet);
+		robot_data.left_foot_pos_hull.Resize(nbVertFeet);
+		robot_data.right_foot_pos_hull.Resize(nbVertFeet);
 		for (int i = 0; i < nbVertFeet; ++i) {
-			robot_data.left_foot_pos_hull.x(i)  = DefaultFPosEdgesX[i];
-			robot_data.left_foot_pos_hull.y(i)  = DefaultFPosEdgesY[i];
-			robot_data.right_foot_pos_hull.x(i) = DefaultFPosEdgesX[i];
-			robot_data.right_foot_pos_hull.y(i) = -DefaultFPosEdgesY[i];
+			robot_data.left_foot_pos_hull.x_vec(i)  = DefaultFPosEdgesX[i];
+			robot_data.left_foot_pos_hull.y_vec(i)  = DefaultFPosEdgesY[i];
+			robot_data.right_foot_pos_hull.x_vec(i) = DefaultFPosEdgesX[i];
+			robot_data.right_foot_pos_hull.y_vec(i) = -DefaultFPosEdgesY[i];
 		}
 
 		double feet_distance_y = *left_ankle_in[1] - *right_ankle_in[1];
