@@ -140,52 +140,52 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	const CommonMatrixType &rot_mat2 = preview_->rot_mat2();
 	const CommonMatrixType &rot_mat2_trans = preview_->rot_mat2_tr();
 
-	QPMatrix &Q = solver_->hessian_mat();
+	QPMatrix &hessian = solver_->hessian_mat();
 
 	int num_steps_previewed = solution.support_states_vec.back().step_number;
 	int num_samples = mpc_parameters_->num_samples_horizon;
 
 	if (!solver_->useCholesky()) {//TODO: This part is the most costly >50%
-		Q.AddTerm(QconstN_[sample_num], 0, 0);
-		Q.AddTerm(QconstN_[sample_num], num_samples, num_samples);
+		hessian.AddTerm(QconstN_[sample_num], 0, 0);
+		hessian.AddTerm(QconstN_[sample_num], num_samples, num_samples);
 
-		CommonMatrixType Qmat = Q().block(0, 0, 2 * num_samples, 2 * num_samples);
+		CommonMatrixType Qmat = hessian().block(0, 0, 2 * num_samples, 2 * num_samples);
 		tmp_mat_.noalias() = rot_mat2 * Qmat * rot_mat2_trans;
-		Q().block(0, 0, 2 * num_samples, 2 * num_samples) = tmp_mat_;
+		hessian().block(0, 0, 2 * num_samples, 2 * num_samples) = tmp_mat_;
 	} else {
 		// rotate the cholesky matrix
 		CommonMatrixType chol = choleskyConst_[sample_num];
 		RotateCholeskyMatrix(chol, rot_mat2);
-		Q.cholesky(chol);
+		hessian.cholesky(chol);
 	}
 
 	if (num_steps_previewed > 0) {
 		tmp_mat_.noalias() = Qconst_[sample_num] * select_mats.sample_step;
-		Q.AddTerm(tmp_mat_, 0, 2 * num_samples);
-		Q.AddTerm(tmp_mat_, num_samples, 2 * num_samples + num_steps_previewed);
+		hessian.AddTerm(tmp_mat_, 0, 2 * num_samples);
+		hessian.AddTerm(tmp_mat_, num_samples, 2 * num_samples + num_steps_previewed);
 
 		tmp_mat_.noalias() = select_mats.sample_step_trans * Qconst_[sample_num] * select_mats.sample_step;
-		Q.AddTerm(tmp_mat_, 2 * num_samples, 2 * num_samples);
-		Q.AddTerm(tmp_mat_, 2 * num_samples + num_steps_previewed, 2 * num_samples + num_steps_previewed);
+		hessian.AddTerm(tmp_mat_, 2 * num_samples, 2 * num_samples);
+		hessian.AddTerm(tmp_mat_, 2 * num_samples + num_steps_previewed, 2 * num_samples + num_steps_previewed);
 
 
 		if (!solver_->useCholesky()) {
 			tmp_mat_.noalias() = select_mats.sample_step_trans * Qconst_[sample_num];
-			Q.AddTerm(tmp_mat_, 2 * num_samples, 0);
-			Q.AddTerm(tmp_mat_, 2 * num_samples + num_steps_previewed, num_samples);
+			hessian.AddTerm(tmp_mat_, 2 * num_samples, 0);
+			hessian.AddTerm(tmp_mat_, 2 * num_samples + num_steps_previewed, num_samples);
 
 			// rotate the lower left block
 			// TODO(andrei): Rotation can be done before addition
-			CommonMatrixType dlBlock = Q().block(2 * num_samples, 0, 2 * num_steps_previewed, 2 * num_samples);
+			CommonMatrixType dlBlock = hessian().block(2 * num_samples, 0, 2 * num_steps_previewed, 2 * num_samples);
 			computeMRt(dlBlock, rot_mat2);
-			Q().block(2 * num_samples, 0, 2 * num_steps_previewed, 2 * num_samples) = dlBlock;
+			hessian().block(2 * num_samples, 0, 2 * num_steps_previewed, 2 * num_samples) = dlBlock;
 		}
 
 		// rotate the upper right block
 		// TODO(efficiency): Rotation can be done before addition
-		CommonMatrixType urBlock = Q().block(0, 2 * num_samples, 2*num_samples, 2*num_steps_previewed);
+		CommonMatrixType urBlock = hessian().block(0, 2 * num_samples, 2*num_samples, 2*num_steps_previewed);
 		ComputeRM(urBlock, rot_mat2);
-		Q().block(0, 2 * num_samples, 2 * num_samples, 2 * num_steps_previewed) = urBlock;
+		hessian().block(0, 2 * num_samples, 2 * num_samples, 2 * num_steps_previewed) = urBlock;
 	}
 
 	CommonVectorType HX(num_samples), HY(num_samples), H(2 * num_samples);//TODO: Make this member
