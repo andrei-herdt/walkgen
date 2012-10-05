@@ -106,9 +106,9 @@ void RigidBodySystem::UpdateState(const MPCSolution &solution) {
 	com_->state().y(2) = solution.com_act.acc.y_vec[next_sample];
 
 	// TODO: Temporary solutions
-	com_->state().yaw(0) = solution.state_vec[0].trunkYaw_(next_sample);
-	com_->state().yaw(1) = solution.state_vec[1].trunkYaw_(next_sample);
-	com_->state().yaw(2) = solution.state_vec[2].trunkYaw_(next_sample);
+	com_->state().yaw(0) = solution.com_act.pos.yaw_vec(next_sample);
+	com_->state().yaw(1) = solution.com_act.vel.yaw_vec(next_sample);
+	com_->state().yaw(2) = solution.com_act.acc.yaw_vec(next_sample);
 	com_->state().z(0) = robot_data_.com(2);
 }
 
@@ -118,7 +118,7 @@ void RigidBodySystem::setSelectionNumber(double firstSamplingPeriod){
 	right_foot_->SetSelectionNumber(firstSamplingPeriod);
 }
 
-RigidBody *RigidBodySystem::body(BodyType type){
+RigidBody *RigidBodySystem::body(BodyType type){//TODO:Remove this
 	switch(type){
 	case COM:
 		return com_;
@@ -129,7 +129,7 @@ RigidBody *RigidBodySystem::body(BodyType type){
 	}
 }
 
-const RigidBody *RigidBodySystem::body(BodyType type) const{
+const RigidBody *RigidBodySystem::body(BodyType type) const{//TODO: Remove this
 	switch(type){
 	case COM:
 		return com_;
@@ -157,7 +157,7 @@ void RigidBodySystem::convexHull(ConvexHull &hull, HullType type, const SupportS
 				hull = robot_data_.left_foot_ds_hull;
 			}
 		}else{
-			if (prwSupport.phase==SS){
+			if (prwSupport.phase == SS){
 				hull = robot_data_.right_foot_ss_hull;
 			}else{
 				hull =  robot_data_.right_foot_ds_hull;

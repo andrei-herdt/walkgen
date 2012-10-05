@@ -93,9 +93,7 @@ SolutionAnalysis::SolutionAnalysis():num_iterations(-1)
 ,max_kkt_violation(-1)
 {}
 
-MPCSolution::MPCSolution()
-:state_vec(3)
-{}
+MPCSolution::MPCSolution() {}
 
 MPCSolution::~MPCSolution() {}
 
@@ -107,9 +105,6 @@ MPCSolution& MPCSolution::operator = (MPCSolution const &rhs) {
 	constraints = rhs.constraints;
 	initialConstraints = rhs.initialConstraints;
 
-	/// \brief True if a new trajectory is computed in online loop
-	newTraj = rhs.newTraj;
-
 	/// \brief Sampling times
 	/// starting with 0, i.e. all times are relative to the current time
 	sampling_times_vec = rhs.sampling_times_vec;
@@ -118,9 +113,6 @@ MPCSolution& MPCSolution::operator = (MPCSolution const &rhs) {
 
 	support_yaw_vec = rhs.support_yaw_vec;//TODO: supportOrientations_vec
 	trunk_yaw_vec = rhs.trunk_yaw_vec;//TODO: TrunkOrientations_vec
-
-	CoPTrajX = rhs.CoPTrajX;
-	CoPTrajY = rhs.CoPTrajY;
 
 	com_prw = rhs.com_prw;
 	cop_prw = rhs.cop_prw;
@@ -136,7 +128,6 @@ MPCSolution& MPCSolution::operator = (MPCSolution const &rhs) {
 
 	pos_ref = rhs.pos_ref;
 
-	state_vec = rhs.state_vec;
 	return(*this);
 }
 

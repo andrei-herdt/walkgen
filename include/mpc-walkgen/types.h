@@ -298,9 +298,6 @@ struct MPC_WALKGEN_API MPCSolution {
 	Eigen::VectorXi constraints;
 	Eigen::VectorXi initialConstraints;
 
-	/// \brief True if a new trajectory is computed in online loop
-	bool newTraj;//TODO: Remove this
-
 	std::vector<double> sampling_times_vec;	/// starting with 0, i.e. all times are relative to the current time
 
 	std::vector<SupportState> support_states_vec;
@@ -308,34 +305,12 @@ struct MPC_WALKGEN_API MPCSolution {
 	std::vector<double> support_yaw_vec;
 	std::vector<double> trunk_yaw_vec;
 
-	CommonVectorType CoPTrajX;
-	CommonVectorType CoPTrajY;
-
 	Motion com_prw, cop_prw, left_foot_prw, right_foot_prw;
 	Motion com_act, cop_act, left_foot_act, right_foot_act;
 
 	SolutionAnalysis analysis;
 
 	Reference pos_ref;
-
-	struct State {
-		CommonVectorType CoMTrajX_;
-		CommonVectorType CoMTrajY_;
-		//TODO: Add CoMTrajZ_;
-
-		CommonVectorType leftFootTrajX_;
-		CommonVectorType leftFootTrajY_;
-		CommonVectorType leftFootTrajZ_;
-		CommonVectorType leftFootTrajYaw_;
-
-		CommonVectorType rightFootTrajX_;
-		CommonVectorType rightFootTrajY_;
-		CommonVectorType rightFootTrajZ_;
-		CommonVectorType rightFootTrajYaw_;
-
-		CommonVectorType trunkYaw_;
-	};
-	std::vector<State> state_vec;
 
 	MPCSolution& operator = (MPCSolution const &);
 

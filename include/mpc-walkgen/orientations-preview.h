@@ -121,7 +121,7 @@ private:
 	/// Reduce final velocity of the trunk if necessary.
 	///
 	/// \return AngleOK
-	bool verify_angle_hip_joint(const SupportState &CurrentSupport,    /// \param[in]
+	bool verify_angle_hip_joint(const SupportState &CurrentSupport,     /// \param[in]
 			double PreviewedTrunkAngleEnd,    							/// \param[in]
 			const COMState2 &TrunkState,    							/// \param[in]
 			COMState2 &TrunkStateT,    									/// \param[in]
@@ -135,19 +135,19 @@ private:
 private:
 
 	/// \brief Angular limitations of the hip joints
-	double lLimitLeftHipYaw_, uLimitLeftHipYaw_, lLimitRightHipYaw_, uLimitRightHipYaw_; // TODO doublons? -> yes, but this is a temporary class
+	double lLimitLeftHipYaw_, uLimitLeftHipYaw_, lLimitRightHipYaw_, uLimitRightHipYaw_;
 
 	double uaLimitHipYaw_;	/// \brief Maximal acceleration of a hip joint
 
-	double uLimitFeet_;	/// \brief Upper crossing angle limit between the feet
+	double uLimitFeet_;		/// \brief Upper crossing angle limit between the feet
 
 	double uvLimitFoot_;	/// \brief Maximal velocity of a foot
 
-	double SSPeriod_;	/// \brief Single-support duration
+	double SSPeriod_;		/// \brief Single-support duration
 
-	double N_;	/// \brief Number of sampling in a preview window
+	double N_;				/// \brief Number of sampling in a preview window
 
-	double T_;	/// \brief Time between two samplings
+	double T_;				/// \brief Time between two samplings
 	double Ti_;
 
 	double signRotVelTrunk_, signRotAccTrunk_;	/// \brief Rotation sense of the trunks angular velocity and acceleration

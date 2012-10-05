@@ -65,19 +65,18 @@ void CoMBody::Interpolate(MPCSolution &solution, double current_time, const Refe
 				state_y, solution.com_prw.control.y_vec);
 	}
 
-	InterpolateTrunkYaw(solution, current_time, ref);
+	InterpolateTrunkYaw(solution, ref);
 }
 
-void CoMBody::InterpolateTrunkYaw(MPCSolution &solution, double /*current_time*/, const Reference &ref)
-{
+void CoMBody::InterpolateTrunkYaw(MPCSolution &solution, const Reference &ref) {
 	double T = mpc_parameters_->nbqpsamples_step * mpc_parameters_->period_qpsample;
 
-	int nbSampling = mpc_parameters_->num_samples_act();
+	int num_samples = mpc_parameters_->num_samples_act();
 
-	if (solution.state_vec[0].trunkYaw_.rows() != nbSampling){
-		for (int i = 0; i < 3; ++i) {
-			solution.state_vec[i].trunkYaw_.resize(nbSampling);
-		}
+	if (solution.com_act.pos.yaw_vec.rows() != num_samples){
+		solution.com_act.pos.yaw_vec.resize(num_samples);
+		solution.com_act.vel.yaw_vec.resize(num_samples);
+		solution.com_act.acc.yaw_vec.resize(num_samples);
 	}
 
 	double orientation0 = solution.trunk_yaw_vec[0];
@@ -94,12 +93,12 @@ void CoMBody::InterpolateTrunkYaw(MPCSolution &solution, double /*current_time*/
 
 	Eigen::Matrix<double,6,1> factor;
 	interpolation_.computePolynomialNormalisedFactors(factor, state().yaw, nextTrunkState, T);
-	for (int i=0; i < nbSampling; ++i) {
+	for (int i=0; i < num_samples; ++i) {
 		double ti = (i + 1) * mpc_parameters_->period_actsample;
 
-		solution.state_vec[0].trunkYaw_(i) = p(factor, ti/T);
-		solution.state_vec[1].trunkYaw_(i) = dp(factor, ti/T)/T;
-		solution.state_vec[2].trunkYaw_(i) = ddp(factor, ti/T)/(T*T);
+		solution.com_act.pos.yaw_vec(i) = p(factor, ti/T);
+		solution.com_act.vel.yaw_vec(i) = dp(factor, ti/T)/T;
+		solution.com_act.acc.yaw_vec(i) = ddp(factor, ti/T)/(T*T);
 	}
 
 
