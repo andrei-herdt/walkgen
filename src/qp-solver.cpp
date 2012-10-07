@@ -46,7 +46,7 @@ QPSolver::~QPSolver() {
 	}
 }
 
-QPVector &QPSolver::vector(const QPVectorType type) {
+QPVector &QPSolver::vector(const QPVectorType type) {//TODO:Remove this
 	switch(type) {
 	case vectorP:
 		return gradient_vec_;

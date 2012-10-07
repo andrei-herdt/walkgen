@@ -9,46 +9,46 @@
 #include <vector>
 
 namespace MPCWalkgen{
-    class RigidBodySystem{
+class RigidBodySystem{
 
-      // 
-      // Public methods:
-      //
-    public:
-      RigidBodySystem();
-      ~RigidBodySystem();
+	//
+	// Public methods:
+	//
+public:
+	RigidBodySystem();
+	~RigidBodySystem();
 
-      void Init(const MPCParameters *mpc_parameters_p);
+	void Init(const MPCParameters *mpc_parameters_p);
 
-      void Init(const RobotData &robot_data);
+	void Init(const RobotData &robot_data);
 
-      void Interpolate(MPCSolution &solution, double current_time, const Reference &ref);
+	void Interpolate(MPCSolution &solution, double current_time, const Reference &ref);
 
-      void UpdateState(const MPCSolution &solution);
+	void UpdateState(const MPCSolution &solution);
 
-      void setSelectionNumber(double firstSamplingPeriod);
+	void setSelectionNumber(double firstSamplingPeriod);
 
-      void ComputeDynamics();
+	void ComputeDynamics();
 
-      // Returns 
-      void GetState(CommonVectorType &state_x, CommonVectorType &state_y);
+	// Returns
+	void GetState(CommonVectorType &state_x, CommonVectorType &state_y);
 
-      //
-      // Private data members:
-      //
-    private:
-      const MPCParameters *mpc_parameters_p_;
-      RobotData robot_data_;
+	//
+	// Private data members:
+	//
+private:
+	const MPCParameters *mpc_parameters_p_;
+	RobotData robot_data_;
 
-      DynamicsBuilder dynamics_builder_;
+	DynamicsBuilder dynamics_builder_;
 
-      RigidBody *com_;
-      RigidBody *left_foot_;
-      RigidBody *right_foot_;
+	RigidBody *com_;
+	RigidBody *left_foot_;
+	RigidBody *right_foot_;
 
-      SupportState currentSupport_;
+	SupportState current_support_;
 
-    #include <mpc-walkgen/rigid-body-system-inl.h>
-    };
+#include <mpc-walkgen/rigid-body-system-inl.h>
+};
 }
 #endif // MPC_WALKGEN_RIGID_BODY_SYSTEM_H

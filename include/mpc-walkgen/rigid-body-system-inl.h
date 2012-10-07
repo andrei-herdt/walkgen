@@ -12,13 +12,13 @@ public:
   void convexHull(ConvexHull &hull, HullType type, const SupportState &prwSupport, bool computeLinearSystem=true, bool rotateHull=true) const;//TODO: Change this
 
   inline SupportState &current_support() {
-    return currentSupport_;
+    return current_support_;
   };
   inline const SupportState &current_support() const {
-    return currentSupport_;
+    return current_support_;
   };
   inline void current_support(const SupportState &current_support) {
-    currentSupport_ = current_support;
+    current_support_ = current_support;
   };
   inline RobotData &robot_data() {
     return robot_data_;

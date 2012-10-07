@@ -17,7 +17,7 @@ namespace MPCWalkgen{
 
     ~QPMatrix();
 
-    void AddTerm(const EigenMatrixXdRM &mat,
+    void AddTerm(const MatrixRowMaj &mat,
       const int first_row,
       const int first_col
       );

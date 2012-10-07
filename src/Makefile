@@ -53,6 +53,7 @@ walkgen.${OBJEXT}:  walkgen.cpp \
 	${IDIR}/mpc-walkgen/walkgen.h \
 	${IDIR}/mpc-walkgen/orientations-preview.h \
 	${IDIR}/mpc-walkgen/qp-solver.h \
+	${IDIR}/mpc-walkgen/qp-wrapper-inl.h \
 	${IDIR}/mpc-walkgen/qp-matrix.h \
 	${IDIR}/mpc-walkgen/qp-vector.h \
 	${IDIR}/mpc-walkgen/state-fsm.h \
@@ -119,6 +120,7 @@ qp-vector.${OBJEXT}: qp-vector.cpp \
 	
 qp-solver.${OBJEXT}: qp-solver.cpp \
 	${IDIR}/mpc-walkgen/qp-solver.h \
+	${IDIR}/mpc-walkgen/qp-wrapper-inl.h \
 	${IDIR}/mpc-walkgen/qp-matrix.h \
 	${IDIR}/mpc-walkgen/qp-vector.h \
 	${IDIR}/mpc-walkgen/types.h \
@@ -144,6 +146,7 @@ heuristic-preview.${OBJEXT}: heuristic-preview.cpp \
 qpoases-parser.${OBJEXT}: qpoases-parser.cpp \
 	${IDIR}/mpc-walkgen/qpoases-parser.h \
 	${IDIR}/mpc-walkgen/qp-solver.h \
+	${IDIR}/mpc-walkgen/qp-wrapper-inl.h \
 	${IDIR}/mpc-walkgen/qp-matrix.h \
 	${IDIR}/mpc-walkgen/qp-vector.h \
 	${IDIR}/mpc-walkgen/types.h \
@@ -177,6 +180,7 @@ qp-builder.${OBJEXT}: qp-builder.cpp \
 	${IDIR}/mpc-walkgen/types.h \
 	${IDIR}/mpc-walkgen/api.h \
 	${IDIR}/mpc-walkgen/qp-solver.h \
+	${IDIR}/mpc-walkgen/qp-wrapper-inl.h \
 	${IDIR}/mpc-walkgen/qp-matrix.h \
 	${IDIR}/mpc-walkgen/qp-vector.h \
 	${IDIR}/mpc-walkgen/heuristic-preview.h \
@@ -217,6 +221,7 @@ interpolation.${OBJEXT}: interpolation.cpp \
 lssol-parser.${OBJEXT}: lssol-parser.cpp \
 	${IDIR}/mpc-walkgen/lssol-parser.h \
 	${IDIR}/mpc-walkgen/qp-solver.h \
+	${IDIR}/mpc-walkgen/qp-wrapper-inl.h \
 	${IDIR}/mpc-walkgen/qp-matrix.h \
 	${IDIR}/mpc-walkgen/qp-vector.h \
 	${IDIR}/mpc-walkgen/types.h \

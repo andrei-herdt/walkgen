@@ -115,7 +115,7 @@ void QPBuilder::BuildProblem(MPCSolution &solution) {
 	int nbvars = 2 * mpc_parameters_->num_samples_horizon +				// com
 			2 * solution.support_states_vec.back().step_number;	// Foot placement
 	int num_constr = 5 * solution.support_states_vec.back().step_number;	// Foot placement
-	solver_->nbvar(nbvars);
+	solver_->num_var(nbvars);
 	solver_->num_constr(num_constr);
 
 	BuildObjective(solution);

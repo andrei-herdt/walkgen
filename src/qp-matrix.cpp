@@ -32,7 +32,7 @@ QPMatrix::QPMatrix(const int num_rows, const int num_cols)
 
 QPMatrix::~QPMatrix(){}
 
-void QPMatrix::AddTerm(const EigenMatrixXdRM &mat,
+void QPMatrix::AddTerm(const MatrixRowMaj &mat,
 		const int first_row, const int first_col) {
 	// The following is optimized for row major matrices.
 	// It has to be adapted if colum major ones are used.

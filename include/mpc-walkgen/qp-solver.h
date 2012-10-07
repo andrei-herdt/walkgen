@@ -26,26 +26,6 @@ public:
 
 	void DumpProblem(const char *filename);
 
-
-	//\name Accessors and mutators
-	//\{
-	inline QPMatrix &hessian_mat() {return hessian_mat_;}
-	inline QPMatrix &constr_mat() {return cstr_mat_;}
-
-	QPVector &vector(const QPVectorType type);
-
-	inline void nbvar (int nbvar)
-	{assert(nbvar <= num_vars_max_); num_vars_ = nbvar;}
-	inline int nbvar () const {return num_vars_;}
-	inline void nbvar_max (int nbvar) {num_vars_max_ = nbvar;}
-	inline int nbvar_max () const {return num_vars_max_;}
-	inline void num_constr(int num_constr)
-	{assert(num_constr <= num_constr_max_); num_constr_ = num_constr;}
-	inline int num_constr() const {return num_constr_;}
-	inline void nbcstr_max(const int num_constr) {num_constr_max_ = num_constr;}
-	inline int nbcstr_max() const {return num_constr_max_;}
-	//\}
-
 	void SetVarOrder(const Eigen::VectorXi &order);
 	void ctrOrder(const Eigen::VectorXi &order);
 
@@ -83,7 +63,9 @@ protected:
 
 	const SolverData *parameters_;
 
-    RealClock *clock_;
+	RealClock *clock_;
+
+#include <mpc-walkgen/qp-wrapper-inl.h>
 };
 
 QPSolver* createQPSolver(const SolverData &parameters, int nbvar_max, int nbcstr_max);

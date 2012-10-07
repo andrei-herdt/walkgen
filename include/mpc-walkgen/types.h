@@ -54,10 +54,10 @@ enum Mode { INITIAL = 0, STANDING = 1, WALK = 2 };
 //
 // Typedefs:
 //
-typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> EigenMatrixXdRM;
-typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor> EigenMatrixXdCM;
+typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> MatrixRowMaj;
+typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor> MatrixColMaj;
 typedef Eigen::Matrix2d Matrix2D;
-typedef EigenMatrixXdRM CommonMatrixType;
+typedef MatrixRowMaj CommonMatrixType;
 
 typedef Eigen::Vector2d Vector2D;
 typedef Eigen::VectorXd CommonVectorType;
