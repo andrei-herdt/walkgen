@@ -93,7 +93,7 @@ static void mdlStart(SimStruct *S) {
 	mpc_parameters.num_samples_horizon  = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 0)));
 	mpc_parameters.num_samples_step     = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 1)));
 	mpc_parameters.num_samples_dsss     = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 2)));
-	mpc_parameters.num_steps_ssds         = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 3)));
+	mpc_parameters.num_steps_ssds       = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 3)));
 	mpc_parameters.period_qpsample      = *mxGetPr(ssGetSFcnParam(S, 4));
 	mpc_parameters.period_mpcsample     = *mxGetPr(ssGetSFcnParam(S, 5));
 	mpc_parameters.period_actsample     = *mxGetPr(ssGetSFcnParam(S, 6));

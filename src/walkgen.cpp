@@ -21,8 +21,6 @@ Walkgen::Walkgen()
 ,current_time_(0) {
 	orient_preview_ = new OrientationsPreview();
 
-	//robot_ = new RigidBodySystem();
-
 	clock_.ReserveMemory(20);
 }
 
@@ -48,10 +46,6 @@ Walkgen::~Walkgen() {
 		preview_ = NULL;
 	}
 
-	//if (robot_ != NULL) {
-	//	delete robot_;
-	//	robot_ = NULL;
-	//}
 }
 
 void Walkgen::Init(const MPCParameters &mpc_parameters) {
