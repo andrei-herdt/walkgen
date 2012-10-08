@@ -1,2 +1,6 @@
 *.asv
 *.mexw32
+*.pdb
+*.mexw32
+*.asv
+*.ilk
