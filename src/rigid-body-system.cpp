@@ -7,7 +7,8 @@
 using namespace MPCWalkgen;
 using namespace Eigen;
 
-RigidBodySystem::RigidBodySystem() { 
+RigidBodySystem::RigidBodySystem():
+				mpc_parameters_p_(NULL) {
 	com_ = new CoMBody();
 	left_foot_ = new FootBody(LEFT);
 	right_foot_ = new FootBody(RIGHT);

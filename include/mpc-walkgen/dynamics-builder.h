@@ -8,7 +8,7 @@ namespace MPCWalkgen{
 class DynamicsBuilder{
 
 
-	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+	EIGEN_MAKE_ALIGNED_OPERATOR_NEW		//Necessary for vectorization
 	//
 	// Public methods:
 	//
@@ -57,32 +57,38 @@ private:
 			Derivative derivative
 	);
 
-	/*
+	// Computes the discrete state matrix via \f[ e^{AT} \f]
 	void ComputeDiscreteStateMat(Matrix2D &mat,
 			double sample_period_first
 	);
+
+	// Computes the discrete input vector via \f[ A^{-1}(A_d-I)B \f]
 	void ComputeDiscreteInputVec(Vector2D &vec,
 			const Matrix2D &discr_state_mat
 	);
-	*/
+
 
 	//
 	// Private data members:
 	//
 private:
-	/*
-	Matrix2D cont_state_mat_, cont_state_mat_inv_;
-	Vector2D eigenval_vec_;
-	Matrix2D eigenvec_mat_, eigenvec_mat_inv_;
-	Vector2D cont_input_vec_;
 
-	Matrix2D diag_exp_eig_mat_;	//\f[ e^{\lambda_1 T} \f]
+	// \name Elements for the computation of discrete state-space models
+	// \{
+	Matrix2D cont_state_mat_, cont_state_mat_inv_;	//Continuous state matrices
+	Vector2D cont_input_vec_;						//Continuous input vector
+
+	Vector2D eigenval_vec_;							//Vector of eigenvalues
+	Matrix2D eigenvec_mat_, eigenvec_mat_inv_;		//Eigenvector matrices
+
+	Matrix2D diag_exp_eig_mat_;						//\f[ e^{\lambda_1 T} \f]
 
 	Matrix2D identity_mat_;
-	Matrix2D precomp_input_mat_;  // \f[ -A^{-1}\mathbb{I}B
+	Matrix2D precomp_input_mat_;  					// \f[ -A^{-1}\mathbb{I}B \f]
 
 	Vector2D tmp_vec_;
-*/
+	// \}
+
 };
 }
 #endif // MPC_WALKGEN_DYNAMICS_BUILDER_H
