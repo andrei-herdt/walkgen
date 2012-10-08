@@ -15,10 +15,14 @@
 namespace MPCWalkgen{
 
 class Walkgen {
+
 	//
 	// Public methods:
 	//
 public:
+
+	EIGEN_MAKE_ALIGNED_OPERATOR_NEW		//Necessary for vectorization of fixed-size vectors
+
 	Walkgen();
 	~Walkgen();
 
@@ -36,7 +40,7 @@ public:
 	const BodyState &bodyState(BodyType body) const;
 	void bodyState(BodyType body, const BodyState &state);
 	inline const ControlOutput &output() const { return output_; };
-	inline RigidBodySystem *robot() { return robot_; };
+	inline RigidBodySystem *robot() { return &robot_; };
 
 	inline const QPSolver *solver() const { return solver_; };
 
@@ -54,6 +58,7 @@ private:
 	void GenerateTrajectories();
 	void ResetOutputIndex();
 	void IncrementOutputIndex();
+	//Copies the output_index_ trajectory entries to output_;
 	void UpdateOutput();
 	void ResetCounters(double time);
 	void SetCounters(double time);
@@ -68,7 +73,7 @@ private:
 	::MPCWalkgen::QPSolver *solver_;
 	QPBuilder *builder_;
 	HeuristicPreview *preview_;
-	RigidBodySystem *robot_;
+	RigidBodySystem robot_;
 
 	OrientationsPreview *orient_preview_;
 

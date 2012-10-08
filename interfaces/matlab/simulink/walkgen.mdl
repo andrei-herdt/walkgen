@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.418"
+    ComputedModelVersion    "1.420"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Mon Oct 08 14:57:48 2012"
+  LastModifiedDate	  "Mon Oct 08 16:00:34 2012"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:418>"
+  ModelVersionFormat	  "1.%<AutoIncrement:420>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -756,7 +756,7 @@ Model {
 	  MaskIconOpaque	  on
 	  MaskIconRotate	  "none"
 	  MaskIconUnits		  "autoscale"
-	  MaskValueString	  "16|8|8|2|0.1|0.001|0.001|0.02|20|3|1"
+	  MaskValueString	  "16|8|8|2|0.1|0.1|0.001|0.02|20|2|1"
 	  MaskTabNameString	  ",,,,,,,,,,"
 	  System {
 	    Name		    "Atomic Walkgen"
@@ -1070,7 +1070,7 @@ Model {
 	      Orientation	      "up"
 	      ShowName		      off
 	      Floating		      off
-	      Location		      [79, 40, 1595, 894]
+	      Location		      [79, 40, 1595, 891]
 	      Open		      off
 	      NumInputPorts	      "1"
 	      ZoomMode		      "yonly"
@@ -1101,9 +1101,9 @@ Model {
 		ListType		AxesTitles
 		axes1			"%<SignalLabel>"
 	      }
-	      TimeRange		      "5               "
-	      YMin		      "0.025"
-	      YMax		      "0.35"
+	      TimeRange		      "0.6600550964187328"
+	      YMin		      "-0.0305591259640103"
+	      YMax		      "0.0568444730077121"
 	      SaveName		      "ScopeData5"
 	      DataFormat	      "StructureWithTime"
 	      SampleTime	      "0"

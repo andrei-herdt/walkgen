@@ -8,7 +8,6 @@ namespace MPCWalkgen{
 class DynamicsBuilder{
 
 
-	EIGEN_MAKE_ALIGNED_OPERATOR_NEW		//Necessary for vectorization
 	//
 	// Public methods:
 	//

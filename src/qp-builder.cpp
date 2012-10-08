@@ -58,7 +58,7 @@ void QPBuilder::PrecomputeObjective() {
 	contr_weighting_mat.setIdentity(num_samples, num_samples);
 	if (mpc_parameters_->dynamics_order == SECOND_ORDER) {
 		for (int row = 1; row < num_samples; row++) {
-			contr_weighting_mat(row, row - 1) = -1.;
+			//contr_weighting_mat(row, row - 1) = -1.;
 		}
 	}
 
