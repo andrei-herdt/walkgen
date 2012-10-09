@@ -158,27 +158,27 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 	// Begin initialization of the robot:
 	// ----------------------------------
 	if (ssGetIWorkValue(S, 0) == 0) {
-		FootData leftFoot;
-		leftFoot.anklePositionInLocalFrame << 0, 0, 0;      //0, 0, 0.105;//TODO:Is not used
-		leftFoot.soleHeight = *foot_geometry[2] - *foot_geometry[3];
-		leftFoot.soleWidth = *foot_geometry[0] - *foot_geometry[1];
-		leftFoot.SetEdges(*foot_geometry[0], *foot_geometry[1], *foot_geometry[2], *foot_geometry[3], kSecurityMargin);
-		FootData rightFoot;
-		rightFoot.anklePositionInLocalFrame << 0, 0, 0;     //0, 0, 0.105;//TODO:Is not used
-		rightFoot.soleHeight = *foot_geometry[2] - *foot_geometry[3];
-		rightFoot.soleWidth = *foot_geometry[0] - *foot_geometry[1];
-		rightFoot.SetEdges(*foot_geometry[0], *foot_geometry[1], *foot_geometry[2], *foot_geometry[3], kSecurityMargin);
+		FootData left_foot;
+		left_foot.anklePositionInLocalFrame << 0, 0, 0;      //0, 0, 0.105;//TODO:Is not used
+		left_foot.soleHeight = *foot_geometry[2] - *foot_geometry[3];
+		left_foot.soleWidth = *foot_geometry[0] - *foot_geometry[1];
+		left_foot.SetEdges(*foot_geometry[0], *foot_geometry[1], *foot_geometry[2], *foot_geometry[3], kSecurityMargin);
+		FootData right_foot;
+		right_foot.anklePositionInLocalFrame << 0, 0, 0;     //0, 0, 0.105;//TODO:Is not used
+		right_foot.soleHeight = *foot_geometry[2] - *foot_geometry[3];
+		right_foot.soleWidth = *foot_geometry[0] - *foot_geometry[1];
+		right_foot.SetEdges(*foot_geometry[0], *foot_geometry[1], *foot_geometry[2], *foot_geometry[3], kSecurityMargin);
 
-		HipYawData leftHipYaw;
-		leftHipYaw.lowerBound                   = -0.523599;
-		leftHipYaw.upperBound                   = 0.785398;
-		leftHipYaw.lowerVelocityBound           = -3.54108;
-		leftHipYaw.upperVelocityBound           = 3.54108;
-		leftHipYaw.lowerAccelerationBound       = -0.1;
-		leftHipYaw.upperAccelerationBound       = 0.1;
-		HipYawData rightHipYaw                  = leftHipYaw;
+		HipYawData left_hip_yaw;
+		left_hip_yaw.lowerBound                   = -0.523599;
+		left_hip_yaw.upperBound                   = 0.785398;
+		left_hip_yaw.lowerVelocityBound           = -3.54108;
+		left_hip_yaw.upperVelocityBound           = 3.54108;
+		left_hip_yaw.lowerAccelerationBound       = -0.1;
+		left_hip_yaw.upperAccelerationBound       = 0.1;
+		HipYawData right_hip_yaw                  = left_hip_yaw;
 
-		RobotData robot_data(leftFoot, rightFoot, leftHipYaw, rightHipYaw, 0.0);
+		RobotData robot_data(left_foot, right_foot, left_hip_yaw, right_hip_yaw, 0.0);
 
 		robot_data.com(0) = *com_in[0];		// TODO: This initialization did not work
 		robot_data.com(1) = *com_in[1];
@@ -194,20 +194,18 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 
 		// Feasibility hulls:
 		// ------------------
-		const int nbVertFeet = 5;
-		// Feasible foot positions
-		double DefaultFPosEdgesX[nbVertFeet] = {-0.2, -0.2, 0.0, 0.2, 0.2};
-		double DefaultFPosEdgesY[nbVertFeet] = {-0.2, -0.3, -0.4, -0.3, -0.2};
+		const int num_vert_foot_pos = 5;
+		double DefaultFPosEdgesX[num_vert_foot_pos] = {-0.2, -0.2, 0.0, 0.2, 0.2};
+		double DefaultFPosEdgesY[num_vert_foot_pos] = {-0.2, -0.3, -0.4, -0.3, -0.2};
 
-		robot_data.left_foot_pos_hull.Resize(nbVertFeet);
-		robot_data.right_foot_pos_hull.Resize(nbVertFeet);
-		for (int i = 0; i < nbVertFeet; ++i) {
+		robot_data.left_foot_pos_hull.Resize(num_vert_foot_pos);
+		robot_data.right_foot_pos_hull.Resize(num_vert_foot_pos);
+		for (int i = 0; i < num_vert_foot_pos; ++i) {
 			robot_data.left_foot_pos_hull.x_vec(i)  = DefaultFPosEdgesX[i];
 			robot_data.left_foot_pos_hull.y_vec(i)  = DefaultFPosEdgesY[i];
 			robot_data.right_foot_pos_hull.x_vec(i) = DefaultFPosEdgesX[i];
 			robot_data.right_foot_pos_hull.y_vec(i) = -DefaultFPosEdgesY[i];
 		}
-
 		double feet_distance_y = *left_ankle_in[1] - *right_ankle_in[1];
 		robot_data.SetCoPHulls(feet_distance_y);
 
