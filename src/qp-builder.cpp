@@ -87,7 +87,7 @@ void QPBuilder::PrecomputeObjective() {
 			G = weight_coefficients_->vel[i] * tmp_mat_;
 			// Q += gamma*Uz^(-T)*Uz^(-1)
 			tmp_mat_.noalias() = cop_dyn.input_mat_inv_tr * cop_dyn.input_mat_inv;
-			G += weight_coefficients_->cop[i] * tmp_mat_;
+			G += weight_coefficients_->control[i] * tmp_mat_;
 			// Q += delta*Uz^(-T)*Up^T*Up*Uz^(-1)
 			tmp_mat_.noalias() = cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * pos_dyn.input_mat * cop_dyn.input_mat_inv;
 			G +=  weight_coefficients_->pos[i] * tmp_mat_;
@@ -96,8 +96,8 @@ void QPBuilder::PrecomputeObjective() {
 			G +=  weight_coefficients_->cp[i] * tmp_mat_;
 
 			Qconst_[nb] = G;
-			// Q += alpha*I
-			QconstN_[nb] = G + weight_coefficients_->control[i] * contr_weighting_mat;
+			// Q += gamma*I
+			QconstN_[nb] = G + weight_coefficients_->cop[i] * contr_weighting_mat;
 
 			chol.reset();
 			chol.AddTerm(QconstN_[nb], 0, 0);
@@ -118,7 +118,7 @@ void QPBuilder::PrecomputeObjective() {
 			state_variant_[nb] -= cop_dyn.input_mat_inv_tr * weight_coefficients_->control[i] * cop_dyn.input_mat_inv * cop_dyn.state_mat;
 
 			// alpha*Uz^(-T)*Uz^(-1)
-			select_variant_[nb]  = cop_dyn.input_mat_inv_tr * weight_coefficients_->cop[i] * cop_dyn.input_mat_inv;
+			select_variant_[nb]  = cop_dyn.input_mat_inv_tr * weight_coefficients_->control[i] * cop_dyn.input_mat_inv;
 			// beta*Uz^(-T)*Uv^T*Uv*Uz^(-1)
 			select_variant_[nb] += cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * weight_coefficients_->vel[i] * vel_dyn.input_mat * cop_dyn.input_mat_inv;
 			// delta*Uz^(-T)*Up^T*Up*Uz^(-1)
