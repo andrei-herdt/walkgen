@@ -77,15 +77,19 @@ void QPBuilder::PrecomputeObjective() {
 			const LinearDynamicsMatrices &vel_dyn = robot_->com()->dynamics_qp().vel;
 			const LinearDynamicsMatrices &cop_dyn = robot_->com()->dynamics_qp().cop;
 
+			// Q = beta*Uz^(-T)*Uv^T*Uv*Uz^(-1)
 			tmp_mat_.noalias() = cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * vel_dyn.input_mat * cop_dyn.input_mat_inv;
 			G = weight_coefficients_->vel[i] * tmp_mat_;
+			// Q += alpha*Uz^(-T)*Uz^(-1)
 			tmp_mat_.noalias() = cop_dyn.input_mat_inv_tr * cop_dyn.input_mat_inv;
-			G += weight_coefficients_->control[i] * tmp_mat_;
+			G += weight_coefficients_->cop[i] * tmp_mat_;
+			// Q += delta*Uz^(-T)*Up^T*Up*Uz^(-1)
 			tmp_mat_.noalias() = cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * pos_dyn.input_mat * cop_dyn.input_mat_inv;/*position*/
 			G +=  weight_coefficients_->pos[i] * tmp_mat_;
 
 			Qconst_[nb] = G;
-			QconstN_[nb] = G + weight_coefficients_->cop[i] * contr_weighting_mat;//TODO: What is difference?
+			// Q += gamma*I
+			QconstN_[nb] = G + weight_coefficients_->control[i] * contr_weighting_mat;
 
 			chol.reset();
 			chol.AddTerm(QconstN_[nb], 0, 0);

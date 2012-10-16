@@ -281,12 +281,12 @@ void DynamicsBuilder::BuildSecondOrderCoP(LinearDynamics &dyn, double height,
 	dyn.cop.input_mat_inv_tr.setIdentity();
 
 	// Acceleration:
-	dyn.acc.state_mat = kGravity / height * (dyn.pos.state_mat - dyn.cop.state_mat);//cop.state_mat should be zero
-	dyn.acc.input_mat = kGravity / height * (dyn.pos.input_mat - dyn.cop.input_mat);
+	dyn.acc.state_mat = kGravity/height*(dyn.pos.state_mat - dyn.cop.state_mat);//cop.state_mat should be zero
+	dyn.acc.input_mat = kGravity/height*(dyn.pos.input_mat - dyn.cop.input_mat);
 
 	// Capture Point: \f$ \xi = x + \frac{1}{\omega}\dot x \f$
-	dyn.cp.state_mat = dyn.pos.state_mat + sqrt(kGravity / height) * dyn.vel.state_mat;
-	dyn.cp.input_mat = dyn.pos.input_mat + sqrt(kGravity / height) * dyn.vel.input_mat;
+	dyn.cp.state_mat = dyn.pos.state_mat + sqrt(height/kGravity)*dyn.vel.state_mat;
+	dyn.cp.input_mat = dyn.pos.input_mat + sqrt(height/kGravity)*dyn.vel.input_mat;
 
 }
 
