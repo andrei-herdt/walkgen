@@ -26,7 +26,7 @@ int main() {
 	mpc_parameters.num_samples_horizon    = num_samples_horizon;
 	mpc_parameters.num_samples_step       = num_samples_step;
 	mpc_parameters.num_samples_dsss       = num_samples_dsss;
-	mpc_parameters.num_steps_ssds           = num_steps_ssds;
+	mpc_parameters.num_steps_ssds         = num_steps_ssds;
 	mpc_parameters.period_qpsample        = sample_period_qp;
 	mpc_parameters.period_mpcsample       = sample_period_first;
 	mpc_parameters.period_actsample       = sample_period_act;
@@ -37,7 +37,17 @@ int main() {
 	mpc_parameters.solver.num_wsrec               = 20;
 	mpc_parameters.dynamics_order                 = THIRD_ORDER;
 
+	mpc_parameters.weight_coefficients.pos[0] 		= 0.;
+	mpc_parameters.weight_coefficients.vel[0]  		= 1.;
+	mpc_parameters.weight_coefficients.cop[0]  		= 0.00001;
+	mpc_parameters.weight_coefficients.cp[0] 		= 0.;//1.;
+	mpc_parameters.weight_coefficients.control[0] 	= 0.00001;
 
+	mpc_parameters.weight_coefficients.pos[1] 		= 0.;
+	mpc_parameters.weight_coefficients.vel[1]  		= 1.;
+	mpc_parameters.weight_coefficients.cop[1]  		= 1.;
+	mpc_parameters.weight_coefficients.cp[1] 		= 0.;
+	mpc_parameters.weight_coefficients.control[1] 	= 0.000001;
 
 	// Robot parameters:
 	// -----------------
