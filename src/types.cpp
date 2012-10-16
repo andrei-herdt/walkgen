@@ -336,17 +336,21 @@ WeightCoefficients::WeightCoefficients(int num_modes)
 ,vel(num_modes)
 ,acc(num_modes)
 ,jerk(num_modes)
+,cop(num_modes)
+,cp(num_modes)
 ,control(num_modes)
-,cop(num_modes) {
-	pos[0] =  0.;
-	vel[0]  = 1.;
-	cop[0]  = 0.00001;
-	control[0] = 0.;//000001;
+ {
+	pos[0] 		= 0.;
+	vel[0]  	= 1.;
+	cop[0]  	= 0.00001;
+	cp[0] 		= 0.;
+	control[0] 	= 0.;//000001;
 
-	pos[1] =  0.;
-	vel[1]  = 1.;
-	cop[1]  = 1.;
-	control[1] = 0.;//000001;
+	pos[1] 		= 0.;
+	vel[1]  	= 1.;
+	cop[1]  	= 1.;
+	cp[0] 		= 0.;
+	control[1] 	= 0.;//000001;
 
 
 	active_mode  = 0;
