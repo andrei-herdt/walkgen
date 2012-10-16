@@ -341,16 +341,16 @@ WeightCoefficients::WeightCoefficients(int num_modes)
 ,control(num_modes)
  {
 	pos[0] 		= 0.;
-	vel[0]  	= 1.;
+	vel[0]  	= 0.;//1.;
 	cop[0]  	= 0.00001;
-	cp[0] 		= 0.;
-	control[0] 	= 0.;//000001;
+	cp[0] 		= 1.;//1.;
+	control[0] 	= 0.0001;
 
 	pos[1] 		= 0.;
 	vel[1]  	= 1.;
 	cop[1]  	= 1.;
-	cp[0] 		= 0.;
-	control[1] 	= 0.;//000001;
+	cp[0] 		= 1.;
+	control[1] 	= 0.000001;
 
 
 	active_mode  = 0;

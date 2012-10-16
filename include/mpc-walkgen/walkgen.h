@@ -36,6 +36,7 @@ public:
 	// \{
 	void SetReference(double dx, double dy, double dyaw);
 	void SetReference(CommonVectorType dx, CommonVectorType dy, CommonVectorType dyaw);
+	void SetCPReference(double x, double y);
 
 	const BodyState &bodyState(BodyType body) const;
 	void bodyState(BodyType body, const BodyState &state);
