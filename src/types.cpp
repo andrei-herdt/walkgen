@@ -10,7 +10,7 @@ Frame::Frame()
 	yaw.fill(0);
 }
 
-void Frame::resize(int size){
+void Frame::SetZero(int size){
 	x.setZero(size);
 	y.setZero(size);
 	yaw.setZero(size);
@@ -21,9 +21,9 @@ Reference::Reference()
 ,local()
 {}
 
-void Reference::resize(int size){
-	global.resize(size);
-	local.resize(size);
+void Reference::SetZero(int size){
+	global.SetZero(size);
+	local.SetZero(size);
 }
 
 BodyState::BodyState(){
@@ -386,6 +386,7 @@ void LinearDynamics::SetZero(int state_dimension, int num_samples) {
 	acc.SetZero(state_dimension, num_samples);
 	jerk.SetZero(state_dimension, num_samples);
 	cop.SetZero(state_dimension, num_samples);
+	cp.SetZero(state_dimension, num_samples);
 }
 
 

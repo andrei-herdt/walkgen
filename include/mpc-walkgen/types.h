@@ -32,7 +32,7 @@ enum Derivative {
 	VELOCITY		= 1,
 	ACCELERATION	= 2,
 	JERK			= 3,
-	COP			= 4
+	COP				= 4
 };
 
 enum SampleRate { QP, ACTUATORS };//TODO: Needed?
@@ -72,7 +72,7 @@ struct Frame{
 
 	Frame();
 
-	void resize(int size);
+	void SetZero(int size);
 };
 
 struct Reference{
@@ -81,7 +81,7 @@ struct Reference{
 
 	Reference();
 
-	void resize(int size);
+	void SetZero(int size);
 };
 
 struct MPC_WALKGEN_API BodyState{

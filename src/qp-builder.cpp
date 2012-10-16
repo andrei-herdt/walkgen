@@ -10,13 +10,14 @@ using namespace MPCWalkgen;
 using namespace std;
 
 QPBuilder::QPBuilder(HeuristicPreview *preview, QPSolver *solver,
-		Reference *vel_ref, WeightCoefficients *weight_coefficients,
+		Reference *vel_ref, Reference *cp_ref, WeightCoefficients *weight_coefficients,
 		RigidBodySystem *robot, const MPCParameters *mpc_parameters,
 		RealClock *clock)
 :preview_(preview)
 ,solver_(solver)
 ,robot_(robot)
 ,vel_ref_(vel_ref)
+,cp_ref_(cp_ref)
 ,weight_coefficients_(weight_coefficients)
 ,mpc_parameters_(mpc_parameters)
 ,tmp_vec_(1)
@@ -53,6 +54,7 @@ void QPBuilder::PrecomputeObjective() {
 	select_variant_.resize(num_recomp * num_modes);
 	ref_variant_vel_.resize(num_recomp * num_modes);
 	ref_variant_pos_.resize(num_recomp * num_modes);
+	ref_variant_cp_.resize(num_recomp * num_modes);
 
 	// Set R:
 	// ------
@@ -78,6 +80,7 @@ void QPBuilder::PrecomputeObjective() {
 			const LinearDynamicsMatrices &pos_dyn = robot_->com()->dynamics_qp().pos;
 			const LinearDynamicsMatrices &vel_dyn = robot_->com()->dynamics_qp().vel;
 			const LinearDynamicsMatrices &cop_dyn = robot_->com()->dynamics_qp().cop;
+			const LinearDynamicsMatrices &cp_dyn = robot_->com()->dynamics_qp().cp;
 
 			// Q = beta*Uz^(-T)*Uv^T*Uv*Uz^(-1)
 			tmp_mat_.noalias() = cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * vel_dyn.input_mat * cop_dyn.input_mat_inv;
@@ -86,8 +89,11 @@ void QPBuilder::PrecomputeObjective() {
 			tmp_mat_.noalias() = cop_dyn.input_mat_inv_tr * cop_dyn.input_mat_inv;
 			G += weight_coefficients_->cop[i] * tmp_mat_;
 			// Q += delta*Uz^(-T)*Up^T*Up*Uz^(-1)
-			tmp_mat_.noalias() = cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * pos_dyn.input_mat * cop_dyn.input_mat_inv;/*position*/
+			tmp_mat_.noalias() = cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * pos_dyn.input_mat * cop_dyn.input_mat_inv;
 			G +=  weight_coefficients_->pos[i] * tmp_mat_;
+			// Q += epsilon*Uz^(-T)*Uxi^T*Uxi*Uz^(-1)
+			tmp_mat_.noalias() = cop_dyn.input_mat_inv_tr * cp_dyn.input_mat_tr * cp_dyn.input_mat * cop_dyn.input_mat_inv;
+			G +=  weight_coefficients_->cp[i] * tmp_mat_;
 
 			Qconst_[nb] = G;
 			// Q += alpha*I
@@ -105,20 +111,27 @@ void QPBuilder::PrecomputeObjective() {
 			// beta*Uz^(-T)*Up*(Sp - Up*Uz^(-1)*Sz)
 			tmp_mat_.noalias() = pos_dyn.state_mat - pos_dyn.input_mat * cop_dyn.input_mat_inv * cop_dyn.state_mat;
 			state_variant_[nb] += cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * weight_coefficients_->pos[i] * tmp_mat_;
+			// epsilon*Uz^(-T)*Uxi*(Sp - Uxi*Uz^(-1)*Sz)
+			tmp_mat_.noalias() = cp_dyn.state_mat - cp_dyn.input_mat * cop_dyn.input_mat_inv * cop_dyn.state_mat;
+			state_variant_[nb] += cop_dyn.input_mat_inv_tr * cp_dyn.input_mat_tr * weight_coefficients_->cp[i] * tmp_mat_;
 			// - alpha*Uz^(-T)*Uz^(-1)*Sz
 			state_variant_[nb] -= cop_dyn.input_mat_inv_tr * weight_coefficients_->control[i] * cop_dyn.input_mat_inv * cop_dyn.state_mat;
 
 			// alpha*Uz^(-T)*Uz^(-1)
-			select_variant_[nb]  = cop_dyn.input_mat_inv_tr * weight_coefficients_->control[i] * cop_dyn.input_mat_inv;
-			// alpha*Uz^(-T)*Uv^T*Uv*Uz^(-1)
+			select_variant_[nb]  = cop_dyn.input_mat_inv_tr * weight_coefficients_->cop[i] * cop_dyn.input_mat_inv;
+			// beta*Uz^(-T)*Uv^T*Uv*Uz^(-1)
 			select_variant_[nb] += cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * weight_coefficients_->vel[i] * vel_dyn.input_mat * cop_dyn.input_mat_inv;
-			// alpha*Uz^(-T)*Up^T*Up*Uz^(-1)
+			// delta*Uz^(-T)*Up^T*Up*Uz^(-1)
 			select_variant_[nb] += cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * weight_coefficients_->pos[i] * pos_dyn.input_mat * cop_dyn.input_mat_inv;
+			// epsilon*Uz^(-T)*Uxi^T*Uxi*Uz^(-1)
+			select_variant_[nb] += cop_dyn.input_mat_inv_tr * cp_dyn.input_mat_tr * weight_coefficients_->cp[i] * cp_dyn.input_mat * cop_dyn.input_mat_inv;
 
 			// - beta*Uz^(-T)*Uv^T
 			ref_variant_vel_[nb] = -cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * weight_coefficients_->vel[i];
 			// - delta*Uz^(-T)*Up^T
 			ref_variant_pos_[nb] = -cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * weight_coefficients_->pos[i];
+			// - epsilon*Uz^(-T)*Uxi^T
+			ref_variant_cp_[nb] = -cop_dyn.input_mat_inv_tr * cp_dyn.input_mat_tr * weight_coefficients_->cp[i];
 		}
 	}
 }
@@ -221,6 +234,9 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 
 	//HX += ref_variant_pos_[sample_num] * pos_ref_->global.x;
 	//HY += ref_variant_pos_[sample_num] * pos_ref_->global.y;
+
+	HX += ref_variant_cp_[sample_num] * cp_ref_->global.x;
+	HY += ref_variant_cp_[sample_num] * cp_ref_->global.y;
 
 	if (num_steps_previewed > 0) {
 		tmp_vec_.noalias() = select_mats.sample_step_trans * HX;
@@ -400,7 +416,7 @@ void QPBuilder::ComputeWarmStart(MPCSolution &solution) {
 
 }
 
-void QPBuilder::BuildReferenceVector(const MPCSolution &solution) {
+void QPBuilder::BuildGlobalVelocityReference(const MPCSolution &solution) {
 	if (vel_ref_->global.x.rows() != mpc_parameters_->num_samples_horizon){
 		vel_ref_->global.x.resize(mpc_parameters_->num_samples_horizon);
 		vel_ref_->global.y.resize(mpc_parameters_->num_samples_horizon);

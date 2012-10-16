@@ -17,7 +17,7 @@ int main() {
 	int num_steps_ssds = 2;
 	double sample_period_qp = 0.1;
 	double sample_period_first = 0.1;
-	double sample_period_act = 0.005;
+	double sample_period_act = 0.001;
 	const double kSecurityMargin = 0.02;
 
 	// Simulation parameters:
@@ -35,7 +35,7 @@ int main() {
 	mpc_parameters.solver.analysis                = false;
 	mpc_parameters.solver.name                    = QPOASES;
 	mpc_parameters.solver.num_wsrec               = 20;
-	mpc_parameters.dynamics_order                 = SECOND_ORDER;
+	mpc_parameters.dynamics_order                 = THIRD_ORDER;
 
 
 

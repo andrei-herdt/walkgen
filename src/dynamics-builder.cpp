@@ -56,11 +56,18 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, doubl
 }
 
 void DynamicsBuilder::BuildThirdOrder(LinearDynamics &dyn, double height, double sample_period_first, double sample_period_rest, int num_samples) {
+
+	dyn.SetZero(3, num_samples);
+
 	BuildThirdOrder(dyn.pos, height, sample_period_first, sample_period_rest, num_samples, POSITION);
 	BuildThirdOrder(dyn.vel, height, sample_period_first, sample_period_rest, num_samples, VELOCITY);
 	BuildThirdOrder(dyn.acc, height, sample_period_first, sample_period_rest, num_samples, ACCELERATION);
 	BuildThirdOrder(dyn.jerk, height, sample_period_first, sample_period_rest, num_samples, JERK);
 	BuildThirdOrder(dyn.cop, height, sample_period_first, sample_period_rest, num_samples, COP);
+
+	// Capture Point: \f$ \xi = x + \frac{1}{\omega}\dot x \f$
+	dyn.cp.state_mat = dyn.pos.state_mat + sqrt(height/kGravity)*dyn.vel.state_mat;
+	dyn.cp.input_mat = dyn.pos.input_mat + sqrt(height/kGravity)*dyn.vel.input_mat;
 }
 
 void DynamicsBuilder::BuildThirdOrder(LinearDynamicsMatrices &dyn, double height,
@@ -74,12 +81,6 @@ void DynamicsBuilder::BuildThirdOrder(LinearDynamicsMatrices &dyn, double height
 	int N = num_samples;
 	double s = sample_period_first;
 	double T = sample_period_rest;
-
-	dyn.state_mat.setZero(N, 3);
-	dyn.input_mat.setZero(N, N);
-	dyn.input_mat_tr.setZero(N, N);
-	dyn.input_mat_inv.setZero(N, N);
-	dyn.input_mat_inv_tr.setZero(N, N);
 
 	switch (derivative){
 	case POSITION:

@@ -79,10 +79,11 @@ void Walkgen::Init(const MPCParameters &mpc_parameters) {
 	solution_.com_prw.Resize(mpc_parameters_.num_samples_horizon);
 	solution_.cop_prw.Resize(mpc_parameters_.num_samples_horizon);
 
-	solution_.pos_ref.resize(mpc_parameters_.num_samples_horizon);
+	solution_.pos_ref.SetZero(mpc_parameters_.num_samples_horizon);//DEPRECATED:
 
-	vel_ref_.resize(mpc_parameters_.num_samples_horizon);
-	new_vel_ref_.resize(mpc_parameters_.num_samples_horizon);
+	vel_ref_.SetZero(mpc_parameters_.num_samples_horizon);
+	cp_ref_.SetZero(mpc_parameters_.num_samples_horizon);
+	new_vel_ref_.SetZero(mpc_parameters_.num_samples_horizon);
 
 	// Reset:
 	// ------
@@ -155,7 +156,7 @@ void Walkgen::Init() {
 
 	preview_ = new HeuristicPreview(&vel_ref_, &robot_, &mpc_parameters_, &clock_);
 
-	builder_= new QPBuilder(preview_, solver_, &vel_ref_, &weight_coefficients_, &robot_, &mpc_parameters_, &clock_);
+	builder_= new QPBuilder(preview_, solver_, &vel_ref_, &cp_ref_, &weight_coefficients_, &robot_, &mpc_parameters_, &clock_);
 
 	orient_preview_->Init(mpc_parameters_, robot_data_);
 
@@ -221,7 +222,7 @@ void Walkgen::BuildProblem() {
 			solution_ );
 	preview_->BuildRotationMatrix(solution_);
 
-	builder_->BuildReferenceVector(solution_);
+	builder_->BuildGlobalVelocityReference(solution_);
 
 	builder_->BuildProblem(solution_);
 }

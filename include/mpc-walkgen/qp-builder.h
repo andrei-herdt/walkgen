@@ -16,7 +16,8 @@ class QPBuilder{
 public:
 	QPBuilder(HeuristicPreview *preview,
 			QPSolver *solver,
-			Reference *ref,
+			Reference *vel_ref,
+			Reference *cp_ref,
 			WeightCoefficients *weight_coefficients,
 			RigidBodySystem *robot,
 			const MPCParameters *mpc_parameters,
@@ -32,7 +33,7 @@ public:
 
 	void TransformControlVector(MPCSolution &solution);
 
-	void BuildReferenceVector(const MPCSolution &solution);
+	void BuildGlobalVelocityReference(const MPCSolution &solution);
 
 	inline void current_time(double time) {current_time_ = time;};
 
@@ -61,7 +62,10 @@ private:
 	HeuristicPreview *preview_;
 	QPSolver *solver_;
 	RigidBodySystem *robot_;
+
 	Reference *vel_ref_;
+	Reference *cp_ref_;
+
 	WeightCoefficients *weight_coefficients_;
 	const MPCParameters *mpc_parameters_;
 
@@ -77,10 +81,13 @@ private:
 	std::vector<CommonMatrixType> Qconst_;
 	std::vector<CommonMatrixType> QconstN_;
 	std::vector<CommonMatrixType> choleskyConst_;
+
 	std::vector<CommonMatrixType> state_variant_;   // These elements are multiplied by the state
 	std::vector<CommonMatrixType> select_variant_;
+
 	std::vector<CommonMatrixType> ref_variant_vel_;
 	std::vector<CommonMatrixType> ref_variant_pos_;
+	std::vector<CommonMatrixType> ref_variant_cp_;
 
 	ConvexHull foot_hull_edges_;
 	ConvexHull cop_hull_edges_;

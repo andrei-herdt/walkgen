@@ -85,7 +85,7 @@ private:
 	int output_index_;
 
 	MPCSolution solution_;
-	Reference vel_ref_, pos_ref_;
+	Reference vel_ref_, pos_ref_, cp_ref_;
 	/// \brief The new value of reference velocity, updated with in online method
 	Reference new_vel_ref_;
 	WeightCoefficients weight_coefficients_;
