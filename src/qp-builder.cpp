@@ -54,6 +54,8 @@ void QPBuilder::PrecomputeObjective() {
 	ref_variant_vel_.resize(num_recomp * num_modes);
 	ref_variant_pos_.resize(num_recomp * num_modes);
 
+	// Set R:
+	// ------
 	CommonMatrixType contr_weighting_mat;
 	contr_weighting_mat.setIdentity(num_samples, num_samples);
 	if (mpc_parameters_->dynamics_order == SECOND_ORDER) {
@@ -80,7 +82,7 @@ void QPBuilder::PrecomputeObjective() {
 			// Q = beta*Uz^(-T)*Uv^T*Uv*Uz^(-1)
 			tmp_mat_.noalias() = cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * vel_dyn.input_mat * cop_dyn.input_mat_inv;
 			G = weight_coefficients_->vel[i] * tmp_mat_;
-			// Q += alpha*Uz^(-T)*Uz^(-1)
+			// Q += gamma*Uz^(-T)*Uz^(-1)
 			tmp_mat_.noalias() = cop_dyn.input_mat_inv_tr * cop_dyn.input_mat_inv;
 			G += weight_coefficients_->cop[i] * tmp_mat_;
 			// Q += delta*Uz^(-T)*Up^T*Up*Uz^(-1)
@@ -88,7 +90,7 @@ void QPBuilder::PrecomputeObjective() {
 			G +=  weight_coefficients_->pos[i] * tmp_mat_;
 
 			Qconst_[nb] = G;
-			// Q += gamma*I
+			// Q += alpha*I
 			QconstN_[nb] = G + weight_coefficients_->control[i] * contr_weighting_mat;
 
 			chol.reset();
@@ -97,18 +99,26 @@ void QPBuilder::PrecomputeObjective() {
 
 			choleskyConst_[nb] = chol.cholesky();
 
+			// beta*Uz^(-T)*Uv*(Sv - Uv*Uz^(-1)*Sz)
 			tmp_mat_.noalias() = vel_dyn.state_mat - vel_dyn.input_mat * cop_dyn.input_mat_inv * cop_dyn.state_mat;
 			state_variant_[nb] = cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * weight_coefficients_->vel[i] * tmp_mat_;
-			tmp_mat_.noalias() = pos_dyn.state_mat - pos_dyn.input_mat * cop_dyn.input_mat_inv * cop_dyn.state_mat;/*position*/
-			state_variant_[nb] += cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * weight_coefficients_->pos[i] * tmp_mat_;/*position*/
+			// beta*Uz^(-T)*Up*(Sp - Up*Uz^(-1)*Sz)
+			tmp_mat_.noalias() = pos_dyn.state_mat - pos_dyn.input_mat * cop_dyn.input_mat_inv * cop_dyn.state_mat;
+			state_variant_[nb] += cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * weight_coefficients_->pos[i] * tmp_mat_;
+			// - alpha*Uz^(-T)*Uz^(-1)*Sz
 			state_variant_[nb] -= cop_dyn.input_mat_inv_tr * weight_coefficients_->control[i] * cop_dyn.input_mat_inv * cop_dyn.state_mat;
 
+			// alpha*Uz^(-T)*Uz^(-1)
 			select_variant_[nb]  = cop_dyn.input_mat_inv_tr * weight_coefficients_->control[i] * cop_dyn.input_mat_inv;
+			// alpha*Uz^(-T)*Uv^T*Uv*Uz^(-1)
 			select_variant_[nb] += cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * weight_coefficients_->vel[i] * vel_dyn.input_mat * cop_dyn.input_mat_inv;
-			select_variant_[nb] += cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * weight_coefficients_->pos[i] * pos_dyn.input_mat * cop_dyn.input_mat_inv;/*position*/
+			// alpha*Uz^(-T)*Up^T*Up*Uz^(-1)
+			select_variant_[nb] += cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * weight_coefficients_->pos[i] * pos_dyn.input_mat * cop_dyn.input_mat_inv;
 
+			// - beta*Uz^(-T)*Uv^T
 			ref_variant_vel_[nb] = -cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * weight_coefficients_->vel[i];
-			ref_variant_pos_[nb] = -cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * weight_coefficients_->pos[i];/*position*/
+			// - delta*Uz^(-T)*Up^T
+			ref_variant_pos_[nb] = -cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * weight_coefficients_->pos[i];
 		}
 	}
 }
