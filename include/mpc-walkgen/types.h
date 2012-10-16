@@ -66,9 +66,7 @@ typedef Eigen::VectorXd CommonVectorType;
 // Data structures:
 //
 struct Frame{
-	CommonVectorType x;
-	CommonVectorType y;
-	CommonVectorType yaw;
+	CommonVectorType x, y, yaw;
 
 	Frame();
 
@@ -76,8 +74,7 @@ struct Frame{
 };
 
 struct Reference{
-	Frame global;
-	Frame local;
+	Frame global, local;
 
 	Reference();
 

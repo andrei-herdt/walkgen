@@ -254,9 +254,9 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 void QPBuilder::BuildConstraints(const MPCSolution &solution) {
 	int num_steps_previewed = solution.support_states_vec.back().step_number;
 
-	BuildConstraintsCOP(solution);
+	BuildCoPConstraints(solution);
 	if (num_steps_previewed>0){
-		BuildInequalitiesFeet(solution);
+		BuildFootPosInequalities(solution);
 		BuildFootPosConstraints(solution);
 		//BuildFootVelConstraints(solution);
 	}
@@ -483,7 +483,7 @@ void QPBuilder::TransformControlVector(MPCSolution &solution) {
 
 }
 
-void QPBuilder::BuildInequalitiesFeet(const MPCSolution &solution) {
+void QPBuilder::BuildFootPosInequalities(const MPCSolution &solution) {
 	int num_ineqs = 5;
 	int num_steps = solution.support_states_vec.back().step_number;
 
@@ -561,7 +561,7 @@ void QPBuilder::BuildFootVelConstraints(const MPCSolution &solution) {
 	solver_->vector(vectorXL).addTerm(lower_limit_y, y_var_pos);
 }
 
-void QPBuilder::BuildConstraintsCOP(const MPCSolution &solution) {
+void QPBuilder::BuildCoPConstraints(const MPCSolution &solution) {
 	int num_samples = mpc_parameters_->num_samples_horizon;
 	std::vector<SupportState>::const_iterator prev_ss_it = solution.support_states_vec.begin();
 

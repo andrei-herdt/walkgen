@@ -8,7 +8,7 @@ using namespace MPCWalkgen;
 using namespace Eigen;
 
 RigidBodySystem::RigidBodySystem():
-								mpc_parameters_p_(NULL) {
+										mpc_parameters_p_(NULL) {
 	com_ 		= new CoMBody();
 	left_foot_ 	= new FootBody(LEFT);
 	right_foot_ = new FootBody(RIGHT);
@@ -97,13 +97,14 @@ void RigidBodySystem::UpdateState(const MPCSolution &solution) {
 	right_foot_->state().z(ACCELERATION) = right_foot_->motion_act().acc.z_vec[next_sample];
 	right_foot_->state().yaw(ACCELERATION) = right_foot_->motion_act().acc.yaw_vec[next_sample];
 
-	// TODO: Not necessary if feedback == true
-	com_->state().x(0) = solution.com_act.pos.x_vec[next_sample];
-	com_->state().y(0) = solution.com_act.pos.y_vec[next_sample];
-	com_->state().x(1) = solution.com_act.vel.x_vec[next_sample];
-	com_->state().y(1) = solution.com_act.vel.y_vec[next_sample];
-	com_->state().x(2) = solution.com_act.acc.x_vec[next_sample];
-	com_->state().y(2) = solution.com_act.acc.y_vec[next_sample];
+	if (!mpc_parameters_p_->closed_loop) {
+		com_->state().x(0) = solution.com_act.pos.x_vec[next_sample];
+		com_->state().y(0) = solution.com_act.pos.y_vec[next_sample];
+		com_->state().x(1) = solution.com_act.vel.x_vec[next_sample];
+		com_->state().y(1) = solution.com_act.vel.y_vec[next_sample];
+		com_->state().x(2) = solution.com_act.acc.x_vec[next_sample];
+		com_->state().y(2) = solution.com_act.acc.y_vec[next_sample];
+	}
 
 	// TODO: Temporary solutions
 	com_->state().yaw(0) = solution.com_act.pos.yaw_vec(next_sample);

@@ -42,7 +42,7 @@ public:
 	//
 private:
 
-	void BuildInequalitiesFeet(const MPCSolution &solution);
+	void BuildFootPosInequalities(const MPCSolution &solution);
 
 	void BuildObjective(const MPCSolution &solution);
 
@@ -52,7 +52,7 @@ private:
 
 	void BuildFootVelConstraints(const MPCSolution &solution);
 
-	void BuildConstraintsCOP(const MPCSolution &solution);
+	void BuildCoPConstraints(const MPCSolution &solution);
 
 	//
 	// Private data members:
