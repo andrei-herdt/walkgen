@@ -341,7 +341,9 @@ struct LinearDynamicsMatrices{
 };
 
 struct LinearDynamics {
-	LinearDynamicsMatrices pos, vel, acc, jerk, cop;
+	LinearDynamicsMatrices pos, vel, acc, jerk;
+	LinearDynamicsMatrices cop;		//\f$ \z = x - \frac{h}{g} \ddot x \f$
+	LinearDynamicsMatrices cp;		//\f$ \xi = x + \frac{1}{\omega}\dot x \f$
 
 	void SetZero(int state_dimension, int input_dimension);
 };

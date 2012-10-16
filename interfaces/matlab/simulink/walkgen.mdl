@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.422"
+    ComputedModelVersion    "1.423"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Tue Oct 09 14:47:19 2012"
+  LastModifiedDate	  "Mon Oct 15 11:22:31 2012"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:422>"
+  ModelVersionFormat	  "1.%<AutoIncrement:423>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -761,7 +761,7 @@ Model {
 	  System {
 	    Name		    "Atomic Walkgen"
 	    Location		    [702, 74, 1881, 876]
-	    Open		    off
+	    Open		    on
 	    ModelBrowserVisibility  off
 	    ModelBrowserWidth	    200
 	    ScreenColor		    "white"
@@ -802,7 +802,7 @@ Model {
 	    Block {
 	      BlockType		      Inport
 	      Name		      "options"
-	      Position		      [45, 463, 75, 477]
+	      Position		      [40, 463, 70, 477]
 	      Port		      "4"
 	      IconDisplay	      "Port number"
 	      OutDataType	      "sfix(16)"
@@ -1115,7 +1115,7 @@ Model {
 	      Position		      [525, 264, 545, 286]
 	      ShowName		      off
 	      Floating		      off
-	      Location		      [85, 45, 1601, 899]
+	      Location		      [79, 40, 1595, 894]
 	      Open		      off
 	      NumInputPorts	      "1"
 	      List {
