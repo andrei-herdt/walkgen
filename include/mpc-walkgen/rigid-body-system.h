@@ -26,12 +26,14 @@ public:
 
 	void UpdateState(const MPCSolution &solution);
 
-	void setSelectionNumber(double firstSamplingPeriod);
+	void SetSelectionNumber(double firstSamplingPeriod);
 
 	void ComputeDynamics();
 
 	// Returns
 	void GetState(CommonVectorType &state_x, CommonVectorType &state_y);
+
+	void GetConvexHull(ConvexHull &hull, HullType type, const SupportState &prwSupport) const;
 
 	//
 	// Private data members:

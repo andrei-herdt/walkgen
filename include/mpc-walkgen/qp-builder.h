@@ -48,7 +48,7 @@ private:
 
 	void BuildConstraints(const MPCSolution &solution);
 
-	void BuildConstraintsFeet(const MPCSolution &solution);
+	void BuildFootPosConstraints(const MPCSolution &solution);
 
 	void BuildFootVelConstraints(const MPCSolution &solution);
 

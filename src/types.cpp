@@ -236,7 +236,7 @@ void ConvexHull::Resize(int size) {
 	}
 }
 
-void ConvexHull::Rotate(double yaw) {
+void ConvexHull::RotateVertices(double yaw) {
 	if (fabs(yaw) < kEps)
 		return;
 
@@ -250,7 +250,7 @@ void ConvexHull::Rotate(double yaw) {
 	}
 }
 
-void ConvexHull::ComputeLinearSystem(const Foot &foot) {
+void ConvexHull::BuildInequalities(const Foot &foot) {
 	double dx,dy,dc,x1,y1,x2,y2;
 	unsigned nbRows = x_vec.rows();
 

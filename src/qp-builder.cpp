@@ -75,7 +75,7 @@ void QPBuilder::PrecomputeObjective() {
 				first_period += mpc_parameters_->period_mpcsample) {
 			int nb = (int)round(first_period / mpc_parameters_->period_mpcsample)-1;
 			nb += i * num_recomp;
-			robot_->setSelectionNumber(first_period);//TODO: ?
+			robot_->SetSelectionNumber(first_period);//TODO: ?
 			// TODO: Get access to entire vector and do all operations here
 			const LinearDynamicsMatrices &pos_dyn = robot_->com()->dynamics_qp().pos;
 			const LinearDynamicsMatrices &vel_dyn = robot_->com()->dynamics_qp().vel;
@@ -257,7 +257,7 @@ void QPBuilder::BuildConstraints(const MPCSolution &solution) {
 	BuildConstraintsCOP(solution);
 	if (num_steps_previewed>0){
 		BuildInequalitiesFeet(solution);
-		BuildConstraintsFeet(solution);
+		BuildFootPosConstraints(solution);
 		//BuildFootVelConstraints(solution);
 	}
 }
@@ -305,7 +305,7 @@ void QPBuilder::ComputeWarmStart(MPCSolution &solution) {
 
 	// Compute feasible initial ZMP and foot positions:
 	// ------------------------------------------------
-	vector<SupportState>::iterator prwSS_it = solution.support_states_vec.begin();
+	std::vector<SupportState>::iterator prwSS_it = solution.support_states_vec.begin();
 	++prwSS_it;//Point at the first previewed support state
 
 	SupportState current_support = solution.support_states_vec.front();
@@ -319,14 +319,16 @@ void QPBuilder::ComputeWarmStart(MPCSolution &solution) {
 	bool noActiveConstraints;
 	for (int i = 0; i<num_samples; i++){
 		// Get COP convex hull for current support
-		robot_->convexHull(cop_hull_edges_, COP_HULL, *prwSS_it, false);
+		robot_->GetConvexHull(cop_hull_edges_, COP_HULL, *prwSS_it);
+		cop_hull_edges_.BuildInequalities(prwSS_it->foot);
 
 		// Check if the support foot has changed
 		if (prwSS_it->state_changed && prwSS_it->step_number>0){
 
 			// Get feet convex hull for current support
 			prwSS_it--;
-			robot_->convexHull(foot_hull_edges_, FOOT_HULL,*prwSS_it, false);
+			robot_->GetConvexHull(foot_hull_edges_, FOOT_HULL, *prwSS_it);
+			foot_hull_edges_.BuildInequalities(prwSS_it->foot);
 			prwSS_it++;
 
 			// Place the foot on active constraints
@@ -494,21 +496,23 @@ void QPBuilder::BuildInequalitiesFeet(const MPCSolution &solution) {
 		if( prev_ss_it->state_changed && prev_ss_it->step_number > 0 && prev_ss_it->phase != DS){
 
 			--prev_ss_it;//Foot polygons are defined with respect to the supporting foot
-			robot_->convexHull(hull_, FOOT_HULL, *prev_ss_it);
+			robot_->GetConvexHull(hull_, FOOT_HULL, *prev_ss_it);
+			hull_.RotateVertices(prev_ss_it->yaw);
+			hull_.BuildInequalities(prev_ss_it->foot);
 			++prev_ss_it;
 
-			int stepNumber = (prev_ss_it->step_number-1);
+			int step_number = (prev_ss_it->step_number - 1);
 
-			foot_inequalities_.x_mat.block( stepNumber * num_ineqs, stepNumber, num_ineqs, 1) = hull_.a_vec.segment(0, num_ineqs);
-			foot_inequalities_.y_mat.block( stepNumber * num_ineqs, stepNumber, num_ineqs, 1) = hull_.b_vec.segment(0, num_ineqs);
-			foot_inequalities_.c_vec.segment(stepNumber * num_ineqs, num_ineqs) = hull_.d_vec.segment(0, num_ineqs);
+			foot_inequalities_.x_mat.block( step_number * num_ineqs, step_number, num_ineqs, 1) = hull_.a_vec.segment(0, num_ineqs);
+			foot_inequalities_.y_mat.block( step_number * num_ineqs, step_number, num_ineqs, 1) = hull_.b_vec.segment(0, num_ineqs);
+			foot_inequalities_.c_vec.segment(step_number * num_ineqs, num_ineqs) = hull_.d_vec.segment(0, num_ineqs);
 		}
 		++prev_ss_it;
 	}
 
 }
 
-void QPBuilder::BuildConstraintsFeet(const MPCSolution &solution) {
+void QPBuilder::BuildFootPosConstraints(const MPCSolution &solution) {
 	int num_steps_previewed = solution.support_states_vec.back().step_number;
 	const SelectionMatrices &select = preview_->selection_matrices();
 	int num_samples = mpc_parameters_->num_samples_horizon;
@@ -561,7 +565,7 @@ void QPBuilder::BuildConstraintsCOP(const MPCSolution &solution) {
 	int num_samples = mpc_parameters_->num_samples_horizon;
 	std::vector<SupportState>::const_iterator prev_ss_it = solution.support_states_vec.begin();
 
-	robot_->convexHull(hull_, COP_HULL, *prev_ss_it, false, false);
+	robot_->GetConvexHull(hull_, COP_HULL, *prev_ss_it);
 
 	int num_steps_previewed = solution.support_states_vec.back().step_number;
 	int size = 2 * num_samples + 2 * num_steps_previewed;
@@ -571,7 +575,7 @@ void QPBuilder::BuildConstraintsCOP(const MPCSolution &solution) {
 	++prev_ss_it;//Points at the first previewed instant
 	for (int i = 0; i < num_samples; ++i) {
 		if (prev_ss_it->state_changed) {
-			robot_->convexHull(hull_, COP_HULL, *prev_ss_it, false, false);
+			robot_->GetConvexHull(hull_, COP_HULL, *prev_ss_it);
 		}
 		tmp_vec_(i)  = min(hull_.x_vec(0), hull_.x_vec(3));
 		tmp_vec2_(i) = max(hull_.x_vec(0), hull_.x_vec(3));

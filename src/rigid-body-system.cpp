@@ -8,9 +8,9 @@ using namespace MPCWalkgen;
 using namespace Eigen;
 
 RigidBodySystem::RigidBodySystem():
-				mpc_parameters_p_(NULL) {
-	com_ = new CoMBody();
-	left_foot_ = new FootBody(LEFT);
+								mpc_parameters_p_(NULL) {
+	com_ 		= new CoMBody();
+	left_foot_ 	= new FootBody(LEFT);
 	right_foot_ = new FootBody(RIGHT);
 }
 
@@ -112,43 +112,35 @@ void RigidBodySystem::UpdateState(const MPCSolution &solution) {
 	com_->state().z(0) = robot_data_.com(2);
 }
 
-void RigidBodySystem::setSelectionNumber(double firstSamplingPeriod){
-	com_->SetSelectionNumber(firstSamplingPeriod);
-	left_foot_->SetSelectionNumber(firstSamplingPeriod);
-	right_foot_->SetSelectionNumber(firstSamplingPeriod);
+void RigidBodySystem::SetSelectionNumber(double sampling_period){
+	com_->SetSelectionNumber(sampling_period);
+	left_foot_->SetSelectionNumber(sampling_period);
+	right_foot_->SetSelectionNumber(sampling_period);
 }
 
-void RigidBodySystem::convexHull(ConvexHull &hull, HullType type, const SupportState &prwSupport, bool computeLinearSystem, bool rotateHull) const {
+void RigidBodySystem::GetConvexHull(ConvexHull &hull, HullType type, const SupportState &previewed_support) const {
 	switch (type){
 	case FOOT_HULL:
-		if (prwSupport.foot == LEFT){
+		if (previewed_support.foot == LEFT){
 			hull = robot_data_.left_foot_pos_hull;
 		}else{
 			hull = robot_data_.right_foot_pos_hull;
 		}
 		break;
 	case COP_HULL:
-		if (prwSupport.foot == LEFT){
-			if (prwSupport.phase == SS){
+		if (previewed_support.foot == LEFT){
+			if (previewed_support.phase == SS){
 				hull = robot_data_.left_foot_ss_hull;
 			}else{
 				hull = robot_data_.left_foot_ds_hull;
 			}
-		}else{
-			if (prwSupport.phase == SS){
+		} else {
+			if (previewed_support.phase == SS){
 				hull = robot_data_.right_foot_ss_hull;
-			}else{
-				hull =  robot_data_.right_foot_ds_hull;
+			} else {
+				hull = robot_data_.right_foot_ds_hull;
 			}
 		}
 		break;
-	}
-
-	if (rotateHull){
-		hull.Rotate(prwSupport.yaw);
-	}
-
-	if (computeLinearSystem){
-		hull.ComputeLinearSystem(prwSupport.foot);
 	}
 }

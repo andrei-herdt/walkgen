@@ -186,8 +186,8 @@ struct MPC_WALKGEN_API ConvexHull {
 
 	ConvexHull &operator= (const ConvexHull &hull); // TODO: CopyFrom() instead of =
 	void Resize(int size);
-	void Rotate(double yaw);
-	void ComputeLinearSystem(const Foot &foot);
+	void RotateVertices(double yaw);
+	void BuildInequalities(const Foot &foot);
 };
 
 struct SolverData {
