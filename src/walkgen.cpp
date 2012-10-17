@@ -79,8 +79,9 @@ void Walkgen::Init(const MPCParameters &mpc_parameters) {
 	solution_.com_prw.SetZero(mpc_parameters_.num_samples_horizon);
 	solution_.cop_prw.SetZero(mpc_parameters_.num_samples_horizon);
 
-	solution_.pos_ref.SetZero(mpc_parameters_.num_samples_horizon);//DEPRECATED:
+	solution_.pos_ref.SetZero(mpc_parameters_.num_samples_horizon);		//DEPRECATED:
 
+	pos_ref_.SetZero(mpc_parameters_.num_samples_horizon);
 	vel_ref_.SetZero(mpc_parameters_.num_samples_horizon);
 	cp_ref_.SetZero(mpc_parameters_.num_samples_horizon);
 	new_vel_ref_.SetZero(mpc_parameters_.num_samples_horizon);
@@ -156,7 +157,7 @@ void Walkgen::Init() {
 
 	preview_ = new HeuristicPreview(&vel_ref_, &robot_, &mpc_parameters_, &clock_);
 
-	builder_= new QPBuilder(preview_, solver_, &vel_ref_, &cp_ref_, &robot_, &mpc_parameters_, &clock_);
+	builder_= new QPBuilder(preview_, solver_, &pos_ref_, &vel_ref_, &cp_ref_, &robot_, &mpc_parameters_, &clock_);
 
 	orient_preview_->Init(mpc_parameters_, robot_data_);
 
