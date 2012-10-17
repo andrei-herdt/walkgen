@@ -89,7 +89,6 @@ private:
 	Reference vel_ref_, pos_ref_, cp_ref_;
 	/// \brief The new value of reference velocity, updated with in online method
 	Reference new_vel_ref_;
-	WeightCoefficients weight_coefficients_;
 
 	/// \brief Time at which the problem should be updated
 	double first_sample_time_;

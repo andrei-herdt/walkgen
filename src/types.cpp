@@ -160,7 +160,7 @@ MPCParameters::MPCParameters()
 ,interpolate_whole_horizon(false)
 ,closed_loop(false)
 ,dynamics_order(THIRD_ORDER)
-,weight_coefficients(2)
+,weights(2)
 {}
 
 MPCParameters::~MPCParameters(){}
@@ -343,7 +343,7 @@ WeightCoefficients::WeightCoefficients(int num_modes)
 	pos[0] 		= 0.;
 	vel[0]  	= 0.;//1.;
 	cop[0]  	= 0.00001;
-	cp[0] 		= 1.;//1.;
+	cp[0] 		= 0.;//1.;
 	control[0] 	= 0.0001;
 
 	pos[1] 		= 0.;

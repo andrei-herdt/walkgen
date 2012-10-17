@@ -10,15 +10,13 @@ using namespace MPCWalkgen;
 using namespace std;
 
 QPBuilder::QPBuilder(HeuristicPreview *preview, QPSolver *solver,
-		Reference *vel_ref, Reference *cp_ref, WeightCoefficients *weight_coefficients,
-		RigidBodySystem *robot, const MPCParameters *mpc_parameters,
+		Reference *vel_ref, Reference *cp_ref, RigidBodySystem *robot, const MPCParameters *mpc_parameters,
 		RealClock *clock)
 :preview_(preview)
 ,solver_(solver)
 ,robot_(robot)
 ,vel_ref_(vel_ref)
 ,cp_ref_(cp_ref)
-,weight_coefficients_(weight_coefficients)
 ,mpc_parameters_(mpc_parameters)
 ,tmp_vec_(1)
 ,tmp_vec2_(1)
@@ -45,7 +43,7 @@ void QPBuilder::PrecomputeObjective() {
 	chol.rowOrder(order);
 	chol.colOrder(order);
 
-	int num_modes = weight_coefficients_->control.size();
+	int num_modes = mpc_parameters_->weights.control.size();
 	int num_recomp = mpc_parameters_->nbFeedbackSamplesStandard();
 	Qconst_.resize(num_recomp * num_modes);
 	QconstN_.resize(num_recomp * num_modes);
@@ -84,20 +82,20 @@ void QPBuilder::PrecomputeObjective() {
 
 			// Q = beta*Uz^(-T)*Uv^T*Uv*Uz^(-1)
 			tmp_mat_.noalias() = cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * vel_dyn.input_mat * cop_dyn.input_mat_inv;
-			G = weight_coefficients_->vel[i] * tmp_mat_;
+			G = mpc_parameters_->weights.vel[i] * tmp_mat_;
 			// Q += gamma*Uz^(-T)*Uz^(-1)
 			tmp_mat_.noalias() = cop_dyn.input_mat_inv_tr * cop_dyn.input_mat_inv;
-			G += weight_coefficients_->control[i] * tmp_mat_;
+			G += mpc_parameters_->weights.control[i] * tmp_mat_;
 			// Q += delta*Uz^(-T)*Up^T*Up*Uz^(-1)
 			tmp_mat_.noalias() = cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * pos_dyn.input_mat * cop_dyn.input_mat_inv;
-			G +=  weight_coefficients_->pos[i] * tmp_mat_;
+			G +=  mpc_parameters_->weights.pos[i] * tmp_mat_;
 			// Q += epsilon*Uz^(-T)*Uxi^T*Uxi*Uz^(-1)
 			tmp_mat_.noalias() = cop_dyn.input_mat_inv_tr * cp_dyn.input_mat_tr * cp_dyn.input_mat * cop_dyn.input_mat_inv;
-			G +=  weight_coefficients_->cp[i] * tmp_mat_;
+			G +=  mpc_parameters_->weights.cp[i] * tmp_mat_;
 
 			Qconst_[nb] = G;
 			// Q += gamma*I
-			QconstN_[nb] = G + weight_coefficients_->cop[i] * contr_weighting_mat;
+			QconstN_[nb] = G + mpc_parameters_->weights.cop[i] * contr_weighting_mat;
 
 			chol.reset();
 			chol.AddTerm(QconstN_[nb], 0, 0);
@@ -107,31 +105,31 @@ void QPBuilder::PrecomputeObjective() {
 
 			// beta*Uz^(-T)*Uv*(Sv - Uv*Uz^(-1)*Sz)
 			tmp_mat_.noalias() = vel_dyn.state_mat - vel_dyn.input_mat * cop_dyn.input_mat_inv * cop_dyn.state_mat;
-			state_variant_[nb] = cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * weight_coefficients_->vel[i] * tmp_mat_;
+			state_variant_[nb] = cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * mpc_parameters_->weights.vel[i] * tmp_mat_;
 			// beta*Uz^(-T)*Up*(Sp - Up*Uz^(-1)*Sz)
 			tmp_mat_.noalias() = pos_dyn.state_mat - pos_dyn.input_mat * cop_dyn.input_mat_inv * cop_dyn.state_mat;
-			state_variant_[nb] += cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * weight_coefficients_->pos[i] * tmp_mat_;
+			state_variant_[nb] += cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * mpc_parameters_->weights.pos[i] * tmp_mat_;
 			// epsilon*Uz^(-T)*Uxi*(Sp - Uxi*Uz^(-1)*Sz)
 			tmp_mat_.noalias() = cp_dyn.state_mat - cp_dyn.input_mat * cop_dyn.input_mat_inv * cop_dyn.state_mat;
-			state_variant_[nb] += cop_dyn.input_mat_inv_tr * cp_dyn.input_mat_tr * weight_coefficients_->cp[i] * tmp_mat_;
+			state_variant_[nb] += cop_dyn.input_mat_inv_tr * cp_dyn.input_mat_tr * mpc_parameters_->weights.cp[i] * tmp_mat_;
 			// - alpha*Uz^(-T)*Uz^(-1)*Sz
-			state_variant_[nb] -= cop_dyn.input_mat_inv_tr * weight_coefficients_->control[i] * cop_dyn.input_mat_inv * cop_dyn.state_mat;
+			state_variant_[nb] -= cop_dyn.input_mat_inv_tr * mpc_parameters_->weights.control[i] * cop_dyn.input_mat_inv * cop_dyn.state_mat;
 
 			// alpha*Uz^(-T)*Uz^(-1)
-			select_variant_[nb]  = cop_dyn.input_mat_inv_tr * weight_coefficients_->control[i] * cop_dyn.input_mat_inv;
+			select_variant_[nb]  = cop_dyn.input_mat_inv_tr * mpc_parameters_->weights.control[i] * cop_dyn.input_mat_inv;
 			// beta*Uz^(-T)*Uv^T*Uv*Uz^(-1)
-			select_variant_[nb] += cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * weight_coefficients_->vel[i] * vel_dyn.input_mat * cop_dyn.input_mat_inv;
+			select_variant_[nb] += cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * mpc_parameters_->weights.vel[i] * vel_dyn.input_mat * cop_dyn.input_mat_inv;
 			// delta*Uz^(-T)*Up^T*Up*Uz^(-1)
-			select_variant_[nb] += cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * weight_coefficients_->pos[i] * pos_dyn.input_mat * cop_dyn.input_mat_inv;
+			select_variant_[nb] += cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * mpc_parameters_->weights.pos[i] * pos_dyn.input_mat * cop_dyn.input_mat_inv;
 			// epsilon*Uz^(-T)*Uxi^T*Uxi*Uz^(-1)
-			select_variant_[nb] += cop_dyn.input_mat_inv_tr * cp_dyn.input_mat_tr * weight_coefficients_->cp[i] * cp_dyn.input_mat * cop_dyn.input_mat_inv;
+			select_variant_[nb] += cop_dyn.input_mat_inv_tr * cp_dyn.input_mat_tr * mpc_parameters_->weights.cp[i] * cp_dyn.input_mat * cop_dyn.input_mat_inv;
 
 			// - beta*Uz^(-T)*Uv^T
-			ref_variant_vel_[nb] = -cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * weight_coefficients_->vel[i];
+			ref_variant_vel_[nb] = -cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * mpc_parameters_->weights.vel[i];
 			// - delta*Uz^(-T)*Up^T
-			ref_variant_pos_[nb] = -cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * weight_coefficients_->pos[i];
+			ref_variant_pos_[nb] = -cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * mpc_parameters_->weights.pos[i];
 			// - epsilon*Uz^(-T)*Uxi^T
-			ref_variant_cp_[nb] = -cop_dyn.input_mat_inv_tr * cp_dyn.input_mat_tr * weight_coefficients_->cp[i];
+			ref_variant_cp_[nb] = -cop_dyn.input_mat_inv_tr * cp_dyn.input_mat_tr * mpc_parameters_->weights.cp[i];
 		}
 	}
 }
@@ -159,7 +157,7 @@ void QPBuilder::BuildProblem(MPCSolution &solution) {
 void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	// Choose the precomputed element depending on the nb of "feedback-recomputations" until new qp-sample
 	int sample_num = mpc_parameters_->nbFeedbackSamplesLeft(solution.support_states_vec[1].previous_sampling_period);
-	sample_num += weight_coefficients_->active_mode * mpc_parameters_->nbFeedbackSamplesStandard();
+	sample_num += mpc_parameters_->weights.active_mode * mpc_parameters_->nbFeedbackSamplesStandard();
 
 	const BodyState &com = robot_->com()->state();
 	const SelectionMatrices &select_mats = preview_->selection_matrices();

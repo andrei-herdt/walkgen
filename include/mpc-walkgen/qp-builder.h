@@ -18,7 +18,6 @@ public:
 			QPSolver *solver,
 			Reference *vel_ref,
 			Reference *cp_ref,
-			WeightCoefficients *weight_coefficients,
 			RigidBodySystem *robot,
 			const MPCParameters *mpc_parameters,
 			RealClock *clock
@@ -66,7 +65,6 @@ private:
 	Reference *vel_ref_;
 	Reference *cp_ref_;
 
-	WeightCoefficients *weight_coefficients_;
 	const MPCParameters *mpc_parameters_;
 
 	CommonVectorType tmp_vec_, tmp_vec2_;

@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.424"
+    ComputedModelVersion    "1.425"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Tue Oct 16 16:29:31 2012"
+  LastModifiedDate	  "Tue Oct 16 19:13:36 2012"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:424>"
+  ModelVersionFormat	  "1.%<AutoIncrement:425>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -667,8 +667,8 @@ Model {
   }
   System {
     Name		    "walkgen"
-    Location		    [702, 74, 977, 375]
-    Open		    on
+    Location		    [850, 74, 1125, 375]
+    Open		    off
     ModelBrowserVisibility  off
     ModelBrowserWidth	    200
     ScreenColor		    "white"
@@ -701,7 +701,7 @@ Model {
       System {
 	Name			"Simulation"
 	Location		[702, 74, 1448, 860]
-	Open			off
+	Open			on
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
 	ScreenColor		"white"
@@ -761,7 +761,7 @@ Model {
 	  System {
 	    Name		    "Atomic Walkgen"
 	    Location		    [702, 74, 1881, 876]
-	    Open		    on
+	    Open		    off
 	    ModelBrowserVisibility  off
 	    ModelBrowserWidth	    200
 	    ScreenColor		    "white"
@@ -1070,7 +1070,7 @@ Model {
 	      Orientation	      "up"
 	      ShowName		      off
 	      Floating		      off
-	      Location		      [79, 40, 1595, 891]
+	      Location		      [88, 45, 1601, 899]
 	      Open		      off
 	      NumInputPorts	      "1"
 	      ZoomMode		      "yonly"

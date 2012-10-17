@@ -214,7 +214,7 @@ struct MPC_WALKGEN_API MPCParameters {
 
 	DynamicsOrder dynamics_order;
 
-	WeightCoefficients weight_coefficients;
+	WeightCoefficients weights;
 
 	SolverData solver;
 

@@ -156,7 +156,7 @@ void Walkgen::Init() {
 
 	preview_ = new HeuristicPreview(&vel_ref_, &robot_, &mpc_parameters_, &clock_);
 
-	builder_= new QPBuilder(preview_, solver_, &vel_ref_, &cp_ref_, &weight_coefficients_, &robot_, &mpc_parameters_, &clock_);
+	builder_= new QPBuilder(preview_, solver_, &vel_ref_, &cp_ref_, &robot_, &mpc_parameters_, &clock_);
 
 	orient_preview_->Init(mpc_parameters_, robot_data_);
 
@@ -178,7 +178,7 @@ void Walkgen::Init() {
 	state_com.z[0] = robot_data_.com(2);
 	robot_.com()->state(state_com);
 
-	weight_coefficients_.active_mode = 0;
+	mpc_parameters_.weights.active_mode = 0;
 
 	BuildProblem();
 
@@ -205,7 +205,7 @@ void Walkgen::BuildProblem() {
 		vel_ref_.local.y.fill(0);
 		vel_ref_.local.yaw.fill(0);
 	}
-	weight_coefficients_.SetCoefficients(vel_ref_);
+	mpc_parameters_.weights.SetCoefficients(vel_ref_);
 
 	double first_sampling_period = first_sample_time_ - current_time_;
 	robot_.SetSelectionNumber(first_sampling_period);

@@ -37,17 +37,17 @@ int main() {
 	mpc_parameters.solver.num_wsrec               = 20;
 	mpc_parameters.dynamics_order                 = THIRD_ORDER;
 
-	mpc_parameters.weight_coefficients.pos[0] 		= 0.;
-	mpc_parameters.weight_coefficients.vel[0]  		= 1.;
-	mpc_parameters.weight_coefficients.cop[0]  		= 0.00001;
-	mpc_parameters.weight_coefficients.cp[0] 		= 0.;//1.;
-	mpc_parameters.weight_coefficients.control[0] 	= 0.00001;
+	mpc_parameters.weights.pos[0] 		= 0.;
+	mpc_parameters.weights.vel[0]  		= 1.;
+	mpc_parameters.weights.cop[0]  		= 0.00001;
+	mpc_parameters.weights.cp[0] 		= 0.;//1.;
+	mpc_parameters.weights.control[0] 	= 0.00001;
 
-	mpc_parameters.weight_coefficients.pos[1] 		= 0.;
-	mpc_parameters.weight_coefficients.vel[1]  		= 1.;
-	mpc_parameters.weight_coefficients.cop[1]  		= 1.;
-	mpc_parameters.weight_coefficients.cp[1] 		= 0.;
-	mpc_parameters.weight_coefficients.control[1] 	= 0.000001;
+	mpc_parameters.weights.pos[1] 		= 0.;
+	mpc_parameters.weights.vel[1]  		= 1.;
+	mpc_parameters.weights.cop[1]  		= 1.;
+	mpc_parameters.weights.cp[1] 		= 0.;
+	mpc_parameters.weights.control[1] 	= 0.000001;
 
 	// Robot parameters:
 	// -----------------
