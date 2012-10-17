@@ -268,6 +268,8 @@ struct MPC_WALKGEN_API RobotData {
 
 struct MPC_WALKGEN_API Trajectory {
 	CommonVectorType x_vec, y_vec, z_vec, yaw_vec;
+
+	void SetZero(int size);
 };
 
 struct Motion {
@@ -276,7 +278,7 @@ struct Motion {
 	Trajectory cp;
 	Trajectory cop;
 
-	void Resize(int size);
+	void SetZero(int size);
 };
 
 

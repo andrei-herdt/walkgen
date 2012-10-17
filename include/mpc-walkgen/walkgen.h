@@ -34,8 +34,9 @@ public:
 
 	// \name Accessors and mutators
 	// \{
-	void SetReference(double dx, double dy, double dyaw);
-	void SetReference(CommonVectorType dx, CommonVectorType dy, CommonVectorType dyaw);
+	void SetPosReference(double x, double y);
+	void SetVelReference(double dx, double dy, double dyaw);
+	void SetVelReference(CommonVectorType dx, CommonVectorType dy, CommonVectorType dyaw);
 	void SetCPReference(double x, double y);
 
 	const BodyState &bodyState(BodyType body) const;

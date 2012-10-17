@@ -10,11 +10,12 @@ using namespace MPCWalkgen;
 using namespace std;
 
 QPBuilder::QPBuilder(HeuristicPreview *preview, QPSolver *solver,
-		Reference *vel_ref, Reference *cp_ref, RigidBodySystem *robot, const MPCParameters *mpc_parameters,
+		Reference *pos_ref, Reference *vel_ref, Reference *cp_ref, RigidBodySystem *robot, const MPCParameters *mpc_parameters,
 		RealClock *clock)
 :preview_(preview)
 ,solver_(solver)
 ,robot_(robot)
+,pos_ref_(pos_ref)
 ,vel_ref_(vel_ref)
 ,cp_ref_(cp_ref)
 ,mpc_parameters_(mpc_parameters)
@@ -230,8 +231,8 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	HX += ref_variant_vel_[sample_num] * vel_ref_->global.x;
 	HY += ref_variant_vel_[sample_num] * vel_ref_->global.y;
 
-	//HX += ref_variant_pos_[sample_num] * pos_ref_->global.x;
-	//HY += ref_variant_pos_[sample_num] * pos_ref_->global.y;
+	HX += ref_variant_pos_[sample_num] * pos_ref_->global.x;
+	HY += ref_variant_pos_[sample_num] * pos_ref_->global.y;
 
 	HX += ref_variant_cp_[sample_num] * cp_ref_->global.x;
 	HY += ref_variant_cp_[sample_num] * cp_ref_->global.y;

@@ -112,15 +112,15 @@ static void mdlStart(SimStruct *S) {
 	mpc_parameters.dynamics_order               = static_cast<DynamicsOrder>(static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 9))));
 
 	mpc_parameters.weights.pos[0] 		= 0.;
-	mpc_parameters.weights.vel[0]  		= 1.;
+	mpc_parameters.weights.vel[0]  		= 0.;
 	mpc_parameters.weights.cop[0]  		= 0.00001;
-	mpc_parameters.weights.cp[0] 		= 0.;//1.;
+	mpc_parameters.weights.cp[0] 		= 1.;//1.;
 	mpc_parameters.weights.control[0] 	= 0.00001;
 
 	mpc_parameters.weights.pos[1] 		= 0.;
-	mpc_parameters.weights.vel[1]  		= 1.;
-	mpc_parameters.weights.cop[1]  		= 1.;
-	mpc_parameters.weights.cp[1] 		= 0.;
+	mpc_parameters.weights.vel[1]  		= 0.;
+	mpc_parameters.weights.cop[1]  		= 0.;
+	mpc_parameters.weights.cp[1] 		= 1.;
 	mpc_parameters.weights.control[1] 	= 0.000001;
 
 	Walkgen *walk = new Walkgen;
@@ -225,7 +225,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 
 		robot_data.max_foot_height = kMaxFootHeight;
 
-		walk->SetReference(0.0, 0.0, 0.0);
+		walk->SetVelReference(0.0, 0.0, 0.0);
 		walk->Init(robot_data);
 		RigidBodySystem *robot = walk->robot();
 		robot->com()->state().x[0] = *com_in[0];
@@ -243,7 +243,9 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 
 	// INPUT:
 	// ------
-	walk->SetReference(*vel_ref[0], *vel_ref[1], *vel_ref[2]);
+	walk->SetPosReference(0., 0.);
+	walk->SetCPReference(0., 0.);
+	walk->SetVelReference(*vel_ref[0], *vel_ref[1], *vel_ref[2]);
 	RigidBodySystem *robot = walk->robot();
 	if (*closed_loop_in[0] > 0.5) {// TODO: Is there a better way for switching?
 		robot->com()->state().x[0] = *com_in[0];
@@ -307,57 +309,57 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 	// Previewed motions:
 	// ------------------
 	if (kDebug == 1) {
-	int nbsamples = solution.support_states_vec.size() - 1;
-	for (int sample = 0; sample < nbsamples; ++sample) {
-		// CoM:
-		com_prw[sample] = solution.sampling_times_vec[sample+1];
-		com_prw[nbsamples + sample] = solution.com_prw.pos.x_vec[sample];
-		com_prw[2 * nbsamples + sample] = solution.com_prw.pos.y_vec[sample];
-		com_prw[3 * nbsamples + sample] = walk->output().com.z;
-		// CoP:
-		cop_prw[sample] = solution.sampling_times_vec[sample+1];
-		cop_prw[nbsamples + sample] = solution.cop_prw.pos.x_vec[sample];
-		cop_prw[2 * nbsamples + sample] = solution.cop_prw.pos.y_vec[sample];
-		// CoM control vector:
-		com_control_prw[sample] = solution.sampling_times_vec[sample+1];
-		com_control_prw[nbsamples + sample] = solution.com_prw.control.x_vec[sample];
-		com_control_prw[2 * nbsamples + sample] = solution.com_prw.control.y_vec[sample];
-		// CP:
-		cp_prw[sample] = solution.sampling_times_vec[sample+1];
-		cp_prw[nbsamples + sample] = solution.cop_prw.cp.x_vec[sample];
-		cp_prw[2 * nbsamples + sample] = solution.cop_prw.cp.y_vec[sample];
-	}
+		int nbsamples = solution.support_states_vec.size() - 1;
+		for (int sample = 0; sample < nbsamples; ++sample) {
+			// CoM:
+			com_prw[sample] = solution.sampling_times_vec[sample+1];
+			com_prw[nbsamples + sample] = solution.com_prw.pos.x_vec[sample];
+			com_prw[2 * nbsamples + sample] = solution.com_prw.pos.y_vec[sample];
+			com_prw[3 * nbsamples + sample] = walk->output().com.z;
+			// CoP:
+			cop_prw[sample] = solution.sampling_times_vec[sample+1];
+			cop_prw[nbsamples + sample] = solution.cop_prw.pos.x_vec[sample];
+			cop_prw[2 * nbsamples + sample] = solution.cop_prw.pos.y_vec[sample];
+			// CoM control vector:
+			com_control_prw[sample] = solution.sampling_times_vec[sample+1];
+			com_control_prw[nbsamples + sample] = solution.com_prw.control.x_vec[sample];
+			com_control_prw[2 * nbsamples + sample] = solution.com_prw.control.y_vec[sample];
+			// CP:
+			cp_prw[sample] = solution.sampling_times_vec[sample+1];
+			cp_prw[nbsamples + sample] = solution.com_prw.cp.x_vec[sample];
+			cp_prw[2 * nbsamples + sample] = solution.com_prw.cp.y_vec[sample];
+		}
 
-	int nbsteps_prw = solution.support_states_vec.back().step_number;
-	if (nbsteps_prw > 0) {
-		first_foot_prw[0] = solution.qp_solution_vec[2 * nbsamples];
-		first_foot_prw[1] = solution.qp_solution_vec[2 * nbsamples + nbsteps_prw];
-	} else {
-		first_foot_prw[0] = solution.support_states_vec.front().x;
-		first_foot_prw[1] = solution.support_states_vec.front().y;
-	}
-	// Change of the current support state (time instant)
-	const SupportState &current_support = solution.support_states_vec.front();
-	const SupportState &next_support = solution.support_states_vec[1];
-	if (current_support.state_changed) {
-		support[0] = current_support.start_time;
-	} else if (next_support.transitional_ds) {
-		support[0] = current_support.time_limit - 0.1;  // TODO: 0.1 is temporary solution
-	} else {
-		support[0] = 0.0;
-	}
-	support[1] = current_support.phase;
-	support[2] = current_support.foot;
+		int nbsteps_prw = solution.support_states_vec.back().step_number;
+		if (nbsteps_prw > 0) {
+			first_foot_prw[0] = solution.qp_solution_vec[2 * nbsamples];
+			first_foot_prw[1] = solution.qp_solution_vec[2 * nbsamples + nbsteps_prw];
+		} else {
+			first_foot_prw[0] = solution.support_states_vec.front().x;
+			first_foot_prw[1] = solution.support_states_vec.front().y;
+		}
+		// Change of the current support state (time instant)
+		const SupportState &current_support = solution.support_states_vec.front();
+		const SupportState &next_support = solution.support_states_vec[1];
+		if (current_support.state_changed) {
+			support[0] = current_support.start_time;
+		} else if (next_support.transitional_ds) {
+			support[0] = current_support.time_limit - 0.1;  // TODO: 0.1 is temporary solution
+		} else {
+			support[0] = 0.0;
+		}
+		support[1] = current_support.phase;
+		support[2] = current_support.foot;
 
 
-	// Analysis:
-	// ---------
-	analysis[0] = solution.analysis.resolution_time;
-	analysis[1] = solution.analysis.num_iterations;
-	int num_counters = walk->clock().GetNumCounters();
-	//for (int i = num_counters - 1; i >= 0; i--) {
-	analysis[/*i + */2] = walk->clock().GetTime(time_online);
-	//}
+		// Analysis:
+		// ---------
+		analysis[0] = solution.analysis.resolution_time;
+		analysis[1] = solution.analysis.num_iterations;
+		int num_counters = walk->clock().GetNumCounters();
+		//for (int i = num_counters - 1; i >= 0; i--) {
+		analysis[/*i + */2] = walk->clock().GetTime(time_online);
+		//}
 	}
 
 }

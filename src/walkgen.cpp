@@ -74,10 +74,10 @@ void Walkgen::Init(const MPCParameters &mpc_parameters) {
 
 	// Resize:
 	// -------
-	solution_.com_act.Resize(mpc_parameters_.num_samples_act());
-	solution_.cop_act.Resize(mpc_parameters_.num_samples_act());
-	solution_.com_prw.Resize(mpc_parameters_.num_samples_horizon);
-	solution_.cop_prw.Resize(mpc_parameters_.num_samples_horizon);
+	solution_.com_act.SetZero(mpc_parameters_.num_samples_act());
+	solution_.cop_act.SetZero(mpc_parameters_.num_samples_act());
+	solution_.com_prw.SetZero(mpc_parameters_.num_samples_horizon);
+	solution_.cop_prw.SetZero(mpc_parameters_.num_samples_horizon);
 
 	solution_.pos_ref.SetZero(mpc_parameters_.num_samples_horizon);//DEPRECATED:
 
@@ -292,13 +292,18 @@ void Walkgen::UpdateOutput() {// TODO: Is this function called also when not nec
 	output_.right_foot.ddyaw = robot_.right_foot()->motion_act().acc.yaw_vec[output_index_];
 }
 
-void Walkgen::SetReference(double dx, double dy, double dyaw){//TODO: Is newVelRef_ necessary
+void Walkgen::SetPosReference(double x, double y){
+	pos_ref_.global.x.fill(x);
+	pos_ref_.global.y.fill(y);
+}
+
+void Walkgen::SetVelReference(double dx, double dy, double dyaw){//TODO: Is newVelRef_ necessary
 	new_vel_ref_.local.x.fill(dx);
 	new_vel_ref_.local.y.fill(dy);
 	new_vel_ref_.local.yaw.fill(dyaw);
 }
 
-void Walkgen::SetReference(CommonVectorType dx, CommonVectorType dy, CommonVectorType dyaw){
+void Walkgen::SetVelReference(CommonVectorType dx, CommonVectorType dy, CommonVectorType dyaw){
 	new_vel_ref_.local.x = dx;
 	new_vel_ref_.local.y = dy;
 	new_vel_ref_.local.yaw = dyaw;

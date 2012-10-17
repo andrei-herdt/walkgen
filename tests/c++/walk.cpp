@@ -139,7 +139,7 @@ int main() {
 	// ---
 	double velocity = 0.1;
 	double curr_time = 0;
-	walk.SetReference(0.1, 0, 0);
+	walk.SetVelReference(0.1, 0, 0);
 	int num_iterations = 0;
 	walk.clock().GetFrequency(1000);
 	walk.clock().ResetLocal();
@@ -151,7 +151,7 @@ int main() {
 		walk.clock().ResetLocal();
 		num_iterations++;
 	}
-	walk.SetReference(0.1, 0, 0.1);
+	walk.SetVelReference(0.1, 0, 0.1);
 	for (; curr_time < 20; curr_time += sample_period_act) {
 		int online_timer = walk.clock().StartCounter();
 		const MPCSolution &solution = walk.Go(curr_time);
@@ -160,7 +160,7 @@ int main() {
 		walk.clock().ResetLocal();
 		num_iterations++;
 	}
-	walk.SetReference(0., 0, 0.);
+	walk.SetVelReference(0., 0, 0.);
 	for (; curr_time < 25; curr_time += sample_period_act) {
 		int online_timer = walk.clock().StartCounter();
 		const MPCSolution &solution = walk.Go(curr_time);

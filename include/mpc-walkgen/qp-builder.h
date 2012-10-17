@@ -16,6 +16,7 @@ class QPBuilder{
 public:
 	QPBuilder(HeuristicPreview *preview,
 			QPSolver *solver,
+			Reference *pos_ref,
 			Reference *vel_ref,
 			Reference *cp_ref,
 			RigidBodySystem *robot,
@@ -62,8 +63,7 @@ private:
 	QPSolver *solver_;
 	RigidBodySystem *robot_;
 
-	Reference *vel_ref_;
-	Reference *cp_ref_;
+	Reference *pos_ref_, *vel_ref_, *cp_ref_;
 
 	const MPCParameters *mpc_parameters_;
 
