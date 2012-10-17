@@ -50,7 +50,7 @@ static void mdlInitializeSizes(SimStruct *S) {
 	ssSetInputPortDirectFeedThrough(S, 8, 1);
 	ssSetInputPortDirectFeedThrough(S, 9, 1);
 
-	if (!ssSetNumOutputPorts(S,16)) return;
+	if (!ssSetNumOutputPorts(S,17)) return;
 	// Realized motions
 	ssSetOutputPortWidth(S, 0, 3);        //com
 	ssSetOutputPortWidth(S, 1, 3);        //dcom
@@ -72,6 +72,7 @@ static void mdlInitializeSizes(SimStruct *S) {
 	ssSetOutputPortWidth(S, 13, 3);       //support
 	ssSetOutputPortWidth(S, 14, 30);      //analysis
 	ssSetOutputPortWidth(S, 15, 3 * kNumSamplesHorizon);	//com_control_prw
+	ssSetOutputPortWidth(S, 16, 3 * kNumSamplesHorizon);     //cp_prw (sample_instants, x, y)
 
 	ssSetNumSampleTimes(S, 1);
 
@@ -109,6 +110,18 @@ static void mdlStart(SimStruct *S) {
 	mpc_parameters.solver.name                  = QPOASES;
 
 	mpc_parameters.dynamics_order               = static_cast<DynamicsOrder>(static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 9))));
+
+	mpc_parameters.weights.pos[0] 		= 0.;
+	mpc_parameters.weights.vel[0]  		= 1.;
+	mpc_parameters.weights.cop[0]  		= 0.00001;
+	mpc_parameters.weights.cp[0] 		= 0.;//1.;
+	mpc_parameters.weights.control[0] 	= 0.00001;
+
+	mpc_parameters.weights.pos[1] 		= 0.;
+	mpc_parameters.weights.vel[1]  		= 1.;
+	mpc_parameters.weights.cop[1]  		= 1.;
+	mpc_parameters.weights.cp[1] 		= 0.;
+	mpc_parameters.weights.control[1] 	= 0.000001;
 
 	Walkgen *walk = new Walkgen;
 	walk->Init(mpc_parameters);
@@ -152,6 +165,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 	real_T *support        = ssGetOutputPortRealSignal(S, 13);
 	real_T *analysis       = ssGetOutputPortRealSignal(S, 14);
 	real_T *com_control_prw= ssGetOutputPortRealSignal(S, 15);
+	real_T *cp_prw        = ssGetOutputPortRealSignal(S, 16);
 
 	Walkgen *walk = (Walkgen *)ssGetPWorkValue(S, 0);
 
@@ -308,6 +322,10 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 		com_control_prw[sample] = solution.sampling_times_vec[sample+1];
 		com_control_prw[nbsamples + sample] = solution.com_prw.control.x_vec[sample];
 		com_control_prw[2 * nbsamples + sample] = solution.com_prw.control.y_vec[sample];
+		// CP:
+		cp_prw[sample] = solution.sampling_times_vec[sample+1];
+		cp_prw[nbsamples + sample] = solution.cop_prw.cp.x_vec[sample];
+		cp_prw[2 * nbsamples + sample] = solution.cop_prw.cp.y_vec[sample];
 	}
 
 	int nbsteps_prw = solution.support_states_vec.back().step_number;

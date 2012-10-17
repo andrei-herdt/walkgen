@@ -63,6 +63,18 @@ void CoMBody::Interpolate(MPCSolution &solution, double current_time, const Refe
 				state_x, solution.com_prw.control.x_vec);
 		interpolation_.Interpolate(solution.com_prw.acc.y_vec, dynamics_qp().acc,
 				state_y, solution.com_prw.control.y_vec);
+
+		// Capture point:
+		interpolation_.Interpolate(solution.com_prw.cp.x_vec, dynamics_qp().cp,
+				state_x, solution.com_prw.control.x_vec);
+		interpolation_.Interpolate(solution.com_prw.cp.y_vec, dynamics_qp().cp,
+				state_y, solution.com_prw.control.y_vec);
+
+		// Center of pressure:
+		interpolation_.Interpolate(solution.com_prw.cop.x_vec, dynamics_qp().cop,
+				state_x, solution.com_prw.control.x_vec);
+		interpolation_.Interpolate(solution.com_prw.cop.y_vec, dynamics_qp().cop,
+				state_y, solution.com_prw.control.y_vec);
 	}
 
 	InterpolateTrunkYaw(solution, ref);

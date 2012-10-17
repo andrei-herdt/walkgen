@@ -273,6 +273,8 @@ struct MPC_WALKGEN_API Trajectory {
 struct Motion {
 	Trajectory pos, vel, acc, jerk;
 	Trajectory control;
+	Trajectory cp;
+	Trajectory cop;
 
 	void Resize(int size);
 };
