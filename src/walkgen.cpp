@@ -164,8 +164,8 @@ void Walkgen::Init() {
 	builder_->PrecomputeObjective();
 
 	BodyState left_foot_state;
-	left_foot_state.x[0] = robot_data_.leftFoot.position[0];
-	left_foot_state.y[0] = robot_data_.leftFoot.position[1];
+	left_foot_state.x[0] = robot_data_.left_foot.position[0];
+	left_foot_state.y[0] = robot_data_.left_foot.position[1];
 	robot_.left_foot()->state(left_foot_state);
 
 	BodyState right_foot_state;
@@ -197,7 +197,7 @@ void Walkgen::ResetCounters(double time) {
 void Walkgen::BuildProblem() {
 	// UPDATE INTERNAL DATA:
 	// ---------------------
-	solver_->reset();
+	solver_->Reset();
 	solution_.Reset();
 	vel_ref_ = new_vel_ref_;
 
@@ -263,8 +263,8 @@ void Walkgen::UpdateOutput() {// TODO: Is this function called also when not nec
 	output_.com.ddy = solution_.com_act.acc.y_vec[output_index_];
 	output_.com.ddz = robot_.com()->state().z(2);
 
-	output_.cop.x =   solution_.cop_act.pos.x_vec[output_index_];
-	output_.cop.y =   solution_.cop_act.pos.y_vec[output_index_];
+	output_.cop.x = solution_.cop_act.pos.x_vec[output_index_];
+	output_.cop.y = solution_.cop_act.pos.y_vec[output_index_];
 
 	output_.left_foot.x = robot_.left_foot()->motion_act().pos.x_vec[output_index_];
 	output_.left_foot.y = robot_.left_foot()->motion_act().pos.y_vec[output_index_];

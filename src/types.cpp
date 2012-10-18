@@ -291,7 +291,7 @@ RobotData::RobotData(const FootData &leftFoot, const FootData &rightFoot,
 ,max_foot_vel(0.)
 ,security_margin(-1.)
 ,com()
-,leftFoot(leftFoot)
+,left_foot(leftFoot)
 ,right_foot(rightFoot)
 ,left_hip_yaw(left_hip_yaw)
 ,right_hip_yaw(rightHipYaw)
@@ -321,10 +321,10 @@ RobotData::~RobotData(){}
 // TODO: This function should be moved to a separate object for hulls/constraints
 void RobotData::SetCoPHulls(double ds_distance) {
 	for (int i = 0; i < 4; ++i) {
-		left_foot_ss_hull.x_vec(i) = leftFoot.edges_x_vec[i];
-		left_foot_ss_hull.y_vec(i) = leftFoot.edges_y_vec[i];
-		left_foot_ds_hull.x_vec(i) = leftFoot.edges_x_vec[i];
-		left_foot_ds_hull.y_vec(i) = leftFoot.edges_y_vec[i];
+		left_foot_ss_hull.x_vec(i) = left_foot.edges_x_vec[i];
+		left_foot_ss_hull.y_vec(i) = left_foot.edges_y_vec[i];
+		left_foot_ds_hull.x_vec(i) = left_foot.edges_x_vec[i];
+		left_foot_ds_hull.y_vec(i) = left_foot.edges_y_vec[i];
 
 		right_foot_ss_hull.x_vec(i) = right_foot.edges_x_vec[i];
 		right_foot_ss_hull.y_vec(i) = -right_foot.edges_y_vec[i]; // Counter-clockwise

@@ -39,42 +39,42 @@ void LSSOLParser::Solve(MPCSolution &solution_data,
 
 
 	// Pile up XL and BL
-	bl_.segment(0,      num_vars_) = var_l_bounds_vec_().block(0,0,num_vars_,1);
-	bl_.segment(num_vars_, num_constr_) = constr_l_bounds_vec_().block(0,0,num_constr_,1);
+	bl_.segment(0,      num_variables_) = var_l_bounds_vec_().block(0,0,num_variables_,1);
+	bl_.segment(num_variables_, num_constr_) = constr_l_bounds_vec_().block(0,0,num_constr_,1);
 
 	// Pile up XU and BU
-	bu_.segment(0,      num_vars_) = var_u_bounds_vec_().block(0,0,num_vars_,1);
-	bu_.segment(num_vars_, num_constr_) = constr_u_bounds_vec_().block(0,0,num_constr_,1);
+	bu_.segment(0,      num_variables_) = var_u_bounds_vec_().block(0,0,num_variables_,1);
+	bu_.segment(num_variables_, num_constr_) = constr_u_bounds_vec_().block(0,0,num_constr_,1);
 
 	if (useWarmStart){
 		solution_data.qp_solution_vec = solution_data.initialSolution;
 		solution_data.constraints = solution_data.initialConstraints;
 	}else{
-		if (solution_data.qp_solution_vec.rows() != num_vars_){
-			solution_data.qp_solution_vec.setZero(num_vars_);
+		if (solution_data.qp_solution_vec.rows() != num_variables_){
+			solution_data.qp_solution_vec.setZero(num_variables_);
 		}else{
 			solution_data.qp_solution_vec.fill(0);
 		}
-		if (solution_data.constraints.rows()!=num_vars_ + num_constr_){
-			solution_data.constraints.setZero(num_vars_ + num_constr_);
+		if (solution_data.constraints.rows()!=num_variables_ + num_constr_){
+			solution_data.constraints.setZero(num_variables_ + num_constr_);
 		}else{
 			solution_data.constraints.fill(0);
 		}
 	}
 
-	for(int i=0;i<num_vars_;++i){
+	for(int i=0;i<num_variables_;++i){
 		kx_(i)=i+1;
 	}
 
 	// The error 6 of lssol "An input parameter is invalid" may be
 	// difficult to debug. The following tests can help.
-	assert(bl_.size() >= num_vars_ + num_constr_);
-	assert(bu_.size() >= num_vars_ + num_constr_);
-	assert(gradient_vec_().size() >= num_vars_);
-	assert(solution_data.constraints.size() >= num_vars_ + num_constr_);
-	assert(leniw_>=num_vars_);
-	assert((num_constr_ > 0)  || (lenw_ >=10*num_vars_));
-	assert((num_constr_ == 0) || (lenw_ >=2*num_vars_*num_vars_ + 10*num_vars_+ 6*num_constr_));
+	assert(bl_.size() >= num_variables_ + num_constr_);
+	assert(bu_.size() >= num_variables_ + num_constr_);
+	assert(gradient_vec_().size() >= num_variables_);
+	assert(solution_data.constraints.size() >= num_variables_ + num_constr_);
+	assert(leniw_>=num_variables_);
+	assert((num_constr_ > 0)  || (lenw_ >=10*num_variables_));
+	assert((num_constr_ == 0) || (lenw_ >=2*num_variables_*num_variables_ + 10*num_variables_+ 6*num_constr_));
 
 
 //	lssol_(&num_vars_, &num_vars_,

@@ -16,8 +16,8 @@ QPSolver::QPSolver(const SolverData *parameters, int nbvar_max, int nbcstr_max)
 ,constr_l_bounds_vec_(nbcstr_max)
 ,var_u_bounds_vec_(nbvar_max)
 ,var_l_bounds_vec_(nbvar_max)
-,num_vars_(0)
-,num_vars_max_(nbvar_max)
+,num_variables_(0)
+,num_variables_max_(nbvar_max)
 ,num_constr_(0)
 ,num_constr_max_(nbcstr_max)
 ,var_indices_vec_(nbvar_max)
@@ -61,9 +61,9 @@ QPVector &QPSolver::vector(const QPVectorType type) {//TODO:Remove this
 	}
 }
 
-void QPSolver::reset() {
-	hessian_mat_.reset();
-	cstr_mat_.reset();
+void QPSolver::Reset() {
+	hessian_mat_.Reset();
+	cstr_mat_.Reset();
 	gradient_vec_.reset();
 	constr_u_bounds_vec_.reset();
 	constr_l_bounds_vec_.reset();
@@ -73,9 +73,9 @@ void QPSolver::reset() {
 
 void QPSolver::SetVarOrder(const Eigen::VectorXi &order) {
 	var_indices_vec_ = order;
-	hessian_mat_.rowOrder(order);
-	hessian_mat_.colOrder(order);
-	cstr_mat_.colOrder(order);
+	hessian_mat_.row_indices(order);
+	hessian_mat_.column_indices(order);
+	cstr_mat_.column_indices(order);
 	gradient_vec_.rowOrder(order);
 	var_u_bounds_vec_.rowOrder(order);
 	var_l_bounds_vec_.rowOrder(order);
@@ -83,7 +83,7 @@ void QPSolver::SetVarOrder(const Eigen::VectorXi &order) {
 
 void QPSolver::ctrOrder(const Eigen::VectorXi &order) {
 	constr_indices_vec_ = order;
-	cstr_mat_.rowOrder(order);
+	cstr_mat_.row_indices(order);
 	constr_u_bounds_vec_.rowOrder(order);
 	constr_l_bounds_vec_.rowOrder(order);
 }
@@ -92,16 +92,16 @@ void QPSolver::ctrOrder(const Eigen::VectorXi &order) {
 
 void QPSolver::reorderInitialSolution(CommonVectorType &initialSolution,
 		VectorXi &initialConstraints) {
-	assert(initialSolution.size() >= num_vars_);
-	assert(initialConstraints.size() >= num_constr_ + num_vars_);
+	assert(initialSolution.size() >= num_variables_);
+	assert(initialConstraints.size() >= num_constr_ + num_variables_);
 	CommonVectorType initialSolutionTmp = initialSolution;
 	VectorXi initialConstraintsTmp = initialConstraints;
-	for (int i = 0; i < num_vars_; ++i) {
+	for (int i = 0; i < num_variables_; ++i) {
 		initialSolution(var_indices_vec_(i)) = initialSolutionTmp(i);
 		initialConstraints(var_indices_vec_(i)) = initialConstraintsTmp(i);
 	}
 	for (int i = 0; i < num_constr_; ++i) {
-		initialConstraints(constr_indices_vec_(i + num_vars_)) = initialConstraintsTmp(i + num_vars_);
+		initialConstraints(constr_indices_vec_(i + num_variables_)) = initialConstraintsTmp(i + num_variables_);
 	}
 
 }
@@ -112,28 +112,28 @@ void QPSolver::reorderSolution(CommonVectorType &qp_solution_vec, VectorXi &cons
 	CommonVectorType solutionTmp = qp_solution_vec;
 	VectorXi constraintsTmp = constraints;
 
-	for (int i = 0; i < num_vars_; ++i) {
+	for (int i = 0; i < num_variables_; ++i) {
 		qp_solution_vec(i) = solutionTmp(var_indices_vec_(i));
 		constraints(i) = constraintsTmp(var_indices_vec_(i));
 	}
 	for (int i = 0; i < num_constr_; ++i) {
-		constraints(i + num_vars_) = constraintsTmp(constr_indices_vec_(i + num_vars_));
+		constraints(i + num_variables_) = constraintsTmp(constr_indices_vec_(i + num_variables_));
 	}
 
 	initialConstraints = constraints;
 }
 
 
-void QPSolver::DumpProblem(const char *filename) {  
+void QPSolver::DumpProblem(const char *filename) {
 	std::ofstream file(filename);
 	if (file.is_open()) {
-		file << "Hessian" << hessian_mat_.num_rows() <<","<< hessian_mat_.num_cols()<<":" << "\n" << hessian_mat_() << '\n';
-		file << "Gradient" << gradient_vec_.num_rows() <<":" << "\n" << gradient_vec_() << '\n';
-		file << "Constraints Jacobian" << cstr_mat_.num_rows() <<","<< cstr_mat_.num_cols()<<":" << "\n" << cstr_mat_() << '\n';
-		file << "Constraints upper bounds" << constr_u_bounds_vec_.num_rows() <<":" << "\n" << constr_u_bounds_vec_() << '\n';
-		file << "Constraints lower bounds" << constr_l_bounds_vec_.num_rows() <<":" << "\n" << constr_l_bounds_vec_() << '\n';
-		file << "Variables upper bounds" << var_u_bounds_vec_.num_rows() <<":" << "\n" << var_u_bounds_vec_() << '\n';
-		file << "Variables lower bounds" << var_l_bounds_vec_.num_rows() <<":" << "\n" << var_l_bounds_vec_() << '\n';
+		file << "Hessian" << num_variables_ <<","<< num_variables_ <<":" << "\n" << hessian_mat_() << '\n';
+		file << "Gradient" << num_variables_ <<":" << "\n" << gradient_vec_() << '\n';
+		file << "Constraints matrix" << num_constr_ <<","<< num_variables_ <<":" << "\n" << cstr_mat_() << '\n';
+		file << "Constraints upper bounds" << num_constr_ <<":" << "\n" << constr_u_bounds_vec_() << '\n';
+		file << "Constraints lower bounds" << num_constr_ <<":" << "\n" << constr_l_bounds_vec_() << '\n';
+		file << "Variables upper bounds" << num_variables_ <<":" << "\n" << var_u_bounds_vec_() << '\n';
+		file << "Variables lower bounds" << num_variables_ <<":" << "\n" << var_l_bounds_vec_() << '\n';
 	}
 }
 

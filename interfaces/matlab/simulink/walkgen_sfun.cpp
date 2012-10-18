@@ -18,7 +18,7 @@ using namespace std;
 
 static void mdlInitializeSizes(SimStruct *S) {
 	// Expected number of parameters
-	ssSetNumSFcnParams(S, 11);
+	ssSetNumSFcnParams(S, 16);
 
 	// Parameter mismatch?
 	if (ssGetNumSFcnParams(S) != ssGetSFcnParamsCount(S)) {
@@ -99,7 +99,7 @@ static void mdlStart(SimStruct *S) {
 	mpc_parameters.period_mpcsample     = *mxGetPr(ssGetSFcnParam(S, 5));
 	mpc_parameters.period_actsample     = *mxGetPr(ssGetSFcnParam(S, 6));
 	mpc_parameters.solver.num_wsrec     = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 8)));
-	mpc_parameters.warmstart					= false;
+	mpc_parameters.warmstart			= false;
 	if (kDebug == 0) {
 		mpc_parameters.interpolate_whole_horizon	= false;
 		mpc_parameters.solver.analysis			    = false;
@@ -111,11 +111,11 @@ static void mdlStart(SimStruct *S) {
 
 	mpc_parameters.dynamics_order               = static_cast<DynamicsOrder>(static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 9))));
 
-	mpc_parameters.weights.pos[0] 		= 1.;
-	mpc_parameters.weights.vel[0]  		= 0.;
-	mpc_parameters.weights.cop[0]  		= 0.00001;
-	mpc_parameters.weights.cp[0] 		= 0.;//1.;
-	mpc_parameters.weights.control[0] 	= 0.00001;
+	mpc_parameters.weights.pos[0] 		= *mxGetPr(ssGetSFcnParam(S, 11));//1.;
+	mpc_parameters.weights.vel[0]  		= *mxGetPr(ssGetSFcnParam(S, 12));//0.;
+	mpc_parameters.weights.cop[0]  		= *mxGetPr(ssGetSFcnParam(S, 13));//0.00001;
+	mpc_parameters.weights.cp[0] 		= *mxGetPr(ssGetSFcnParam(S, 14));//0.;//1.;
+	mpc_parameters.weights.control[0] 	= *mxGetPr(ssGetSFcnParam(S, 15));//0.00001;
 
 	mpc_parameters.weights.pos[1] 		= 1.;
 	mpc_parameters.weights.vel[1]  		= 0.;
@@ -197,9 +197,9 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 		robot_data.com(0) = *com_in[0];		// TODO: This initialization did not work
 		robot_data.com(1) = *com_in[1];
 		robot_data.com(2) = *com_in[2];
-		robot_data.leftFoot.position[0] = *left_ankle_in[0];
-		robot_data.leftFoot.position[1] = *left_ankle_in[1];
-		robot_data.leftFoot.position[2] = *left_ankle_in[2];
+		robot_data.left_foot.position[0] = *left_ankle_in[0];
+		robot_data.left_foot.position[1] = *left_ankle_in[1];
+		robot_data.left_foot.position[2] = *left_ankle_in[2];
 		robot_data.right_foot.position[0]  = *right_ankle_in[0];
 		robot_data.right_foot.position[1]  = *right_ankle_in[1];
 		robot_data.right_foot.position[2]  = *right_ankle_in[2];

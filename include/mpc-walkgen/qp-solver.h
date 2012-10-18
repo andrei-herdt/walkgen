@@ -20,7 +20,7 @@ public:
 
 	virtual void Init() = 0;
 
-	void reset();
+	void Reset();
 	virtual void Solve(MPCSolution &solution_data,
 			bool warmstart, bool analysis) = 0;
 
@@ -55,8 +55,8 @@ protected:
 	QPVector var_u_bounds_vec_;
 	QPVector var_l_bounds_vec_;
 
-	int num_vars_, num_vars_max_,
-	num_constr_, num_constr_max_;
+	int num_variables_, num_variables_max_;
+	int num_constr_, num_constr_max_;
 
 	Eigen::VectorXi var_indices_vec_;
 	Eigen::VectorXi constr_indices_vec_;

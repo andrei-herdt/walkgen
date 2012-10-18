@@ -14,11 +14,11 @@ inline QPVector low_var_bounds_vec() 	{return var_l_bounds_vec_;};
 
 QPVector &vector(const QPVectorType type);
 
-inline void num_var (int nbvar) 			{num_vars_ = nbvar;}
-inline int num_var () const 				{return num_vars_;}
+inline void num_var (int nbvar) 			{num_variables_ = nbvar;}
+inline int num_var () const 				{return num_variables_;}
 
-inline void num_var_max (int nbvar) 		{num_vars_max_ = nbvar;}
-inline int num_var_max () const 			{return num_vars_max_;}
+inline void num_var_max (int nbvar) 		{num_variables_max_ = nbvar;}
+inline int num_var_max () const 			{return num_variables_max_;}
 
 inline void num_constr(int num_constr) 		{num_constr_ = num_constr;}
 inline int num_constr() const 				{return num_constr_;}

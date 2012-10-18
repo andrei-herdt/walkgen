@@ -8,74 +8,74 @@
 
 namespace MPCWalkgen{
 
-  class QPMatrix{
-    //
-    // Public methods:
-    //
-  public:
-    QPMatrix(const int num_rows, const int num_cols);
+class QPMatrix{
+	//
+	// Public methods:
+	//
+public:
+	QPMatrix(const int num_rows, const int num_cols);
 
-    ~QPMatrix();
+	~QPMatrix();
 
-    void AddTerm(const MatrixRowMaj &mat,
-      const int first_row,
-      const int first_col
-      );
+	void AddTerm(const MatrixRowMaj &mat,
+			const int first_row,
+			const int first_col
+	);
 
-    void SetConstantPart(const CommonMatrixType &mat
-    		);
+	void SetConstantPart(const CommonMatrixType &mat
+	);
 
-    void reset();
+	void Reset();
 
-    void resize(const int num_rows, const int num_cols);
+	void resize(const int num_rows, const int num_cols);
 
-    CommonMatrixType &cholesky();
-    CommonMatrixType &cholesky(CommonMatrixType &partialCholesky);
+	CommonMatrixType &cholesky();
+	CommonMatrixType &cholesky(CommonMatrixType &partialCholesky);
 
-    void colOrder(const Eigen::VectorXi &order);
-    void rowOrder(const Eigen::VectorXi &order);
+	void column_indices(const Eigen::VectorXi &order);
+	void row_indices(const Eigen::VectorXi &order);
 
-    // \name Accessors and mutators
-    // \{
-    inline CommonMatrixType &operator()(void) {
-      cholesky_old_mat_ = true;
-      return matrix_;
-    }
-    inline const CommonMatrixType &operator()(void) const {
-      return matrix_;
-    }
+	// \name Accessors and mutators
+	// \{
+	inline CommonMatrixType &operator()(void) {
+		cholesky_old_mat_ = true;
+		return matrix_;
+	}
+	inline const CommonMatrixType &operator()(void) const {
+		return matrix_;
+	}
 
-    inline double &operator()(int row, int col=0){return matrix_(row,col);}
+	inline double &operator()(int row, int col = 0){return matrix_(row,col);}
 
-    inline int num_rows() const	 {return num_rows_;}
-    inline int num_cols() const    {return num_cols_;}
-    // \}
+	inline int num_rows_max() const	{return num_rows_max_;}
+	inline int num_cols_max() const {return num_cols_max_;}
+	// \}
 
-    //
-    // Private methods:
-    //
-  private:
-    void BuildCholesky(const CommonMatrixType &partialCholesky);
-    void computeCholesky();
+	//
+	// Private methods:
+	//
+private:
+	void BuildCholesky(const CommonMatrixType &partialCholesky);
+	void computeCholesky();
 
-    //
-    // Private data members:
-    //
-  private:
+	//
+	// Private data members:
+	//
+private:
 
-    CommonMatrixType constant_mat_;
-    CommonMatrixType matrix_;
-    CommonMatrixType cholesky_mat_;
+	CommonMatrixType constant_mat_;
+	CommonMatrixType matrix_;
+	CommonMatrixType cholesky_mat_;
 
-    int num_rows_;
-    int num_cols_;
+	int num_rows_max_;
+	int num_cols_max_;
 
-    bool cholesky_old_mat_;
+	bool cholesky_old_mat_;
 
-    Eigen::VectorXi row_indices_vec_;//TODO: replace by std::vector
-    Eigen::VectorXi col_indices_vec_;//TODO: replace by std::vector
+	Eigen::VectorXi row_indices_vec_;//TODO: replace by std::vector
+	Eigen::VectorXi col_indices_vec_;//TODO: replace by std::vector
 
-  };
+};
 
 }
 #endif // MPC_WALKGEN_QP_MATRIX_H

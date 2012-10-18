@@ -41,7 +41,7 @@ private:
 			Derivative derivative
 	);
 
-	void BuildSecondOrderCoP(LinearDynamics &dyn,
+	void BuildSecondOrderCoPInput(LinearDynamics &dyn,
 			double height,
 			double sample_period_first,
 			double sample_period_rest,
@@ -88,6 +88,7 @@ private:
 	Vector2D tmp_vec_;
 	// \}
 
+	Eigen::EigenSolver<Matrix2D> eigen_solver_;
 };
 }
 #endif // MPC_WALKGEN_DYNAMICS_BUILDER_H

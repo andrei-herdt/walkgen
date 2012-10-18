@@ -41,8 +41,8 @@ void QPBuilder::PrecomputeObjective() {
 		order(i + num_samples) = 2 * i + 1;
 	}
 	QPMatrix chol(2 * num_samples, 2 * num_samples);
-	chol.rowOrder(order);
-	chol.colOrder(order);
+	chol.row_indices(order);
+	chol.column_indices(order);
 
 	int num_modes = mpc_parameters_->weights.control.size();
 	int num_recomp = mpc_parameters_->nbFeedbackSamplesStandard();
@@ -98,7 +98,7 @@ void QPBuilder::PrecomputeObjective() {
 			// Q += gamma*I
 			QconstN_[nb] = G + mpc_parameters_->weights.cop[i] * contr_weighting_mat;
 
-			chol.reset();
+			chol.Reset();
 			chol.AddTerm(QconstN_[nb], 0, 0);
 			chol.AddTerm(QconstN_[nb], num_samples, num_samples);
 
@@ -138,10 +138,10 @@ void QPBuilder::PrecomputeObjective() {
 void QPBuilder::BuildProblem(MPCSolution &solution) {
 	// DIMENSION OF QP:
 	// ----------------
-	int nbvars = 2 * mpc_parameters_->num_samples_horizon +				// com
+	int num_variables = 2 * mpc_parameters_->num_samples_horizon +				// com
 			2 * solution.support_states_vec.back().step_number;	// Foot placement
 	int num_constr = 5 * solution.support_states_vec.back().step_number;	// Foot placement
-	solver_->num_var(nbvars);
+	solver_->num_var(num_variables);
 	solver_->num_constr(num_constr);
 
 	BuildObjective(solution);

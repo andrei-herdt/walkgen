@@ -8,24 +8,24 @@ using namespace MPCWalkgen;
 using namespace Eigen;
 
 
-QPMatrix::QPMatrix(const int num_rows, const int num_cols)
-:constant_mat_(num_rows, num_cols)
-,matrix_(num_rows, num_cols)
-,cholesky_mat_(num_rows, num_cols)
-,num_rows_(num_rows)
-,num_cols_(num_cols)
+QPMatrix::QPMatrix(const int num_rows_max, const int num_cols_max)
+:constant_mat_(num_rows_max, num_cols_max)
+,matrix_(num_rows_max, num_cols_max)
+,cholesky_mat_(num_rows_max, num_cols_max)
+,num_rows_max_(num_rows_max)
+,num_cols_max_(num_cols_max)
 ,cholesky_old_mat_(true)
-,row_indices_vec_(num_rows)
-,col_indices_vec_(num_cols) {
+,row_indices_vec_(num_rows_max)
+,col_indices_vec_(num_cols_max) {
 
 	constant_mat_.setZero();
 	matrix_.setZero();
 	cholesky_mat_.setZero();
 
-	for (int i = 0; i < num_rows_; ++i) {
+	for (int i = 0; i < num_rows_max_; ++i) {
 		row_indices_vec_(i) = i;
 	}
-	for (int i = 0; i < num_cols_; ++i) {
+	for (int i = 0; i < num_cols_max_; ++i) {
 		col_indices_vec_(i) = i;
 	}
 }
@@ -47,7 +47,7 @@ void QPMatrix::AddTerm(const MatrixRowMaj &mat,
 	const int *row_p = first_row_p;
 
 	for (int row = 0; row < mat.rows(); ++row) {
-		goal_mat_p = matrix_.data() + *row_p * num_cols_;
+		goal_mat_p = matrix_.data() + *row_p * num_cols_max_;
 		col_p = first_col_p;
 		for (int col = 0; col < mat.cols(); ++col) {
 			// row major!
@@ -68,19 +68,19 @@ void QPMatrix::SetConstantPart(const CommonMatrixType &mat) {
 	for (int i = 0; i <= num_rows; ++i) {
 		for (int j = 0; j < num_cols; ++j) {
 			//row major!
-			*(constant_mat_.data() + col_indices_vec_(j) + row_indices_vec_(i) * num_cols_) = mat(i, j);
+			*(constant_mat_.data() + col_indices_vec_(j) + row_indices_vec_(i) * num_cols_max_) = mat(i, j);
 		}
 	}
 }
 
-void QPMatrix::reset() {
+void QPMatrix::Reset() {
 	matrix_.fill(0);
 	cholesky_old_mat_ = true;
 }
 
 void QPMatrix::resize(const int num_rows, const int num_cols) {
-	num_rows_ = num_rows;
-	num_cols_ = num_cols;
+	num_rows_max_ = num_rows;
+	num_cols_max_ = num_cols;
 }
 
 CommonMatrixType &QPMatrix::cholesky() {
@@ -93,11 +93,11 @@ CommonMatrixType &QPMatrix::cholesky(CommonMatrixType &partialCholesky) {
 	return cholesky_mat_;
 }
 
-void QPMatrix::colOrder(const Eigen::VectorXi &order) {
+void QPMatrix::column_indices(const Eigen::VectorXi &order) {
 	col_indices_vec_ = order;
 }
 
-void QPMatrix::rowOrder(const Eigen::VectorXi &order) {
+void QPMatrix::row_indices(const Eigen::VectorXi &order) {
 	row_indices_vec_ = order;
 }
 
@@ -107,7 +107,7 @@ void QPMatrix::BuildCholesky(const CommonMatrixType &partialCholesky) {
 		if (imin>0) {
 			cholesky_mat_.block(0, 0, imin, imin) = partialCholesky;
 			double tmp;
-			for (int j=0; j<num_cols_; ++j){
+			for (int j=0; j<num_cols_max_; ++j){
 				if (j>=imin){
 					for (int i=0; i<j; ++i) {
 						cholesky_mat_(j,i)=0;
@@ -123,7 +123,7 @@ void QPMatrix::BuildCholesky(const CommonMatrixType &partialCholesky) {
 					}
 
 				}
-				for (int i = std::max(j+1,imin); i<num_rows_; ++i) {
+				for (int i = std::max(j+1,imin); i<num_rows_max_; ++i) {
 					tmp = matrix_(j,i);
 					for (int k = 0; k < j; ++k) {
 						tmp -= cholesky_mat_(k,j) * cholesky_mat_(k,i);

@@ -52,8 +52,8 @@ void RigidBodySystem::Init(const RobotData &robot_data) {//TODO: Remove object r
 	current_support_.time_limit    = 1e9;
 	current_support_.num_steps_left   = 1;
 	current_support_.state_changed = true;
-	current_support_.x             = robot_data.leftFoot.position[0];
-	current_support_.y             = robot_data.leftFoot.position[1];
+	current_support_.x             = robot_data.left_foot.position[0];
+	current_support_.y             = robot_data.left_foot.position[1];
 	current_support_.yaw           = 0.0;
 	current_support_.start_time    = 0.0;
 }

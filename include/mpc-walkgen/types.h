@@ -243,7 +243,7 @@ struct MPC_WALKGEN_API RobotData {
 
 	Eigen::Vector3d com;
 
-	FootData leftFoot;
+	FootData left_foot;
 	FootData right_foot;
 
 	HipYawData left_hip_yaw;

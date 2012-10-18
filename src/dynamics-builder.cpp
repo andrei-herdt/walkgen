@@ -43,12 +43,12 @@ void DynamicsBuilder::Build(DynamicsOrder dynamics_order, LinearDynamics &dyn, d
 // Private methods:
 //
 void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, double sample_period_first, double sample_period_rest, int num_samples) {
-	BuildSecondOrder(dyn.pos, height, sample_period_first, sample_period_rest, num_samples, POSITION);
-	BuildSecondOrder(dyn.vel, height, sample_period_first, sample_period_rest, num_samples, VELOCITY);
-	BuildSecondOrder(dyn.acc, height, sample_period_first, sample_period_rest, num_samples, ACCELERATION);
-	BuildSecondOrder(dyn.cop, height, sample_period_first, sample_period_rest, num_samples, COP);
+	//BuildSecondOrder(dyn.pos, height, sample_period_first, sample_period_rest, num_samples, POSITION);
+	//BuildSecondOrder(dyn.vel, height, sample_period_first, sample_period_rest, num_samples, VELOCITY);
+	//BuildSecondOrder(dyn.acc, height, sample_period_first, sample_period_rest, num_samples, ACCELERATION);
+	//BuildSecondOrder(dyn.cop, height, sample_period_first, sample_period_rest, num_samples, COP);
 
-	BuildSecondOrderCoP(dyn, height, sample_period_first, sample_period_rest, num_samples);
+	BuildSecondOrderCoPInput(dyn, height, sample_period_first, sample_period_rest, num_samples);
 }
 
 void DynamicsBuilder::BuildThirdOrder(LinearDynamics &dyn, double height, double sample_period_first, double sample_period_rest, int num_samples) {
@@ -62,13 +62,12 @@ void DynamicsBuilder::BuildThirdOrder(LinearDynamics &dyn, double height, double
 	BuildThirdOrder(dyn.cop, height, sample_period_first, sample_period_rest, num_samples, COP);
 
 	// Capture Point: \f$ \xi = x + \frac{1}{\omega}\dot x \f$
-	dyn.cp.state_mat = dyn.pos.state_mat + sqrt(height/kGravity)*dyn.vel.state_mat;
-	dyn.cp.input_mat = dyn.pos.input_mat + sqrt(height/kGravity)*dyn.vel.input_mat;
+	dyn.cp.state_mat = dyn.pos.state_mat + 1. / sqrt(kGravity/height) * dyn.vel.state_mat;
+	dyn.cp.input_mat = dyn.pos.input_mat + 1. / sqrt(kGravity/height) * dyn.vel.input_mat;
 }
 
 void DynamicsBuilder::BuildThirdOrder(LinearDynamicsMatrices &dyn, double height,
-		double sample_period_first, double sample_period_rest, int num_samples, Derivative derivative)
-{
+		double sample_period_first, double sample_period_rest, int num_samples, Derivative derivative) {
 	assert(height > 0.);
 	assert(num_samples > 0.);
 	assert(sample_period_first > 0.);
@@ -150,14 +149,11 @@ void DynamicsBuilder::BuildThirdOrder(LinearDynamicsMatrices &dyn, double height
 
 void DynamicsBuilder::BuildSecondOrder(LinearDynamicsMatrices &dyn, double height,
 		double sample_period_first, double sample_period_rest,
-		int num_samples, Derivative derivative)
-{
+		int num_samples, Derivative derivative) {
 	assert(height > 0.);
 	assert(num_samples > 0.);
 	assert(sample_period_first > 0.);
 	assert(sample_period_rest > 0.);
-
-	const double kGravity = 9.81;
 
 	dyn.state_mat.setZero(num_samples, 2);
 	dyn.input_mat.setZero(num_samples, num_samples);
@@ -224,7 +220,7 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamicsMatrices &dyn, double heigh
 }
 
 
-void DynamicsBuilder::BuildSecondOrderCoP(LinearDynamics &dyn, double height,
+void DynamicsBuilder::BuildSecondOrderCoPInput(LinearDynamics &dyn, double height,
 		double sample_period_first, double sample_period_rest, int num_samples) {
 
 	assert(height > 0.);
@@ -234,21 +230,18 @@ void DynamicsBuilder::BuildSecondOrderCoP(LinearDynamics &dyn, double height,
 
 	dyn.SetZero(2, num_samples);
 
-	cont_state_mat_(0, 1) = 1.; cont_state_mat_(1, 0) = kGravity / height;
-	cont_state_mat_inv_ = cont_state_mat_.inverse();
-	cont_input_vec_(0) = 0.; cont_input_vec_(1) = - kGravity / height;
+	double omega = sqrt(kGravity/height);
+	double omega_square = kGravity/height;
 
+	// Continuous dynamics:
+	cont_state_mat_(0, 1) = 1.; cont_state_mat_(1, 0) = omega_square;
+	cont_state_mat_inv_ = cont_state_mat_.inverse();
+	cont_input_vec_(0) = 0.; cont_input_vec_(1) = - omega_square;
 
 	//Eigenvalue decomposition of cont_state_mat_: \f[ S e^{\lambda T}S^{-1} \f]
-	//Eigen::SelfAdjointEigenSolver<Matrix2D> eigensolver(cont_state_mat_);
-	//assert(eigensolver.info() == Eigen::Success);
-	//eigenval_vec_ = eigensolver.eigenvalues();
-	//eigenvec_mat_ = eigensolver.eigenvectors();
-
-	eigenval_vec_(0) = 3.471541019489;
-	eigenval_vec_(1) = -3.471541019489;
-	eigenvec_mat_ << 0.276801329319, -0.2768013293194052,
-			0.9609271689816092, 0.9609271689816092;
+	eigen_solver_.compute(cont_state_mat_);
+	eigenval_vec_ = eigen_solver_.eigenvalues().real();
+	eigenvec_mat_ = eigen_solver_.eigenvectors().real();
 	eigenvec_mat_inv_ = eigenvec_mat_.inverse();
 
 	Matrix2D discr_state_mat;
@@ -278,19 +271,19 @@ void DynamicsBuilder::BuildSecondOrderCoP(LinearDynamics &dyn, double height,
 	dyn.cop.input_mat_inv_tr.setIdentity();
 
 	// Acceleration:
-	dyn.acc.state_mat = kGravity/height*(dyn.pos.state_mat - dyn.cop.state_mat);//cop.state_mat should be zero
-	dyn.acc.input_mat = kGravity/height*(dyn.pos.input_mat - dyn.cop.input_mat);
+	dyn.acc.state_mat = omega_square*(dyn.pos.state_mat - dyn.cop.state_mat);
+	dyn.acc.input_mat = omega_square*(dyn.pos.input_mat - dyn.cop.input_mat);
 
 	// Capture Point: \f$ \xi = x + \frac{1}{\omega}\dot x \f$
-	dyn.cp.state_mat = dyn.pos.state_mat + sqrt(height/kGravity)*dyn.vel.state_mat;
-	dyn.cp.input_mat = dyn.pos.input_mat + sqrt(height/kGravity)*dyn.vel.input_mat;
+	dyn.cp.state_mat = dyn.pos.state_mat + 1./omega*dyn.vel.state_mat;
+	dyn.cp.input_mat = dyn.pos.input_mat + 1./omega*dyn.vel.input_mat;
 
 }
 
 
 void DynamicsBuilder::ComputeDiscreteStateMat(Matrix2D &mat, double sample_period) {
-	diag_exp_eig_mat_(0, 0) = exp(eigenval_vec_(0) * sample_period);
-	diag_exp_eig_mat_(1, 1) = exp(eigenval_vec_(1) * sample_period);
+	diag_exp_eig_mat_(0, 0) = exp(eigenval_vec_[0] * sample_period);
+	diag_exp_eig_mat_(1, 1) = exp(eigenval_vec_[1] * sample_period);
 
 	mat.noalias() = eigenvec_mat_ * diag_exp_eig_mat_ * eigenvec_mat_inv_;
 }

@@ -44,7 +44,7 @@ public:
 	inline const ControlOutput &output() const { return output_; };
 	inline RigidBodySystem *robot() { return &robot_; };
 
-	inline const QPSolver *solver() const { return solver_; };
+	inline QPSolver *solver() { return solver_; };
 
 	RealClock &clock() {return clock_;};
 

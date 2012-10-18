@@ -6,12 +6,12 @@ using namespace MPCWalkgen;
 using namespace Eigen;
 
 
-QPOasesParser::QPOasesParser(const SolverData *parameters, int nbvars, int num_constr)
-:QPSolver(parameters, nbvars, num_constr) {
-  qp_ = new qpOASES::SQProblem(nbvars, num_constr);
-  solution_vec_ = new double[nbvars];
+QPOasesParser::QPOasesParser(const SolverData *parameters, int num_variables, int num_constr)
+:QPSolver(parameters, num_variables, num_constr) {
+  qp_ = new qpOASES::SQProblem(num_variables, num_constr);
+  solution_vec_ = new double[num_variables];
   cstr_init_vec_ = new  qpOASES::Constraints(num_constr);
-  bounds_init_vec_ = new  qpOASES::Bounds(nbvars);
+  bounds_init_vec_ = new  qpOASES::Bounds(num_variables);
 }
 
 QPOasesParser::~QPOasesParser() {
@@ -48,7 +48,7 @@ void QPOasesParser::Solve(MPCSolution &solution_data,
     reorderInitialSolution(solution_data.initialSolution, solution_data.initialConstraints);
     solution_data.qp_solution_vec = solution_data.initialSolution;
     solution_data.constraints = solution_data.initialConstraints;
-    for (int i = 0; i < num_vars_; ++i) {
+    for (int i = 0; i < num_variables_; ++i) {
       if (solution_data.constraints(i) == 0) {//TODO: replace 0,1,-1 by ST_INACTIVE/ST_LOWER/ST_UPPER
         bounds_init_vec_->setupBound(i, qpOASES::ST_INACTIVE);
       }else if (solution_data.constraints(i) == 1) {
@@ -57,7 +57,7 @@ void QPOasesParser::Solve(MPCSolution &solution_data,
         bounds_init_vec_->setupBound(i, qpOASES::ST_UPPER);
       }
     }
-    for (int i = num_vars_; i < num_vars_ + num_constr_; ++i) {
+    for (int i = num_variables_; i < num_variables_ + num_constr_; ++i) {
       if (solution_data.constraints(i) == 0) {
         cstr_init_vec_->setupConstraint(i, qpOASES::ST_INACTIVE);
       } else if (solution_data.constraints(i) == 1) {
@@ -68,13 +68,13 @@ void QPOasesParser::Solve(MPCSolution &solution_data,
     }
 
   } else {
-    if (solution_data.qp_solution_vec.rows() != num_vars_) {
-      solution_data.qp_solution_vec.setZero(num_vars_);
+    if (solution_data.qp_solution_vec.rows() != num_variables_) {
+      solution_data.qp_solution_vec.setZero(num_variables_);
     } else {
       solution_data.qp_solution_vec.fill(0);
     }
-    if (solution_data.constraints.rows() != num_vars_ + num_constr_) {
-      solution_data.constraints.setZero(num_vars_ + num_constr_);
+    if (solution_data.constraints.rows() != num_variables_ + num_constr_) {
+      solution_data.constraints.setZero(num_variables_ + num_constr_);
     } else {
       solution_data.constraints.fill(0);
     }
@@ -95,7 +95,7 @@ void QPOasesParser::Solve(MPCSolution &solution_data,
   }
 
   qp_->getPrimalSolution(solution_vec_);
-  for (int i = 0; i < num_vars_; ++i) {
+  for (int i = 0; i < num_variables_; ++i) {
     solution_data.qp_solution_vec(i) = solution_vec_[i];
   }
 
@@ -104,7 +104,7 @@ void QPOasesParser::Solve(MPCSolution &solution_data,
   qpOASES::Bounds bounds;
   qp_->getConstraints(ctr);
   qp_->getBounds(bounds);
-  for (int i=0; i < num_vars_; ++i) {
+  for (int i=0; i < num_variables_; ++i) {
     if (bounds.getStatus(i) == qpOASES::ST_LOWER) {
       solution_data.constraints(i) = 1;
     } else if (bounds.getStatus(i) == qpOASES::ST_UPPER) {
@@ -115,11 +115,11 @@ void QPOasesParser::Solve(MPCSolution &solution_data,
   }
   for (int i = 0; i < num_constr_; ++i) {
     if (ctr.getStatus(i) == qpOASES::ST_LOWER) {
-      solution_data.constraints(i + num_vars_) = 1;
+      solution_data.constraints(i + num_variables_) = 1;
     }else if (ctr.getStatus(i) == qpOASES::ST_UPPER) {
-      solution_data.constraints(i + num_vars_) = 2;
+      solution_data.constraints(i + num_variables_) = 2;
     }else{
-      solution_data.constraints(i + num_vars_) = 0;
+      solution_data.constraints(i + num_variables_) = 0;
     }
   }
 
