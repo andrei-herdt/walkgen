@@ -67,13 +67,13 @@ void QPBuilder::PrecomputeObjective() {
 
 	// Precompute:
 	// -----------
-	CommonMatrixType G(num_samples, num_samples);
+	CommonMatrixType hessian_mat(num_samples, num_samples);
 	for (int i = 0; i < num_modes; ++i) {
 		for (double first_period = mpc_parameters_->period_mpcsample;
 				first_period < mpc_parameters_->period_qpsample + kEps;
 				first_period += mpc_parameters_->period_mpcsample) {
-			int nb = (int)round(first_period / mpc_parameters_->period_mpcsample)-1;
-			nb += i * num_recomp;
+			int mat_num = static_cast<int>(round(first_period / mpc_parameters_->period_mpcsample)-1);
+			mat_num += i * num_recomp;
 			robot_->SetSelectionNumber(first_period);//TODO: ?
 			// TODO: Get access to entire vector and do all operations here
 			const LinearDynamicsMatrices &pos_dyn = robot_->com()->dynamics_qp().pos;
@@ -83,54 +83,55 @@ void QPBuilder::PrecomputeObjective() {
 
 			// Q = beta*Uz^(-T)*Uv^T*Uv*Uz^(-1)
 			tmp_mat_.noalias() = cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * vel_dyn.input_mat * cop_dyn.input_mat_inv;
-			G = mpc_parameters_->weights.vel[i] * tmp_mat_;
+			hessian_mat = mpc_parameters_->weights.vel[i] * tmp_mat_;
+
 			// Q += gamma*Uz^(-T)*Uz^(-1)
 			tmp_mat_.noalias() = cop_dyn.input_mat_inv_tr * cop_dyn.input_mat_inv;
-			G += mpc_parameters_->weights.control[i] * tmp_mat_;
+			hessian_mat += mpc_parameters_->weights.control[i] * tmp_mat_;
 			// Q += delta*Uz^(-T)*Up^T*Up*Uz^(-1)
 			tmp_mat_.noalias() = cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * pos_dyn.input_mat * cop_dyn.input_mat_inv;
-			G +=  mpc_parameters_->weights.pos[i] * tmp_mat_;
+			hessian_mat +=  mpc_parameters_->weights.pos[i] * tmp_mat_;
 			// Q += epsilon*Uz^(-T)*Uxi^T*Uxi*Uz^(-1)
 			tmp_mat_.noalias() = cop_dyn.input_mat_inv_tr * cp_dyn.input_mat_tr * cp_dyn.input_mat * cop_dyn.input_mat_inv;
-			G +=  mpc_parameters_->weights.cp[i] * tmp_mat_;
+			hessian_mat +=  mpc_parameters_->weights.cp[i] * tmp_mat_;
 
-			Qconst_[nb] = G;
+			Qconst_[mat_num] = hessian_mat;
 			// Q += gamma*I
-			QconstN_[nb] = G + mpc_parameters_->weights.cop[i] * contr_weighting_mat;
+			QconstN_[mat_num] = hessian_mat + mpc_parameters_->weights.cop[i] * contr_weighting_mat;
 
 			chol.Reset();
-			chol.AddTerm(QconstN_[nb], 0, 0);
-			chol.AddTerm(QconstN_[nb], num_samples, num_samples);
+			chol.AddTerm(QconstN_[mat_num], 0, 0);
+			chol.AddTerm(QconstN_[mat_num], num_samples, num_samples);
 
-			choleskyConst_[nb] = chol.cholesky();
+			choleskyConst_[mat_num] = chol.cholesky();
 
 			// beta*Uz^(-T)*Uv*(Sv - Uv*Uz^(-1)*Sz)
 			tmp_mat_.noalias() = vel_dyn.state_mat - vel_dyn.input_mat * cop_dyn.input_mat_inv * cop_dyn.state_mat;
-			state_variant_[nb] = cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * mpc_parameters_->weights.vel[i] * tmp_mat_;
+			state_variant_[mat_num] = cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * mpc_parameters_->weights.vel[i] * tmp_mat_;
 			// beta*Uz^(-T)*Up*(Sp - Up*Uz^(-1)*Sz)
 			tmp_mat_.noalias() = pos_dyn.state_mat - pos_dyn.input_mat * cop_dyn.input_mat_inv * cop_dyn.state_mat;
-			state_variant_[nb] += cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * mpc_parameters_->weights.pos[i] * tmp_mat_;
+			state_variant_[mat_num] += cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * mpc_parameters_->weights.pos[i] * tmp_mat_;
 			// epsilon*Uz^(-T)*Uxi*(Sp - Uxi*Uz^(-1)*Sz)
 			tmp_mat_.noalias() = cp_dyn.state_mat - cp_dyn.input_mat * cop_dyn.input_mat_inv * cop_dyn.state_mat;
-			state_variant_[nb] += cop_dyn.input_mat_inv_tr * cp_dyn.input_mat_tr * mpc_parameters_->weights.cp[i] * tmp_mat_;
+			state_variant_[mat_num] += cop_dyn.input_mat_inv_tr * cp_dyn.input_mat_tr * mpc_parameters_->weights.cp[i] * tmp_mat_;
 			// - alpha*Uz^(-T)*Uz^(-1)*Sz
-			state_variant_[nb] -= cop_dyn.input_mat_inv_tr * mpc_parameters_->weights.control[i] * cop_dyn.input_mat_inv * cop_dyn.state_mat;
+			state_variant_[mat_num] -= cop_dyn.input_mat_inv_tr * mpc_parameters_->weights.control[i] * cop_dyn.input_mat_inv * cop_dyn.state_mat;
 
 			// alpha*Uz^(-T)*Uz^(-1)
-			select_variant_[nb]  = cop_dyn.input_mat_inv_tr * mpc_parameters_->weights.control[i] * cop_dyn.input_mat_inv;
+			select_variant_[mat_num]  = cop_dyn.input_mat_inv_tr * mpc_parameters_->weights.control[i] * cop_dyn.input_mat_inv;
 			// beta*Uz^(-T)*Uv^T*Uv*Uz^(-1)
-			select_variant_[nb] += cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * mpc_parameters_->weights.vel[i] * vel_dyn.input_mat * cop_dyn.input_mat_inv;
+			select_variant_[mat_num] += cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * mpc_parameters_->weights.vel[i] * vel_dyn.input_mat * cop_dyn.input_mat_inv;
 			// delta*Uz^(-T)*Up^T*Up*Uz^(-1)
-			select_variant_[nb] += cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * mpc_parameters_->weights.pos[i] * pos_dyn.input_mat * cop_dyn.input_mat_inv;
+			select_variant_[mat_num] += cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * mpc_parameters_->weights.pos[i] * pos_dyn.input_mat * cop_dyn.input_mat_inv;
 			// epsilon*Uz^(-T)*Uxi^T*Uxi*Uz^(-1)
-			select_variant_[nb] += cop_dyn.input_mat_inv_tr * cp_dyn.input_mat_tr * mpc_parameters_->weights.cp[i] * cp_dyn.input_mat * cop_dyn.input_mat_inv;
+			select_variant_[mat_num] += cop_dyn.input_mat_inv_tr * cp_dyn.input_mat_tr * mpc_parameters_->weights.cp[i] * cp_dyn.input_mat * cop_dyn.input_mat_inv;
 
 			// - beta*Uz^(-T)*Uv^T
-			ref_variant_vel_[nb] = -cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * mpc_parameters_->weights.vel[i];
+			ref_variant_vel_[mat_num] = -cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * mpc_parameters_->weights.vel[i];
 			// - delta*Uz^(-T)*Up^T
-			ref_variant_pos_[nb] = -cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * mpc_parameters_->weights.pos[i];
+			ref_variant_pos_[mat_num] = -cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * mpc_parameters_->weights.pos[i];
 			// - epsilon*Uz^(-T)*Uxi^T
-			ref_variant_cp_[nb] = -cop_dyn.input_mat_inv_tr * cp_dyn.input_mat_tr * mpc_parameters_->weights.cp[i];
+			ref_variant_cp_[mat_num] = -cop_dyn.input_mat_inv_tr * cp_dyn.input_mat_tr * mpc_parameters_->weights.cp[i];
 		}
 	}
 }

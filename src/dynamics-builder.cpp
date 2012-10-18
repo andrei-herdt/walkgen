@@ -64,6 +64,10 @@ void DynamicsBuilder::BuildThirdOrder(LinearDynamics &dyn, double height, double
 	// Capture Point: \f$ \xi = x + \frac{1}{\omega}\dot x \f$
 	dyn.cp.state_mat = dyn.pos.state_mat + 1. / sqrt(kGravity/height) * dyn.vel.state_mat;
 	dyn.cp.input_mat = dyn.pos.input_mat + 1. / sqrt(kGravity/height) * dyn.vel.input_mat;
+	dyn.cp.input_mat_tr = dyn.cp.input_mat.transpose();
+	dyn.cp.input_mat_inv = dyn.cp.input_mat.inverse();
+	dyn.cp.input_mat_inv_tr = dyn.cp.input_mat_inv.transpose();
+
 }
 
 void DynamicsBuilder::BuildThirdOrder(LinearDynamicsMatrices &dyn, double height,
@@ -222,11 +226,11 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamicsMatrices &dyn, double heigh
 
 void DynamicsBuilder::BuildSecondOrderCoPInput(LinearDynamics &dyn, double height,
 		double sample_period_first, double sample_period_rest, int num_samples) {
-
 	assert(height > 0.);
 	assert(num_samples > 0.);
 	assert(sample_period_first > 0.);
 	assert(sample_period_rest > 0.);
+
 
 	dyn.SetZero(2, num_samples);
 
@@ -263,6 +267,13 @@ void DynamicsBuilder::BuildSecondOrderCoPInput(LinearDynamics &dyn, double heigh
 			dyn.vel.input_mat(row + col, col) = discr_input_vec(1);
 		}
 	}
+	dyn.pos.input_mat_tr = dyn.pos.input_mat.transpose();
+	dyn.pos.input_mat_inv = dyn.pos.input_mat.inverse();
+	dyn.pos.input_mat_inv_tr = dyn.pos.input_mat_inv.transpose();
+
+	dyn.vel.input_mat_tr = dyn.vel.input_mat.transpose();
+	dyn.vel.input_mat_inv = dyn.vel.input_mat.inverse();
+	dyn.vel.input_mat_inv_tr = dyn.vel.input_mat_inv.transpose();
 
 	// COP:
 	dyn.cop.input_mat.setIdentity();
@@ -274,10 +285,24 @@ void DynamicsBuilder::BuildSecondOrderCoPInput(LinearDynamics &dyn, double heigh
 	dyn.acc.state_mat = omega_square*(dyn.pos.state_mat - dyn.cop.state_mat);
 	dyn.acc.input_mat = omega_square*(dyn.pos.input_mat - dyn.cop.input_mat);
 
+	dyn.acc.input_mat_tr = dyn.acc.input_mat.transpose();
+	dyn.acc.input_mat_inv = dyn.acc.input_mat.inverse();
+	dyn.acc.input_mat_inv_tr = dyn.acc.input_mat_inv.transpose();
+
 	// Capture Point: \f$ \xi = x + \frac{1}{\omega}\dot x \f$
 	dyn.cp.state_mat = dyn.pos.state_mat + 1./omega*dyn.vel.state_mat;
 	dyn.cp.input_mat = dyn.pos.input_mat + 1./omega*dyn.vel.input_mat;
 
+	dyn.cp.input_mat_tr = dyn.cp.input_mat.transpose();
+	dyn.cp.input_mat_inv = dyn.cp.input_mat.inverse();
+	dyn.cp.input_mat_inv_tr = dyn.cp.input_mat_inv.transpose();
+
+
+	assert(!dyn.pos.input_mat_inv.isZero(kEps) && !dyn.pos.input_mat_tr.isZero(kEps));
+	assert(!dyn.vel.input_mat_inv.isZero(kEps) && !dyn.vel.input_mat_tr.isZero(kEps));
+	assert(!dyn.cop.input_mat_inv.isZero(kEps) && !dyn.cop.input_mat_tr.isZero(kEps));
+	assert(!dyn.acc.input_mat_inv.isZero(kEps) && !dyn.acc.input_mat_tr.isZero(kEps));
+	assert(!dyn.cp.input_mat_inv_tr.isZero(kEps) && !dyn.cp.input_mat_tr.isZero(kEps));
 }
 
 

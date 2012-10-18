@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.445"
+    ComputedModelVersion    "1.463"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Thu Oct 18 11:35:13 2012"
+  LastModifiedDate	  "Thu Oct 18 16:48:15 2012"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:445>"
+  ModelVersionFormat	  "1.%<AutoIncrement:463>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -737,7 +737,7 @@ Model {
 	  BlockType		  SubSystem
 	  Name			  "Atomic Walkgen"
 	  Ports			  [4, 2]
-	  Position		  [390, 61, 495, 754]
+	  Position		  [385, 61, 490, 754]
 	  TreatAsAtomicUnit	  on
 	  MinAlgLoopOccurrences	  off
 	  SystemSampleTime	  "0.001"
@@ -756,7 +756,7 @@ Model {
 	  MaskIconOpaque	  on
 	  MaskIconRotate	  "none"
 	  MaskIconUnits		  "autoscale"
-	  MaskValueString	  "16|1|1|0|0|0|8|8|2|0.1|0.1|0.001|0.02|20|2|1"
+	  MaskValueString	  "16|0|0|0|1|0|8|8|2|0.1|0.001|0.001|0.02|20|3|1"
 	  MaskTabNameString	  ",,,,,,,,,,,,,,,"
 	  System {
 	    Name		    "Atomic Walkgen"
@@ -1084,9 +1084,9 @@ Model {
 		ListType		AxesTitles
 		axes1			"%<SignalLabel>"
 	      }
-	      TimeRange		      "0.007766893178016154"
-	      YMin		      "0.05"
-	      YMax		      "0.95"
+	      TimeRange		      "5"
+	      YMin		      "-5000000"
+	      YMax		      "45000000"
 	      SaveName		      "ScopeData4"
 	      DataFormat	      "StructureWithTime"
 	      SampleTime	      "0"
@@ -1107,9 +1107,9 @@ Model {
 		ListType		AxesTitles
 		axes1			"%<SignalLabel>"
 	      }
-	      TimeRange		      "0.6600550964187328"
-	      YMin		      "-0.0305591259640103"
-	      YMax		      "0.0568444730077121"
+	      TimeRange		      "5"
+	      YMin		      "-3e-007"
+	      YMax		      "1.5e-007"
 	      SaveName		      "ScopeData5"
 	      DataFormat	      "StructureWithTime"
 	      SampleTime	      "0"
@@ -1440,13 +1440,13 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "Bus\nSelector1"
 	      SrcPort		      1
-	      Points		      [60, 0]
+	      Points		      [70, 0]
 	      Branch {
 		DstBlock		"S-Function"
 		DstPort			2
 	      }
 	      Branch {
-		Points			[10, 0]
+		Points			[0, 0]
 		DstBlock		"Scope5"
 		DstPort			1
 	      }

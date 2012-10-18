@@ -16,7 +16,7 @@ int main() {
 	int num_samples_dsss = 8;
 	int num_steps_ssds = 2;
 	double sample_period_qp = 0.1;
-	double sample_period_first = 0.1;
+	double sample_period_first = 0.001;
 	double sample_period_act = 0.001;
 	const double kSecurityMargin = 0.02;
 
@@ -151,7 +151,6 @@ int main() {
 		walk.clock().ResetLocal();
 		num_iterations++;
 	}
-	walk.solver()->DumpProblem("problem.dat");
 	walk.SetVelReference(0.1, 0, 0.1);
 	for (; curr_time < 20; curr_time += sample_period_act) {
 		int online_timer = walk.clock().StartCounter();
