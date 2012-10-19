@@ -7,8 +7,7 @@
 using namespace MPCWalkgen;
 using namespace Eigen;
 
-RigidBodySystem::RigidBodySystem():
-										mpc_parameters_p_(NULL) {
+RigidBodySystem::RigidBodySystem(): mpc_parameters_p_(NULL) {
 	com_ 		= new CoMBody();
 	left_foot_ 	= new FootBody(LEFT);
 	right_foot_ = new FootBody(RIGHT);
@@ -20,11 +19,15 @@ RigidBodySystem::~RigidBodySystem() {
 		com_ = NULL;
 	}
 
-	if (left_foot_ != 0x0)
+	if (left_foot_ != 0x0) {
 		delete left_foot_;
+		left_foot_ = NULL;
+	}
 
-	if (right_foot_ != 0x0)
+	if (right_foot_ != 0x0) {
 		delete right_foot_;
+		right_foot_ = NULL;
+	}
 }
 
 void RigidBodySystem::Init(const MPCParameters *mpc_parameters_p) {
@@ -71,18 +74,18 @@ void RigidBodySystem::Interpolate(MPCSolution &solution, double current_time, co
 void RigidBodySystem::UpdateState(const MPCSolution &solution) {
 
 	int next_sample = mpc_parameters_p_->num_samples_act() - 1;
-	left_foot_->state().x(POSITION) = left_foot_->motion_act().pos.x_vec[next_sample];
-	left_foot_->state().y(POSITION) = left_foot_->motion_act().pos.y_vec[next_sample];
-	left_foot_->state().z(POSITION) = left_foot_->motion_act().pos.z_vec[next_sample];
-	left_foot_->state().yaw(POSITION) = left_foot_->motion_act().pos.yaw_vec[next_sample];
-	left_foot_->state().x(VELOCITY) = left_foot_->motion_act().vel.x_vec[next_sample];
-	left_foot_->state().y(VELOCITY) = left_foot_->motion_act().vel.y_vec[next_sample];
-	left_foot_->state().z(VELOCITY) = left_foot_->motion_act().vel.z_vec[next_sample];
-	left_foot_->state().yaw(VELOCITY) = left_foot_->motion_act().vel.yaw_vec[next_sample];
-	left_foot_->state().x(ACCELERATION) = left_foot_->motion_act().acc.x_vec[next_sample];
-	left_foot_->state().y(ACCELERATION) = left_foot_->motion_act().acc.y_vec[next_sample];
-	left_foot_->state().z(ACCELERATION) = left_foot_->motion_act().acc.z_vec[next_sample];
-	left_foot_->state().yaw(ACCELERATION) = left_foot_->motion_act().acc.yaw_vec[next_sample];
+	left_foot_->state().x(POSITION) 		= left_foot_->motion_act().pos.x_vec[next_sample];
+	left_foot_->state().y(POSITION) 		= left_foot_->motion_act().pos.y_vec[next_sample];
+	left_foot_->state().z(POSITION) 		= left_foot_->motion_act().pos.z_vec[next_sample];
+	left_foot_->state().yaw(POSITION) 		= left_foot_->motion_act().pos.yaw_vec[next_sample];
+	left_foot_->state().x(VELOCITY) 		= left_foot_->motion_act().vel.x_vec[next_sample];
+	left_foot_->state().y(VELOCITY) 		= left_foot_->motion_act().vel.y_vec[next_sample];
+	left_foot_->state().z(VELOCITY) 		= left_foot_->motion_act().vel.z_vec[next_sample];
+	left_foot_->state().yaw(VELOCITY) 		= left_foot_->motion_act().vel.yaw_vec[next_sample];
+	left_foot_->state().x(ACCELERATION) 	= left_foot_->motion_act().acc.x_vec[next_sample];
+	left_foot_->state().y(ACCELERATION) 	= left_foot_->motion_act().acc.y_vec[next_sample];
+	left_foot_->state().z(ACCELERATION) 	= left_foot_->motion_act().acc.z_vec[next_sample];
+	left_foot_->state().yaw(ACCELERATION) 	= left_foot_->motion_act().acc.yaw_vec[next_sample];
 
 	right_foot_->state().x(POSITION) = right_foot_->motion_act().pos.x_vec[next_sample];
 	right_foot_->state().y(POSITION) = right_foot_->motion_act().pos.y_vec[next_sample];
@@ -113,10 +116,10 @@ void RigidBodySystem::UpdateState(const MPCSolution &solution) {
 	com_->state().z(0) = robot_data_.com(2);
 }
 
-void RigidBodySystem::SetSelectionNumber(double sampling_period){
-	com_->SetSelectionNumber(sampling_period);
-	left_foot_->SetSelectionNumber(sampling_period);
-	right_foot_->SetSelectionNumber(sampling_period);
+void RigidBodySystem::ComputeDynamicsIndex(double sampling_period){
+	com_->ComputeDynamicsIndex(sampling_period);
+	left_foot_->ComputeDynamicsIndex(sampling_period);
+	right_foot_->ComputeDynamicsIndex(sampling_period);
 }
 
 void RigidBodySystem::GetConvexHull(ConvexHull &hull, HullType type, const SupportState &previewed_support) const {

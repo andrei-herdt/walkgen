@@ -26,7 +26,7 @@ public:
 
 	void UpdateState(const MPCSolution &solution);
 
-	void SetSelectionNumber(double firstSamplingPeriod);
+	void ComputeDynamicsIndex(double firstSamplingPeriod);
 
 	void ComputeDynamics();
 

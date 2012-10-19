@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.463"
+    ComputedModelVersion    "1.476"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Thu Oct 18 16:48:15 2012"
+  LastModifiedDate	  "Fri Oct 19 11:29:22 2012"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:463>"
+  ModelVersionFormat	  "1.%<AutoIncrement:476>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -756,11 +756,11 @@ Model {
 	  MaskIconOpaque	  on
 	  MaskIconRotate	  "none"
 	  MaskIconUnits		  "autoscale"
-	  MaskValueString	  "16|0|0|0|1|0|8|8|2|0.1|0.001|0.001|0.02|20|3|1"
+	  MaskValueString	  "1|0|1|0|0|0.00001|8|8|2|0.1|0.001|0.001|0.02|20|2|1"
 	  MaskTabNameString	  ",,,,,,,,,,,,,,,"
 	  System {
 	    Name		    "Atomic Walkgen"
-	    Location		    [850, 74, 1594, 876]
+	    Location		    [702, 74, 1446, 876]
 	    Open		    off
 	    ModelBrowserVisibility  off
 	    ModelBrowserWidth	    200
@@ -1076,7 +1076,7 @@ Model {
 	      Orientation	      "up"
 	      ShowName		      off
 	      Floating		      off
-	      Location		      [82, 43, 1595, 894]
+	      Location		      [82, 40, 1595, 894]
 	      Open		      off
 	      NumInputPorts	      "1"
 	      ZoomMode		      "yonly"
@@ -1085,8 +1085,8 @@ Model {
 		axes1			"%<SignalLabel>"
 	      }
 	      TimeRange		      "5"
-	      YMin		      "-5000000"
-	      YMax		      "45000000"
+	      YMin		      "-0.5"
+	      YMax		      "7.5"
 	      SaveName		      "ScopeData4"
 	      DataFormat	      "StructureWithTime"
 	      SampleTime	      "0"
@@ -1101,15 +1101,15 @@ Model {
 	      ShowName		      off
 	      Floating		      off
 	      Location		      [79, 40, 1595, 894]
-	      Open		      on
+	      Open		      off
 	      NumInputPorts	      "1"
 	      List {
 		ListType		AxesTitles
 		axes1			"%<SignalLabel>"
 	      }
 	      TimeRange		      "5"
-	      YMin		      "-3e-007"
-	      YMax		      "1.5e-007"
+	      YMin		      "-1e-006"
+	      YMax		      "1.4e-005"
 	      SaveName		      "ScopeData5"
 	      DataFormat	      "StructureWithTime"
 	      SampleTime	      "0"
@@ -1698,7 +1698,7 @@ Model {
 	  ShowName		  off
 	  FontName		  "Arial"
 	  FontSize		  8
-	  Value			  "[0.0, 0.0, 0.0]"
+	  Value			  "[0.1, 0.0, 0.0]"
 	  OutDataType		  "sfix(16)"
 	  OutScaling		  "2^0"
 	  Port {
@@ -1715,7 +1715,7 @@ Model {
 	  ShowName		  off
 	  FontName		  "Arial"
 	  FontSize		  8
-	  Value			  "[0.0, 0.0, 0.0]"
+	  Value			  "[0.1, 0.0, 0.0]"
 	  OutDataType		  "sfix(16)"
 	  OutScaling		  "2^0"
 	}

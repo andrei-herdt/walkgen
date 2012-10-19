@@ -35,7 +35,7 @@ int main() {
 	mpc_parameters.solver.analysis                = false;
 	mpc_parameters.solver.name                    = QPOASES;
 	mpc_parameters.solver.num_wsrec               = 20;
-	mpc_parameters.dynamics_order                 = SECOND_ORDER;
+	mpc_parameters.dynamics_order                 = THIRD_ORDER;
 
 	mpc_parameters.weights.pos[0] 		= 0.;
 	mpc_parameters.weights.vel[0]  		= 1.;
@@ -51,35 +51,35 @@ int main() {
 
 	// Robot parameters:
 	// -----------------
-	FootData leftFoot;
-	leftFoot.anklePositionInLocalFrame      << 0, 0, 0.105;
-	leftFoot.soleHeight                     = 0.138;
-	leftFoot.soleWidth                      = 0.2172;
-	leftFoot.position[0] = 0.00949035;
-	leftFoot.position[1] = 0.095;
-	leftFoot.position[2] = 0.0;
-	leftFoot.SetEdges(0.2172, 0.0, 0.138, 0.0, kSecurityMargin);
+	FootData left_foot;
+	left_foot.ankle_pos_local      << 0, 0, 0.105;
+	left_foot.soleHeight                     = 0.138;
+	left_foot.soleWidth                      = 0.2172;
+	left_foot.position[0] = 0.00949035;
+	left_foot.position[1] = 0.095;
+	left_foot.position[2] = 0.0;
+	left_foot.SetEdges(0.2172, 0.0, 0.138, 0.0, kSecurityMargin);
 
-	FootData rightFoot;
-	rightFoot.anklePositionInLocalFrame     << 0, 0, 0.105;
-	rightFoot.soleHeight                    = 0.138;
-	rightFoot.soleWidth                     = 0.2172;
-	rightFoot.position[0] = 0.00949035;
-	rightFoot.position[1] = -0.095;
-	rightFoot.position[2] = 0.0;
-	rightFoot.SetEdges(0.2172, 0.0, 0.138, 0.0, kSecurityMargin);
+	FootData right_foot;
+	right_foot.ankle_pos_local     << 0, 0, 0.105;
+	right_foot.soleHeight                    = 0.138;
+	right_foot.soleWidth                     = 0.2172;
+	right_foot.position[0] = 0.00949035;
+	right_foot.position[1] = -0.095;
+	right_foot.position[2] = 0.0;
+	right_foot.SetEdges(0.2172, 0.0, 0.138, 0.0, kSecurityMargin);
 
 
-	HipYawData leftHipYaw;
-	leftHipYaw.lowerBound                   = -0.523599;
-	leftHipYaw.upperBound                   = 0.785398;
-	leftHipYaw.lowerVelocityBound           = -3.54108;
-	leftHipYaw.upperVelocityBound           = 3.54108;
-	leftHipYaw.lowerAccelerationBound       = -0.1;
-	leftHipYaw.upperAccelerationBound       = 0.1;
-	HipYawData rightHipYaw = leftHipYaw;
+	HipYawData left_hip_yaw;
+	left_hip_yaw.lowerBound                   = -0.523599;
+	left_hip_yaw.upperBound                   = 0.785398;
+	left_hip_yaw.lowerVelocityBound           = -3.54108;
+	left_hip_yaw.upperVelocityBound           = 3.54108;
+	left_hip_yaw.lowerAccelerationBound       = -0.1;
+	left_hip_yaw.upperAccelerationBound       = 0.1;
+	HipYawData right_hip_yaw = left_hip_yaw;
 
-	RobotData robot_data(leftFoot, rightFoot, leftHipYaw, rightHipYaw, 0.0);
+	RobotData robot_data(left_foot, right_foot, left_hip_yaw, right_hip_yaw, 0.0);
 
 	// TODO: This initialization did not work
 	robot_data.com(0) = 0.0;
@@ -88,20 +88,20 @@ int main() {
 
 	robot_data.max_foot_vel = 1.;
 
-	// Feasible hulls:
-	// ---------------
-	const int nbVertFeet = 5;
+	// Feasibility hulls:
+	// ------------------
+	const int num_vertices = 5;
 	// Feasible foot positions
-	double DefaultFPosEdgesX[nbVertFeet] = {-0.28, -0.2, 0.0, 0.2, 0.28};
-	double DefaultFPosEdgesY[nbVertFeet] = {-0.2, -0.3, -0.4, -0.3, -0.2};
+	double foot_pos_vertices_x[num_vertices] = {-0.28, -0.2, 0.0, 0.2, 0.28};
+	double foot_pos_vertices_y[num_vertices] = {-0.2, -0.3, -0.4, -0.3, -0.2};
 
-	robot_data.left_foot_pos_hull.Resize(nbVertFeet);
-	robot_data.right_foot_pos_hull.Resize(nbVertFeet);
-	for (int i=0; i < nbVertFeet; ++i) {
-		robot_data.left_foot_pos_hull.x_vec(i) = DefaultFPosEdgesX[i];
-		robot_data.left_foot_pos_hull.y_vec(i) = DefaultFPosEdgesY[i];
-		robot_data.right_foot_pos_hull.x_vec(i) = DefaultFPosEdgesX[i];
-		robot_data.right_foot_pos_hull.y_vec(i) = -DefaultFPosEdgesY[i];
+	robot_data.left_foot_pos_hull.Resize(num_vertices);
+	robot_data.right_foot_pos_hull.Resize(num_vertices);
+	for (int i=0; i < num_vertices; ++i) {
+		robot_data.left_foot_pos_hull.x_vec(i) = foot_pos_vertices_x[i];
+		robot_data.left_foot_pos_hull.y_vec(i) = foot_pos_vertices_y[i];
+		robot_data.right_foot_pos_hull.x_vec(i) = foot_pos_vertices_x[i];
+		robot_data.right_foot_pos_hull.y_vec(i) = -foot_pos_vertices_y[i];
 	}
 
 

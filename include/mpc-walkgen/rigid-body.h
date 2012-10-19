@@ -38,7 +38,7 @@ namespace MPCWalkgen{
     inline Motion &motion_act() {return motion_act_;};
     inline Motion &motion_prw() {return motion_prw_;};
 
-    void SetSelectionNumber(double firstSamplingPeriod);
+    void ComputeDynamicsIndex(double firstSamplingPeriod);
     /// \}
 
   protected:

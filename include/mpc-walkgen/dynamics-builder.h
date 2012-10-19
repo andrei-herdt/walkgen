@@ -23,17 +23,28 @@ public:
 			double height,
 			double sample_period_first,
 			double sample_period_rest,
-			int nbsamples);
+			int nbsamples
+	);
 
 	//
 	// Private methods:
 	//
 private:
 
-	void BuildSecondOrder(LinearDynamics &dyn,  double height, double sample_period_first, double sample_period_rest, int num_samples);
-	void BuildThirdOrder(LinearDynamics &dyn,  double height, double sample_period_first, double sample_period_rest, int num_samples);
+	void BuildSecondOrder(LinearDynamics &dyn,
+			double height,
+			double sample_period_first,
+			double sample_period_rest,
+			int num_samples
+	);
+	void BuildThirdOrder(LinearDynamics &dyn,
+			double height,
+			double sample_period_first,
+			double sample_period_rest,
+			int num_samples
+	);
 
-	void BuildSecondOrder(LinearDynamicsMatrices &dyn,
+	void BuildSecondOrderCoPOutput(LinearDynamicsMatrices &dyn,
 			double height,
 			double sample_period_first,
 			double sample_period_rest,
@@ -57,13 +68,12 @@ private:
 	);
 
 	// Computes the discrete state matrix via \f[ e^{AT} \f]
-	void ComputeDiscreteStateMat(Matrix2D &mat,
+	void ComputeDiscreteStateMat(LinearDynamics &dyn,
 			double sample_period_first
 	);
 
 	// Computes the discrete input vector via \f[ A^{-1}(A_d-I)B \f]
-	void ComputeDiscreteInputVec(Vector2D &vec,
-			const Matrix2D &discr_state_mat
+	void ComputeDiscreteInputVec(LinearDynamics &dyn
 	);
 
 
@@ -74,9 +84,6 @@ private:
 
 	// \name Elements for the computation of discrete state-space models
 	// \{
-	Matrix2D cont_state_mat_, cont_state_mat_inv_;	//Continuous state matrices
-	Vector2D cont_input_vec_;						//Continuous input vector
-
 	Vector2D eigenval_vec_;							//Vector of eigenvalues
 	Matrix2D eigenvec_mat_, eigenvec_mat_inv_;		//Eigenvector matrices
 
@@ -88,7 +95,7 @@ private:
 	Vector2D tmp_vec_;
 	// \}
 
-	Eigen::EigenSolver<Matrix2D> eigen_solver_;
+	Eigen::EigenSolver<CommonMatrixType> eigen_solver_;
 };
 }
 #endif // MPC_WALKGEN_DYNAMICS_BUILDER_H

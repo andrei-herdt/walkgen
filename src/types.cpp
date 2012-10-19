@@ -42,7 +42,7 @@ void BodyState::reset(){
 FootData::FootData()
 : soleWidth(0)
 , soleHeight(0)
-, anklePositionInLocalFrame() {
+, ankle_pos_local() {
 	edges_x_vec.resize(4);
 	edges_y_vec.resize(4);
 
@@ -52,7 +52,7 @@ FootData::FootData()
 FootData::FootData(const FootData &f)
 : soleWidth(f.soleWidth)
 , soleHeight(f.soleHeight)
-, anklePositionInLocalFrame(f.anklePositionInLocalFrame) {
+, ankle_pos_local(f.ankle_pos_local) {
 	edges_x_vec = f.edges_x_vec;
 	edges_y_vec = f.edges_y_vec;
 	position = f.position;
@@ -171,11 +171,11 @@ MPCParameters::MPCParameters()
 
 MPCParameters::~MPCParameters(){}
 
-int MPCParameters::nbFeedbackSamplesLeft(double firstIterationduration) const{
-	return static_cast<int> (round(firstIterationduration / period_mpcsample)-1 );
+int MPCParameters::num_recomputations_left(double first_sampling_period) const{
+	return static_cast<int> (round(first_sampling_period / period_mpcsample)-1 );
 }
 
-int MPCParameters::nbFeedbackSamplesStandard() const{
+int MPCParameters::num_recomputations() const{
 	return static_cast<int> (round(period_qpsample / period_mpcsample) );
 }
 
@@ -345,7 +345,7 @@ WeightCoefficients::WeightCoefficients(int num_modes)
 ,cop(num_modes)
 ,cp(num_modes)
 ,control(num_modes)
- {
+{
 	pos[0] 		= 0.;
 	vel[0]  	= 0.;//1.;
 	cop[0]  	= 0.00001;
@@ -378,21 +378,29 @@ void WeightCoefficients::SetCoefficients(Reference &ref) {
 	}
 }
 
-void LinearDynamicsMatrices::SetZero(int state_dimension, int num_samples) {
-	state_mat.setZero(num_samples, state_dimension);
+void LinearDynamicsMatrices::SetZero(int state_dim, int input_dim, int output_dim, int num_samples) {
+	state_mat.setZero(num_samples, state_dim);
 	input_mat.setZero(num_samples, num_samples);
 	input_mat_tr.setZero(num_samples, num_samples);
 	input_mat_inv.setZero(num_samples, num_samples);
 	input_mat_inv_tr.setZero(num_samples, num_samples);
+
+	ss_state_mat.setZero(state_dim, state_dim);
+	ss_input_mat.setZero(state_dim, input_dim);
+	ss_output_mat.setZero(input_dim, state_dim);
+	ss_feedthrough_mat.setZero(input_dim, state_dim);
 }
 
-void LinearDynamics::SetZero(int state_dimension, int num_samples) {
-	pos.SetZero(state_dimension, num_samples);
-	vel.SetZero(state_dimension, num_samples);
-	acc.SetZero(state_dimension, num_samples);
-	jerk.SetZero(state_dimension, num_samples);
-	cop.SetZero(state_dimension, num_samples);
-	cp.SetZero(state_dimension, num_samples);
+void LinearDynamics::SetZero(int state_dim, int input_dim, int output_dim, int num_samples) {
+	pos.SetZero(state_dim, input_dim, output_dim, num_samples);
+	vel.SetZero(state_dim, input_dim, output_dim, num_samples);
+	acc.SetZero(state_dim, input_dim, output_dim, num_samples);
+	jerk.SetZero(state_dim, input_dim, output_dim, num_samples);
+	cop.SetZero(state_dim, input_dim, output_dim, num_samples);
+	cp.SetZero(state_dim, input_dim, output_dim, num_samples);
+
+	cont_ss.SetZero(state_dim, input_dim, output_dim, num_samples);
+	discr_ss.SetZero(state_dim, input_dim, output_dim, num_samples);
 }
 
 

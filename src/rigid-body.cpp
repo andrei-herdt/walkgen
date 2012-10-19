@@ -17,7 +17,7 @@ RigidBody::~RigidBody() {}
 void RigidBody::Init(const MPCParameters *mpc_parameters_p) {
 	mpc_parameters_ = mpc_parameters_p;
 
-	int nbdynamics = mpc_parameters_->nbFeedbackSamplesStandard();
+	int nbdynamics = mpc_parameters_->num_recomputations();
 	dynamics_qp_vec_.resize(nbdynamics);
 
 	int num_samples = mpc_parameters_->num_samples_act();
@@ -38,7 +38,7 @@ void RigidBody::ComputeDynamics(DynamicsOrder dynamics_order) {
 	int num_samples = mpc_parameters_->num_samples_horizon;
 	double sp_first = mpc_parameters_->period_mpcsample;
 	double sp_rest = mpc_parameters_->period_qpsample;
-	int nbdynamics = mpc_parameters_->nbFeedbackSamplesStandard();
+	int nbdynamics = mpc_parameters_->num_recomputations();
 	double height = state_.z(0);
 
 	std::vector<LinearDynamics>::iterator dyn_it = dynamics_qp_vec_.begin();
@@ -54,6 +54,6 @@ void RigidBody::ComputeDynamics(DynamicsOrder dynamics_order) {
 	dyn_build_p_->Build(dynamics_order, dynamics_act_, robot_data_p_->com(2), sp_first, sp_rest, num_samples);
 }
 
-void RigidBody::SetSelectionNumber(double firstSamplingPeriod){
+void RigidBody::ComputeDynamicsIndex(double firstSamplingPeriod){
 	dynamics_index_ = (int)round(firstSamplingPeriod / mpc_parameters_->period_mpcsample) - 1;
 }

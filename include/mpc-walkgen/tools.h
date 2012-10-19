@@ -11,7 +11,7 @@
 #endif /* WIN32 */
 
 namespace MPCWalkgen{
-void inverse(const CommonMatrixType &X, CommonMatrixType &Xinv);
+void Invert(const CommonMatrixType &X, CommonMatrixType &Xinv);
 
 inline double pow2(double v);
 
@@ -31,27 +31,16 @@ inline double dp(const Eigen::Matrix<double,6,1> &factor, double x);
 /// \brief compute the value of the second derivative of the polynomial of degree 5 p(x)
 inline double ddp(const Eigen::Matrix<double,6,1> &factor, double x);
 
-
-// \brief Return true if the matrix given is triangular.
-// \param [in] m
-bool isUpperTriangular(const CommonMatrixType &m);
-
-// \brief Return true if the matrix given is triangular.
-// \param [in] m
-bool hasCholeskyForm(const CommonMatrixType &m);
-
 // \brief Compute the multiplication of the rotation matrix R by M
-// \param [in out] mInOut = R mInOut R^T
-// \param [in] R the rotation matrix block diagonal
-void ComputeRM(CommonMatrixType &mInOut,
-		const CommonMatrixType &rot
+void RTimesM(CommonMatrixType &m,		// \param [in out] matrix
+		const CommonMatrixType &rt 		// \param [in] block diagonal rotation matrix
 		);
 
 
 // \brief Compute the multiplication of the rotation matrix M by the R^t
 // \param [in out] mInOut = R mInOut R^T
 // \param [in] R the rotation matrix block diagonal
-void computeMRt(CommonMatrixType &mInOut,
+void MTimesRT(CommonMatrixType &mInOut,
 		const CommonMatrixType &rot
 );
 

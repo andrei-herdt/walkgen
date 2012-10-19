@@ -45,7 +45,7 @@ void QPBuilder::PrecomputeObjective() {
 	chol.column_indices(order);
 
 	int num_modes = mpc_parameters_->weights.control.size();
-	int num_recomp = mpc_parameters_->nbFeedbackSamplesStandard();
+	int num_recomp = mpc_parameters_->num_recomputations();
 	Qconst_.resize(num_recomp * num_modes);
 	QconstN_.resize(num_recomp * num_modes);
 	choleskyConst_.resize(num_recomp * num_modes);
@@ -74,8 +74,7 @@ void QPBuilder::PrecomputeObjective() {
 				first_period += mpc_parameters_->period_mpcsample) {
 			int mat_num = static_cast<int>(round(first_period / mpc_parameters_->period_mpcsample)-1);
 			mat_num += i * num_recomp;
-			robot_->SetSelectionNumber(first_period);//TODO: ?
-			// TODO: Get access to entire vector and do all operations here
+			robot_->ComputeDynamicsIndex(first_period);
 			const LinearDynamicsMatrices &pos_dyn = robot_->com()->dynamics_qp().pos;
 			const LinearDynamicsMatrices &vel_dyn = robot_->com()->dynamics_qp().vel;
 			const LinearDynamicsMatrices &cop_dyn = robot_->com()->dynamics_qp().cop;
@@ -158,8 +157,8 @@ void QPBuilder::BuildProblem(MPCSolution &solution) {
 //
 void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	// Choose the precomputed element depending on the nb of "feedback-recomputations" until new qp-sample
-	int sample_num = mpc_parameters_->nbFeedbackSamplesLeft(solution.support_states_vec[1].previous_sampling_period);
-	sample_num += mpc_parameters_->weights.active_mode * mpc_parameters_->nbFeedbackSamplesStandard();
+	int sample_num = mpc_parameters_->num_recomputations_left(solution.support_states_vec[1].previous_sampling_period);
+	sample_num += mpc_parameters_->weights.active_mode * mpc_parameters_->num_recomputations();
 
 	const BodyState &com = robot_->com()->state();
 	const SelectionMatrices &select_mats = preview_->selection_matrices();
@@ -204,14 +203,14 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 			// rotate the lower left block
 			// TODO(andrei): Rotation can be done before addition
 			CommonMatrixType dlBlock = hessian().block(2 * num_samples, 0, 2 * num_steps_previewed, 2 * num_samples);
-			computeMRt(dlBlock, rot_mat2);
+			MTimesRT(dlBlock, rot_mat2);
 			hessian().block(2 * num_samples, 0, 2 * num_steps_previewed, 2 * num_samples) = dlBlock;
 		}
 
 		// rotate the upper right block
 		// TODO(efficiency): Rotation can be done before addition
 		CommonMatrixType urBlock = hessian().block(0, 2 * num_samples, 2*num_samples, 2*num_steps_previewed);
-		ComputeRM(urBlock, rot_mat2);
+		RTimesM(urBlock, rot_mat2);
 		hessian().block(0, 2 * num_samples, 2 * num_samples, 2 * num_steps_previewed) = urBlock;
 	}
 

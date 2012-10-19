@@ -10,7 +10,7 @@
 
 using namespace Eigen;
 
-void MPCWalkgen::inverse(const CommonMatrixType &A, CommonMatrixType &Ap) {
+void MPCWalkgen::Invert(const CommonMatrixType &A, CommonMatrixType &Ap) {
 	FullPivLU<CommonMatrixType> lu(A);
 	Ap = A.inverse();//lu.inverse();
 	for(int i = 0;i < Ap.rows(); ++i){//TODO: Remove this
@@ -23,18 +23,7 @@ void MPCWalkgen::inverse(const CommonMatrixType &A, CommonMatrixType &Ap) {
 
 }
 
-bool MPCWalkgen::isUpperTriangular(const CommonMatrixType &m)
-{
-	for (int i=0; i<m.rows(); ++i)
-		for (int j=0; j<i; ++j)
-			if (fabs(m(i,j)) > kEps)
-				return false;
-
-	return true;
-}
-
-void MPCWalkgen::RotateCholeskyMatrix(CommonMatrixType &mInOut, const CommonMatrixType &rot)
-{
+void MPCWalkgen::RotateCholeskyMatrix(CommonMatrixType &mInOut, const CommonMatrixType &rot) {
 	int N = mInOut.rows();
 	int n2 = N/2;
 
@@ -48,26 +37,22 @@ void MPCWalkgen::RotateCholeskyMatrix(CommonMatrixType &mInOut, const CommonMatr
 	}
 }
 
-void MPCWalkgen::ComputeRM(CommonMatrixType &mIn, const CommonMatrixType &rot)
-{
+void MPCWalkgen::RTimesM(CommonMatrixType &m, const CommonMatrixType &r) {
 	// first step: compute rot*chol
-	for (int i=0; i<mIn.rows()/2; ++i)
+	for (int i=0; i<m.rows()/2; ++i)
 	{
-		const Eigen::Matrix2d &rot_i = rot.block<2,2>(2*i, 2*i);
-		for (int j=0; j<mIn.cols()/2; ++j)
-			mIn.block<2,2>(2*i, 2*j) = rot_i*mIn.block<2,2>(2*i, 2*j);
+		const Eigen::Matrix2d &rot_i = r.block<2,2>(2*i, 2*i);
+		for (int j=0; j<m.cols()/2; ++j)
+			m.block<2,2>(2*i, 2*j) = rot_i*m.block<2,2>(2*i, 2*j);
 	}
 }
 
-void MPCWalkgen::computeMRt(CommonMatrixType &mIn, const CommonMatrixType &rot)
-{
+void MPCWalkgen::MTimesRT(CommonMatrixType &m, const CommonMatrixType &rt) {
 	// compute chol*col^T
-	for (int j=0; j<mIn.cols()/2; ++j) {
-		Matrix2d rot_j = rot.block<2,2>(2*j, 2*j);
+	for (int j=0; j<m.cols()/2; ++j) {
+		Matrix2d rot_j = rt.block<2,2>(2*j, 2*j);
 		rot_j.transposeInPlace();
-		for (int i=0; i < mIn.rows() / 2; ++i)
-			mIn.block<2,2>(2*i, 2*j) = mIn.block<2,2>(2*i, 2*j) * rot_j;
+		for (int i=0; i < m.rows() / 2; ++i)
+			m.block<2,2>(2*i, 2*j) = m.block<2,2>(2*i, 2*j) * rot_j;
 	}
-
-
 }

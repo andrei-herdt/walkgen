@@ -209,7 +209,7 @@ void Walkgen::BuildProblem() {
 	mpc_parameters_.weights.SetCoefficients(vel_ref_);
 
 	double first_sampling_period = first_sample_time_ - current_time_;
-	robot_.SetSelectionNumber(first_sampling_period);
+	robot_.ComputeDynamicsIndex(first_sampling_period);
 
 	// PREVIEW:
 	// --------

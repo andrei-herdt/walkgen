@@ -98,7 +98,7 @@ struct MPC_WALKGEN_API FootData{
 	double soleWidth;
 	double soleHeight;
 
-	Eigen::Vector3d anklePositionInLocalFrame;
+	Eigen::Vector3d ankle_pos_local;
 
 	std::vector<double> edges_x_vec;
 	std::vector<double> edges_y_vec;
@@ -219,11 +219,11 @@ struct MPC_WALKGEN_API MPCParameters {
 	SolverData solver;
 
 	/// \brief Compute the number of recomputations left until next sample
-	int nbFeedbackSamplesLeft(double firstSamplingPeriod) const;
+	int num_recomputations_left(double firstSamplingPeriod) const;
 	/// \brief Number of simulation iterations between two feedback call
 	int num_samples_act() const;
 
-	int nbFeedbackSamplesStandard() const;			/// \brief Number of feedback iterations between two QP instants
+	int num_recomputations() const;			/// \brief Number of feedback iterations between two QP instants
 
 	int num_qpsamples_ss() const;
 	int num_steps_max() const;
@@ -335,12 +335,18 @@ struct MPC_WALKGEN_API ControlOutput {
 
 struct LinearDynamicsMatrices{
 	CommonMatrixType state_mat;
+	CommonMatrixType state_mat_inv;
 	CommonMatrixType input_mat;
 	CommonMatrixType input_mat_tr;
 	CommonMatrixType input_mat_inv;
 	CommonMatrixType input_mat_inv_tr;
 
-	void SetZero(int state_dimension, int num_samples);
+	CommonMatrixType ss_state_mat, ss_state_mat_inv;
+	CommonMatrixType ss_input_mat;
+	CommonMatrixType ss_output_mat;
+	CommonMatrixType ss_feedthrough_mat;
+
+	void SetZero(int state_dim, int input_dim, int output_dim, int num_samples);
 };
 
 struct LinearDynamics {
@@ -348,7 +354,13 @@ struct LinearDynamics {
 	LinearDynamicsMatrices cop;		//\f$ \z = x - \frac{h}{g} \ddot x \f$
 	LinearDynamicsMatrices cp;		//\f$ \xi = x + \frac{1}{\omega}\dot x \f$
 
-	void SetZero(int state_dimension, int input_dimension);
+	LinearDynamicsMatrices cont_ss, discr_ss;	//State space dynamics
+
+	void SetZero(int state_dim,
+			int input_dim,
+			int output_dim,
+			int num_samples
+	);
 };
 
 struct SelectionMatrices{
