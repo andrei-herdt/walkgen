@@ -28,7 +28,6 @@ static void mdlInitializeSizes(SimStruct *S) {
 	// Specify I/O
 	if (!ssSetNumInputPorts(S, 10)) return;
 	ssSetInputPortWidth(S, 0, 3);     //vel_ref
-
 	ssSetInputPortWidth(S, 1, 6);     //com_in
 	ssSetInputPortWidth(S, 2, 3);     //left_ankle_in
 	ssSetInputPortWidth(S, 3, 3);     //right_ankle_in
@@ -92,9 +91,9 @@ static void mdlStart(SimStruct *S) {
 
 	MPCParameters mpc_parameters;
 	mpc_parameters.num_samples_horizon  = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 0)));
-	mpc_parameters.num_samples_step     = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 1)));
-	mpc_parameters.num_samples_dsss     = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 2)));
-	mpc_parameters.num_steps_ssds       = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 3)));
+	mpc_parameters.num_samples_step     = min(static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 1))), mpc_parameters.num_samples_horizon);
+	mpc_parameters.num_samples_dsss     = min(static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 2))), mpc_parameters.num_samples_horizon);
+	mpc_parameters.num_steps_ssds       = min(static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 3))), mpc_parameters.num_samples_horizon);
 	mpc_parameters.period_qpsample      = *mxGetPr(ssGetSFcnParam(S, 4));
 	mpc_parameters.period_mpcsample     = *mxGetPr(ssGetSFcnParam(S, 5));
 	mpc_parameters.period_actsample     = *mxGetPr(ssGetSFcnParam(S, 6));
@@ -117,9 +116,9 @@ static void mdlStart(SimStruct *S) {
 	mpc_parameters.weights.cp[0] 		= *mxGetPr(ssGetSFcnParam(S, 14));//0.;//1.;
 	mpc_parameters.weights.control[0] 	= *mxGetPr(ssGetSFcnParam(S, 15));//0.00001;
 
-	mpc_parameters.weights.pos[1] 		= 1.;
-	mpc_parameters.weights.vel[1]  		= 0.;
-	mpc_parameters.weights.cop[1]  		= 0.;
+	mpc_parameters.weights.pos[1] 		= 0.;
+	mpc_parameters.weights.vel[1]  		= 1.;
+	mpc_parameters.weights.cop[1]  		= 1.;
 	mpc_parameters.weights.cp[1] 		= 0.;
 	mpc_parameters.weights.control[1] 	= 0.000001;
 
@@ -321,7 +320,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 			cop_prw[nbsamples + sample] = solution.cop_prw.pos.x_vec[sample];
 			cop_prw[2 * nbsamples + sample] = solution.cop_prw.pos.y_vec[sample];
 			// CoM control vector:
-			com_control_prw[sample] = solution.sampling_times_vec[sample+1];
+			com_control_prw[sample] = solution.sampling_times_vec[sample];
 			com_control_prw[nbsamples + sample] = solution.com_prw.control.x_vec[sample];
 			com_control_prw[2 * nbsamples + sample] = solution.com_prw.control.y_vec[sample];
 			// CP:
@@ -350,7 +349,6 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 		}
 		support[1] = current_support.phase;
 		support[2] = current_support.foot;
-
 
 		// Analysis:
 		// ---------

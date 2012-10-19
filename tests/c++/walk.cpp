@@ -24,9 +24,9 @@ int main() {
 	// ----------------------
 	MPCParameters mpc_parameters;
 	mpc_parameters.num_samples_horizon    = num_samples_horizon;
-	mpc_parameters.num_samples_step       = num_samples_step;
-	mpc_parameters.num_samples_dsss       = num_samples_dsss;
-	mpc_parameters.num_steps_ssds         = num_steps_ssds;
+	mpc_parameters.num_samples_step       = std::min(num_samples_step, num_samples_horizon);
+	mpc_parameters.num_samples_dsss       = std::min(num_samples_dsss, num_samples_horizon);
+	mpc_parameters.num_steps_ssds         = std::min(num_steps_ssds, num_samples_horizon);
 	mpc_parameters.period_qpsample        = sample_period_qp;
 	mpc_parameters.period_mpcsample       = sample_period_first;
 	mpc_parameters.period_actsample       = sample_period_act;
@@ -35,19 +35,19 @@ int main() {
 	mpc_parameters.solver.analysis                = false;
 	mpc_parameters.solver.name                    = QPOASES;
 	mpc_parameters.solver.num_wsrec               = 20;
-	mpc_parameters.dynamics_order                 = THIRD_ORDER;
+	mpc_parameters.dynamics_order                 = SECOND_ORDER;
 
 	mpc_parameters.weights.pos[0] 		= 0.;
-	mpc_parameters.weights.vel[0]  		= 1.;
+	mpc_parameters.weights.vel[0]  		= 0.;
 	mpc_parameters.weights.cop[0]  		= 0.00001;
-	mpc_parameters.weights.cp[0] 		= 0.;//1.;
-	mpc_parameters.weights.control[0] 	= 0.00001;
+	mpc_parameters.weights.cp[0] 		= 1.;//1.;
+	mpc_parameters.weights.control[0] 	= 1.;//0.00001;
 
 	mpc_parameters.weights.pos[1] 		= 0.;
-	mpc_parameters.weights.vel[1]  		= 1.;
-	mpc_parameters.weights.cop[1]  		= 1.;
-	mpc_parameters.weights.cp[1] 		= 0.;
-	mpc_parameters.weights.control[1] 	= 0.000001;
+	mpc_parameters.weights.vel[1]  		= 0.;
+	mpc_parameters.weights.cop[1]  		= 0.;//1.;
+	mpc_parameters.weights.cp[1] 		= 1.;
+	mpc_parameters.weights.control[1] 	= 1.;//0.000001;
 
 	// Robot parameters:
 	// -----------------

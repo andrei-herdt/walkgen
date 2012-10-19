@@ -48,7 +48,7 @@ Walkgen::~Walkgen() {
 
 }
 
-void Walkgen::Init(const MPCParameters &mpc_parameters) {
+void Walkgen::Init(MPCParameters &mpc_parameters) {
 	assert(mpc_parameters.num_samples_horizon > mpc_parameters_.num_samples_dsss);
 	assert(mpc_parameters.num_samples_horizon > mpc_parameters_.num_samples_step);
 	assert(mpc_parameters.num_samples_horizon > mpc_parameters_.num_steps_ssds);

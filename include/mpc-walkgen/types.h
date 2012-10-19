@@ -197,20 +197,17 @@ struct MPC_WALKGEN_API MPCParameters {
 	double period_qpsample;		//Sampling period [sec]
 	double period_mpcsample;	//Time between recomputations [sec]
 	double period_actsample;	//Actuator sampling period [sec]
+	double period_ds;			//Length of the (permanent) double support phase (should be a large value)
 
 	int num_samples_horizon;  	//Number of samplings inside horizon
-
 	int num_samples_step;		//Step period ss_left<->ss_right in qp sample periods
 	int num_samples_dsss;		//Length of initial double support phase [num. samples]
 	int num_steps_ssds;			//Steps before halt
 
-	double period_ds;			//Length of the (permanent) double support phase (should be a large value)
-
 	bool warmstart;
-
 	bool interpolate_whole_horizon;			//Interpolate not only the control (first element) but for the whole preview period
-
-	bool closed_loop;
+	bool is_closed_loop;
+	bool is_pid_mode;
 
 	DynamicsOrder dynamics_order;
 
@@ -256,7 +253,7 @@ struct MPC_WALKGEN_API RobotData {
 	ConvexHull left_foot_ds_hull;
 	ConvexHull right_foot_ds_hull;
 
-	RobotData(const FootData &leftFoot, const FootData &rightFoot,
+	RobotData(const FootData &left_foot, const FootData &right_foot,
 			const HipYawData &leftHipYaw, const HipYawData &rightHipYaw,
 			double mass);
 	RobotData();
@@ -342,8 +339,8 @@ struct LinearDynamicsMatrices{
 	CommonMatrixType input_mat_inv_tr;
 
 	CommonMatrixType ss_state_mat, ss_state_mat_inv;
-	CommonMatrixType ss_input_mat;
-	CommonMatrixType ss_output_mat;
+	CommonMatrixType ss_input_mat, ss_input_mat_tr;
+	CommonMatrixType ss_output_mat, ss_output_mat_tr;
 	CommonMatrixType ss_feedthrough_mat;
 
 	void SetZero(int state_dim, int input_dim, int output_dim, int num_samples);

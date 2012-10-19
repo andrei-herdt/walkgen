@@ -100,7 +100,7 @@ void RigidBodySystem::UpdateState(const MPCSolution &solution) {
 	right_foot_->state().z(ACCELERATION) = right_foot_->motion_act().acc.z_vec[next_sample];
 	right_foot_->state().yaw(ACCELERATION) = right_foot_->motion_act().acc.yaw_vec[next_sample];
 
-	if (!mpc_parameters_p_->closed_loop) {
+	if (!mpc_parameters_p_->is_closed_loop) {
 		com_->state().x(0) = solution.com_act.pos.x_vec[next_sample];
 		com_->state().y(0) = solution.com_act.pos.y_vec[next_sample];
 		com_->state().x(1) = solution.com_act.vel.x_vec[next_sample];

@@ -1,19 +1,19 @@
 figure;
 %% Previewed
-nbsamples = 16;
+num_samples = 2;
 di = 1;
 for i = 1:di:length(com_prw.time) - di
     subplot(1,2,1);
-    lines_prw_com_x = plot(com_prw.signals.values(i, 1:nbsamples), com_prw.signals.values(i, nbsamples+1:2*nbsamples),'red');
-    lines_prw_cop_x = plot(cop_prw.signals.values(i, 1:nbsamples), cop_prw.signals.values(i, nbsamples+1:2*nbsamples),'black');
-    lines_prw_cp_x = plot(cp_prw.signals.values(i, 1:nbsamples), cp_prw.signals.values(i, nbsamples+1:2*nbsamples),'magenta');
-    %lines_com_control_x = plot(com_control.signals.values(i, 1:nbsamples), com_control.signals.values(i, nbsamples+1:2*nbsamples),'cyan');
+    lines_prw_com_x = plot(com_prw.signals.values(i, 1:num_samples), com_prw.signals.values(i, num_samples+1:2*num_samples),'red');
+    %lines_prw_cop_x = stairs(cop_prw.signals.values(i, 1:num_samples), cop_prw.signals.values(i, num_samples+1:2*num_samples),'k');
+    lines_prw_cp_x = plot(cp_prw.signals.values(i, 1:num_samples), cp_prw.signals.values(i, num_samples+1:2*num_samples),'magenta');
+    lines_com_control_x = stairs(com_control.signals.values(i, 1:num_samples), com_control.signals.values(i, num_samples+1:2*num_samples),'k');
     hold on;
     subplot(1,2,2);
-    lines_prw_com_y = plot(com_prw.signals.values(i, 1:nbsamples), com_prw.signals.values(i, 2*nbsamples+1:3*nbsamples),'red');
-    lines_prw_cop_y = plot(cop_prw.signals.values(i, 1:nbsamples), cop_prw.signals.values(i, 2*nbsamples+1:3*nbsamples),'black');
-    lines_prw_cp_y = plot(cp_prw.signals.values(i, 1:nbsamples), cp_prw.signals.values(i, 2*nbsamples+1:3*nbsamples),'magenta');
-    %lines_com_control_y = plot(com_control.signals.values(i, 1:nbsamples), com_control.signals.values(i, 2*nbsamples+1:3*nbsamples),'cyan');
+    lines_prw_com_y = plot(com_prw.signals.values(i, 1:num_samples), com_prw.signals.values(i, 2*num_samples+1:3*num_samples),'red');
+    %lines_prw_cop_y = plot(cop_prw.signals.values(i, 1:num_samples), cop_prw.signals.values(i, 2*num_samples+1:3*num_samples),'black');
+    lines_prw_cp_y = plot(cp_prw.signals.values(i, 1:num_samples), cp_prw.signals.values(i, 2*num_samples+1:3*num_samples),'magenta');
+    lines_com_control_y = stairs(com_control.signals.values(i, 1:num_samples), com_control.signals.values(i, 2*num_samples+1:3*num_samples),'k');
     hold on;
 end
 
@@ -35,15 +35,16 @@ lines_support_y = line([support.signals.values(:,1)';support.signals.values(:,1)
 
 %% Legend
 subplot(1,2,1);
-legend([lines_prw_com_x, lines_prw_cop_x, lines_prw_cp_x, lines_real_com_x, lines_real_cop_x, lines_support_x(1)], 'com_{prw}^x','cop_{prw}^x','cp_{prw}^x','com_{real}^x','cop_{real}^x','new support');
+legend([lines_prw_com_x, lines_com_control_x, lines_prw_cp_x, lines_real_com_x, lines_real_cop_x, lines_support_x(1)], 'com_{prw}^x','cop_{prw}^x','cp_{prw}^x','com_{real}^x','cop_{real}^x','new support');
 xlabel('Time [s]');
 ylabel('X [m]');
 title('CoM Positions (previewed and realized)');
 subplot(1,2,2);
-legend([lines_prw_com_y, lines_prw_cop_y, lines_prw_cp_y, lines_real_com_y, lines_real_cop_y, lines_support_y(1)], 'com_{prw}^y','cop_{prw}^y','cp_{prw}^y','com_{real}^y','cop_{real}^y','new support');
+legend([lines_prw_com_y, lines_com_control_y, lines_prw_cp_y, lines_real_com_y, lines_real_cop_y, lines_support_y(1)], 'com_{prw}^y','cop_{prw}^y','cp_{prw}^y','com_{real}^y','cop_{real}^y','new support');
 xlabel('Time [s]');
 ylabel('Y [m]');
 title('CoM Positions (previewed and realized)');
 
 %% Clear
-clear lines_prw_com_x lines_prw_cop_x lines_prw_cp_x lines_prw_com_y lines_prw_cop_y lines_real_com_x lines_real_cop_x lines_real_com_y lines_real_cop_y lines_com_control_x lines_com_control_y
+%clear all;
+%clear lines_prw_com_x lines_prw_cop_x lines_prw_cp_x lines_prw_com_y lines_prw_cop_y lines_real_com_x lines_real_cop_x lines_real_com_y lines_real_cop_y lines_com_control_x lines_com_control_y

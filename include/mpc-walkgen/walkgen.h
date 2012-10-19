@@ -26,7 +26,7 @@ public:
 	Walkgen();
 	~Walkgen();
 
-	void Init(const MPCParameters &mpc_parameters);
+	void Init(MPCParameters &mpc_parameters);
 	void Init(const RobotData &robot_data);
 
 	const MPCSolution &Go(double time);

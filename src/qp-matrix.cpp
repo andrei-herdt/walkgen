@@ -78,7 +78,7 @@ void QPMatrix::Reset() {
 	cholesky_old_mat_ = true;
 }
 
-void QPMatrix::resize(const int num_rows, const int num_cols) {
+void QPMatrix::Resize(const int num_rows, const int num_cols) {
 	num_rows_max_ = num_rows;
 	num_cols_max_ = num_cols;
 }

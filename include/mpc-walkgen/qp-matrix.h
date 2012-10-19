@@ -27,7 +27,7 @@ public:
 
 	void Reset();
 
-	void resize(const int num_rows, const int num_cols);
+	void Resize(const int num_rows, const int num_cols);
 
 	CommonMatrixType &cholesky();
 	CommonMatrixType &cholesky(CommonMatrixType &partialCholesky);
@@ -38,7 +38,7 @@ public:
 	// \name Accessors and mutators
 	// \{
 	inline CommonMatrixType &operator()(void) {
-		cholesky_old_mat_ = true;
+		cholesky_old_mat_ = true;//TODO: hmm
 		return matrix_;
 	}
 	inline const CommonMatrixType &operator()(void) const {

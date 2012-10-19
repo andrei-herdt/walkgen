@@ -20,7 +20,7 @@ public:
 			Reference *vel_ref,
 			Reference *cp_ref,
 			RigidBodySystem *robot,
-			const MPCParameters *mpc_parameters,
+			MPCParameters *mpc_parameters,
 			RealClock *clock
 			);
 	~QPBuilder();
@@ -65,7 +65,7 @@ private:
 
 	Reference *pos_ref_, *vel_ref_, *cp_ref_;
 
-	const MPCParameters *mpc_parameters_;
+	MPCParameters *mpc_parameters_;
 
 	CommonVectorType tmp_vec_, tmp_vec2_;
 	CommonMatrixType tmp_mat_, tmp_mat2_;

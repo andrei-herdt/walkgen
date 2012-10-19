@@ -237,6 +237,7 @@ void DynamicsBuilder::BuildSecondOrderCoPInput(LinearDynamics &dyn, double heigh
 	// Capture point as output:
 	dyn.cont_ss.ss_output_mat(0) = 1.; dyn.cont_ss.ss_output_mat(1) = 1./omega;
 	dyn.discr_ss.ss_output_mat = dyn.cont_ss.ss_output_mat;
+	dyn.discr_ss.ss_output_mat_tr = dyn.discr_ss.ss_output_mat.transpose();
 
 	//Eigenvalue decomposition of cont_state_mat_: \f[ S e^{\lambda T}S^{-1} \f]
 	eigen_solver_.compute(dyn.cont_ss.ss_state_mat);
@@ -309,5 +310,6 @@ void DynamicsBuilder::ComputeDiscreteStateMat(LinearDynamics &dyn, double sample
 void DynamicsBuilder::ComputeDiscreteInputVec(LinearDynamics &dyn) {
 	tmp_vec_.noalias() = -dyn.cont_ss.ss_state_mat_inv  * identity_mat_ * dyn.cont_ss.ss_input_mat ;
 	dyn.discr_ss.ss_input_mat.noalias() = dyn.cont_ss.ss_state_mat_inv * dyn.discr_ss.ss_state_mat * dyn.cont_ss.ss_input_mat + tmp_vec_;
+	dyn.discr_ss.ss_input_mat_tr = dyn.discr_ss.ss_input_mat.transpose();
 }
 
