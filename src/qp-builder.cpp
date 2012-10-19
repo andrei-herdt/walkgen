@@ -138,8 +138,8 @@ void QPBuilder::PrecomputeObjective() {
 void QPBuilder::BuildProblem(MPCSolution &solution) {
 	// DIMENSION OF QP:
 	// ----------------
-	int num_variables = 2 * mpc_parameters_->num_samples_horizon +				// com
-			2 * solution.support_states_vec.back().step_number;	// Foot placement
+	int num_variables = 2 * mpc_parameters_->num_samples_horizon +			// com
+			2 * solution.support_states_vec.back().step_number;				// Foot placement
 	int num_constr = 5 * solution.support_states_vec.back().step_number;	// Foot placement
 	solver_->num_var(num_variables);
 	solver_->num_constr(num_constr);
@@ -176,7 +176,7 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 		hessian.AddTerm(QconstN_[sample_num], num_samples, num_samples);
 
 		CommonMatrixType Qmat = hessian().block(0, 0, 2 * num_samples, 2 * num_samples);
-		tmp_mat_.noalias() = rot_mat2 * Qmat * rot_mat2_trans;
+		tmp_mat_.noalias() = rot_mat2 * Qmat * rot_mat2_trans;//TODO: Use MTimesRT
 		hessian().block(0, 0, 2 * num_samples, 2 * num_samples) = tmp_mat_;
 	} else {
 		// rotate the cholesky matrix

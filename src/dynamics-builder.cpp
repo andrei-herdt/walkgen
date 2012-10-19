@@ -234,6 +234,9 @@ void DynamicsBuilder::BuildSecondOrderCoPInput(LinearDynamics &dyn, double heigh
 	dyn.cont_ss.ss_state_mat(0, 1) = 1.; dyn.cont_ss.ss_state_mat(1, 0) = omega_square;
 	dyn.cont_ss.ss_state_mat_inv = dyn.cont_ss.ss_state_mat.inverse();
 	dyn.cont_ss.ss_input_mat(0) = 0.; dyn.cont_ss.ss_input_mat(1) = - omega_square;
+	// Capture point as output:
+	dyn.cont_ss.ss_output_mat(0) = 1.; dyn.cont_ss.ss_output_mat(1) = 1./omega;
+	dyn.discr_ss.ss_output_mat = dyn.cont_ss.ss_output_mat;
 
 	//Eigenvalue decomposition of cont_state_mat_: \f[ S e^{\lambda T}S^{-1} \f]
 	eigen_solver_.compute(dyn.cont_ss.ss_state_mat);
@@ -245,7 +248,7 @@ void DynamicsBuilder::BuildSecondOrderCoPInput(LinearDynamics &dyn, double heigh
 	double sp2 = sample_period_rest;
 	double sp2sp2 = sp2 * sp2;
 	double sp1sp1 = sp1 * sp1;
-	//case POSITION, VELOCITY:
+	// position and velocity
 	for (int row = 0; row < num_samples; row++) {
 		ComputeDiscreteStateMat(dyn, sp1 + row * sp2);
 		ComputeDiscreteInputVec(dyn);
@@ -265,7 +268,7 @@ void DynamicsBuilder::BuildSecondOrderCoPInput(LinearDynamics &dyn, double heigh
 	dyn.vel.input_mat_inv = dyn.vel.input_mat.inverse();
 	dyn.vel.input_mat_inv_tr = dyn.vel.input_mat_inv.transpose();
 
-	// COP:
+	// CoP:
 	dyn.cop.input_mat.setIdentity();
 	dyn.cop.input_mat_tr.setIdentity();
 	dyn.cop.input_mat_inv.setIdentity();
@@ -279,7 +282,7 @@ void DynamicsBuilder::BuildSecondOrderCoPInput(LinearDynamics &dyn, double heigh
 	dyn.acc.input_mat_inv = dyn.acc.input_mat.inverse();
 	dyn.acc.input_mat_inv_tr = dyn.acc.input_mat_inv.transpose();
 
-	// Capture Point: \f$ \xi = x + \frac{1}{\omega}\dot x \f$
+	// CP: \f$ \xi = x + \frac{1}{\omega}\dot x \f$
 	dyn.cp.state_mat = dyn.pos.state_mat + 1./omega*dyn.vel.state_mat;
 	dyn.cp.input_mat = dyn.pos.input_mat + 1./omega*dyn.vel.input_mat;
 

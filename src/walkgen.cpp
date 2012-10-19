@@ -49,6 +49,12 @@ Walkgen::~Walkgen() {
 }
 
 void Walkgen::Init(const MPCParameters &mpc_parameters) {
+	assert(mpc_parameters.num_samples_horizon > mpc_parameters_.num_samples_dsss);
+	assert(mpc_parameters.num_samples_horizon > mpc_parameters_.num_samples_step);
+	assert(mpc_parameters.num_samples_horizon > mpc_parameters_.num_steps_ssds);
+	assert(mpc_parameters.period_qpsample >= mpc_parameters.period_mpcsample - kEps);
+	assert(mpc_parameters.period_mpcsample >= mpc_parameters.period_actsample - kEps);
+
 	mpc_parameters_ = mpc_parameters;
 
 	robot_.Init(&mpc_parameters_);
