@@ -62,13 +62,13 @@ QPVector &QPSolver::vector(const QPVectorType type) {//TODO:Remove this
 }
 
 void QPSolver::Reset() {
-	hessian_mat_.Reset();
-	cstr_mat_.Reset();
-	gradient_vec_.reset();
-	constr_u_bounds_vec_.reset();
-	constr_l_bounds_vec_.reset();
-	var_u_bounds_vec_.reset();
-	var_l_bounds_vec_.reset();
+	hessian_mat_.Reset(0.);
+	cstr_mat_.Reset(0.);
+	gradient_vec_.reset(0.);
+	constr_u_bounds_vec_.reset(kInf);
+	constr_l_bounds_vec_.reset(-kInf);
+	var_u_bounds_vec_.reset(kInf);
+	var_l_bounds_vec_.reset(-kInf);
 }
 
 void QPSolver::SetVarOrder(const Eigen::VectorXi &order) {

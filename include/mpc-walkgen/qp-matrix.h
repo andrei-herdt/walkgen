@@ -25,9 +25,9 @@ public:
 	void SetConstantPart(const CommonMatrixType &mat
 	);
 
-	void Reset();
+	void Reset(double value);
 
-	void Resize(const int num_rows, const int num_cols);
+	void Resize(int num_rows, int num_cols);
 
 	CommonMatrixType &cholesky();
 	CommonMatrixType &cholesky(CommonMatrixType &partialCholesky);

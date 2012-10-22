@@ -17,6 +17,7 @@ inline double round( double d )
 //
 const static double kEps = 1e-9;
 const static double kGravity = 9.81;
+const static double kInf = 1e10;
 
 //
 // Enums:

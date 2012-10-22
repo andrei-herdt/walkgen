@@ -106,7 +106,7 @@ void QPBuilder::PrecomputeObjective() {
 			// Q += gamma*I
 			QconstN_[mat_num] = hessian_mat + mpc_parameters_->weights.cop[i] * contr_weighting_mat;
 
-			chol.Reset();
+			chol.Reset(0.);
 			chol.AddTerm(QconstN_[mat_num], 0, 0);
 			chol.AddTerm(QconstN_[mat_num], num_samples, num_samples);
 
@@ -148,15 +148,80 @@ void QPBuilder::BuildProblem(MPCSolution &solution) {
 	// ----------------
 	int num_variables = 2 * mpc_parameters_->num_samples_horizon +			// com
 			2 * solution.support_states_vec.back().step_number;				// Foot placement
-	int num_constr = 5 * solution.support_states_vec.back().step_number;	// Foot placement
+	//int num_constr = 5 * solution.support_states_vec.back().step_number;	// Foot placement
 	solver_->num_var(num_variables);
-	solver_->num_constr(num_constr);
+	//solver_->num_constr(num_constr);
 
 	BuildObjective(solution);
-	BuildConstraints(solution);
+	//BuildConstraints(solution);
 	if (mpc_parameters_->warmstart) {
 		ComputeWarmStart(solution);//TODO: Weird to modify the solution
 	}
+}
+
+void QPBuilder::BuildGlobalVelocityReference(const MPCSolution &solution) {
+	if (vel_ref_->global.x.rows() != mpc_parameters_->num_samples_horizon){
+		vel_ref_->global.x.resize(mpc_parameters_->num_samples_horizon);
+		vel_ref_->global.y.resize(mpc_parameters_->num_samples_horizon);
+	}
+
+	double YawTrunk;
+	for (int i = 0; i < mpc_parameters_->num_samples_horizon; ++i){
+		YawTrunk = solution.support_states_vec[i+1].yaw;
+		vel_ref_->global.x(i) = vel_ref_->local.x(i) * cos(YawTrunk) - vel_ref_->local.y(i) * sin(YawTrunk);
+		vel_ref_->global.y(i) = vel_ref_->local.x(i) * sin(YawTrunk) + vel_ref_->local.y(i) * cos(YawTrunk);
+	}
+}
+
+void QPBuilder::TransformControlVector(MPCSolution &solution) {
+	int num_samples = mpc_parameters_->num_samples_horizon;
+	int num_steps = solution.support_states_vec.back().step_number;
+
+	const SelectionMatrices &select = preview_->selection_matrices();
+	const CommonMatrixType &rot_mat = preview_->rot_mat();
+	const BodyState &com = robot_->com()->state();
+
+	const CommonVectorType &local_cop_vec = solution.qp_solution_vec;
+	const CommonVectorType feet_x_vec = solution.qp_solution_vec.segment(2 * num_samples, num_steps);
+	const CommonVectorType feet_y_vec = solution.qp_solution_vec.segment(2 * num_samples + num_steps, num_steps);
+
+	CommonVectorType &global_cop_x_vec = solution.cop_prw.pos.x_vec;
+	CommonVectorType &global_cop_y_vec = solution.cop_prw.pos.y_vec;
+
+	int num_samples_interp = 1;
+	if (mpc_parameters_->interpolate_whole_horizon == true) {
+		num_samples_interp = num_samples;
+	}
+
+	for (int s = 0; s < num_samples_interp; ++s) {
+		// Rotate in local frame: Rx*x - Ry*y;
+		global_cop_x_vec(s) =  rot_mat(s, s) * local_cop_vec(s) - rot_mat(s, num_samples + s) * local_cop_vec(num_samples + s);
+		global_cop_x_vec(s) += select.sample_step_cx(s);
+		global_cop_y_vec(s) =  rot_mat(num_samples + s, num_samples + s) * local_cop_vec(num_samples + s) - rot_mat(num_samples + s, s) * local_cop_vec(s);
+		global_cop_y_vec(s) += select.sample_step_cy(s);
+	}
+
+	// CoP position in the global frame
+	//for (int step = 0; step < num_steps; step++) {
+	//
+	//}
+	global_cop_x_vec += select.sample_step * feet_x_vec;//TODO(performance): Optimize this for first interpolate_whole_horizon == false
+	global_cop_y_vec += select.sample_step * feet_y_vec;
+
+	CommonVectorType state_x(mpc_parameters_->dynamics_order), state_y(mpc_parameters_->dynamics_order);
+	for (int i = 0; i < mpc_parameters_->dynamics_order; i++) {
+		state_x(i) = com.x(i);
+		state_y(i) = com.y(i);
+	}
+
+	//TODO(performance): Optimize this for first interpolate_whole_horizon == false
+	// Transform to com motion
+	const LinearDynamicsMatrices &copdyn = robot_->com()->dynamics_qp().cop;
+	tmp_vec_.noalias() = global_cop_x_vec - copdyn.state_mat * state_x;
+	solution.com_prw.control.x_vec.noalias() = copdyn.input_mat_inv * tmp_vec_;
+	tmp_vec_.noalias() = global_cop_y_vec - copdyn.state_mat * state_y;
+	solution.com_prw.control.y_vec.noalias() = copdyn.input_mat_inv * tmp_vec_;
+
 }
 
 //
@@ -258,7 +323,7 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 
 	// PID mode:
 	// ---------
-//	if (mpc_parameters_->is_pid_mode) {
+	if (mpc_parameters_->is_pid_mode) {
 		const LinearDynamics &cp_dyn = robot_->com()->dynamics_qp();
 
 		double kd = -2.;
@@ -298,7 +363,7 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 		solver_->vector(vectorP)().block(0, 0, 0, num_samples) *= qx_d;
 		solver_->vector(vectorP)().block(0, num_samples, 0, num_samples) *= qy_d;
 		*/
-	//}
+	}
 }
 
 void QPBuilder::BuildConstraints(const MPCSolution &solution) {
@@ -468,70 +533,6 @@ void QPBuilder::ComputeWarmStart(MPCSolution &solution) {
 
 }
 
-void QPBuilder::BuildGlobalVelocityReference(const MPCSolution &solution) {
-	if (vel_ref_->global.x.rows() != mpc_parameters_->num_samples_horizon){
-		vel_ref_->global.x.resize(mpc_parameters_->num_samples_horizon);
-		vel_ref_->global.y.resize(mpc_parameters_->num_samples_horizon);
-	}
-
-	double YawTrunk;
-	for (int i = 0; i < mpc_parameters_->num_samples_horizon; ++i){
-		YawTrunk = solution.support_states_vec[i+1].yaw;
-		vel_ref_->global.x(i) = vel_ref_->local.x(i) * cos(YawTrunk) - vel_ref_->local.y(i) * sin(YawTrunk);
-		vel_ref_->global.y(i) = vel_ref_->local.x(i) * sin(YawTrunk) + vel_ref_->local.y(i) * cos(YawTrunk);
-	}
-}
-
-void QPBuilder::TransformControlVector(MPCSolution &solution) {
-	int num_samples = mpc_parameters_->num_samples_horizon;
-	int num_steps = solution.support_states_vec.back().step_number;
-
-	const SelectionMatrices &select = preview_->selection_matrices();
-	const CommonMatrixType &rot_mat = preview_->rot_mat();
-	const BodyState &com = robot_->com()->state();
-
-	const CommonVectorType &local_cop_vec = solution.qp_solution_vec;
-	const CommonVectorType feet_x_vec = solution.qp_solution_vec.segment(2 * num_samples, num_steps);
-	const CommonVectorType feet_y_vec = solution.qp_solution_vec.segment(2 * num_samples + num_steps, num_steps);
-
-	CommonVectorType &global_cop_x_vec = solution.cop_prw.pos.x_vec;
-	CommonVectorType &global_cop_y_vec = solution.cop_prw.pos.y_vec;
-
-	int num_samples_interp = 1;
-	if (mpc_parameters_->interpolate_whole_horizon == true) {
-		num_samples_interp = num_samples;
-	}
-
-	for (int s = 0; s < num_samples_interp; ++s) {
-		// Rotate in local frame: Rx*x - Ry*y;
-		global_cop_x_vec(s) =  rot_mat(s, s) * local_cop_vec(s) - rot_mat(s, num_samples + s) * local_cop_vec(num_samples + s);
-		global_cop_x_vec(s) += select.sample_step_cx(s);
-		global_cop_y_vec(s) =  rot_mat(num_samples + s, num_samples + s) * local_cop_vec(num_samples + s) - rot_mat(num_samples + s, s) * local_cop_vec(s);
-		global_cop_y_vec(s) += select.sample_step_cy(s);
-	}
-
-	// CoP position in the global frame
-	//for (int step = 0; step < num_steps; step++) {
-	//
-	//}
-	global_cop_x_vec += select.sample_step * feet_x_vec;//TODO(performance): Optimize this for first interpolate_whole_horizon == false
-	global_cop_y_vec += select.sample_step * feet_y_vec;
-
-	CommonVectorType state_x(mpc_parameters_->dynamics_order), state_y(mpc_parameters_->dynamics_order);
-	for (int i = 0; i < mpc_parameters_->dynamics_order; i++) {
-		state_x(i) = com.x(i);
-		state_y(i) = com.y(i);
-	}
-
-	//TODO(performance): Optimize this for first interpolate_whole_horizon == false
-	// Transform to com motion
-	const LinearDynamicsMatrices &copdyn = robot_->com()->dynamics_qp().cop;
-	tmp_vec_.noalias() = global_cop_x_vec - copdyn.state_mat * state_x;
-	solution.com_prw.control.x_vec.noalias() = copdyn.input_mat_inv * tmp_vec_;
-	tmp_vec_.noalias() = global_cop_y_vec - copdyn.state_mat * state_y;
-	solution.com_prw.control.y_vec.noalias() = copdyn.input_mat_inv * tmp_vec_;
-
-}
 
 void QPBuilder::BuildFootPosInequalities(const MPCSolution &solution) {
 	int num_ineqs = 5;

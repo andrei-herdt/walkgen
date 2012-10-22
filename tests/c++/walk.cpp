@@ -11,7 +11,7 @@ using namespace MPCWalkgen;
 
 int main() {
 
-	int num_samples_horizon = 16;
+	int num_samples_horizon = 1;
 	int num_samples_step = 8;
 	int num_samples_dsss = 8;
 	int num_steps_ssds = 2;
@@ -39,15 +39,15 @@ int main() {
 
 	mpc_parameters.weights.pos[0] 		= 0.;
 	mpc_parameters.weights.vel[0]  		= 0.;
-	mpc_parameters.weights.cop[0]  		= 0.00001;
+	mpc_parameters.weights.cop[0]  		= 0.;//0.00001;
 	mpc_parameters.weights.cp[0] 		= 1.;//1.;
-	mpc_parameters.weights.control[0] 	= 1.;//0.00001;
+	mpc_parameters.weights.control[0] 	= 0.;//0.00001;
 
 	mpc_parameters.weights.pos[1] 		= 0.;
 	mpc_parameters.weights.vel[1]  		= 0.;
 	mpc_parameters.weights.cop[1]  		= 0.;//1.;
 	mpc_parameters.weights.cp[1] 		= 1.;
-	mpc_parameters.weights.control[1] 	= 1.;//0.000001;
+	mpc_parameters.weights.control[1] 	= 0.;//0.000001;
 
 	// Robot parameters:
 	// -----------------
@@ -139,7 +139,7 @@ int main() {
 	// ---
 	double velocity = 0.1;
 	double curr_time = 0;
-	walk.SetVelReference(0.1, 0, 0);
+	walk.SetVelReference(0.0, 0, 0);
 	int num_iterations = 0;
 	walk.clock().GetFrequency(1000);
 	walk.clock().ResetLocal();
@@ -151,7 +151,8 @@ int main() {
 		walk.clock().ResetLocal();
 		num_iterations++;
 	}
-	walk.SetVelReference(0.1, 0, 0.1);
+	walk.solver()->DumpProblem("problem.dat");
+	walk.SetVelReference(0., 0., 0.);
 	for (; curr_time < 20; curr_time += sample_period_act) {
 		int online_timer = walk.clock().StartCounter();
 		const MPCSolution &solution = walk.Go(curr_time);

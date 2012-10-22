@@ -73,12 +73,12 @@ void QPMatrix::SetConstantPart(const CommonMatrixType &mat) {
 	}
 }
 
-void QPMatrix::Reset() {
-	matrix_.fill(0);
+void QPMatrix::Reset(double value) {
+	matrix_.fill(value);
 	cholesky_old_mat_ = true;
 }
 
-void QPMatrix::Resize(const int num_rows, const int num_cols) {
+void QPMatrix::Resize(int num_rows, int num_cols) {
 	num_rows_max_ = num_rows;
 	num_cols_max_ = num_cols;
 }

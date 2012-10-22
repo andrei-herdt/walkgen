@@ -30,7 +30,7 @@ namespace MPCWalkgen{
 
     void setConstantPart(const CommonVectorType &vec);
 
-    void reset();
+    void reset(double value);
 
     void resize(const int num_rows);
 

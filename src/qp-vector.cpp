@@ -53,8 +53,8 @@ void QPVector::setConstantPart(const CommonVectorType &mat) {
   }
 }
 
-void QPVector::reset(){
-  vector_.fill(0);
+void QPVector::reset(double value){
+  vector_.fill(value);
 }
 
 void QPVector::resize(const int nbRows){
