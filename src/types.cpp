@@ -78,12 +78,12 @@ void FootData::SetEdges(double front, double back, double left, double right,
 }
 
 HipYawData::HipYawData()
-:lowerBound(-0.523599)
-,upperBound(0.785398)
-,lowerVelocityBound(-3.54108)
-,upperVelocityBound(3.54108)
-,lowerAccelerationBound(-0.1)
-,upperAccelerationBound(0.1) {}
+:lower_pos_bound(-0.523599)
+,upper_pos_bound(0.785398)
+,lower_vel_bound(-3.54108)
+,upper_vel_bound(3.54108)
+,lower_acc_bound(-0.1)
+,upper_acc_bound(0.1) {}
 
 HipYawData::~HipYawData() {}
 

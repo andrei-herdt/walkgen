@@ -21,13 +21,13 @@ HeuristicPreview::~HeuristicPreview() {
 }
 
 void HeuristicPreview::PreviewSamplingTimes(double current_time,
-		double firstSamplingPeriod, MPCSolution &solution) {
+		double first_sampling_period, MPCSolution &solution) {
 
 	solution.sampling_times_vec.resize(mpc_parameters_->num_samples_horizon + 1, 0);
 	std::fill(solution.sampling_times_vec.begin(), solution.sampling_times_vec.end(), 0);
 	// As for now, only the first sampling period varies
 	solution.sampling_times_vec[0] = current_time;
-	solution.sampling_times_vec[1] = solution.sampling_times_vec[0] + firstSamplingPeriod;// mpc_parameters_->QPSamplingPeriod;////// //
+	solution.sampling_times_vec[1] = solution.sampling_times_vec[0] + first_sampling_period;// mpc_parameters_->QPSamplingPeriod;////// //
 	for (int sample = 2; sample < mpc_parameters_->num_samples_horizon + 1; sample++) {
 		solution.sampling_times_vec[sample] += solution.sampling_times_vec[sample - 1] +
 				mpc_parameters_->period_qpsample;
@@ -35,8 +35,7 @@ void HeuristicPreview::PreviewSamplingTimes(double current_time,
 
 }
 
-void HeuristicPreview::PreviewSupportStates(double first_sample_period, MPCSolution &solution)
-{
+void HeuristicPreview::PreviewSupportStates(double first_sample_period, MPCSolution &solution) {
 	const BodyState *foot;
 	SupportState &current_support = robot_->current_support();
 
@@ -101,22 +100,22 @@ void HeuristicPreview::BuildRotationMatrix(MPCSolution &solution){//TODO: Move t
 	int num_samples = mpc_parameters_->num_samples_horizon;
 
 	for (int i=0; i<num_samples; ++i) {//TODO:(performance)
-		double cosYaw = cos(solution.support_states_vec[i+1].yaw);
-		double sinYaw = sin(solution.support_states_vec[i+1].yaw);
-		rot_mat_(i  ,i  ) =  cosYaw;
-		rot_mat_(i+num_samples,i  ) = -sinYaw;
-		rot_mat_(i  ,i+num_samples) =  sinYaw;
-		rot_mat_(i+num_samples,i+num_samples) =  cosYaw;
+		double cos_yaw = cos(solution.support_states_vec[i+1].yaw);
+		double sin_yaw = sin(solution.support_states_vec[i+1].yaw);
+		rot_mat_(i  ,i  ) =  cos_yaw;
+		rot_mat_(i+num_samples,i  ) = -sin_yaw;
+		rot_mat_(i  ,i+num_samples) =  sin_yaw;
+		rot_mat_(i+num_samples,i+num_samples) =  cos_yaw;
 
-		rot_mat2_(2*i  , 2*i  ) =  cosYaw;
-		rot_mat2_(2*i+1, 2*i  ) = -sinYaw;
-		rot_mat2_(2*i  , 2*i+1) =  sinYaw;
-		rot_mat2_(2*i+1, 2*i+1) =  cosYaw;
+		rot_mat2_(2*i  , 2*i  ) =  cos_yaw;
+		rot_mat2_(2*i+1, 2*i  ) = -sin_yaw;
+		rot_mat2_(2*i  , 2*i+1) =  sin_yaw;
+		rot_mat2_(2*i+1, 2*i+1) =  cos_yaw;
 
-		rot_mat2_tr_(2*i  , 2*i  ) = cosYaw;
-		rot_mat2_tr_(2*i+1, 2*i  ) = sinYaw;
-		rot_mat2_tr_(2*i  , 2*i+1) = -sinYaw;
-		rot_mat2_tr_(2*i+1, 2*i+1) = cosYaw;
+		rot_mat2_tr_(2*i  , 2*i  ) = cos_yaw;
+		rot_mat2_tr_(2*i+1, 2*i  ) = sin_yaw;
+		rot_mat2_tr_(2*i  , 2*i+1) = -sin_yaw;
+		rot_mat2_tr_(2*i+1, 2*i+1) = cos_yaw;
 
 	}
 

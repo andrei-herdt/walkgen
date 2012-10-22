@@ -114,12 +114,12 @@ struct MPC_WALKGEN_API FootData{
 };
 
 struct MPC_WALKGEN_API HipYawData {
-	double lowerBound;
-	double upperBound;
-	double lowerVelocityBound;
-	double upperVelocityBound;
-	double lowerAccelerationBound;
-	double upperAccelerationBound;
+	double lower_pos_bound;
+	double upper_pos_bound;
+	double lower_vel_bound;
+	double upper_vel_bound;
+	double lower_acc_bound;
+	double upper_acc_bound;
 
 	HipYawData();
 	~HipYawData();

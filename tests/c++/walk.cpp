@@ -11,7 +11,7 @@ using namespace MPCWalkgen;
 
 int main() {
 
-	int num_samples_horizon = 1;
+	int num_samples_horizon = 16;
 	int num_samples_step = 8;
 	int num_samples_dsss = 8;
 	int num_steps_ssds = 2;
@@ -31,7 +31,7 @@ int main() {
 	mpc_parameters.period_mpcsample       = sample_period_first;
 	mpc_parameters.period_actsample       = sample_period_act;
 	mpc_parameters.warmstart                      = false;
-	mpc_parameters.interpolate_whole_horizon      = false;
+	mpc_parameters.interpolate_whole_horizon      = true;
 	mpc_parameters.solver.analysis                = false;
 	mpc_parameters.solver.name                    = QPOASES;
 	mpc_parameters.solver.num_wsrec               = 20;
@@ -52,31 +52,31 @@ int main() {
 	// Robot parameters:
 	// -----------------
 	FootData left_foot;
-	left_foot.ankle_pos_local      << 0, 0, 0.105;
-	left_foot.soleHeight                     = 0.138;
-	left_foot.soleWidth                      = 0.2172;
-	left_foot.position[0] = 0.00949035;
-	left_foot.position[1] = 0.095;
-	left_foot.position[2] = 0.0;
+	left_foot.ankle_pos_local 	<< 0, 0, 0.105;
+	left_foot.soleHeight 		= 0.138;
+	left_foot.soleWidth 		= 0.2172;
+	left_foot.position[0] 		= 0.00949035;
+	left_foot.position[1] 		= 0.095;
+	left_foot.position[2] 		= 0.0;
 	left_foot.SetEdges(0.2172, 0.0, 0.138, 0.0, kSecurityMargin);
 
 	FootData right_foot;
-	right_foot.ankle_pos_local     << 0, 0, 0.105;
-	right_foot.soleHeight                    = 0.138;
-	right_foot.soleWidth                     = 0.2172;
-	right_foot.position[0] = 0.00949035;
-	right_foot.position[1] = -0.095;
-	right_foot.position[2] = 0.0;
+	right_foot.ankle_pos_local 	<< 0, 0, 0.105;
+	right_foot.soleHeight 		= 0.138;
+	right_foot.soleWidth 		= 0.2172;
+	right_foot.position[0] 		= 0.00949035;
+	right_foot.position[1] 		= -0.095;
+	right_foot.position[2] 		= 0.0;
 	right_foot.SetEdges(0.2172, 0.0, 0.138, 0.0, kSecurityMargin);
 
 
 	HipYawData left_hip_yaw;
-	left_hip_yaw.lowerBound                   = -0.523599;
-	left_hip_yaw.upperBound                   = 0.785398;
-	left_hip_yaw.lowerVelocityBound           = -3.54108;
-	left_hip_yaw.upperVelocityBound           = 3.54108;
-	left_hip_yaw.lowerAccelerationBound       = -0.1;
-	left_hip_yaw.upperAccelerationBound       = 0.1;
+	left_hip_yaw.lower_pos_bound = -0.523599;
+	left_hip_yaw.upper_pos_bound = 0.785398;
+	left_hip_yaw.lower_vel_bound = -3.54108;
+	left_hip_yaw.upper_vel_bound = 3.54108;
+	left_hip_yaw.lower_acc_bound = -0.1;
+	left_hip_yaw.upper_acc_bound = 0.1;
 	HipYawData right_hip_yaw = left_hip_yaw;
 
 	RobotData robot_data(left_foot, right_foot, left_hip_yaw, right_hip_yaw, 0.0);
@@ -106,26 +106,26 @@ int main() {
 
 
 	// Constraints on the CoP
-	const int nbVertCoP = 4;
-	double DefaultCoPSSEdgesX[nbVertCoP] = {0.0686, 0.0686, -0.0686, -0.0686};
-	double DefaultCoPSSEdgesY[nbVertCoP] = {0.029, -0.029, -0.029, 0.029};
-	double DefaultCoPDSEdgesX[nbVertCoP] = {0.0686, 0.0686, -0.0686, -0.0686};
-	double DefaultCoPDSEdgesY[nbVertCoP] = {0.029, -0.229, -0.229, 0.029};
+	const int num_vertices_cop = 4;
+	double cop_vertices_ss_x[num_vertices_cop] = {0.0686, 0.0686, -0.0686, -0.0686};
+	double cop_vertices_ss_y[num_vertices_cop] = {0.029, -0.029, -0.029, 0.029};
+	double cop_vertices_ds_x[num_vertices_cop] = {0.0686, 0.0686, -0.0686, -0.0686};
+	double cop_vertices_ds_y[num_vertices_cop] = {0.029, -0.229, -0.229, 0.029};
 
-	robot_data.left_foot_ss_hull.Resize(nbVertCoP);
-	robot_data.right_foot_ss_hull.Resize(nbVertCoP);
-	robot_data.left_foot_ds_hull.Resize(nbVertCoP);
-	robot_data.right_foot_ds_hull.Resize(nbVertCoP);
-	for (int i = 0; i < nbVertCoP; ++i) {
-		robot_data.left_foot_ss_hull.x_vec(i) = DefaultCoPSSEdgesX[i];
-		robot_data.left_foot_ss_hull.y_vec(i) = DefaultCoPSSEdgesY[i];
-		robot_data.left_foot_ds_hull.x_vec(i) = DefaultCoPDSEdgesX[i];
-		robot_data.left_foot_ds_hull.y_vec(i) = DefaultCoPDSEdgesY[i];
+	robot_data.left_foot_ss_hull.Resize(num_vertices_cop);
+	robot_data.right_foot_ss_hull.Resize(num_vertices_cop);
+	robot_data.left_foot_ds_hull.Resize(num_vertices_cop);
+	robot_data.right_foot_ds_hull.Resize(num_vertices_cop);
+	for (int i = 0; i < num_vertices_cop; ++i) {
+		robot_data.left_foot_ss_hull.x_vec(i) = cop_vertices_ss_x[i];
+		robot_data.left_foot_ss_hull.y_vec(i) = cop_vertices_ss_y[i];
+		robot_data.left_foot_ds_hull.x_vec(i) = cop_vertices_ds_x[i];
+		robot_data.left_foot_ds_hull.y_vec(i) = cop_vertices_ds_y[i];
 
-		robot_data.right_foot_ss_hull.x_vec(i) = DefaultCoPSSEdgesX[i];
-		robot_data.right_foot_ss_hull.y_vec(i) =- DefaultCoPSSEdgesY[i];
-		robot_data.right_foot_ds_hull.x_vec(i) = DefaultCoPDSEdgesX[i];
-		robot_data.right_foot_ds_hull.y_vec(i) =- DefaultCoPDSEdgesY[i];
+		robot_data.right_foot_ss_hull.x_vec(i) = cop_vertices_ss_x[i];
+		robot_data.right_foot_ss_hull.y_vec(i) =- cop_vertices_ss_y[i];
+		robot_data.right_foot_ds_hull.x_vec(i) = cop_vertices_ds_x[i];
+		robot_data.right_foot_ds_hull.y_vec(i) =- cop_vertices_ds_y[i];
 	}
 
 
@@ -151,7 +151,6 @@ int main() {
 		walk.clock().ResetLocal();
 		num_iterations++;
 	}
-	walk.solver()->DumpProblem("problem.dat");
 	walk.SetVelReference(0., 0., 0.);
 	for (; curr_time < 20; curr_time += sample_period_act) {
 		int online_timer = walk.clock().StartCounter();

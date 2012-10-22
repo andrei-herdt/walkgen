@@ -183,12 +183,12 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 		right_foot.SetEdges(*foot_geometry[0], *foot_geometry[1], *foot_geometry[2], *foot_geometry[3], kSecurityMargin);
 
 		HipYawData left_hip_yaw;
-		left_hip_yaw.lowerBound                   = -0.523599;
-		left_hip_yaw.upperBound                   = 0.785398;
-		left_hip_yaw.lowerVelocityBound           = -3.54108;
-		left_hip_yaw.upperVelocityBound           = 3.54108;
-		left_hip_yaw.lowerAccelerationBound       = -0.1;
-		left_hip_yaw.upperAccelerationBound       = 0.1;
+		left_hip_yaw.lower_pos_bound                   = -0.523599;
+		left_hip_yaw.upper_pos_bound                   = 0.785398;
+		left_hip_yaw.lower_vel_bound           = -3.54108;
+		left_hip_yaw.upper_vel_bound           = 3.54108;
+		left_hip_yaw.lower_acc_bound       = -0.1;
+		left_hip_yaw.upper_acc_bound       = 0.1;
 		HipYawData right_hip_yaw                  = left_hip_yaw;
 
 		RobotData robot_data(left_foot, right_foot, left_hip_yaw, right_hip_yaw, 0.0);

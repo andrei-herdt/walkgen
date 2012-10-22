@@ -378,7 +378,7 @@ void QPBuilder::BuildConstraints(const MPCSolution &solution) {
 }
 
 void QPBuilder::ComputeWarmStart(MPCSolution &solution) {
-	//TODO: Review and possibly devide this function in two parts:
+	//TODO: This function is not reviewed. Possibly devide this function in two parts:
 	// Initialize:
 	// -----------
 	int num_steps = solution.support_states_vec.back().step_number;
