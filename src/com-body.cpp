@@ -38,9 +38,9 @@ void CoMBody::Interpolate(MPCSolution &solution, double current_time, const Refe
 			state_y, solution.com_prw.control.y_vec[0]);
 
 	// CoP:
-	interpolation_.Interpolate(solution.cop_act.pos.x_vec, dynamics_act().cop,
+	interpolation_.Interpolate(solution.com_act.cop.x_vec, dynamics_act().cop,
 			state_x, solution.com_prw.control.x_vec[0]);
-	interpolation_.Interpolate(solution.cop_act.pos.y_vec, dynamics_act().cop,
+	interpolation_.Interpolate(solution.com_act.cop.y_vec, dynamics_act().cop,
 			state_y, solution.com_prw.control.y_vec[0]);
 
 	// QP sampling rate:

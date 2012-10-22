@@ -305,8 +305,8 @@ struct MPC_WALKGEN_API MPCSolution {
 	std::vector<double> support_yaw_vec;
 	std::vector<double> trunk_yaw_vec;
 
-	Motion com_prw, cop_prw, left_foot_prw, right_foot_prw;
-	Motion com_act, cop_act, left_foot_act, right_foot_act;
+	Motion com_prw, left_foot_prw, right_foot_prw;
+	Motion com_act, left_foot_act, right_foot_act;
 
 	SolutionAnalysis analysis;
 

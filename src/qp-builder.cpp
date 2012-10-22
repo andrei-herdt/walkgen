@@ -76,12 +76,13 @@ void QPBuilder::PrecomputeObjective() {
 	// Precompute:
 	// -----------
 	CommonMatrixType hessian_mat(num_samples, num_samples);
-	for (int i = 0; i < num_modes; ++i) {
+	for (int mode_num = 0; mode_num < num_modes; ++mode_num) {
 		for (double first_period = mpc_parameters_->period_mpcsample;
 				first_period < mpc_parameters_->period_qpsample + kEps;
 				first_period += mpc_parameters_->period_mpcsample) {
 			int mat_num = static_cast<int>(round(first_period / mpc_parameters_->period_mpcsample)-1);
-			mat_num += i * num_recomp;
+			mat_num += mode_num * num_recomp;
+			std::cout << "mat_num: " << mat_num << std::endl;
 			robot_->ComputeDynamicsIndex(first_period);
 			const LinearDynamicsMatrices &pos_dyn = robot_->com()->dynamics_qp().pos;
 			const LinearDynamicsMatrices &vel_dyn = robot_->com()->dynamics_qp().vel;
@@ -90,21 +91,21 @@ void QPBuilder::PrecomputeObjective() {
 
 			// Q = beta*Uz^(-T)*Uv^T*Uv*Uz^(-1)
 			tmp_mat_.noalias() = cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * vel_dyn.input_mat * cop_dyn.input_mat_inv;
-			hessian_mat = mpc_parameters_->weights.vel[i] * tmp_mat_;
+			hessian_mat = mpc_parameters_->weights.vel[mode_num] * tmp_mat_;
 
 			// Q += gamma*Uz^(-T)*Uz^(-1)
 			tmp_mat_.noalias() = cop_dyn.input_mat_inv_tr * cop_dyn.input_mat_inv;
-			hessian_mat += mpc_parameters_->weights.control[i] * tmp_mat_;
+			hessian_mat += mpc_parameters_->weights.control[mode_num] * tmp_mat_;
 			// Q += delta*Uz^(-T)*Up^T*Up*Uz^(-1)
 			tmp_mat_.noalias() = cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * pos_dyn.input_mat * cop_dyn.input_mat_inv;
-			hessian_mat +=  mpc_parameters_->weights.pos[i] * tmp_mat_;
+			hessian_mat +=  mpc_parameters_->weights.pos[mode_num] * tmp_mat_;
 			// Q += epsilon*Uz^(-T)*Uxi^T*Uxi*Uz^(-1)
 			tmp_mat_.noalias() = cop_dyn.input_mat_inv_tr * cp_dyn.input_mat_tr * cp_dyn.input_mat * cop_dyn.input_mat_inv;
-			hessian_mat +=  mpc_parameters_->weights.cp[i] * tmp_mat_;
+			hessian_mat +=  mpc_parameters_->weights.cp[mode_num] * tmp_mat_;
 
 			Qconst_[mat_num] = hessian_mat;
 			// Q += gamma*I
-			QconstN_[mat_num] = hessian_mat + mpc_parameters_->weights.cop[i] * contr_weighting_mat;
+			QconstN_[mat_num] = hessian_mat + mpc_parameters_->weights.cop[mode_num] * contr_weighting_mat;
 
 			chol.Reset(0.);
 			chol.AddTerm(QconstN_[mat_num], 0, 0);
@@ -114,33 +115,34 @@ void QPBuilder::PrecomputeObjective() {
 
 			// beta*Uz^(-T)*Uv*(Sv - Uv*Uz^(-1)*Sz)
 			tmp_mat_.noalias() = vel_dyn.state_mat - vel_dyn.input_mat * cop_dyn.input_mat_inv * cop_dyn.state_mat;
-			state_variant_[mat_num] = cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * mpc_parameters_->weights.vel[i] * tmp_mat_;
+			state_variant_[mat_num] = cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * mpc_parameters_->weights.vel[mode_num] * tmp_mat_;
 			// beta*Uz^(-T)*Up*(Sp - Up*Uz^(-1)*Sz)
 			tmp_mat_.noalias() = pos_dyn.state_mat - pos_dyn.input_mat * cop_dyn.input_mat_inv * cop_dyn.state_mat;
-			state_variant_[mat_num] += cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * mpc_parameters_->weights.pos[i] * tmp_mat_;
+			state_variant_[mat_num] += cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * mpc_parameters_->weights.pos[mode_num] * tmp_mat_;
 			// epsilon*Uz^(-T)*Uxi*(Sp - Uxi*Uz^(-1)*Sz)
 			tmp_mat_.noalias() = cp_dyn.state_mat - cp_dyn.input_mat * cop_dyn.input_mat_inv * cop_dyn.state_mat;
-			state_variant_[mat_num] += cop_dyn.input_mat_inv_tr * cp_dyn.input_mat_tr * mpc_parameters_->weights.cp[i] * tmp_mat_;
+			state_variant_[mat_num] += cop_dyn.input_mat_inv_tr * cp_dyn.input_mat_tr * mpc_parameters_->weights.cp[mode_num] * tmp_mat_;
 			// - alpha*Uz^(-T)*Uz^(-1)*Sz
-			state_variant_[mat_num] -= cop_dyn.input_mat_inv_tr * mpc_parameters_->weights.control[i] * cop_dyn.input_mat_inv * cop_dyn.state_mat;
+			state_variant_[mat_num] -= cop_dyn.input_mat_inv_tr * mpc_parameters_->weights.control[mode_num] * cop_dyn.input_mat_inv * cop_dyn.state_mat;
 
 			// alpha*Uz^(-T)*Uz^(-1)
-			select_variant_[mat_num]  = cop_dyn.input_mat_inv_tr * mpc_parameters_->weights.control[i] * cop_dyn.input_mat_inv;
+			select_variant_[mat_num]  = cop_dyn.input_mat_inv_tr * mpc_parameters_->weights.control[mode_num] * cop_dyn.input_mat_inv;
 			// beta*Uz^(-T)*Uv^T*Uv*Uz^(-1)
-			select_variant_[mat_num] += cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * mpc_parameters_->weights.vel[i] * vel_dyn.input_mat * cop_dyn.input_mat_inv;
+			select_variant_[mat_num] += cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * mpc_parameters_->weights.vel[mode_num] * vel_dyn.input_mat * cop_dyn.input_mat_inv;
 			// delta*Uz^(-T)*Up^T*Up*Uz^(-1)
-			select_variant_[mat_num] += cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * mpc_parameters_->weights.pos[i] * pos_dyn.input_mat * cop_dyn.input_mat_inv;
+			select_variant_[mat_num] += cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * mpc_parameters_->weights.pos[mode_num] * pos_dyn.input_mat * cop_dyn.input_mat_inv;
 			// epsilon*Uz^(-T)*Uxi^T*Uxi*Uz^(-1)
-			select_variant_[mat_num] += cop_dyn.input_mat_inv_tr * cp_dyn.input_mat_tr * mpc_parameters_->weights.cp[i] * cp_dyn.input_mat * cop_dyn.input_mat_inv;
+			select_variant_[mat_num] += cop_dyn.input_mat_inv_tr * cp_dyn.input_mat_tr * mpc_parameters_->weights.cp[mode_num] * cp_dyn.input_mat * cop_dyn.input_mat_inv;
 
 			// - beta*Uz^(-T)*Uv^T
-			ref_variant_vel_[mat_num] = -cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * mpc_parameters_->weights.vel[i];
+			ref_variant_vel_[mat_num] = -cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * mpc_parameters_->weights.vel[mode_num];
 			// - delta*Uz^(-T)*Up^T
-			ref_variant_pos_[mat_num] = -cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * mpc_parameters_->weights.pos[i];
+			ref_variant_pos_[mat_num] = -cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * mpc_parameters_->weights.pos[mode_num];
 			// - epsilon*Uz^(-T)*Uxi^T
-			ref_variant_cp_[mat_num] = -cop_dyn.input_mat_inv_tr * cp_dyn.input_mat_tr * mpc_parameters_->weights.cp[i];
+			ref_variant_cp_[mat_num] = -cop_dyn.input_mat_inv_tr * cp_dyn.input_mat_tr * mpc_parameters_->weights.cp[mode_num];
 		}
 	}
+	std::cout << " End of Precompute(): " << std::endl;
 }
 
 void QPBuilder::BuildProblem(MPCSolution &solution) {
@@ -160,16 +162,16 @@ void QPBuilder::BuildProblem(MPCSolution &solution) {
 }
 
 void QPBuilder::BuildGlobalVelocityReference(const MPCSolution &solution) {
-	if (vel_ref_->global.x.rows() != mpc_parameters_->num_samples_horizon){
+	if (vel_ref_->global.x.rows() != mpc_parameters_->num_samples_horizon) {
 		vel_ref_->global.x.resize(mpc_parameters_->num_samples_horizon);
 		vel_ref_->global.y.resize(mpc_parameters_->num_samples_horizon);
 	}
 
-	double YawTrunk;
-	for (int i = 0; i < mpc_parameters_->num_samples_horizon; ++i){
-		YawTrunk = solution.support_states_vec[i+1].yaw;
-		vel_ref_->global.x(i) = vel_ref_->local.x(i) * cos(YawTrunk) - vel_ref_->local.y(i) * sin(YawTrunk);
-		vel_ref_->global.y(i) = vel_ref_->local.x(i) * sin(YawTrunk) + vel_ref_->local.y(i) * cos(YawTrunk);
+	double trunk_yaw;
+	for (int i = 0; i < mpc_parameters_->num_samples_horizon; ++i) {
+		trunk_yaw = solution.support_states_vec[i+1].yaw;
+		vel_ref_->global.x(i) = vel_ref_->local.x(i) * cos(trunk_yaw) - vel_ref_->local.y(i) * sin(trunk_yaw);
+		vel_ref_->global.y(i) = vel_ref_->local.x(i) * sin(trunk_yaw) + vel_ref_->local.y(i) * cos(trunk_yaw);
 	}
 }
 
@@ -185,8 +187,8 @@ void QPBuilder::TransformControlVector(MPCSolution &solution) {
 	const CommonVectorType feet_x_vec = solution.qp_solution_vec.segment(2 * num_samples, num_steps);
 	const CommonVectorType feet_y_vec = solution.qp_solution_vec.segment(2 * num_samples + num_steps, num_steps);
 
-	CommonVectorType &global_cop_x_vec = solution.cop_prw.pos.x_vec;
-	CommonVectorType &global_cop_y_vec = solution.cop_prw.pos.y_vec;
+	CommonVectorType &global_cop_x_vec = solution.com_prw.cop.x_vec;
+	CommonVectorType &global_cop_y_vec = solution.com_prw.cop.y_vec;
 
 	int num_samples_interp = 1;
 	if (mpc_parameters_->interpolate_whole_horizon == true) {
@@ -233,6 +235,7 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	sample_num += mpc_parameters_->weights.active_mode * mpc_parameters_->num_recomputations();
 
 	const BodyState &com = robot_->com()->state();
+	std::cout << "cop_actual: " << com.x(0) - com.z(0)/kGravity*com.x(2) << std::endl;
 	const SelectionMatrices &select_mats = preview_->selection_matrices();
 	const CommonMatrixType &rot_mat = preview_->rot_mat();
 	const CommonMatrixType &rot_mat2 = preview_->rot_mat2();
@@ -382,7 +385,7 @@ void QPBuilder::ComputeWarmStart(MPCSolution &solution) {
 	// Initialize:
 	// -----------
 	int num_steps = solution.support_states_vec.back().step_number;
-	int nbStepsMax = mpc_parameters_->num_samples_horizon;
+	int num_steps_max = mpc_parameters_->num_samples_horizon;
 
 	int nbFC = 5;// Number of foot constraints per step TODO: can be read?
 	int num_samples = mpc_parameters_->num_samples_horizon;
@@ -410,10 +413,10 @@ void QPBuilder::ComputeWarmStart(MPCSolution &solution) {
 		// Foot constraints are not shifted
 		solution.initialConstraints.segment(2 * num_samples, nbFC*num_steps)=
 				initialConstraintTmp.segment (2 * num_samples, nbFC*num_steps);
-		solution.initialConstraints.segment(2 * num_samples + nbFC*num_steps, nbFC * (nbStepsMax - num_steps))=
-				initialConstraintTmp.segment (2 * num_samples + nbFC * num_steps, nbFC * (nbStepsMax - num_steps));
+		solution.initialConstraints.segment(2 * num_samples + nbFC*num_steps, nbFC * (num_steps_max - num_steps))=
+				initialConstraintTmp.segment (2 * num_samples + nbFC * num_steps, nbFC * (num_steps_max - num_steps));
 	} else {
-		solution.initialConstraints = Eigen::VectorXi::Zero(2*num_samples+(4+nbFC)*nbStepsMax);//TODO: Why this value?
+		solution.initialConstraints = Eigen::VectorXi::Zero(2*num_samples+(4+nbFC)*num_steps_max);//TODO: Why this value?
 	}
 
 	//TODO: Checked until here.
@@ -532,7 +535,6 @@ void QPBuilder::ComputeWarmStart(MPCSolution &solution) {
 	}
 
 }
-
 
 void QPBuilder::BuildFootPosInequalities(const MPCSolution &solution) {
 	int num_ineqs = 5;

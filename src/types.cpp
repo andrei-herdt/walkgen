@@ -115,12 +115,10 @@ MPCSolution& MPCSolution::operator = (MPCSolution const &rhs) {
 	trunk_yaw_vec = rhs.trunk_yaw_vec;//TODO: TrunkOrientations_vec
 
 	com_prw = rhs.com_prw;
-	cop_prw = rhs.cop_prw;
 	left_foot_prw = rhs.left_foot_prw;
 	right_foot_prw = rhs.right_foot_prw;
 
 	com_act = rhs.com_act;
-	cop_prw = rhs.cop_act;
 	left_foot_act = rhs.left_foot_act;
 	right_foot_act = rhs.right_foot_act;
 

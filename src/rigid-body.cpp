@@ -54,6 +54,7 @@ void RigidBody::ComputeDynamics(DynamicsOrder dynamics_order) {
 	dyn_build_p_->Build(dynamics_order, dynamics_act_, robot_data_p_->com(2), sp_first, sp_rest, num_samples);
 }
 
-void RigidBody::ComputeDynamicsIndex(double firstSamplingPeriod){
-	dynamics_index_ = (int)round(firstSamplingPeriod / mpc_parameters_->period_mpcsample) - 1;
+void RigidBody::ComputeDynamicsIndex(double first_sampling_period){
+	dynamics_index_ = (int)round(first_sampling_period / mpc_parameters_->period_mpcsample) - 1;
+	std::cout << "dynamics_index: " << dynamics_index_ << std::endl;
 }

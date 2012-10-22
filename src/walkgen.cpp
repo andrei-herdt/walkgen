@@ -81,9 +81,7 @@ void Walkgen::Init(MPCParameters &mpc_parameters) {
 	// Resize:
 	// -------
 	solution_.com_act.SetZero(mpc_parameters_.num_samples_act());
-	solution_.cop_act.SetZero(mpc_parameters_.num_samples_act());
 	solution_.com_prw.SetZero(mpc_parameters_.num_samples_horizon);
-	solution_.cop_prw.SetZero(mpc_parameters_.num_samples_horizon);
 
 	solution_.pos_ref.SetZero(mpc_parameters_.num_samples_horizon);		//DEPRECATED:
 
@@ -269,8 +267,8 @@ void Walkgen::UpdateOutput() {// TODO: Is this function called also when not nec
 	output_.com.ddy = solution_.com_act.acc.y_vec[output_index_];
 	output_.com.ddz = robot_.com()->state().z(2);
 
-	output_.cop.x = solution_.cop_act.pos.x_vec[output_index_];
-	output_.cop.y = solution_.cop_act.pos.y_vec[output_index_];
+	output_.cop.x = solution_.com_act.cop.x_vec[output_index_];
+	output_.cop.y = solution_.com_act.cop.y_vec[output_index_];
 
 	output_.left_foot.x = robot_.left_foot()->motion_act().pos.x_vec[output_index_];
 	output_.left_foot.y = robot_.left_foot()->motion_act().pos.y_vec[output_index_];

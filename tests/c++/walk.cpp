@@ -11,13 +11,13 @@ using namespace MPCWalkgen;
 
 int main() {
 
-	int num_samples_horizon = 16;
+	int num_samples_horizon = 10;
 	int num_samples_step = 8;
 	int num_samples_dsss = 8;
 	int num_steps_ssds = 2;
 	double sample_period_qp = 0.1;
-	double sample_period_first = 0.001;
-	double sample_period_act = 0.001;
+	double sample_period_first = 0.05;
+	double sample_period_act = 0.05;
 	const double kSecurityMargin = 0.02;
 
 	// Simulation parameters:
@@ -35,13 +35,13 @@ int main() {
 	mpc_parameters.solver.analysis                = false;
 	mpc_parameters.solver.name                    = QPOASES;
 	mpc_parameters.solver.num_wsrec               = 20;
-	mpc_parameters.dynamics_order                 = SECOND_ORDER;
+	mpc_parameters.dynamics_order                 = THIRD_ORDER;
 
 	mpc_parameters.weights.pos[0] 		= 0.;
 	mpc_parameters.weights.vel[0]  		= 0.;
 	mpc_parameters.weights.cop[0]  		= 0.;//0.00001;
 	mpc_parameters.weights.cp[0] 		= 1.;//1.;
-	mpc_parameters.weights.control[0] 	= 0.;//0.00001;
+	mpc_parameters.weights.control[0] 	= 0.0000001;//0.00001;
 
 	mpc_parameters.weights.pos[1] 		= 0.;
 	mpc_parameters.weights.vel[1]  		= 0.;
@@ -82,8 +82,8 @@ int main() {
 	RobotData robot_data(left_foot, right_foot, left_hip_yaw, right_hip_yaw, 0.0);
 
 	// TODO: This initialization did not work
-	robot_data.com(0) = 0.0;
-	robot_data.com(1) = 0.0;
+	robot_data.com(0) = 0.1;
+	robot_data.com(1) = 0.1;
 	robot_data.com(2) = 0.814;
 
 	robot_data.max_foot_vel = 1.;
@@ -136,21 +136,25 @@ int main() {
 	walk.Init(robot_data);
 
 	// Go:
-	// ---
+// ---
 	double velocity = 0.1;
 	double curr_time = 0;
 	walk.SetVelReference(0.0, 0, 0);
 	int num_iterations = 0;
 	walk.clock().GetFrequency(1000);
 	walk.clock().ResetLocal();
-	for (; curr_time < 10; curr_time += sample_period_act) {
+	for (; curr_time < 5; curr_time += sample_period_act) {
 		int online_timer = walk.clock().StartCounter();
 		const MPCSolution &solution = walk.Go(curr_time);
+		std::cout << "cop_prw: " << solution.com_prw.cop.x_vec.transpose() << std::endl;
+		std::cout << "cop_act: " << walk.output().cop.x << std::endl;
+		std::cout << "sam_times: " << solution.sampling_times_vec.back() << std::endl;
 		//walk.clock().StopLastCounter();
 		walk.clock().StopCounter(online_timer);
 		walk.clock().ResetLocal();
 		num_iterations++;
 	}
+	/*
 	walk.SetVelReference(0., 0., 0.);
 	for (; curr_time < 20; curr_time += sample_period_act) {
 		int online_timer = walk.clock().StartCounter();
@@ -169,6 +173,7 @@ int main() {
 		walk.clock().ResetLocal();
 		num_iterations++;
 	}
+	*/
 
 
 	// Print total time:

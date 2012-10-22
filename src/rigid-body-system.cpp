@@ -116,7 +116,7 @@ void RigidBodySystem::UpdateState(const MPCSolution &solution) {
 	com_->state().z(0) = robot_data_.com(2);
 }
 
-void RigidBodySystem::ComputeDynamicsIndex(double sampling_period){
+void RigidBodySystem::ComputeDynamicsIndex(double sampling_period) {
 	com_->ComputeDynamicsIndex(sampling_period);
 	left_foot_->ComputeDynamicsIndex(sampling_period);
 	right_foot_->ComputeDynamicsIndex(sampling_period);
