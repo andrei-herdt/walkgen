@@ -31,7 +31,7 @@ void StateFSM::SetSupportState(int sample, const std::vector<double> &sampling_t
   if (sampling_times_vec[sample] >= support.time_limit - kEps) {
     //SS->DS
     if (support.phase == SS && !ReferenceGiven && support.num_steps_left == 0){
-      support.phase 			  = DS;
+      support.phase 			= DS;
       support.time_limit 		= sampling_times_vec[sample] + mpc_parameters_->period_ds;
       support.state_changed 	= true;
       support.num_instants 		= 0;

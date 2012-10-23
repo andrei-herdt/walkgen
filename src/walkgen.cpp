@@ -139,14 +139,12 @@ const MPCSolution &Walkgen::Go(double time){
 		clock_.StopCounter(timer_generate_traj);
 	}
 
-	//int timer_update_output = clock_.StartCounter();
 	if (time > next_act_sample_ - kEps) {
 		next_act_sample_ += mpc_parameters_.period_actsample;
 
 		IncrementOutputIndex();
 		UpdateOutput();
 	}
-	//clock_.StopCounter(timer_update_output);
 
 	//clock_.StartCounter();
 
@@ -241,6 +239,7 @@ void Walkgen::GenerateTrajectories() {
 
 	orient_preview_->InterpolateTrunkYaw(&robot_);//TODO: Change this
 
+	next_act_sample_ += mpc_parameters_.period_actsample;
 	ResetOutputIndex();
 	UpdateOutput();
 }
@@ -251,12 +250,14 @@ void Walkgen::ResetOutputIndex() {
 }
 
 void Walkgen::IncrementOutputIndex() {
-	if (output_index_ < mpc_parameters_.num_samples_act() - 1) {
-		output_index_++;
-	}
+	assert(output_index_ < mpc_parameters_.num_samples_act() - 1);
+
+	output_index_++;
 }
 
 void Walkgen::UpdateOutput() {// TODO: Is this function called also when not necessary?
+	std::cout << "cop_act.x_vec: " << solution_.com_act.cop.x_vec.transpose() << std::endl;
+	std::cout << "output_index: " << output_index_ << std::endl;
 	output_.com.x = solution_.com_act.pos.x_vec[output_index_];
 	output_.com.y = solution_.com_act.pos.y_vec[output_index_];
 	output_.com.z = robot_.com()->state().z(0);

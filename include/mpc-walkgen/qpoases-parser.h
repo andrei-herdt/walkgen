@@ -2,15 +2,6 @@
 #ifndef MPC_WALKGEN_QPOASES_PARSER_H
 #define MPC_WALKGEN_QPOASES_PARSER_H
 
-////////////////////////////////////////////////////////////////////////////////
-///
-///\file	qpoases-parser.h
-///\brief	A class to solver the QP problem using qpoases solver
-///\author	Herdt Andrei
-///\author	Lafaye Jory
-///
-////////////////////////////////////////////////////////////////////////////////
-
 #include <mpc-walkgen/qp-solver.h>
 
 #include <qpOASES.hpp>

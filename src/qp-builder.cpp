@@ -142,7 +142,6 @@ void QPBuilder::PrecomputeObjective() {
 			ref_variant_cp_[mat_num] = -cop_dyn.input_mat_inv_tr * cp_dyn.input_mat_tr * mpc_parameters_->weights.cp[mode_num];
 		}
 	}
-	std::cout << " End of Precompute(): " << std::endl;
 }
 
 void QPBuilder::BuildProblem(MPCSolution &solution) {
@@ -235,7 +234,6 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	sample_num += mpc_parameters_->weights.active_mode * mpc_parameters_->num_recomputations();
 
 	const BodyState &com = robot_->com()->state();
-	std::cout << "cop_actual: " << com.x(0) - com.z(0)/kGravity*com.x(2) << std::endl;
 	const SelectionMatrices &select_mats = preview_->selection_matrices();
 	const CommonMatrixType &rot_mat = preview_->rot_mat();
 	const CommonMatrixType &rot_mat2 = preview_->rot_mat2();
@@ -330,7 +328,7 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 		const LinearDynamics &cp_dyn = robot_->com()->dynamics_qp();
 
 		double kd = -2.;
-		double omega = sqrt(kGravity/com.z[0]);
+		double omega = sqrt(kGravity / com.z[0]);
 
 		// qx = - r*K*x / (BT*CT*C*A*x - BTCTCB*K*x)
 		CommonMatrixType qx = cp_dyn.discr_ss.ss_output_mat * state_x;
