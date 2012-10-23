@@ -85,5 +85,5 @@ void LSSOLParser::Solve(MPCSolution &solution_data,
 //			iwar_.data(), &leniw_, war_.data(), &lenw_);
 
 
-	reorderSolution(solution_data.qp_solution_vec, solution_data.constraints, solution_data.initialConstraints);
+	ReorderIndices(solution_data.qp_solution_vec, solution_data.constraints, solution_data.initialConstraints);
 }

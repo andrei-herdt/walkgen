@@ -21,7 +21,7 @@ namespace MPCWalkgen{
     void Init(const RobotData *data_robot_p);
     void Init(DynamicsBuilder *dyn_build_p);
 
-    void ComputeDynamics(DynamicsOrder dynamics_order);
+    void ComputeDynamics(SystemOrder system_order);
 
     virtual void Interpolate(MPCSolution &solution, double current_time, const Reference &ref)=0;
 
@@ -30,7 +30,7 @@ namespace MPCWalkgen{
     inline const BodyState &state() const{return state_;}
     inline BodyState &state(){return state_;}
 
-    inline void state(const BodyState &s){state_=s;}
+    inline void state(const BodyState &s){state_ = s;}
 
     inline const LinearDynamics &dynamics_qp() const { return dynamics_qp_vec_[dynamics_index_];};
     inline const LinearDynamics &dynamics_act() const {return dynamics_act_;};
@@ -38,11 +38,11 @@ namespace MPCWalkgen{
     inline Motion &motion_act() {return motion_act_;};
     inline Motion &motion_prw() {return motion_prw_;};
 
-    void ComputeDynamicsIndex(double firstSamplingPeriod);
+    void ComputeDynamicsIndex(double first_sampling_period);
     /// \}
 
   protected:
-    const MPCParameters *mpc_parameters_;
+    const MPCParameters *mpc_parameters_p_;
     const RobotData *robot_data_p_;//TODO: Maybe should not be here
     DynamicsBuilder *dyn_build_p_;
 

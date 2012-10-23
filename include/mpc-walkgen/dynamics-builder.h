@@ -18,7 +18,7 @@ public:
 
 	void Init();
 
-	void Build(DynamicsOrder dynamics_order,
+	void Build(SystemOrder dynamics_order,
 			LinearDynamics &dyn,
 			double height,
 			double sample_period_first,

@@ -48,7 +48,7 @@ enum SolverName { QPOASES, LSSOL };
 
 enum Axis { X, Y, Z, Yaw };
 
-enum DynamicsOrder { FIRST_ORDER = 1, SECOND_ORDER = 2, THIRD_ORDER = 3 };
+enum SystemOrder { FIRST_ORDER = 1, SECOND_ORDER = 2, THIRD_ORDER = 3 };
 
 enum Mode { INITIAL = 0, STANDING = 1, WALK = 2 };
 
@@ -210,7 +210,7 @@ struct MPC_WALKGEN_API MPCParameters {
 	bool is_closed_loop;
 	bool is_pid_mode;
 
-	DynamicsOrder dynamics_order;
+	SystemOrder dynamics_order;
 
 	WeightCoefficients weights;
 

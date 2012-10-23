@@ -38,7 +38,7 @@ protected:
 
 	void reorderInitialSolution(CommonVectorType &initialSolution,
 			Eigen::VectorXi &initialConstraints);
-	void reorderSolution(CommonVectorType &qp_solution_vec,
+	void ReorderIndices(CommonVectorType &qp_solution_vec,
 			Eigen::VectorXi &constraints,
 			Eigen::VectorXi &initialConstraints);
 

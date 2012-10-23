@@ -25,7 +25,7 @@ void DynamicsBuilder::Init() {
 
 }
 
-void DynamicsBuilder::Build(DynamicsOrder dynamics_order, LinearDynamics &dyn, double height, double sample_period_first, double sample_period_rest, int num_samples) {
+void DynamicsBuilder::Build(SystemOrder dynamics_order, LinearDynamics &dyn, double height, double sample_period_first, double sample_period_rest, int num_samples) {
 	switch (dynamics_order) {
 	case SECOND_ORDER:
 		BuildSecondOrder(dyn, height, sample_period_first, sample_period_rest, num_samples);

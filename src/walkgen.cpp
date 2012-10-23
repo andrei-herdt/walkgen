@@ -1,5 +1,7 @@
 #include <mpc-walkgen/walkgen.h>
 
+#include <iostream>
+
 using namespace MPCWalkgen;
 
 Walkgen::Walkgen()
@@ -257,15 +259,13 @@ void Walkgen::IncrementOutputIndex() {
 	output_index_++;
 }
 
-void Walkgen::UpdateOutput() {// TODO: Is this function called also when not necessary?
-	std::cout << "cop_act.x_vec: " << solution_.com_act.cop.x_vec.transpose() << std::endl;
-	std::cout << "output_index: " << output_index_ << std::endl;
-	output_.com.x = solution_.com_act.pos.x_vec[output_index_];
-	output_.com.y = solution_.com_act.pos.y_vec[output_index_];
-	output_.com.z = robot_.com()->state().z(0);
-	output_.com.dx = solution_.com_act.vel.x_vec[output_index_];
-	output_.com.dy = solution_.com_act.vel.y_vec[output_index_];
-	output_.com.dz = robot_.com()->state().z(1);
+void Walkgen::UpdateOutput() {
+	output_.com.x 	= solution_.com_act.pos.x_vec[output_index_];
+	output_.com.y 	= solution_.com_act.pos.y_vec[output_index_];
+	output_.com.z 	= robot_.com()->state().z(0);
+	output_.com.dx 	= solution_.com_act.vel.x_vec[output_index_];
+	output_.com.dy 	= solution_.com_act.vel.y_vec[output_index_];
+	output_.com.dz 	= robot_.com()->state().z(1);
 	output_.com.ddx = solution_.com_act.acc.x_vec[output_index_];
 	output_.com.ddy = solution_.com_act.acc.y_vec[output_index_];
 	output_.com.ddz = robot_.com()->state().z(2);

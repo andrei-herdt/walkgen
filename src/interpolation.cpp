@@ -13,21 +13,21 @@ Interpolation::Interpolation()
 Interpolation::~Interpolation(){}
 
 
-void Interpolation::Interpolate(CommonVectorType &solution_vec, const LinearDynamicsMatrices &dyn, 
-		const CommonVectorType &state_vec, const CommonVectorType &u_vec)
+void Interpolation::Interpolate(CommonVectorType &solution_vec, const LinearDynamicsMatrices &dyn,
+		const CommonVectorType &state_vec, const CommonVectorType &u_vec)//TODO: Unnecessary method
 {
 	solution_vec.setZero();//TODO: Unnecessary
 	solution_vec.noalias() = dyn.state_mat * state_vec + dyn.input_mat * u_vec;
 }
 
-void Interpolation::Interpolate(CommonVectorType &solution_vec, const LinearDynamicsMatrices &dyn, 
-		const CommonVectorType &state_vec, double u) {
+void Interpolation::Interpolate(CommonVectorType &solution_vec, const LinearDynamicsMatrices &dyn,
+		const CommonVectorType &state_vec, double u) {//TODO: Unnecessary method
 	tmp_vec_.resize(dyn.input_mat.cols());
 	tmp_vec_.fill(u);
 	solution_vec.noalias() = dyn.state_mat * state_vec + dyn.input_mat * tmp_vec_;
 }
 
-void Interpolation::computePolynomialNormalisedFactors( Eigen::Matrix<double,6,1> &factor,
+void Interpolation::ComputeNormalPolynomCoefficients( Eigen::Matrix<double,6,1> &factor,
 		const Vector3d &initialstate, const Vector3d &finalState, double T) const {
 	factor(5) = initialstate(0);
 	factor(4) = T*initialstate(1);
@@ -46,7 +46,7 @@ void Interpolation::computePolynomialNormalisedFactors( Eigen::Matrix<double,6,1
 	factor(0) = abc(0);
 }
 
-void Interpolation::computePolynomialFactors( Eigen::Matrix<double,6,1>  &factor,
+void Interpolation::ComputePolynomCoefficients( Eigen::Matrix<double,6,1>  &factor,
 		const Vector3d &initialstate, const Vector3d &finalState, double T ) const
 {
 	Matrix3d Ainv;

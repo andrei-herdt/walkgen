@@ -14,8 +14,8 @@ CoMBody::~CoMBody() {}
 void CoMBody::Interpolate(MPCSolution &solution, double current_time, const Reference &ref){
 	// Actuator sampling rate:
 	// -----------------------
-	CommonVectorType state_x(mpc_parameters_->dynamics_order), state_y(mpc_parameters_->dynamics_order);
-	for (int i = 0; i < mpc_parameters_->dynamics_order; i++) {
+	CommonVectorType state_x(mpc_parameters_p_->dynamics_order), state_y(mpc_parameters_p_->dynamics_order);
+	for (int i = 0; i < mpc_parameters_p_->dynamics_order; i++) {
 		state_x(i) = state_.x(i);
 		state_y(i) = state_.y(i);
 	}
@@ -46,7 +46,7 @@ void CoMBody::Interpolate(MPCSolution &solution, double current_time, const Refe
 	// QP sampling rate:
 	// -----------------
 	// Position:
-	if (mpc_parameters_->interpolate_whole_horizon) {
+	if (mpc_parameters_p_->interpolate_whole_horizon) {
 		interpolation_.Interpolate(solution.com_prw.pos.x_vec, dynamics_qp().pos,
 				state_x, solution.com_prw.control.x_vec);
 		interpolation_.Interpolate(solution.com_prw.pos.y_vec, dynamics_qp().pos,
@@ -81,9 +81,9 @@ void CoMBody::Interpolate(MPCSolution &solution, double current_time, const Refe
 }
 
 void CoMBody::InterpolateTrunkYaw(MPCSolution &solution, const Reference &ref) {
-	double T = mpc_parameters_->num_samples_step * mpc_parameters_->period_qpsample;
+	double T = mpc_parameters_p_->num_samples_step * mpc_parameters_p_->period_qpsample;
 
-	int num_samples = mpc_parameters_->num_samples_act();
+	int num_samples = mpc_parameters_p_->num_samples_act();
 
 	if (solution.com_act.pos.yaw_vec.rows() != num_samples){
 		solution.com_act.pos.yaw_vec.resize(num_samples);
@@ -104,9 +104,9 @@ void CoMBody::InterpolateTrunkYaw(MPCSolution &solution, const Reference &ref) {
 	Vector3d nextTrunkState(orientation1, -ref.local.yaw(0), 0);
 
 	Eigen::Matrix<double,6,1> factor;
-	interpolation_.computePolynomialNormalisedFactors(factor, state().yaw, nextTrunkState, T);
+	interpolation_.ComputeNormalPolynomCoefficients(factor, state().yaw, nextTrunkState, T);
 	for (int i=0; i < num_samples; ++i) {
-		double ti = (i + 1) * mpc_parameters_->period_actsample;
+		double ti = (i + 1) * mpc_parameters_p_->period_actsample;
 
 		solution.com_act.pos.yaw_vec(i) = p(factor, ti/T);
 		solution.com_act.vel.yaw_vec(i) = dp(factor, ti/T)/T;

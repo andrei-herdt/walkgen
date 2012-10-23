@@ -22,12 +22,12 @@ void FootBody::Interpolate(MPCSolution &solution, double current_time, const Ref
 
 	double time_left_xy = 1; // Duration of the current interpolation phase of the horizontal motion
 	double time_left_z = 1; // Duration of the current interpolation phase of the vertical motion
-	int num_samples = mpc_parameters_->num_samples_act();
-	double period_ds = mpc_parameters_->period_trans_ds();
-	double raise_period = std::max(0.05, mpc_parameters_->period_mpcsample); // Time during which the horizontal displacement is blocked
+	int num_samples = mpc_parameters_p_->num_samples_act();
+	double period_ds = mpc_parameters_p_->period_trans_ds();
+	double raise_period = std::max(0.05, mpc_parameters_p_->period_mpcsample); // Time during which the horizontal displacement is blocked
 	double time_left_flying = 0.0;
 	double time_spent_flying = 0.0;
-	double halftime_rounded = std::ceil(static_cast<double>(mpc_parameters_->num_qpsamples_ss()) / 2.0) * mpc_parameters_->period_qpsample;
+	double halftime_rounded = std::ceil(static_cast<double>(mpc_parameters_p_->num_qpsamples_ss()) / 2.0) * mpc_parameters_p_->period_qpsample;
 	if (current_support.phase == SS) {
 		time_left_flying = current_support.time_limit - period_ds - current_time;
 		time_spent_flying = current_time - current_support.start_time;
@@ -51,8 +51,8 @@ void FootBody::Interpolate(MPCSolution &solution, double current_time, const Ref
 			time_left_xy = time_left_flying - raise_period;
 			int nbPreviewedSteps = solution.support_states_vec.back().step_number;
 			if (nbPreviewedSteps > 0) {
-				goal_state.x(0) = solution.qp_solution_vec(2 * mpc_parameters_->num_samples_horizon);
-				goal_state.y(0) = solution.qp_solution_vec(2 * mpc_parameters_->num_samples_horizon + nbStepsPreviewed);
+				goal_state.x(0) = solution.qp_solution_vec(2 * mpc_parameters_p_->num_samples_horizon);
+				goal_state.y(0) = solution.qp_solution_vec(2 * mpc_parameters_p_->num_samples_horizon + nbStepsPreviewed);
 				goal_state.yaw(0) = solution.support_yaw_vec[0];
 			} else {
 				goal_state.x(0) = state_.x(0);
@@ -61,7 +61,7 @@ void FootBody::Interpolate(MPCSolution &solution, double current_time, const Ref
 			}
 		}
 		// Vertical trajectory
-		if (time_left_flying - halftime_rounded > mpc_parameters_->period_actsample) {
+		if (time_left_flying - halftime_rounded > mpc_parameters_p_->period_actsample) {
 			goal_state.z(0) = robot_data_p_->max_foot_height;
 			time_left_z = time_left_flying - halftime_rounded;
 		} else if (time_left_flying < halftime_rounded && time_left_flying > kEps) { // Half-time passed
@@ -100,9 +100,9 @@ void FootBody::InterpolatePolynomial(MPCSolution &solution, CommonVectorType &po
 		acc_vec.setConstant(0.0);
 	} else {
 		Eigen::Matrix<double, 6, 1> factors;
-		interpolation_.computePolynomialNormalisedFactors(factors, init_state_vec, final_state_vec, T);
+		interpolation_.ComputeNormalPolynomCoefficients(factors, init_state_vec, final_state_vec, T);
 		for (int i = 0; i < num_samples; ++i) {
-			double ti = (i + 1) * mpc_parameters_->period_actsample;
+			double ti = (i + 1) * mpc_parameters_p_->period_actsample;
 
 			pos_vec[i] = p(factors, ti / T);
 			vel_vec[i] = dp(factors, ti / T) / T;

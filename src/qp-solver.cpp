@@ -91,7 +91,7 @@ void QPSolver::ctrOrder(const Eigen::VectorXi &order) {
 
 
 void QPSolver::reorderInitialSolution(CommonVectorType &initialSolution,
-		VectorXi &initialConstraints) {
+		VectorXi &initialConstraints) {//TODO: What's the difference betweean those two
 	assert(initialSolution.size() >= num_variables_);
 	assert(initialConstraints.size() >= num_constr_ + num_variables_);
 	CommonVectorType initialSolutionTmp = initialSolution;
@@ -106,14 +106,13 @@ void QPSolver::reorderInitialSolution(CommonVectorType &initialSolution,
 
 }
 
-void QPSolver::reorderSolution(CommonVectorType &qp_solution_vec, VectorXi &constraints,
-		VectorXi &initialConstraints)
-{
-	CommonVectorType solutionTmp = qp_solution_vec;
+void QPSolver::ReorderIndices(CommonVectorType &vec, VectorXi &constraints,
+		VectorXi &initialConstraints) {//TODO: What's the difference betweean those two
+	CommonVectorType tmp_vec = vec;
 	VectorXi constraintsTmp = constraints;
 
 	for (int i = 0; i < num_variables_; ++i) {
-		qp_solution_vec(i) = solutionTmp(var_indices_vec_(i));
+		vec(i) = tmp_vec(var_indices_vec_(i));
 		constraints(i) = constraintsTmp(var_indices_vec_(i));
 	}
 	for (int i = 0; i < num_constr_; ++i) {

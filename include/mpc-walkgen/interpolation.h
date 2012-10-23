@@ -28,11 +28,11 @@ namespace MPCWalkgen{
     void Interpolate(CommonVectorType &solution_vec, const LinearDynamicsMatrices &dyn, 
       const CommonVectorType &state_vec, double u);
 
-    void computePolynomialNormalisedFactors(
+    void ComputeNormalPolynomCoefficients(
       Eigen::Matrix<double,6,1> &factor, const Eigen::Vector3d &initialstate,
       const Eigen::Vector3d &finalState, double T ) const;
 
-    void computePolynomialFactors(
+    void ComputePolynomCoefficients(
       Eigen::Matrix<double,6,1>  &factor,
       const Eigen::Vector3d &initialstate,
       const Eigen::Vector3d &finalState, double T ) const;

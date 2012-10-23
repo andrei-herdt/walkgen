@@ -108,7 +108,7 @@ static void mdlStart(SimStruct *S) {
 	}
 	mpc_parameters.solver.name                  = QPOASES;
 
-	mpc_parameters.dynamics_order               = static_cast<DynamicsOrder>(static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 9))));
+	mpc_parameters.dynamics_order               = static_cast<SystemOrder>(static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 9))));
 
 	mpc_parameters.weights.pos[0] 		= *mxGetPr(ssGetSFcnParam(S, 11));//1.;
 	mpc_parameters.weights.vel[0]  		= *mxGetPr(ssGetSFcnParam(S, 12));//0.;
