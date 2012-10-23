@@ -217,11 +217,11 @@ struct MPC_WALKGEN_API MPCParameters {
 	SolverData solver;
 
 	/// \brief Compute the number of recomputations left until next sample
-	int num_recomputations_left(double firstSamplingPeriod) const;
+	int GetMPCSamplesLeft(double firstSamplingPeriod) const;
 	/// \brief Number of simulation iterations between two feedback call
 	int num_samples_act() const;
 
-	int num_recomputations() const;			/// \brief Number of feedback iterations between two QP instants
+	int GetNumRecomputations() const;			/// \brief Number of feedback iterations between two QP instants
 
 	int num_qpsamples_ss() const;
 	int num_steps_max() const;
@@ -298,7 +298,7 @@ struct MPC_WALKGEN_API MPCSolution {
 	Eigen::VectorXi constraints;
 	Eigen::VectorXi initialConstraints;
 
-	std::vector<double> sampling_times_vec;	/// starting with 0, i.e. all times are relative to the current time
+	std::vector<double> sampling_times_vec;	/// Starting with the current time, i.e. all instants are global
 
 	std::vector<SupportState> support_states_vec;
 

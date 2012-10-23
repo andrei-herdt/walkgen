@@ -225,6 +225,8 @@ void Walkgen::BuildProblem() {
 			solution_ );
 	preview_->BuildRotationMatrix(solution_);
 
+	// BUILD:
+	// ------
 	builder_->BuildGlobalVelocityReference(solution_);
 
 	builder_->BuildProblem(solution_);
@@ -271,31 +273,31 @@ void Walkgen::UpdateOutput() {// TODO: Is this function called also when not nec
 	output_.cop.x = solution_.com_act.cop.x_vec[output_index_];
 	output_.cop.y = solution_.com_act.cop.y_vec[output_index_];
 
-	output_.left_foot.x = robot_.left_foot()->motion_act().pos.x_vec[output_index_];
-	output_.left_foot.y = robot_.left_foot()->motion_act().pos.y_vec[output_index_];
-	output_.left_foot.z = robot_.left_foot()->motion_act().pos.z_vec[output_index_];
-	output_.left_foot.yaw = robot_.left_foot()->motion_act().pos.yaw_vec[output_index_];
-	output_.left_foot.dx = robot_.left_foot()->motion_act().vel.x_vec[output_index_];
-	output_.left_foot.dy = robot_.left_foot()->motion_act().vel.y_vec[output_index_];
-	output_.left_foot.dz = robot_.left_foot()->motion_act().vel.z_vec[output_index_];
-	output_.left_foot.dyaw = robot_.left_foot()->motion_act().vel.yaw_vec[output_index_];
-	output_.left_foot.ddx = robot_.left_foot()->motion_act().acc.x_vec[output_index_];
-	output_.left_foot.ddy = robot_.left_foot()->motion_act().acc.y_vec[output_index_];
-	output_.left_foot.ddz = robot_.left_foot()->motion_act().acc.z_vec[output_index_];
+	output_.left_foot.x 	= robot_.left_foot()->motion_act().pos.x_vec[output_index_];
+	output_.left_foot.y 	= robot_.left_foot()->motion_act().pos.y_vec[output_index_];
+	output_.left_foot.z 	= robot_.left_foot()->motion_act().pos.z_vec[output_index_];
+	output_.left_foot.yaw 	= robot_.left_foot()->motion_act().pos.yaw_vec[output_index_];
+	output_.left_foot.dx 	= robot_.left_foot()->motion_act().vel.x_vec[output_index_];
+	output_.left_foot.dy 	= robot_.left_foot()->motion_act().vel.y_vec[output_index_];
+	output_.left_foot.dz 	= robot_.left_foot()->motion_act().vel.z_vec[output_index_];
+	output_.left_foot.dyaw 	= robot_.left_foot()->motion_act().vel.yaw_vec[output_index_];
+	output_.left_foot.ddx 	= robot_.left_foot()->motion_act().acc.x_vec[output_index_];
+	output_.left_foot.ddy 	= robot_.left_foot()->motion_act().acc.y_vec[output_index_];
+	output_.left_foot.ddz 	= robot_.left_foot()->motion_act().acc.z_vec[output_index_];
 	output_.left_foot.ddyaw = robot_.left_foot()->motion_act().acc.yaw_vec[output_index_];
 
-	output_.right_foot.x = robot_.right_foot()->motion_act().pos.x_vec[output_index_];
-	output_.right_foot.y = robot_.right_foot()->motion_act().pos.y_vec[output_index_];
-	output_.right_foot.z = robot_.right_foot()->motion_act().pos.z_vec[output_index_];
-	output_.right_foot.yaw = robot_.right_foot()->motion_act().pos.yaw_vec[output_index_];
-	output_.right_foot.dx = robot_.right_foot()->motion_act().vel.x_vec[output_index_];
-	output_.right_foot.dy = robot_.right_foot()->motion_act().vel.y_vec[output_index_];
-	output_.right_foot.dz = robot_.right_foot()->motion_act().vel.z_vec[output_index_];
-	output_.right_foot.dyaw = robot_.right_foot()->motion_act().vel.yaw_vec[output_index_];
-	output_.right_foot.ddx = robot_.right_foot()->motion_act().acc.x_vec[output_index_];
-	output_.right_foot.ddy = robot_.right_foot()->motion_act().acc.y_vec[output_index_];
-	output_.right_foot.ddz = robot_.right_foot()->motion_act().acc.z_vec[output_index_];
-	output_.right_foot.ddyaw = robot_.right_foot()->motion_act().acc.yaw_vec[output_index_];
+	output_.right_foot.x 		= robot_.right_foot()->motion_act().pos.x_vec[output_index_];
+	output_.right_foot.y 		= robot_.right_foot()->motion_act().pos.y_vec[output_index_];
+	output_.right_foot.z 		= robot_.right_foot()->motion_act().pos.z_vec[output_index_];
+	output_.right_foot.yaw 		= robot_.right_foot()->motion_act().pos.yaw_vec[output_index_];
+	output_.right_foot.dx 		= robot_.right_foot()->motion_act().vel.x_vec[output_index_];
+	output_.right_foot.dy 		= robot_.right_foot()->motion_act().vel.y_vec[output_index_];
+	output_.right_foot.dz 		= robot_.right_foot()->motion_act().vel.z_vec[output_index_];
+	output_.right_foot.dyaw 	= robot_.right_foot()->motion_act().vel.yaw_vec[output_index_];
+	output_.right_foot.ddx 		= robot_.right_foot()->motion_act().acc.x_vec[output_index_];
+	output_.right_foot.ddy 		= robot_.right_foot()->motion_act().acc.y_vec[output_index_];
+	output_.right_foot.ddz 		= robot_.right_foot()->motion_act().acc.z_vec[output_index_];
+	output_.right_foot.ddyaw 	= robot_.right_foot()->motion_act().acc.yaw_vec[output_index_];
 }
 
 void Walkgen::SetPosReference(double x, double y){

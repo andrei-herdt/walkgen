@@ -45,7 +45,7 @@ void QPBuilder::PrecomputeObjective() {
 	chol.column_indices(order);
 
 	int num_modes = mpc_parameters_->weights.control.size();
-	int num_recomp = mpc_parameters_->num_recomputations();
+	int num_recomp = mpc_parameters_->GetNumRecomputations();
 	Qconst_.resize(num_recomp * num_modes);
 	QconstN_.resize(num_recomp * num_modes);
 	choleskyConst_.resize(num_recomp * num_modes);
@@ -77,12 +77,13 @@ void QPBuilder::PrecomputeObjective() {
 	// -----------
 	CommonMatrixType hessian_mat(num_samples, num_samples);
 	for (int mode_num = 0; mode_num < num_modes; ++mode_num) {
-		for (double first_period = mpc_parameters_->period_mpcsample;
-				first_period < mpc_parameters_->period_qpsample + kEps;
-				first_period += mpc_parameters_->period_mpcsample) {
-			int mat_num = static_cast<int>(round(first_period / mpc_parameters_->period_mpcsample)-1);
+		for (double first_period = mpc_parameters_->period_qpsample;
+				first_period > kEps;
+				first_period -= mpc_parameters_->period_mpcsample) {
+			int mat_num = static_cast<int>(round(first_period / mpc_parameters_->period_mpcsample) - 1);
 			mat_num += mode_num * num_recomp;
 			std::cout << "mat_num: " << mat_num << std::endl;
+			std::cout << "first_period: " << first_period << std::endl;
 			robot_->ComputeDynamicsIndex(first_period);
 			const LinearDynamicsMatrices &pos_dyn = robot_->com()->dynamics_qp().pos;
 			const LinearDynamicsMatrices &vel_dyn = robot_->com()->dynamics_qp().vel;
@@ -229,10 +230,12 @@ void QPBuilder::TransformControlVector(MPCSolution &solution) {
 // Private methods:
 //
 void QPBuilder::BuildObjective(const MPCSolution &solution) {
-	// Choose the precomputed element depending on the nb of "feedback-recomputations" until new qp-sample
-	int sample_num = mpc_parameters_->num_recomputations_left(solution.support_states_vec[1].previous_sampling_period);
-	sample_num += mpc_parameters_->weights.active_mode * mpc_parameters_->num_recomputations();
+	// Choose the precomputed element depending on the period until next sample
+	int sample_num = mpc_parameters_->GetMPCSamplesLeft(solution.sampling_times_vec[1] - solution.sampling_times_vec[0]);
+	sample_num += mpc_parameters_->weights.active_mode * mpc_parameters_->GetNumRecomputations();
 
+	std::cout << "solution.sampling_times_vec[1]: " << solution.sampling_times_vec[1] - solution.sampling_times_vec[0]<< std::endl;
+	std::cout << "sample_num: " << sample_num << std::endl;
 	const BodyState &com = robot_->com()->state();
 	const SelectionMatrices &select_mats = preview_->selection_matrices();
 	const CommonMatrixType &rot_mat = preview_->rot_mat();

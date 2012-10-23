@@ -170,11 +170,11 @@ MPCParameters::MPCParameters()
 
 MPCParameters::~MPCParameters(){}
 
-int MPCParameters::num_recomputations_left(double first_sampling_period) const{
-	return static_cast<int> (round(first_sampling_period / period_mpcsample)-1 );
+int MPCParameters::GetMPCSamplesLeft(double first_sampling_period) const{
+	return static_cast<int> (round(first_sampling_period / period_mpcsample) - 1 );
 }
 
-int MPCParameters::num_recomputations() const{
+int MPCParameters::GetNumRecomputations() const{
 	return static_cast<int> (round(period_qpsample / period_mpcsample) );
 }
 

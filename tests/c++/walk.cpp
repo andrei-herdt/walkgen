@@ -148,7 +148,6 @@ int main() {
 		const MPCSolution &solution = walk.Go(curr_time);
 		std::cout << "cop_prw: " << solution.com_prw.cop.x_vec.transpose() << std::endl;
 		std::cout << "cop_act: " << walk.output().cop.x << std::endl;
-		std::cout << "sam_times: " << solution.sampling_times_vec.back() << std::endl;
 		//walk.clock().StopLastCounter();
 		walk.clock().StopCounter(online_timer);
 		walk.clock().ResetLocal();
