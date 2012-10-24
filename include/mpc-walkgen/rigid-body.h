@@ -32,21 +32,17 @@ namespace MPCWalkgen{
 
     inline void state(const BodyState &s){state_ = s;}
 
-    inline const LinearDynamics &dynamics_qp() const { return dynamics_qp_vec_[dynamics_index_];};
+    inline const std::vector<LinearDynamics> &dynamics_qp() const { return dynamics_qp_vec_;};
     inline const LinearDynamics &dynamics_act() const {return dynamics_act_;};
 
     inline Motion &motion_act() {return motion_act_;};
     inline Motion &motion_prw() {return motion_prw_;};
-
-    void ComputeDynamicsIndex(double first_sampling_period);
     /// \}
 
   protected:
     const MPCParameters *mpc_parameters_p_;
     const RobotData *robot_data_p_;//TODO: Maybe should not be here
     DynamicsBuilder *dyn_build_p_;
-
-    int dynamics_index_; // \brief Index to dynamics matrices
 
     Interpolation interpolation_;
 

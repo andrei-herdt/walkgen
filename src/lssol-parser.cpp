@@ -35,7 +35,7 @@ void LSSOLParser::Init() {}
 void LSSOLParser::Solve(MPCSolution &solution_data,
 			bool useWarmStart, bool analyze){
  
-	reorderInitialSolution(solution_data.initialSolution, solution_data.initialConstraints);
+	reorderInitialSolution(solution_data.initialSolution, solution_data.init_active_set);
 
 
 	// Pile up XL and BL
@@ -48,7 +48,7 @@ void LSSOLParser::Solve(MPCSolution &solution_data,
 
 	if (useWarmStart){
 		solution_data.qp_solution_vec = solution_data.initialSolution;
-		solution_data.constraints = solution_data.initialConstraints;
+		solution_data.constraints = solution_data.init_active_set;
 	}else{
 		if (solution_data.qp_solution_vec.rows() != num_variables_){
 			solution_data.qp_solution_vec.setZero(num_variables_);
@@ -85,5 +85,5 @@ void LSSOLParser::Solve(MPCSolution &solution_data,
 //			iwar_.data(), &leniw_, war_.data(), &lenw_);
 
 
-	ReorderIndices(solution_data.qp_solution_vec, solution_data.constraints, solution_data.initialConstraints);
+	ReorderIndices(solution_data.qp_solution_vec, solution_data.constraints, solution_data.init_active_set);
 }

@@ -296,7 +296,7 @@ struct MPC_WALKGEN_API MPCSolution {
 	CommonVectorType initialSolution;
 
 	Eigen::VectorXi constraints;
-	Eigen::VectorXi initialConstraints;
+	Eigen::VectorXi init_active_set;
 
 	std::vector<double> sampling_times_vec;	/// Starting with the current time, i.e. all instants are global
 

@@ -35,18 +35,18 @@ int main() {
 	mpc_parameters.solver.analysis                = false;
 	mpc_parameters.solver.name                    = QPOASES;
 	mpc_parameters.solver.num_wsrec               = 20;
-	mpc_parameters.dynamics_order                 = THIRD_ORDER;
+	mpc_parameters.dynamics_order                 = SECOND_ORDER;
 
-	mpc_parameters.weights.pos[0] 		= 0.;
+	mpc_parameters.weights.pos[0] 		= 1.;
 	mpc_parameters.weights.vel[0]  		= 0.;
 	mpc_parameters.weights.cop[0]  		= 0.;//0.00001;
-	mpc_parameters.weights.cp[0] 		= 1.;//1.;
+	mpc_parameters.weights.cp[0] 		= 0.;//1.;
 	mpc_parameters.weights.control[0] 	= 0.0000001;//0.00001;
 
-	mpc_parameters.weights.pos[1] 		= 0.;
+	mpc_parameters.weights.pos[1] 		= 1.;
 	mpc_parameters.weights.vel[1]  		= 0.;
 	mpc_parameters.weights.cop[1]  		= 0.;//1.;
-	mpc_parameters.weights.cp[1] 		= 1.;
+	mpc_parameters.weights.cp[1] 		= 0.;
 	mpc_parameters.weights.control[1] 	= 0.;//0.000001;
 
 	// Robot parameters:
@@ -146,8 +146,10 @@ int main() {
 	for (; curr_time < 5; curr_time += sample_period_act) {
 		int online_timer = walk.clock().StartCounter();
 		const MPCSolution &solution = walk.Go(curr_time);
-		std::cout << "cop_prw: " << solution.com_prw.cop.x_vec.transpose() << std::endl;
-		std::cout << "cop_act: " << walk.output().cop.x << std::endl;
+		std::cout << "com_prw.pos: " << solution.com_prw.pos.x_vec.transpose() << std::endl;
+		std::cout << "com_prw.vel: " << solution.com_prw.vel.x_vec.transpose() << std::endl;
+		std::cout << "com_act.pos: " << walk.output().com.x << "  com_act.vel: " << walk.output().com.dx << std::endl;
+		Debug::Cout("sampling_times_vec", solution.sampling_times_vec);
 		//walk.clock().StopLastCounter();
 		walk.clock().StopCounter(online_timer);
 		walk.clock().ResetLocal();

@@ -31,7 +31,7 @@ public:
 
 	virtual SolverName name() const = 0;
 
-	virtual bool useCholesky() const = 0;
+	virtual bool do_build_cholesky() const = 0;
 	virtual void useCholesky(bool) = 0;
 
 protected:

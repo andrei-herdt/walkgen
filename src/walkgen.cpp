@@ -212,8 +212,7 @@ void Walkgen::BuildProblem() {
 	}
 	mpc_parameters_.weights.SetCoefficients(vel_ref_);
 
-	double first_sampling_period = first_sample_time_ - current_time_;
-	robot_.ComputeDynamicsIndex(first_sampling_period);
+	double first_sampling_period = first_sample_time_ - current_time_;//TODO:
 
 	// PREVIEW:
 	// --------
@@ -222,9 +221,8 @@ void Walkgen::BuildProblem() {
 	preview_->PreviewSupportStates(first_sampling_period, solution_);
 
 	orient_preview_->preview_orientations( current_time_, vel_ref_,
-			mpc_parameters_.num_samples_step * mpc_parameters_.period_qpsample,
-			robot_.left_foot()->state(), robot_.right_foot()->state(),
-			solution_ );
+			mpc_parameters_.num_samples_step * mpc_parameters_.period_qpsample, robot_.left_foot()->state(),
+			robot_.right_foot()->state(), solution_ );
 	preview_->BuildRotationMatrix(solution_);
 
 	// BUILD:

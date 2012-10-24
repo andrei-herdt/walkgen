@@ -2,6 +2,7 @@
 #include <mpc-walkgen/qp-matrix.h>
 #include <mpc-walkgen/qp-vector.h>
 #include <mpc-walkgen/tools.h>
+#include <mpc-walkgen/debug.h>
 
 #include <iostream>
 #include <algorithm>
@@ -46,9 +47,9 @@ void QPBuilder::PrecomputeObjective() {
 
 	int num_modes = mpc_parameters_->weights.control.size();
 	int num_recomp = mpc_parameters_->GetNumRecomputations();
-	Qconst_.resize(num_recomp * num_modes);
-	QconstN_.resize(num_recomp * num_modes);
-	choleskyConst_.resize(num_recomp * num_modes);
+	const_hessian_mat_.resize(num_recomp * num_modes);
+	const_hessian_n_mat_.resize(num_recomp * num_modes);
+	const_cholesky_.resize(num_recomp * num_modes);
 	state_variant_.resize(num_recomp * num_modes);
 	select_variant_.resize(num_recomp * num_modes);
 	ref_variant_vel_.resize(num_recomp * num_modes);
@@ -77,18 +78,16 @@ void QPBuilder::PrecomputeObjective() {
 	// -----------
 	CommonMatrixType hessian_mat(num_samples, num_samples);
 	for (int mode_num = 0; mode_num < num_modes; ++mode_num) {
-		for (double first_period = mpc_parameters_->period_qpsample;
-				first_period > kEps;
-				first_period -= mpc_parameters_->period_mpcsample) {
-			int mat_num = static_cast<int>(round(first_period / mpc_parameters_->period_mpcsample) - 1);
-			mat_num += mode_num * num_recomp;
+		for (double first_period = mpc_parameters_->period_qpsample; first_period > kEps; first_period -= mpc_parameters_->period_mpcsample) {
+			int samples_left = mpc_parameters_->GetMPCSamplesLeft(first_period);
+			int mat_num = samples_left + mode_num * num_recomp;
 			std::cout << "mat_num: " << mat_num << std::endl;
 			std::cout << "first_period: " << first_period << std::endl;
-			robot_->ComputeDynamicsIndex(first_period);
-			const LinearDynamicsMatrices &pos_dyn = robot_->com()->dynamics_qp().pos;
-			const LinearDynamicsMatrices &vel_dyn = robot_->com()->dynamics_qp().vel;
-			const LinearDynamicsMatrices &cop_dyn = robot_->com()->dynamics_qp().cop;
-			const LinearDynamicsMatrices &cp_dyn = robot_->com()->dynamics_qp().cp;
+
+			const LinearDynamicsMatrices &pos_dyn = robot_->com()->dynamics_qp()[samples_left].pos;
+			const LinearDynamicsMatrices &vel_dyn = robot_->com()->dynamics_qp()[samples_left].vel;
+			const LinearDynamicsMatrices &cop_dyn = robot_->com()->dynamics_qp()[samples_left].cop;
+			const LinearDynamicsMatrices &cp_dyn = robot_->com()->dynamics_qp()[samples_left].cp;
 
 			// Q = beta*Uz^(-T)*Uv^T*Uv*Uz^(-1)
 			tmp_mat_.noalias() = cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * vel_dyn.input_mat * cop_dyn.input_mat_inv;
@@ -104,15 +103,15 @@ void QPBuilder::PrecomputeObjective() {
 			tmp_mat_.noalias() = cop_dyn.input_mat_inv_tr * cp_dyn.input_mat_tr * cp_dyn.input_mat * cop_dyn.input_mat_inv;
 			hessian_mat +=  mpc_parameters_->weights.cp[mode_num] * tmp_mat_;
 
-			Qconst_[mat_num] = hessian_mat;
+			const_hessian_mat_[mat_num] = hessian_mat;
 			// Q += gamma*I
-			QconstN_[mat_num] = hessian_mat + mpc_parameters_->weights.cop[mode_num] * contr_weighting_mat;
+			const_hessian_n_mat_[mat_num] = hessian_mat + mpc_parameters_->weights.cop[mode_num] * contr_weighting_mat;
 
 			chol.Reset(0.);
-			chol.AddTerm(QconstN_[mat_num], 0, 0);
-			chol.AddTerm(QconstN_[mat_num], num_samples, num_samples);
+			chol.AddTerm(const_hessian_n_mat_[mat_num], 0, 0);
+			chol.AddTerm(const_hessian_n_mat_[mat_num], num_samples, num_samples);
 
-			choleskyConst_[mat_num] = chol.cholesky();
+			const_cholesky_[mat_num] = chol.cholesky();
 
 			// beta*Uz^(-T)*Uv*(Sv - Uv*Uz^(-1)*Sz)
 			tmp_mat_.noalias() = vel_dyn.state_mat - vel_dyn.input_mat * cop_dyn.input_mat_inv * cop_dyn.state_mat;
@@ -218,7 +217,8 @@ void QPBuilder::TransformControlVector(MPCSolution &solution) {
 
 	//TODO(performance): Optimize this for first interpolate_whole_horizon == false
 	// Transform to com motion
-	const LinearDynamicsMatrices &copdyn = robot_->com()->dynamics_qp().cop;
+	int samples_left = mpc_parameters_->GetMPCSamplesLeft(solution.sampling_times_vec[1] - solution.sampling_times_vec[0]);
+	const LinearDynamicsMatrices &copdyn = robot_->com()->dynamics_qp()[samples_left].cop;
 	tmp_vec_.noalias() = global_cop_x_vec - copdyn.state_mat * state_x;
 	solution.com_prw.control.x_vec.noalias() = copdyn.input_mat_inv * tmp_vec_;
 	tmp_vec_.noalias() = global_cop_y_vec - copdyn.state_mat * state_y;
@@ -231,11 +231,10 @@ void QPBuilder::TransformControlVector(MPCSolution &solution) {
 //
 void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	// Choose the precomputed element depending on the period until next sample
-	int sample_num = mpc_parameters_->GetMPCSamplesLeft(solution.sampling_times_vec[1] - solution.sampling_times_vec[0]);
-	sample_num += mpc_parameters_->weights.active_mode * mpc_parameters_->GetNumRecomputations();
+	int samples_left = mpc_parameters_->GetMPCSamplesLeft(solution.sampling_times_vec[1] - solution.sampling_times_vec[0]);
+	samples_left += mpc_parameters_->weights.active_mode * mpc_parameters_->GetNumRecomputations();
 
-	std::cout << "solution.sampling_times_vec[1]: " << solution.sampling_times_vec[1] - solution.sampling_times_vec[0]<< std::endl;
-	std::cout << "sample_num: " << sample_num << std::endl;
+	std::cout << std::endl << "samples_left: " << samples_left << std::endl;
 	const BodyState &com = robot_->com()->state();
 	const SelectionMatrices &select_mats = preview_->selection_matrices();
 	const CommonMatrixType &rot_mat = preview_->rot_mat();
@@ -247,47 +246,47 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	int num_steps_previewed = solution.support_states_vec.back().step_number;
 	int num_samples = mpc_parameters_->num_samples_horizon;
 
-	if (!solver_->useCholesky()) {//TODO: This part is the most costly >50%
-		hessian.AddTerm(QconstN_[sample_num], 0, 0);
-		hessian.AddTerm(QconstN_[sample_num], num_samples, num_samples);
+	if (!solver_->do_build_cholesky()) {//TODO: This part is the most costly >50%
+		hessian.AddTerm(const_hessian_n_mat_[samples_left], 0, 0);
+		hessian.AddTerm(const_hessian_n_mat_[samples_left], num_samples, num_samples);
 
-		CommonMatrixType Qmat = hessian().block(0, 0, 2 * num_samples, 2 * num_samples);
-		tmp_mat_.noalias() = rot_mat2 * Qmat * rot_mat2_trans;//TODO: Use MTimesRT
+		CommonMatrixType hessian_mat = hessian().block(0, 0, 2 * num_samples, 2 * num_samples);
+		tmp_mat_.noalias() = rot_mat2 * hessian_mat * rot_mat2_trans;//TODO: Use MTimesRT
 		hessian().block(0, 0, 2 * num_samples, 2 * num_samples) = tmp_mat_;
 	} else {
 		// rotate the cholesky matrix
-		CommonMatrixType chol = choleskyConst_[sample_num];
+		CommonMatrixType chol = const_cholesky_[samples_left];
 		RotateCholeskyMatrix(chol, rot_mat2);
 		hessian.cholesky(chol);
 	}
 
 	if (num_steps_previewed > 0) {
-		tmp_mat_.noalias() = Qconst_[sample_num] * select_mats.sample_step;
+		tmp_mat_.noalias() = const_hessian_mat_[samples_left] * select_mats.sample_step;
 		hessian.AddTerm(tmp_mat_, 0, 2 * num_samples);
 		hessian.AddTerm(tmp_mat_, num_samples, 2 * num_samples + num_steps_previewed);
 
-		tmp_mat_.noalias() = select_mats.sample_step_trans * Qconst_[sample_num] * select_mats.sample_step;
+		tmp_mat_.noalias() = select_mats.sample_step_trans * const_hessian_mat_[samples_left] * select_mats.sample_step;
 		hessian.AddTerm(tmp_mat_, 2 * num_samples, 2 * num_samples);
 		hessian.AddTerm(tmp_mat_, 2 * num_samples + num_steps_previewed, 2 * num_samples + num_steps_previewed);
 
 
-		if (!solver_->useCholesky()) {
-			tmp_mat_.noalias() = select_mats.sample_step_trans * Qconst_[sample_num];
+		if (!solver_->do_build_cholesky()) {
+			tmp_mat_.noalias() = select_mats.sample_step_trans * const_hessian_mat_[samples_left];
 			hessian.AddTerm(tmp_mat_, 2 * num_samples, 0);
 			hessian.AddTerm(tmp_mat_, 2 * num_samples + num_steps_previewed, num_samples);
 
 			// rotate the lower left block
 			// TODO(andrei): Rotation can be done before addition
-			CommonMatrixType dlBlock = hessian().block(2 * num_samples, 0, 2 * num_steps_previewed, 2 * num_samples);
-			MTimesRT(dlBlock, rot_mat2);
-			hessian().block(2 * num_samples, 0, 2 * num_steps_previewed, 2 * num_samples) = dlBlock;
+			CommonMatrixType low_triang_mat = hessian().block(2 * num_samples, 0, 2 * num_steps_previewed, 2 * num_samples);
+			MTimesRT(low_triang_mat, rot_mat2);
+			hessian().block(2 * num_samples, 0, 2 * num_steps_previewed, 2 * num_samples) = low_triang_mat;
 		}
 
 		// rotate the upper right block
 		// TODO(efficiency): Rotation can be done before addition
-		CommonMatrixType urBlock = hessian().block(0, 2 * num_samples, 2*num_samples, 2*num_steps_previewed);
-		RTimesM(urBlock, rot_mat2);
-		hessian().block(0, 2 * num_samples, 2 * num_samples, 2 * num_steps_previewed) = urBlock;
+		CommonMatrixType upp_triang_mat = hessian().block(0, 2 * num_samples, 2*num_samples, 2*num_steps_previewed);
+		RTimesM(upp_triang_mat, rot_mat2);
+		hessian().block(0, 2 * num_samples, 2 * num_samples, 2 * num_steps_previewed) = upp_triang_mat;
 	}
 
 	CommonVectorType HX(num_samples), HY(num_samples), gradient_vec(2 * num_samples);//TODO: Make this member
@@ -298,20 +297,20 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 		state_y(i) = com.y(i);
 	}
 
-	HX = state_variant_[sample_num] * state_x;
-	HY = state_variant_[sample_num] * state_y;
+	HX = state_variant_[samples_left] * state_x;
+	HY = state_variant_[samples_left] * state_y;
 
-	HX += select_variant_[sample_num] * select_mats.sample_step_cx;
-	HY += select_variant_[sample_num] * select_mats.sample_step_cy;
+	HX += select_variant_[samples_left] * select_mats.sample_step_cx;
+	HY += select_variant_[samples_left] * select_mats.sample_step_cy;
 
-	HX += ref_variant_vel_[sample_num] * vel_ref_->global.x;
-	HY += ref_variant_vel_[sample_num] * vel_ref_->global.y;
+	HX += ref_variant_vel_[samples_left] * vel_ref_->global.x;
+	HY += ref_variant_vel_[samples_left] * vel_ref_->global.y;
 
-	HX += ref_variant_pos_[sample_num] * pos_ref_->global.x;
-	HY += ref_variant_pos_[sample_num] * pos_ref_->global.y;
+	HX += ref_variant_pos_[samples_left] * pos_ref_->global.x;
+	HY += ref_variant_pos_[samples_left] * pos_ref_->global.y;
 
-	HX += ref_variant_cp_[sample_num] * cp_ref_->global.x;
-	HY += ref_variant_cp_[sample_num] * cp_ref_->global.y;
+	HX += ref_variant_cp_[samples_left] * cp_ref_->global.x;
+	HY += ref_variant_cp_[samples_left] * cp_ref_->global.y;
 
 	if (num_steps_previewed > 0) {
 		tmp_vec_.noalias() = select_mats.sample_step_trans * HX;
@@ -328,31 +327,31 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	// PID mode:
 	// ---------
 	if (mpc_parameters_->is_pid_mode) {
-		const LinearDynamics &cp_dyn = robot_->com()->dynamics_qp();
+		const LinearDynamics &dyn = robot_->com()->dynamics_qp()[samples_left];
 
 		double kd = -2.;
 		double omega = sqrt(kGravity / com.z[0]);
 
 		// qx = - r*K*x / (BT*CT*C*A*x - BTCTCB*K*x)
-		CommonMatrixType qx = cp_dyn.discr_ss.ss_output_mat * state_x;
+		CommonMatrixType qx = dyn.discr_ss.ss_output_mat * state_x;
 		qx *= (1. - kd);
 		double qx_d = qx(0);
-		std::cout << "A: " << cp_dyn.discr_ss.ss_state_mat << std::endl;
-		std::cout << "C: " << cp_dyn.discr_ss.ss_output_mat << std::endl;
-		std::cout << "BT: " << cp_dyn.discr_ss.ss_input_mat_tr << std::endl;
-		CommonMatrixType bccax = cp_dyn.discr_ss.ss_input_mat_tr * cp_dyn.discr_ss.ss_output_mat_tr *
-				cp_dyn.discr_ss.ss_output_mat * cp_dyn.discr_ss.ss_state_mat * state_x;
-		CommonMatrixType bccbkx = cp_dyn.discr_ss.ss_input_mat_tr * cp_dyn.discr_ss.ss_output_mat_tr *
-				cp_dyn.discr_ss.ss_output_mat * cp_dyn.discr_ss.ss_input_mat * (kd - 1) * cp_dyn.discr_ss.ss_output_mat * state_x;
+		std::cout << "A: " << dyn.discr_ss.ss_state_mat << std::endl;
+		std::cout << "C: " << dyn.discr_ss.ss_output_mat << std::endl;
+		std::cout << "BT: " << dyn.discr_ss.ss_input_mat_tr << std::endl;
+		CommonMatrixType bccax = dyn.discr_ss.ss_input_mat_tr * dyn.discr_ss.ss_output_mat_tr *
+				dyn.discr_ss.ss_output_mat * dyn.discr_ss.ss_state_mat * state_x;
+		CommonMatrixType bccbkx = dyn.discr_ss.ss_input_mat_tr * dyn.discr_ss.ss_output_mat_tr *
+				dyn.discr_ss.ss_output_mat * dyn.discr_ss.ss_input_mat * (kd - 1) * dyn.discr_ss.ss_output_mat * state_x;
 		qx_d /= (bccax(0) - bccbkx(0));
 
 		// qy = - r*(1-kd)*C*y / (BT*CT*C*A*y - BTCTCB*K*y)
-		CommonMatrixType qy = (1. - kd) * cp_dyn.discr_ss.ss_output_mat * state_y;
+		CommonMatrixType qy = (1. - kd) * dyn.discr_ss.ss_output_mat * state_y;
 		double qy_d = qy(0);
-		CommonMatrixType bccay = cp_dyn.discr_ss.ss_input_mat_tr * cp_dyn.discr_ss.ss_output_mat_tr *
-				cp_dyn.discr_ss.ss_output_mat * cp_dyn.discr_ss.ss_state_mat * state_y;
-		CommonMatrixType bccbky = cp_dyn.discr_ss.ss_input_mat_tr * cp_dyn.discr_ss.ss_output_mat_tr *
-				cp_dyn.discr_ss.ss_output_mat * cp_dyn.discr_ss.ss_input_mat * (kd - 1) * cp_dyn.discr_ss.ss_output_mat * state_y;
+		CommonMatrixType bccay = dyn.discr_ss.ss_input_mat_tr * dyn.discr_ss.ss_output_mat_tr *
+				dyn.discr_ss.ss_output_mat * dyn.discr_ss.ss_state_mat * state_y;
+		CommonMatrixType bccbky = dyn.discr_ss.ss_input_mat_tr * dyn.discr_ss.ss_output_mat_tr *
+				dyn.discr_ss.ss_output_mat * dyn.discr_ss.ss_input_mat * (kd - 1) * dyn.discr_ss.ss_output_mat * state_y;
 		qy_d /= (bccay(0) - bccbky(0));
 
 		std::cout << "qx_d: " << qx_d << std::endl;
@@ -366,7 +365,7 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 		//p = q*p
 		solver_->vector(vectorP)().block(0, 0, 0, num_samples) *= qx_d;
 		solver_->vector(vectorP)().block(0, num_samples, 0, num_samples) *= qy_d;
-		*/
+		 */
 	}
 }
 
@@ -395,8 +394,8 @@ void QPBuilder::ComputeWarmStart(MPCSolution &solution) {
 
 	// Preview active set:
 	// -------------------
-	int size = solution.initialConstraints.rows();//TODO: size of what?
-	Eigen::VectorXi initialConstraintTmp = solution.initialConstraints;//TODO: Copy not necessary for shifting
+	int size = solution.init_active_set.rows();//TODO: size of what?
+	Eigen::VectorXi initialConstraintTmp = solution.init_active_set;//TODO: Copy not necessary for shifting
 	//double TimeFactor = solution.support_states_vec[1].sampleWeight;//TODO: TimeFactor? sampleWeight??
 	int shiftCtr = 0;
 	//if (fabs(TimeFactor-1.) < kEps) {
@@ -404,33 +403,33 @@ void QPBuilder::ComputeWarmStart(MPCSolution &solution) {
 	//}
 	if (size >= 2*num_samples){//TODO: Verification wouldn't be necessary without copying
 		// Shift active set by
-		solution.initialConstraints.segment(0,         num_samples-1) = initialConstraintTmp.segment(shiftCtr,    num_samples-1);
-		solution.initialConstraints.segment(num_samples, num_samples-1) = initialConstraintTmp.segment(shiftCtr+num_samples, num_samples-1);
+		solution.init_active_set.segment(0,         num_samples-1) = initialConstraintTmp.segment(shiftCtr,    num_samples-1);
+		solution.init_active_set.segment(num_samples, num_samples-1) = initialConstraintTmp.segment(shiftCtr+num_samples, num_samples-1);
 
 		// New final ZMP elements are old final elements
-		solution.initialConstraints(  num_samples-1) = initialConstraintTmp(  num_samples-1);
-		solution.initialConstraints(2 * num_samples-1) = initialConstraintTmp(2*num_samples-1);
+		solution.init_active_set(  num_samples-1) = initialConstraintTmp(  num_samples-1);
+		solution.init_active_set(2 * num_samples-1) = initialConstraintTmp(2*num_samples-1);
 
 		// Foot constraints are not shifted
-		solution.initialConstraints.segment(2 * num_samples, nbFC*num_steps)=
+		solution.init_active_set.segment(2 * num_samples, nbFC*num_steps)=
 				initialConstraintTmp.segment (2 * num_samples, nbFC*num_steps);
-		solution.initialConstraints.segment(2 * num_samples + nbFC*num_steps, nbFC * (num_steps_max - num_steps))=
+		solution.init_active_set.segment(2 * num_samples + nbFC*num_steps, nbFC * (num_steps_max - num_steps))=
 				initialConstraintTmp.segment (2 * num_samples + nbFC * num_steps, nbFC * (num_steps_max - num_steps));
 	} else {
-		solution.initialConstraints = Eigen::VectorXi::Zero(2*num_samples+(4+nbFC)*num_steps_max);//TODO: Why this value?
+		solution.init_active_set = Eigen::VectorXi::Zero(2*num_samples+(4+nbFC)*num_steps_max);//TODO: Why this value?
 	}
 
 	//TODO: Checked until here.
 
 	// Compute feasible initial ZMP and foot positions:
 	// ------------------------------------------------
-	std::vector<SupportState>::iterator prwSS_it = solution.support_states_vec.begin();
-	++prwSS_it;//Point at the first previewed support state
+	std::vector<SupportState>::iterator previewed_ss_it = solution.support_states_vec.begin();
+	++previewed_ss_it;//Point at the first previewed support state
 
 	SupportState current_support = solution.support_states_vec.front();
 	// if in transition phase
-	if (prwSS_it->state_changed){
-		current_support = *prwSS_it;
+	if (previewed_ss_it->state_changed){
+		current_support = *previewed_ss_it;
 	}
 	int j = 0;
 
@@ -438,25 +437,25 @@ void QPBuilder::ComputeWarmStart(MPCSolution &solution) {
 	bool noActiveConstraints;
 	for (int i = 0; i<num_samples; i++){
 		// Get COP convex hull for current support
-		robot_->GetConvexHull(cop_hull_edges_, COP_HULL, *prwSS_it);
-		cop_hull_edges_.BuildInequalities(prwSS_it->foot);
+		robot_->GetConvexHull(cop_hull_edges_, COP_HULL, *previewed_ss_it);
+		cop_hull_edges_.BuildInequalities(previewed_ss_it->foot);
 
 		// Check if the support foot has changed
-		if (prwSS_it->state_changed && prwSS_it->step_number>0){
+		if (previewed_ss_it->state_changed && previewed_ss_it->step_number>0){
 
 			// Get feet convex hull for current support
-			prwSS_it--;
-			robot_->GetConvexHull(foot_hull_edges_, FOOT_HULL, *prwSS_it);
-			foot_hull_edges_.BuildInequalities(prwSS_it->foot);
-			prwSS_it++;
+			previewed_ss_it--;
+			robot_->GetConvexHull(foot_hull_edges_, FOOT_HULL, *previewed_ss_it);
+			foot_hull_edges_.BuildInequalities(previewed_ss_it->foot);
+			previewed_ss_it++;
 
 			// Place the foot on active constraints
 			shiftx = shifty = 0;
 			noActiveConstraints = true;
 			for(int k = 0; k < nbFC; ++k){
-				if (solution.initialConstraints(k+2*num_samples+j*nbFC)!=0){
+				if (solution.init_active_set(k+2*num_samples+j*nbFC)!=0){
 					int k2 = (k+1)%5; // k(4) = k(0)
-					if (solution.initialConstraints(k2+2*num_samples+j*nbFC)!=0){
+					if (solution.init_active_set(k2+2*num_samples+j*nbFC)!=0){
 						shiftx=foot_hull_edges_.x_vec(k2);
 						shifty=foot_hull_edges_.y_vec(k2);
 					}else{
@@ -485,35 +484,35 @@ void QPBuilder::ComputeWarmStart(MPCSolution &solution) {
 		noActiveConstraints = true;
 		int k1=-1;
 		int k2=-1;
-		if (solution.initialConstraints(0+i*2)==1){
-			if (solution.initialConstraints(num_samples+i*2)==1){
+		if (solution.init_active_set(0+i*2)==1){
+			if (solution.init_active_set(num_samples+i*2)==1){
 				k2=1;
 				noActiveConstraints = false;
-			} else if (solution.initialConstraints(num_samples+i*2)==2){
+			} else if (solution.init_active_set(num_samples+i*2)==2){
 				k2=0;
 				noActiveConstraints = false;
-			} else if (solution.initialConstraints(num_samples+i*2)==0){
+			} else if (solution.init_active_set(num_samples+i*2)==0){
 				k1=0;
 				k2=1;
 				noActiveConstraints = false;
 			}
-		}else if (solution.initialConstraints(0+i*2)==2){
-			if (solution.initialConstraints(num_samples+i*2)==1){
+		}else if (solution.init_active_set(0+i*2)==2){
+			if (solution.init_active_set(num_samples+i*2)==1){
 				k2=2;
 				noActiveConstraints = false;
-			}else if (solution.initialConstraints(num_samples+i*2)==2){
+			}else if (solution.init_active_set(num_samples+i*2)==2){
 				k2=3;
 				noActiveConstraints = false;
-			}else if (solution.initialConstraints(num_samples+i*2)==0){
+			}else if (solution.init_active_set(num_samples+i*2)==0){
 				k1=3;
 				k2=2;
 				noActiveConstraints = false;
 			}
-		}else if (solution.initialConstraints(num_samples+i*2)==1){
+		}else if (solution.init_active_set(num_samples+i*2)==1){
 			k1=2;
 			k2=1;
 			noActiveConstraints = false;
-		}else if (solution.initialConstraints(num_samples+i*2)==2){
+		}else if (solution.init_active_set(num_samples+i*2)==2){
 			k1=0;
 			k2=3;
 			noActiveConstraints = false;
@@ -531,7 +530,7 @@ void QPBuilder::ComputeWarmStart(MPCSolution &solution) {
 
 		solution.initialSolution(i) = shiftx;
 		solution.initialSolution(num_samples+i) = shifty;
-		++prwSS_it;
+		++previewed_ss_it;
 
 	}
 

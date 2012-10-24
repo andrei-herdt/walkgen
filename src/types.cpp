@@ -103,7 +103,7 @@ MPCSolution& MPCSolution::operator = (MPCSolution const &rhs) {
 	initialSolution = rhs.initialSolution;
 
 	constraints = rhs.constraints;
-	initialConstraints = rhs.initialConstraints;
+	init_active_set = rhs.init_active_set;
 
 	/// \brief Sampling times
 	/// starting with 0, i.e. all times are relative to the current time

@@ -9,7 +9,6 @@ using namespace MPCWalkgen;
 RigidBody::RigidBody():mpc_parameters_p_(NULL)
 ,robot_data_p_(NULL)
 ,dyn_build_p_(NULL)
-,dynamics_index_(0)
 {}
 
 RigidBody::~RigidBody() {}
@@ -44,7 +43,6 @@ void RigidBody::ComputeDynamics(SystemOrder dynamics_order) {
 	std::vector<LinearDynamics>::iterator dyn_it = dynamics_qp_vec_.begin();
 	for (int k = 0; k < num_dynamics; ++k) {
 		sp_first = mpc_parameters_p_->period_mpcsample * (k+1);
-		std::cout << "sp_first: " << sp_first << std::endl;
 		dyn_build_p_->Build(dynamics_order, *dyn_it, robot_data_p_->com(2), sp_first, sp_rest, num_samples);
 		++dyn_it;
 	}
@@ -53,8 +51,4 @@ void RigidBody::ComputeDynamics(SystemOrder dynamics_order) {
 	sp_first = mpc_parameters_p_->period_actsample;
 	sp_rest = mpc_parameters_p_->period_actsample;
 	dyn_build_p_->Build(dynamics_order, dynamics_act_, robot_data_p_->com(2), sp_first, sp_rest, num_samples);
-}
-
-void RigidBody::ComputeDynamicsIndex(double first_sampling_period){
-	dynamics_index_ = mpc_parameters_p_->GetMPCSamplesLeft(first_sampling_period);
 }

@@ -24,7 +24,7 @@ namespace MPCWalkgen{
       { return qp_; }
 			inline SolverName name() const
 			{ return QPOASES; }
-			inline bool useCholesky() const
+			inline bool do_build_cholesky() const
 			{ return false; }
 			inline void useCholesky(bool /*ch*/)
 			{}

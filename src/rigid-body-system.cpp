@@ -116,12 +116,6 @@ void RigidBodySystem::UpdateState(const MPCSolution &solution) {
 	com_->state().z(0) = robot_data_.com(2);
 }
 
-void RigidBodySystem::ComputeDynamicsIndex(double sampling_period) {
-	com_->ComputeDynamicsIndex(sampling_period);
-	left_foot_->ComputeDynamicsIndex(sampling_period);
-	right_foot_->ComputeDynamicsIndex(sampling_period);
-}
-
 void RigidBodySystem::GetConvexHull(ConvexHull &hull, HullType type, const SupportState &previewed_support) const {
 	switch (type){
 	case FOOT_HULL:

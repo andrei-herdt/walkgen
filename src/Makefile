@@ -36,7 +36,8 @@ MPC_WALKGEN_OBJECTS = \
 	foot-body.${OBJEXT} \
 	com-body.${OBJEXT} \
 	realclock.${OBJEXT} \
-	dynamics-builder.${OBJEXT} 
+	dynamics-builder.${OBJEXT} \
+	debug.${OBJEXT} 
 	
 
 all: libmpc-walkgen.${LIBEXT}
@@ -264,6 +265,11 @@ dynamics-builder.${OBJEXT}: dynamics-builder.cpp \
 	${IDIR}/mpc-walkgen/api.h 
 	@echo "Creating"  $@
 	${CPP} ${DEF_TARGET} -c ${IFLAGS} ${CPPFLAGS} dynamics-builder.cpp
+	
+debug.${OBJEXT}: debug.cpp \
+	${IDIR}/mpc-walkgen/debug.h 
+	@echo "Creating"  $@
+	${CPP} ${DEF_TARGET} -c ${IFLAGS} ${CPPFLAGS} debug.cpp
 
 clean:
 	${RM} -f *.${OBJEXT} *.${LIBEXT}

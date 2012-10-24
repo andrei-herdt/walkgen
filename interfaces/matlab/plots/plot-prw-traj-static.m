@@ -1,6 +1,6 @@
 figure;
 %% Previewed
-num_samples = 2;
+num_samples = 5;
 di = 1;
 for i = 1:di:length(com_prw.time) - di
     subplot(1,2,1);

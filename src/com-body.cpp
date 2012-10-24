@@ -47,33 +47,34 @@ void CoMBody::Interpolate(MPCSolution &solution, double current_time, const Refe
 	// -----------------
 	// Position:
 	if (mpc_parameters_p_->interpolate_whole_horizon) {
-		interpolation_.Interpolate(solution.com_prw.pos.x_vec, dynamics_qp().pos,
+		int samples_left = mpc_parameters_p_->GetMPCSamplesLeft(solution.sampling_times_vec[1] - solution.sampling_times_vec[0]);
+		interpolation_.Interpolate(solution.com_prw.pos.x_vec, dynamics_qp()[samples_left].pos,
 				state_x, solution.com_prw.control.x_vec);
-		interpolation_.Interpolate(solution.com_prw.pos.y_vec, dynamics_qp().pos,
+		interpolation_.Interpolate(solution.com_prw.pos.y_vec, dynamics_qp()[samples_left].pos,
 				state_y, solution.com_prw.control.y_vec);
 
 		// Velocity:
-		interpolation_.Interpolate(solution.com_prw.vel.x_vec, dynamics_qp().vel,
+		interpolation_.Interpolate(solution.com_prw.vel.x_vec, dynamics_qp()[samples_left].vel,
 				state_x, solution.com_prw.control.x_vec);
-		interpolation_.Interpolate(solution.com_prw.vel.y_vec, dynamics_qp().vel,
+		interpolation_.Interpolate(solution.com_prw.vel.y_vec, dynamics_qp()[samples_left].vel,
 				state_y, solution.com_prw.control.y_vec);
 
 		// Acceleration:
-		interpolation_.Interpolate(solution.com_prw.acc.x_vec, dynamics_qp().acc,
+		interpolation_.Interpolate(solution.com_prw.acc.x_vec, dynamics_qp()[samples_left].acc,
 				state_x, solution.com_prw.control.x_vec);
-		interpolation_.Interpolate(solution.com_prw.acc.y_vec, dynamics_qp().acc,
+		interpolation_.Interpolate(solution.com_prw.acc.y_vec, dynamics_qp()[samples_left].acc,
 				state_y, solution.com_prw.control.y_vec);
 
 		// Capture point:
-		interpolation_.Interpolate(solution.com_prw.cp.x_vec, dynamics_qp().cp,
+		interpolation_.Interpolate(solution.com_prw.cp.x_vec, dynamics_qp()[samples_left].cp,
 				state_x, solution.com_prw.control.x_vec);
-		interpolation_.Interpolate(solution.com_prw.cp.y_vec, dynamics_qp().cp,
+		interpolation_.Interpolate(solution.com_prw.cp.y_vec, dynamics_qp()[samples_left].cp,
 				state_y, solution.com_prw.control.y_vec);
 
 		// Center of pressure:
-		interpolation_.Interpolate(solution.com_prw.cop.x_vec, dynamics_qp().cop,
+		interpolation_.Interpolate(solution.com_prw.cop.x_vec, dynamics_qp()[samples_left].cop,
 				state_x, solution.com_prw.control.x_vec);
-		interpolation_.Interpolate(solution.com_prw.cop.y_vec, dynamics_qp().cop,
+		interpolation_.Interpolate(solution.com_prw.cop.y_vec, dynamics_qp()[samples_left].cop,
 				state_y, solution.com_prw.control.y_vec);
 	}
 

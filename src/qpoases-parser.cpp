@@ -47,9 +47,9 @@ void QPOasesParser::Solve(MPCSolution &solution_data,
 	qp_->setPrintLevel(qpOASES::PL_NONE);
 
 	if (warmstart) {
-		reorderInitialSolution(solution_data.initialSolution, solution_data.initialConstraints);
+		reorderInitialSolution(solution_data.initialSolution, solution_data.init_active_set);
 		solution_data.qp_solution_vec = solution_data.initialSolution;
-		solution_data.constraints = solution_data.initialConstraints;
+		solution_data.constraints = solution_data.init_active_set;
 		for (int i = 0; i < num_variables_; ++i) {
 			if (solution_data.constraints(i) == 0) {//TODO: replace 0,1,-1 by ST_INACTIVE/ST_LOWER/ST_UPPER
 				bounds_init_vec_->setupBound(i, qpOASES::ST_INACTIVE);
@@ -124,6 +124,6 @@ void QPOasesParser::Solve(MPCSolution &solution_data,
 		}
 	}
 
-	ReorderIndices(solution_data.qp_solution_vec, solution_data.constraints, solution_data.initialConstraints);
+	ReorderIndices(solution_data.qp_solution_vec, solution_data.constraints, solution_data.init_active_set);
 }
 

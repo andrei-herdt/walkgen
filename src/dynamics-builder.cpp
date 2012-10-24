@@ -48,6 +48,8 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, doubl
 	 */
 
 	BuildSecondOrderCoPInput(dyn, height, sample_period_first, sample_period_rest, num_samples);
+	std::cout << "dyn.pos.input_mat: " << dyn.pos.input_mat << std::endl;
+	std::cout << "dyn.pos.state_mat: " << dyn.pos.state_mat << std::endl;
 }
 
 void DynamicsBuilder::BuildThirdOrder(LinearDynamics &dyn, double height, double sample_period_first, double sample_period_rest, int num_samples) {
@@ -224,7 +226,6 @@ void DynamicsBuilder::BuildSecondOrderCoPInput(LinearDynamics &dyn, double heigh
 	assert(sample_period_first > 0.);
 	assert(sample_period_rest > 0.);
 
-
 	dyn.SetZero(2, 1, 1, num_samples);
 
 	double omega = sqrt(kGravity/height);
@@ -239,7 +240,7 @@ void DynamicsBuilder::BuildSecondOrderCoPInput(LinearDynamics &dyn, double heigh
 	dyn.discr_ss.ss_output_mat = dyn.cont_ss.ss_output_mat;
 	dyn.discr_ss.ss_output_mat_tr = dyn.discr_ss.ss_output_mat.transpose();
 
-	//Eigenvalue decomposition of cont_state_mat_: \f[ S e^{\lambda T}S^{-1} \f]
+	//Eigenvalue decomposition of state matrix: \f[ S e^{\lambda T}S^{-1} \f]
 	eigen_solver_.compute(dyn.cont_ss.ss_state_mat);
 	eigenval_vec_ = eigen_solver_.eigenvalues().real();
 	eigenvec_mat_ = eigen_solver_.eigenvectors().real();
@@ -247,8 +248,6 @@ void DynamicsBuilder::BuildSecondOrderCoPInput(LinearDynamics &dyn, double heigh
 
 	double sp1 = sample_period_first;
 	double sp2 = sample_period_rest;
-	double sp2sp2 = sp2 * sp2;
-	double sp1sp1 = sp1 * sp1;
 	// position and velocity
 	for (int row = 0; row < num_samples; row++) {
 		ComputeDiscreteStateMat(dyn, sp1 + row * sp2);

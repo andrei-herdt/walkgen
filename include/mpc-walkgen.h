@@ -6,3 +6,4 @@
 #include <mpc-walkgen/types.h>
 #include <mpc-walkgen/rigid-body-system.h>
 #include <mpc-walkgen/realclock.h>
+#include <mpc-walkgen/debug.h>

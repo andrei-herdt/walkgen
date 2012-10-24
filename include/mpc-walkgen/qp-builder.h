@@ -76,9 +76,9 @@ private:
 
 	RelativeInequalities foot_inequalities_;
 
-	std::vector<CommonMatrixType> Qconst_;
-	std::vector<CommonMatrixType> QconstN_;
-	std::vector<CommonMatrixType> choleskyConst_;
+	std::vector<CommonMatrixType> const_hessian_mat_;
+	std::vector<CommonMatrixType> const_hessian_n_mat_;
+	std::vector<CommonMatrixType> const_cholesky_;
 
 	std::vector<CommonMatrixType> state_variant_;   // These elements are multiplied by the state
 	std::vector<CommonMatrixType> select_variant_;

@@ -317,8 +317,8 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 			com_prw[3 * nbsamples + sample] = walk->output().com.z;
 			// CoP:
 			cop_prw[sample] = solution.sampling_times_vec[sample+1];
-			cop_prw[nbsamples + sample] = solution.cop_prw.pos.x_vec[sample];
-			cop_prw[2 * nbsamples + sample] = solution.cop_prw.pos.y_vec[sample];
+			cop_prw[nbsamples + sample] = solution.com_prw.cop.x_vec[sample];
+			cop_prw[2 * nbsamples + sample] = solution.com_prw.cop.y_vec[sample];
 			// CoM control vector:
 			com_control_prw[sample] = solution.sampling_times_vec[sample];
 			com_control_prw[nbsamples + sample] = solution.com_prw.control.x_vec[sample];
