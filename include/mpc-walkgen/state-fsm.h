@@ -5,7 +5,7 @@
 #include <mpc-walkgen/types.h>
 
 namespace MPCWalkgen{
-    class StateFSM{
+    class StateFSM{//TODO: change name
     public:
       StateFSM(Reference *ref, const MPCParameters *mpc_parameters);
       ~StateFSM();

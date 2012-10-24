@@ -78,7 +78,7 @@ void Walkgen::Init(MPCParameters &mpc_parameters) {
 	for (int i = 2 * mpc_parameters_.num_samples_horizon; i < solver_->num_var_max(); ++i) {// 6,7,8 (Feet)
 		order(i) = i;
 	}
-	solver_->SetVarOrder(order);
+	solver_->SetVarIndices(order);
 
 	// Resize:
 	// -------
@@ -245,7 +245,6 @@ void Walkgen::GenerateTrajectories() {
 	ResetOutputIndex();
 	UpdateOutput();
 }
-
 
 void Walkgen::ResetOutputIndex() {
 	output_index_ = 0;

@@ -7,3 +7,4 @@
 make_dependencies.mk
 walk
 *.out
+*.dat

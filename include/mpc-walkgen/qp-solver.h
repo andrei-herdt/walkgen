@@ -26,8 +26,8 @@ public:
 
 	void DumpProblem(const char *filename);
 
-	void SetVarOrder(const Eigen::VectorXi &order);
-	void ctrOrder(const Eigen::VectorXi &order);
+	void SetVarIndices(const Eigen::VectorXi &order);
+	void SetConstrIndices(const Eigen::VectorXi &order);
 
 	virtual SolverName name() const = 0;
 

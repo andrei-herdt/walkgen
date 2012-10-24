@@ -269,7 +269,6 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 		hessian.AddTerm(tmp_mat_, 2 * num_samples, 2 * num_samples);
 		hessian.AddTerm(tmp_mat_, 2 * num_samples + num_steps_previewed, 2 * num_samples + num_steps_previewed);
 
-
 		if (!solver_->do_build_cholesky()) {
 			tmp_mat_.noalias() = select_mats.sample_step_trans * const_hessian_mat_[samples_left];
 			hessian.AddTerm(tmp_mat_, 2 * num_samples, 0);
@@ -289,7 +288,7 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 		hessian().block(0, 2 * num_samples, 2 * num_samples, 2 * num_steps_previewed) = upp_triang_mat;
 	}
 
-	CommonVectorType HX(num_samples), HY(num_samples), gradient_vec(2 * num_samples);//TODO: Make this member
+	CommonVectorType gradient_vec_x(num_samples), gradient_vec_y(num_samples), gradient_vec(2 * num_samples);//TODO: Make this member
 
 	CommonVectorType state_x(mpc_parameters_->dynamics_order), state_y(mpc_parameters_->dynamics_order);
 	for (int i = 0; i < mpc_parameters_->dynamics_order; i++) {
@@ -297,30 +296,30 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 		state_y(i) = com.y(i);
 	}
 
-	HX = state_variant_[samples_left] * state_x;
-	HY = state_variant_[samples_left] * state_y;
+	gradient_vec_x = state_variant_[samples_left] * state_x;
+	gradient_vec_y = state_variant_[samples_left] * state_y;
 
-	HX += select_variant_[samples_left] * select_mats.sample_step_cx;
-	HY += select_variant_[samples_left] * select_mats.sample_step_cy;
+	gradient_vec_x += select_variant_[samples_left] * select_mats.sample_step_cx;
+	gradient_vec_y += select_variant_[samples_left] * select_mats.sample_step_cy;
 
-	HX += ref_variant_vel_[samples_left] * vel_ref_->global.x;
-	HY += ref_variant_vel_[samples_left] * vel_ref_->global.y;
+	gradient_vec_x += ref_variant_vel_[samples_left] * vel_ref_->global.x;
+	gradient_vec_y += ref_variant_vel_[samples_left] * vel_ref_->global.y;
 
-	HX += ref_variant_pos_[samples_left] * pos_ref_->global.x;
-	HY += ref_variant_pos_[samples_left] * pos_ref_->global.y;
+	gradient_vec_x += ref_variant_pos_[samples_left] * pos_ref_->global.x;
+	gradient_vec_y += ref_variant_pos_[samples_left] * pos_ref_->global.y;
 
-	HX += ref_variant_cp_[samples_left] * cp_ref_->global.x;
-	HY += ref_variant_cp_[samples_left] * cp_ref_->global.y;
+	gradient_vec_x += ref_variant_cp_[samples_left] * cp_ref_->global.x;
+	gradient_vec_y += ref_variant_cp_[samples_left] * cp_ref_->global.y;
 
 	if (num_steps_previewed > 0) {
-		tmp_vec_.noalias() = select_mats.sample_step_trans * HX;
+		tmp_vec_.noalias() = select_mats.sample_step_trans * gradient_vec_x;
 		solver_->vector(vectorP).addTerm(tmp_vec_, 2 * num_samples);
-		tmp_vec_.noalias() = select_mats.sample_step_trans * HY;
+		tmp_vec_.noalias() = select_mats.sample_step_trans * gradient_vec_y;
 		solver_->vector(vectorP).addTerm(tmp_vec_, 2 * num_samples + num_steps_previewed);
 	}
 
-	gradient_vec << HX, HY; //TODO: Unnecessary if rot_mat half the size
-	gradient_vec = rot_mat * gradient_vec;
+	gradient_vec << gradient_vec_x, gradient_vec_y; //TODO: Unnecessary if rot_mat half the size
+	gradient_vec = rot_mat * gradient_vec;//TODO: Use RTimesV
 
 	solver_->vector(vectorP).addTerm(gradient_vec, 0 );
 

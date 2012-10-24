@@ -1,4 +1,5 @@
 #include <mpc-walkgen/rigid-body.h>
+#include <mpc-walkgen/debug.h>
 
 #include <iostream>
 #include <stdio.h>
@@ -38,17 +39,21 @@ void RigidBody::ComputeDynamics(SystemOrder dynamics_order) {
 	double sp_first = mpc_parameters_p_->period_mpcsample;
 	double sp_rest = mpc_parameters_p_->period_qpsample;
 	int num_dynamics = mpc_parameters_p_->GetNumRecomputations();
-	double height = state_.z(0);
+	double com_height = state_.z(0);
 
 	std::vector<LinearDynamics>::iterator dyn_it = dynamics_qp_vec_.begin();
 	for (int k = 0; k < num_dynamics; ++k) {
 		sp_first = mpc_parameters_p_->period_mpcsample * (k+1);
-		dyn_build_p_->Build(dynamics_order, *dyn_it, robot_data_p_->com(2), sp_first, sp_rest, num_samples);
+		dyn_build_p_->Build(dynamics_order, *dyn_it, com_height, sp_first, sp_rest, num_samples);
+		Debug::WriteToDatFile("U_pos_qp", sp_first, dyn_it->pos.input_mat);
+		Debug::WriteToDatFile("S_pos_qp", sp_first, dyn_it->pos.state_mat);
+		Debug::WriteToDatFile("U_vel_qp", sp_first, dyn_it->vel.input_mat);
+		Debug::WriteToDatFile("S_vel_qp", sp_first, dyn_it->vel.state_mat);
 		++dyn_it;
 	}
 
 	num_samples = mpc_parameters_p_->num_samples_act();
 	sp_first = mpc_parameters_p_->period_actsample;
 	sp_rest = mpc_parameters_p_->period_actsample;
-	dyn_build_p_->Build(dynamics_order, dynamics_act_, robot_data_p_->com(2), sp_first, sp_rest, num_samples);
+	dyn_build_p_->Build(dynamics_order, dynamics_act_, com_height, sp_first, sp_rest, num_samples);
 }

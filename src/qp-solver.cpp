@@ -71,7 +71,7 @@ void QPSolver::Reset() {
 	var_l_bounds_vec_.reset(-kInf);
 }
 
-void QPSolver::SetVarOrder(const Eigen::VectorXi &order) {
+void QPSolver::SetVarIndices(const Eigen::VectorXi &order) {
 	var_indices_vec_ = order;
 	hessian_mat_.row_indices(order);
 	hessian_mat_.column_indices(order);
@@ -81,7 +81,7 @@ void QPSolver::SetVarOrder(const Eigen::VectorXi &order) {
 	var_l_bounds_vec_.rowOrder(order);
 }
 
-void QPSolver::ctrOrder(const Eigen::VectorXi &order) {
+void QPSolver::SetConstrIndices(const Eigen::VectorXi &order) {
 	constr_indices_vec_ = order;
 	cstr_mat_.row_indices(order);
 	constr_u_bounds_vec_.rowOrder(order);

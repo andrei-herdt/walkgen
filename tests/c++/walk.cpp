@@ -11,7 +11,7 @@ using namespace MPCWalkgen;
 
 int main() {
 
-	int num_samples_horizon = 10;
+	int num_samples_horizon = 5;
 	int num_samples_step = 8;
 	int num_samples_dsss = 8;
 	int num_steps_ssds = 2;
@@ -41,7 +41,7 @@ int main() {
 	mpc_parameters.weights.vel[0]  		= 0.;
 	mpc_parameters.weights.cop[0]  		= 0.;//0.00001;
 	mpc_parameters.weights.cp[0] 		= 0.;//1.;
-	mpc_parameters.weights.control[0] 	= 0.0000001;//0.00001;
+	mpc_parameters.weights.control[0] 	= 0.001;//0.00001;
 
 	mpc_parameters.weights.pos[1] 		= 1.;
 	mpc_parameters.weights.vel[1]  		= 0.;
@@ -136,20 +136,22 @@ int main() {
 	walk.Init(robot_data);
 
 	// Go:
-// ---
+	// ---
 	double velocity = 0.1;
 	double curr_time = 0;
 	walk.SetVelReference(0.0, 0, 0);
 	int num_iterations = 0;
 	walk.clock().GetFrequency(1000);
 	walk.clock().ResetLocal();
-	for (; curr_time < 5; curr_time += sample_period_act) {
+	for (; curr_time < 2; curr_time += sample_period_act) {
 		int online_timer = walk.clock().StartCounter();
 		const MPCSolution &solution = walk.Go(curr_time);
 		std::cout << "com_prw.pos: " << solution.com_prw.pos.x_vec.transpose() << std::endl;
 		std::cout << "com_prw.vel: " << solution.com_prw.vel.x_vec.transpose() << std::endl;
 		std::cout << "com_act.pos: " << walk.output().com.x << "  com_act.vel: " << walk.output().com.dx << std::endl;
 		Debug::Cout("sampling_times_vec", solution.sampling_times_vec);
+		Debug::WriteToDatFile("hessian", curr_time, walk.solver()->hessian_mat()());
+		Debug::WriteToDatFile("gradient", curr_time, walk.solver()->gradient_vec()());
 		//walk.clock().StopLastCounter();
 		walk.clock().StopCounter(online_timer);
 		walk.clock().ResetLocal();

@@ -1,8 +1,8 @@
 #include <mpc-walkgen/dynamics-builder.h>
 #include <mpc-walkgen/tools.h>
+#include <mpc-walkgen/debug.h>
 
 #include <math.h>
-#include <iostream>
 
 using namespace MPCWalkgen;
 
@@ -48,8 +48,7 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, doubl
 	 */
 
 	BuildSecondOrderCoPInput(dyn, height, sample_period_first, sample_period_rest, num_samples);
-	std::cout << "dyn.pos.input_mat: " << dyn.pos.input_mat << std::endl;
-	std::cout << "dyn.pos.state_mat: " << dyn.pos.state_mat << std::endl;
+
 }
 
 void DynamicsBuilder::BuildThirdOrder(LinearDynamics &dyn, double height, double sample_period_first, double sample_period_rest, int num_samples) {
