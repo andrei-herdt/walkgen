@@ -56,9 +56,9 @@ void QPOasesParser::Solve(MPCSolution &solution,
 		for (int i = 0; i < num_variables_; ++i) {
 			if (solution.constraints(i) == 0) {//TODO: replace 0,1,-1 by ST_INACTIVE/ST_LOWER/ST_UPPER
 				bounds_init_vec_->setupBound(i, qpOASES::ST_INACTIVE);
-			}else if (solution.constraints(i) == 1) {
+			} else if (solution.constraints(i) == 1) {
 				bounds_init_vec_->setupBound(i, qpOASES::ST_LOWER);
-			}else{
+			} else {
 				bounds_init_vec_->setupBound(i, qpOASES::ST_UPPER);
 			}
 		}
@@ -120,9 +120,9 @@ void QPOasesParser::Solve(MPCSolution &solution,
 	for (int i = 0; i < num_constr_; ++i) {
 		if (constr.getStatus(i) == qpOASES::ST_LOWER) {
 			solution.constraints(i + num_variables_) = 1;
-		}else if (constr.getStatus(i) == qpOASES::ST_UPPER) {
+		} else if (constr.getStatus(i) == qpOASES::ST_UPPER) {
 			solution.constraints(i + num_variables_) = 2;
-		}else{
+		} else {
 			solution.constraints(i + num_variables_) = 0;
 		}
 	}

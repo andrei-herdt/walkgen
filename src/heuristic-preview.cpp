@@ -4,8 +4,7 @@
 
 using namespace MPCWalkgen;
 
-HeuristicPreview::HeuristicPreview(Reference *ref, RigidBodySystem *robot,
-		const MPCParameters *mpc_parameters, RealClock *clock)
+HeuristicPreview::HeuristicPreview(Reference *ref, RigidBodySystem *robot, const MPCParameters *mpc_parameters, RealClock *clock)
 :robot_(robot)
 ,mpc_parameters_(mpc_parameters)
 ,select_matrices_(mpc_parameters->num_samples_horizon)
@@ -134,12 +133,12 @@ void HeuristicPreview::BuildSelectionMatrices(MPCSolution &solution) {//Move to 
 	int num_samples = mpc_parameters_->num_samples_horizon;
 
 	if (select_matrices_.sample_step.cols() != num_steps_previewed){
-		select_matrices_.sample_step.resize(num_samples, num_steps_previewed);
-		select_matrices_.sample_step_trans.resize(num_steps_previewed, num_samples);
-		select_matrices_.Vf.resize(num_steps_previewed, num_steps_previewed);
-		select_matrices_.VcfX.resize(num_steps_previewed);
-		select_matrices_.VcfY.resize(num_steps_previewed);
-		select_matrices_.sample_mstep.resize(num_samples, num_steps_previewed);
+		select_matrices_.sample_step.		resize(num_samples, num_steps_previewed);
+		select_matrices_.sample_step_trans.	resize(num_steps_previewed, num_samples);
+		select_matrices_.Vf.				resize(num_steps_previewed, num_steps_previewed);
+		select_matrices_.VcfX.				resize(num_steps_previewed);
+		select_matrices_.VcfY.				resize(num_steps_previewed);
+		select_matrices_.sample_mstep.		resize(num_samples, num_steps_previewed);
 		select_matrices_.sample_mstep_trans.resize(num_steps_previewed, num_samples);
 	}
 	select_matrices_.SetZero();
