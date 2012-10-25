@@ -16,8 +16,8 @@ int main() {
 	int num_samples_dsss = 8;
 	int num_steps_ssds = 2;
 	double sample_period_qp = .1;
-	double sample_period_first = .005;
-	double sample_period_act = .005;
+	double sample_period_first = .05;
+	double sample_period_act = .05;
 	const double kSecurityMargin = 0.02;
 
 	// Simulation parameters:
@@ -147,13 +147,13 @@ int main() {
 		std::cout << std::endl;
 		const MPCSolution &solution = walk.Go(curr_time);
 		walk.solver()->DumpProblem("problem", curr_time, "txt");
-		std::cout << "com_prw.pos.x: " << solution.com_prw.pos.x_vec.transpose() << std::endl;
+		std::cout << "com_prw.vel.x: " << solution.com_prw.vel.x_vec.transpose() << std::endl;
 		//std::cout << "com_prw.pos.y: " << solution.com_prw.pos.y_vec.transpose() << std::endl;
 		//std::cout << "com_prw.vel: " << solution.com_prw.vel.x_vec.transpose() << std::endl;
 		//std::cout << "com_act.pos: " << walk.output().com.x << "  com_act.vel: " << walk.output().com.dx << std::endl;
 		//Debug::Cout("sampling_times_vec", solution.sampling_times_vec);
-		//Debug::WriteToDatFile("hessian", curr_time, walk.solver()->hessian_mat()());
-		//Debug::WriteToDatFile("gradient", curr_time, walk.solver()->gradient_vec()());
+		Debug::WriteToDatFile("hessian", curr_time, walk.solver()->hessian_mat()());
+		Debug::WriteToDatFile("gradient", curr_time, walk.solver()->gradient_vec()());
 		//walk.clock().StopLastCounter();
 		walk.clock().StopCounter(online_timer);
 		walk.clock().ResetLocal();
