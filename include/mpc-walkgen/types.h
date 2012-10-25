@@ -96,8 +96,8 @@ struct MPC_WALKGEN_API BodyState{
 };
 
 struct MPC_WALKGEN_API FootData{
-	double soleWidth;
-	double soleHeight;
+	double sole_width;
+	double sole_height;
 
 	Eigen::Vector3d ankle_pos_local;
 
@@ -293,7 +293,7 @@ struct SolutionAnalysis {
 
 struct MPC_WALKGEN_API MPCSolution {
 	CommonVectorType qp_solution_vec;
-	CommonVectorType initialSolution;
+	CommonVectorType initial_solution;
 
 	Eigen::VectorXi constraints;
 	Eigen::VectorXi init_active_set;

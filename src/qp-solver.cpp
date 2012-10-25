@@ -64,11 +64,11 @@ QPVector &QPSolver::vector(const QPVectorType type) {//TODO:Remove this
 void QPSolver::Reset() {
 	hessian_mat_.Reset(0.);
 	cstr_mat_.Reset(0.);
-	gradient_vec_.reset(0.);
-	constr_u_bounds_vec_.reset(kInf);
-	constr_l_bounds_vec_.reset(-kInf);
-	var_u_bounds_vec_.reset(kInf);
-	var_l_bounds_vec_.reset(-kInf);
+	gradient_vec_.Reset(0.);
+	constr_u_bounds_vec_.Reset(0.);
+	constr_l_bounds_vec_.Reset(-0.);
+	var_u_bounds_vec_.Reset(0.);
+	var_l_bounds_vec_.Reset(-0.);
 }
 
 void QPSolver::SetVarIndices(const Eigen::VectorXi &order) {
@@ -108,6 +108,7 @@ void QPSolver::reorderInitialSolution(CommonVectorType &initialSolution,
 
 void QPSolver::ReorderIndices(CommonVectorType &vec, VectorXi &constraints,
 		VectorXi &initialConstraints) {//TODO: What's the difference betweean those two
+	//TODO: Simplify this function
 	CommonVectorType tmp_vec = vec;
 	VectorXi constraintsTmp = constraints;
 
@@ -123,8 +124,15 @@ void QPSolver::ReorderIndices(CommonVectorType &vec, VectorXi &constraints,
 }
 
 
-void QPSolver::DumpProblem(const char *filename) {
-	std::ofstream file(filename);
+void QPSolver::DumpProblem(const char *filename, double value, const char *ending) {
+	char file_index[256];
+	sprintf(file_index, "%.2f", value);
+	char name[256];
+	strcpy(name, filename); // copy string one into the result.
+	strcat(name, file_index);
+	strcat(name, ".");
+	strcat(name, ending);
+	std::ofstream file(name);
 	if (file.is_open()) {
 		file << "Hessian" << num_variables_ <<","<< num_variables_ <<":" << "\n" << hessian_mat_() << '\n';
 		file << "Gradient" << num_variables_ <<":" << "\n" << gradient_vec_() << '\n';

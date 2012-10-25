@@ -40,8 +40,8 @@ void BodyState::reset(){
 }
 
 FootData::FootData()
-: soleWidth(0)
-, soleHeight(0)
+: sole_width(0)
+, sole_height(0)
 , ankle_pos_local() {
 	edges_x_vec.resize(4);
 	edges_y_vec.resize(4);
@@ -50,8 +50,8 @@ FootData::FootData()
 }
 
 FootData::FootData(const FootData &f)
-: soleWidth(f.soleWidth)
-, soleHeight(f.soleHeight)
+: sole_width(f.sole_width)
+, sole_height(f.sole_height)
 , ankle_pos_local(f.ankle_pos_local) {
 	edges_x_vec = f.edges_x_vec;
 	edges_y_vec = f.edges_y_vec;
@@ -100,7 +100,7 @@ MPCSolution::~MPCSolution() {}
 
 MPCSolution& MPCSolution::operator = (MPCSolution const &rhs) {
 	qp_solution_vec = rhs.qp_solution_vec;
-	initialSolution = rhs.initialSolution;
+	initial_solution = rhs.initial_solution;
 
 	constraints = rhs.constraints;
 	init_active_set = rhs.init_active_set;

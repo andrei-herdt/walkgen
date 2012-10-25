@@ -25,12 +25,14 @@ namespace MPCWalkgen{
     QPVector(const int num_rows);
     ~QPVector();
 
-    void addTerm(const CommonVectorType &vec, const int row);
-    void addTerm(double value, int first_row);
+    void Set(const CommonVectorType &vec, const int row);
+    void Set(double value, int row);
+    void Add(const CommonVectorType &vec, const int row);
+    void Add(double value, int row);
 
     void setConstantPart(const CommonVectorType &vec);
 
-    void reset(double value);
+    void Reset(double value);
 
     void resize(const int num_rows);
 

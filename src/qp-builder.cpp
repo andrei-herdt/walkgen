@@ -149,14 +149,14 @@ void QPBuilder::BuildProblem(MPCSolution &solution) {
 	// ----------------
 	int num_variables = 2 * mpc_parameters_->num_samples_horizon +			// com
 			2 * solution.support_states_vec.back().step_number;				// Foot placement
-	//int num_constr = 5 * solution.support_states_vec.back().step_number;	// Foot placement
+	int num_constr = 5 * solution.support_states_vec.back().step_number;	// Foot placement
 	solver_->num_var(num_variables);
-	//solver_->num_constr(num_constr);
+	solver_->num_constr(num_constr);
 
 	BuildObjective(solution);
-	//BuildConstraints(solution);
+	BuildConstraints(solution);
 	if (mpc_parameters_->warmstart) {
-		ComputeWarmStart(solution);//TODO: Weird to modify the solution
+		ComputeWarmStart(solution);//TODO: Modify the solution?
 	}
 }
 
@@ -234,7 +234,7 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	int samples_left = mpc_parameters_->GetMPCSamplesLeft(solution.sampling_times_vec[1] - solution.sampling_times_vec[0]);
 	samples_left += mpc_parameters_->weights.active_mode * mpc_parameters_->GetNumRecomputations();
 
-	std::cout << std::endl << "samples_left: " << samples_left << std::endl;
+	std::cout << "samples_left: " << samples_left << std::endl;
 	const BodyState &com = robot_->com()->state();
 	const SelectionMatrices &select_mats = preview_->selection_matrices();
 	const CommonMatrixType &rot_mat = preview_->rot_mat();
@@ -298,30 +298,33 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 
 	gradient_vec_x = state_variant_[samples_left] * state_x;
 	gradient_vec_y = state_variant_[samples_left] * state_y;
+	//std::cout << "state_variant_[samples_left]:  "  << gradient_vec_x.transpose() << std::endl;
 
 	gradient_vec_x += select_variant_[samples_left] * select_mats.sample_step_cx;
 	gradient_vec_y += select_variant_[samples_left] * select_mats.sample_step_cy;
+	//std::cout << "select_variant_:  "  << gradient_vec_x.transpose() << std::endl;
 
 	gradient_vec_x += ref_variant_vel_[samples_left] * vel_ref_->global.x;
 	gradient_vec_y += ref_variant_vel_[samples_left] * vel_ref_->global.y;
 
 	gradient_vec_x += ref_variant_pos_[samples_left] * pos_ref_->global.x;
 	gradient_vec_y += ref_variant_pos_[samples_left] * pos_ref_->global.y;
+	//std::cout << "ref_variant_pos_:  "  << gradient_vec_x.transpose() << std::endl;
 
 	gradient_vec_x += ref_variant_cp_[samples_left] * cp_ref_->global.x;
 	gradient_vec_y += ref_variant_cp_[samples_left] * cp_ref_->global.y;
 
 	if (num_steps_previewed > 0) {
 		tmp_vec_.noalias() = select_mats.sample_step_trans * gradient_vec_x;
-		solver_->vector(vectorP).addTerm(tmp_vec_, 2 * num_samples);
+		solver_->vector(vectorP).Set(tmp_vec_, 2 * num_samples);
 		tmp_vec_.noalias() = select_mats.sample_step_trans * gradient_vec_y;
-		solver_->vector(vectorP).addTerm(tmp_vec_, 2 * num_samples + num_steps_previewed);
+		solver_->vector(vectorP).Set(tmp_vec_, 2 * num_samples + num_steps_previewed);
 	}
 
 	gradient_vec << gradient_vec_x, gradient_vec_y; //TODO: Unnecessary if rot_mat half the size
 	gradient_vec = rot_mat * gradient_vec;//TODO: Use RTimesV
 
-	solver_->vector(vectorP).addTerm(gradient_vec, 0 );
+	solver_->vector(vectorP).Set(gradient_vec, 0);
 
 	// PID mode:
 	// ---------
@@ -388,7 +391,7 @@ void QPBuilder::ComputeWarmStart(MPCSolution &solution) {
 
 	int nbFC = 5;// Number of foot constraints per step TODO: can be read?
 	int num_samples = mpc_parameters_->num_samples_horizon;
-	solution.initialSolution.resize(4*num_samples + 4*num_steps);//TODO: 2*num_samples+2*num_steps
+	solution.initial_solution.resize(4*num_samples + 4*num_steps);//TODO: 2*num_samples+2*num_steps
 	//TODO: resize necessary?
 
 	// Preview active set:
@@ -474,8 +477,8 @@ void QPBuilder::ComputeWarmStart(MPCSolution &solution) {
 			current_support.y += shifty;
 
 			// Set the new position into initial solution vector
-			solution.initialSolution(2*num_samples+j) = current_support.x;
-			solution.initialSolution(2*num_samples+num_steps+j) = current_support.y;
+			solution.initial_solution(2*num_samples+j) = current_support.x;
+			solution.initial_solution(2*num_samples+num_steps+j) = current_support.y;
 			++j;
 		}
 		// Place the ZMP on active constraints
@@ -527,8 +530,8 @@ void QPBuilder::ComputeWarmStart(MPCSolution &solution) {
 			}
 		}
 
-		solution.initialSolution(i) = shiftx;
-		solution.initialSolution(num_samples+i) = shifty;
+		solution.initial_solution(i) = shiftx;
+		solution.initial_solution(num_samples+i) = shifty;
 		++previewed_ss_it;
 
 	}
@@ -575,13 +578,13 @@ void QPBuilder::BuildFootPosConstraints(const MPCSolution &solution) {
 	tmp_mat_.noalias() = foot_inequalities_.y_mat * select.Vf;
 	solver_->constr_mat().AddTerm(tmp_mat_,  0, 2 * num_samples + num_steps_previewed);
 
-	solver_->vector(vectorBL).addTerm(foot_inequalities_.c_vec, 0);
+	solver_->vector(vectorBL).Set(foot_inequalities_.c_vec, 0);
 
 	tmp_vec_.noalias() =  foot_inequalities_.x_mat * select.VcfX;
 	tmp_vec_ += foot_inequalities_.y_mat * select.VcfY;
-	solver_->vector(vectorBL).addTerm(tmp_vec_,  0);
+	solver_->vector(vectorBL).Set(tmp_vec_,  0);
 
-	solver_->vector(vectorBU)().segment(0, tmp_vec_.size()).fill(10e10);
+	solver_->vector(vectorBU)().segment(0, tmp_vec_.size()).fill(kInf);
 }
 
 void QPBuilder::BuildFootVelConstraints(const MPCSolution &solution) {
@@ -605,12 +608,12 @@ void QPBuilder::BuildFootVelConstraints(const MPCSolution &solution) {
 
 	double upper_limit_x = max_vel * time_left + flying_foot->x(0);
 	double upper_limit_y = max_vel * time_left + flying_foot->y(0);
-	solver_->vector(vectorXU).addTerm(upper_limit_x, x_var_pos);
-	solver_->vector(vectorXU).addTerm(upper_limit_y, y_var_pos);
+	solver_->vector(vectorXU).Set(upper_limit_x, x_var_pos);
+	solver_->vector(vectorXU).Set(upper_limit_y, y_var_pos);
 	double lower_limit_x = -max_vel * time_left + flying_foot->x(0);
 	double lower_limit_y = -max_vel * time_left + flying_foot->y(0);
-	solver_->vector(vectorXL).addTerm(lower_limit_x, x_var_pos);
-	solver_->vector(vectorXL).addTerm(lower_limit_y, y_var_pos);
+	solver_->vector(vectorXL).Set(lower_limit_x, x_var_pos);
+	solver_->vector(vectorXL).Set(lower_limit_y, y_var_pos);
 }
 
 void QPBuilder::BuildCoPConstraints(const MPCSolution &solution) {
@@ -637,10 +640,10 @@ void QPBuilder::BuildCoPConstraints(const MPCSolution &solution) {
 		++prev_ss_it;
 	}
 
-	tmp_vec_.segment(2 * num_samples, 2 * num_steps_previewed).fill(-10e10);
-	tmp_vec2_.segment(2 * num_samples, 2 * num_steps_previewed).fill(10e10);
+	tmp_vec_.segment(2 * num_samples, 2 * num_steps_previewed).fill(-kInf);
+	tmp_vec2_.segment(2 * num_samples, 2 * num_steps_previewed).fill(kInf);
 
 	int first_row = 0;
-	solver_->vector(vectorXL).addTerm(tmp_vec_, first_row);
-	solver_->vector(vectorXU).addTerm(tmp_vec2_, first_row);
+	solver_->vector(vectorXL).Set(tmp_vec_, first_row);
+	solver_->vector(vectorXU).Set(tmp_vec2_, first_row);
 }

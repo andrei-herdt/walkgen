@@ -23,10 +23,14 @@ QPOasesParser::~QPOasesParser() {
 		delete [] solution_vec_;
 		solution_vec_ = NULL;
 	}
-	if (cstr_init_vec_ != 0x0)
+	if (cstr_init_vec_ != 0x0) {
 		delete cstr_init_vec_;
-	if (bounds_init_vec_ != 0x0)
+		cstr_init_vec_ = NULL;
+	}
+	if (bounds_init_vec_ != 0x0) {
 		delete bounds_init_vec_;
+		bounds_init_vec_ = NULL;
+	}
 }
 
 void QPOasesParser::Init() {
@@ -40,29 +44,28 @@ void QPOasesParser::Init() {
 
 }
 
-void QPOasesParser::Solve(MPCSolution &solution_data,
-		bool warmstart, bool analysis)
-{
+void QPOasesParser::Solve(MPCSolution &solution,
+		bool warmstart, bool analysis) {
 
 	qp_->setPrintLevel(qpOASES::PL_NONE);
 
 	if (warmstart) {
-		reorderInitialSolution(solution_data.initialSolution, solution_data.init_active_set);
-		solution_data.qp_solution_vec = solution_data.initialSolution;
-		solution_data.constraints = solution_data.init_active_set;
+		reorderInitialSolution(solution.initial_solution, solution.init_active_set);
+		solution.qp_solution_vec = solution.initial_solution;
+		solution.constraints = solution.init_active_set;
 		for (int i = 0; i < num_variables_; ++i) {
-			if (solution_data.constraints(i) == 0) {//TODO: replace 0,1,-1 by ST_INACTIVE/ST_LOWER/ST_UPPER
+			if (solution.constraints(i) == 0) {//TODO: replace 0,1,-1 by ST_INACTIVE/ST_LOWER/ST_UPPER
 				bounds_init_vec_->setupBound(i, qpOASES::ST_INACTIVE);
-			}else if (solution_data.constraints(i) == 1) {
+			}else if (solution.constraints(i) == 1) {
 				bounds_init_vec_->setupBound(i, qpOASES::ST_LOWER);
 			}else{
 				bounds_init_vec_->setupBound(i, qpOASES::ST_UPPER);
 			}
 		}
 		for (int i = num_variables_; i < num_variables_ + num_constr_; ++i) {
-			if (solution_data.constraints(i) == 0) {
+			if (solution.constraints(i) == 0) {
 				cstr_init_vec_->setupConstraint(i, qpOASES::ST_INACTIVE);
-			} else if (solution_data.constraints(i) == 1) {
+			} else if (solution.constraints(i) == 1) {
 				cstr_init_vec_->setupConstraint(i, qpOASES::ST_LOWER);
 			} else {
 				cstr_init_vec_->setupConstraint(i, qpOASES::ST_UPPER);
@@ -70,15 +73,15 @@ void QPOasesParser::Solve(MPCSolution &solution_data,
 		}
 
 	} else {
-		if (solution_data.qp_solution_vec.rows() != num_variables_) {
-			solution_data.qp_solution_vec.setZero(num_variables_);
+		if (solution.qp_solution_vec.rows() != num_variables_) {
+			solution.qp_solution_vec.setZero(num_variables_);
 		} else {
-			solution_data.qp_solution_vec.fill(0);
+			solution.qp_solution_vec.fill(0);
 		}
-		if (solution_data.constraints.rows() != num_variables_ + num_constr_) {
-			solution_data.constraints.setZero(num_variables_ + num_constr_);
+		if (solution.constraints.rows() != num_variables_ + num_constr_) {
+			solution.constraints.setZero(num_variables_ + num_constr_);
 		} else {
-			solution_data.constraints.fill(0);
+			solution.constraints.fill(0);
 		}
 	}
 
@@ -97,33 +100,33 @@ void QPOasesParser::Solve(MPCSolution &solution_data,
 
 	qp_->getPrimalSolution(solution_vec_);
 	for (int i = 0; i < num_variables_; ++i) {
-		solution_data.qp_solution_vec(i) = solution_vec_[i];
+		solution.qp_solution_vec(i) = solution_vec_[i];
 	}
 
 	/////// TODO: checked until here
-	qpOASES::Constraints ctr;
+	qpOASES::Constraints constr;
 	qpOASES::Bounds bounds;
-	qp_->getConstraints(ctr);
+	qp_->getConstraints(constr);
 	qp_->getBounds(bounds);
 	for (int i=0; i < num_variables_; ++i) {
 		if (bounds.getStatus(i) == qpOASES::ST_LOWER) {
-			solution_data.constraints(i) = 1;
+			solution.constraints(i) = 1;
 		} else if (bounds.getStatus(i) == qpOASES::ST_UPPER) {
-			solution_data.constraints(i) = 2;
+			solution.constraints(i) = 2;
 		} else {
-			solution_data.constraints(i) = 0;
+			solution.constraints(i) = 0;
 		}
 	}
 	for (int i = 0; i < num_constr_; ++i) {
-		if (ctr.getStatus(i) == qpOASES::ST_LOWER) {
-			solution_data.constraints(i + num_variables_) = 1;
-		}else if (ctr.getStatus(i) == qpOASES::ST_UPPER) {
-			solution_data.constraints(i + num_variables_) = 2;
+		if (constr.getStatus(i) == qpOASES::ST_LOWER) {
+			solution.constraints(i + num_variables_) = 1;
+		}else if (constr.getStatus(i) == qpOASES::ST_UPPER) {
+			solution.constraints(i + num_variables_) = 2;
 		}else{
-			solution_data.constraints(i + num_variables_) = 0;
+			solution.constraints(i + num_variables_) = 0;
 		}
 	}
 
-	ReorderIndices(solution_data.qp_solution_vec, solution_data.constraints, solution_data.init_active_set);
+	ReorderIndices(solution.qp_solution_vec, solution.constraints, solution.init_active_set);
 }
 

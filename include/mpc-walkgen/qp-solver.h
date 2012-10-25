@@ -24,7 +24,10 @@ public:
 	virtual void Solve(MPCSolution &solution_data,
 			bool warmstart, bool analysis) = 0;
 
-	void DumpProblem(const char *filename);
+	void DumpProblem(const char *filename,
+			double value,
+			const char *ending = "dat"
+	);
 
 	void SetVarIndices(const Eigen::VectorXi &order);
 	void SetConstrIndices(const Eigen::VectorXi &order);
