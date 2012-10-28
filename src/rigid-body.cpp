@@ -45,10 +45,6 @@ void RigidBody::ComputeDynamics(SystemOrder dynamics_order) {
 	for (int k = 0; k < num_dynamics; ++k) {
 		sp_first = mpc_parameters_p_->period_mpcsample * (k+1);
 		dyn_build_p_->Build(dynamics_order, *dyn_it, com_height, sp_first, sp_rest, num_samples);
-		Debug::WriteToDatFile("U_pos_qp", sp_first, dyn_it->pos.input_mat);
-		Debug::WriteToDatFile("S_pos_qp", sp_first, dyn_it->pos.state_mat);
-		Debug::WriteToDatFile("U_vel_qp", sp_first, dyn_it->vel.input_mat);
-		Debug::WriteToDatFile("S_vel_qp", sp_first, dyn_it->vel.state_mat);
 		++dyn_it;
 	}
 

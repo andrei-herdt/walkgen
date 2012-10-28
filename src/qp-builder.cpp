@@ -81,8 +81,8 @@ void QPBuilder::PrecomputeObjective() {
 		for (double first_period = mpc_parameters_->period_qpsample; first_period > kEps; first_period -= mpc_parameters_->period_mpcsample) {
 			int samples_left = mpc_parameters_->GetMPCSamplesLeft(first_period);
 			int mat_num = samples_left + mode_num * num_recomp;
-			std::cout << "mat_num: " << mat_num << std::endl;
-			std::cout << "first_period: " << first_period << std::endl;
+			//std::cout << "mat_num: " << mat_num << std::endl;
+			//std::cout << "first_period: " << first_period << std::endl;
 
 			const LinearDynamicsMatrices &pos_dyn = robot_->com()->dynamics_qp()[samples_left].pos;
 			const LinearDynamicsMatrices &vel_dyn = robot_->com()->dynamics_qp()[samples_left].vel;
@@ -234,7 +234,6 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	int samples_left = mpc_parameters_->GetMPCSamplesLeft(solution.sampling_times_vec[1] - solution.sampling_times_vec[0]);
 	samples_left += mpc_parameters_->weights.active_mode * mpc_parameters_->GetNumRecomputations();
 
-	std::cout << "samples_left: " << samples_left << std::endl;
 	const BodyState &com = robot_->com()->state();
 	const SelectionMatrices &select_mats = preview_->selection_matrices();
 	const CommonMatrixType &rot_mat = preview_->rot_mat();
@@ -246,9 +245,64 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	int num_steps_previewed = solution.support_states_vec.back().step_number;
 	int num_samples = mpc_parameters_->num_samples_horizon;
 
+	CommonVectorType state_x(mpc_parameters_->dynamics_order), state_y(mpc_parameters_->dynamics_order);
+	for (int i = 0; i < mpc_parameters_->dynamics_order; i++) {
+		state_x(i) = com.x(i);
+		state_y(i) = com.y(i);
+	}
+
+	// PID mode:
+	// ---------
+	double qx_d;
+	double qy_d;
+	if (mpc_parameters_->is_pid_mode) {
+		const LinearDynamics &dyn = robot_->com()->dynamics_qp()[samples_left];
+
+		double omega = sqrt(kGravity / com.z[0]);
+		double kd = 1. / (1. - exp(omega * 0.06));
+
+		// qx = - r*K*x / (BT*CT*C*A*x - BTCTCB*K*x)
+		CommonMatrixType qx = -dyn.discr_ss.ss_output_mat * state_x;	//Capture point
+		qx *= (1. - kd);
+		qx_d = qx(0);
+		CommonMatrixType bccax = dyn.discr_ss.ss_input_mat_tr * dyn.discr_ss.ss_output_mat_tr *
+				dyn.discr_ss.ss_output_mat * dyn.discr_ss.ss_state_mat * state_x;
+		CommonMatrixType bccbkx = dyn.discr_ss.ss_input_mat_tr * dyn.discr_ss.ss_output_mat_tr *
+				dyn.discr_ss.ss_output_mat * dyn.discr_ss.ss_input_mat * (1. - kd) * dyn.discr_ss.ss_output_mat * state_x;
+		qx_d /= (bccax(0) + bccbkx(0));
+
+		// qy = - r*(1-kd)*C*y / (BT*CT*C*A*y - BTCTCB*K*y)
+		CommonMatrixType qy = -(1. - kd) * dyn.discr_ss.ss_output_mat * state_y;
+		qy_d = qy(0);
+		CommonMatrixType bccay = dyn.discr_ss.ss_input_mat_tr * dyn.discr_ss.ss_output_mat_tr *
+				dyn.discr_ss.ss_output_mat * dyn.discr_ss.ss_state_mat * state_y;
+		CommonMatrixType bccbky = dyn.discr_ss.ss_input_mat_tr * dyn.discr_ss.ss_output_mat_tr *
+				dyn.discr_ss.ss_output_mat * dyn.discr_ss.ss_input_mat * (1. - kd) * dyn.discr_ss.ss_output_mat * state_y;
+		qy_d /= (bccay(0) + bccbky(0));
+
+		//std::cout << "qx_d: " << qx_d << "  qy_d: " << qy_d << std::endl;
+
+	}
+
 	if (!solver_->do_build_cholesky()) {//TODO: This part is the most costly >50%
-		hessian.AddTerm(const_hessian_n_mat_[samples_left], 0, 0);
-		hessian.AddTerm(const_hessian_n_mat_[samples_left], num_samples, num_samples);
+		if (mpc_parameters_->is_pid_mode) {
+			// H = H - (1-q)*B^TC^TCB
+			CommonMatrixType identity_mat = CommonMatrixType::Identity(num_samples, num_samples);
+
+			CommonMatrixType hessian_x = const_hessian_n_mat_[samples_left];
+			hessian_x -= identity_mat;
+			hessian_x *= qx_d;
+			hessian_x += identity_mat;
+			CommonMatrixType hessian_y = const_hessian_n_mat_[samples_left];
+			hessian_y -= identity_mat;
+			hessian_y *= qy_d;
+			hessian_y += identity_mat;
+			hessian.AddTerm(hessian_x, 0, 0);
+			hessian.AddTerm(hessian_y, num_samples, num_samples);
+		} else {
+			hessian.AddTerm(const_hessian_n_mat_[samples_left], 0, 0);
+			hessian.AddTerm(const_hessian_n_mat_[samples_left], num_samples, num_samples);
+		}
 
 		CommonMatrixType hessian_mat = hessian().block(0, 0, 2 * num_samples, 2 * num_samples);
 		tmp_mat_.noalias() = rot_mat2 * hessian_mat * rot_mat2_trans;//TODO: Use MTimesRT
@@ -290,26 +344,17 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 
 	CommonVectorType gradient_vec_x(num_samples), gradient_vec_y(num_samples), gradient_vec(2 * num_samples);//TODO: Make this member
 
-	CommonVectorType state_x(mpc_parameters_->dynamics_order), state_y(mpc_parameters_->dynamics_order);
-	for (int i = 0; i < mpc_parameters_->dynamics_order; i++) {
-		state_x(i) = com.x(i);
-		state_y(i) = com.y(i);
-	}
-
 	gradient_vec_x = state_variant_[samples_left] * state_x;
 	gradient_vec_y = state_variant_[samples_left] * state_y;
-	//std::cout << "state_variant_[samples_left]:  "  << gradient_vec_x.transpose() << std::endl;
 
 	gradient_vec_x += select_variant_[samples_left] * select_mats.sample_step_cx;
 	gradient_vec_y += select_variant_[samples_left] * select_mats.sample_step_cy;
-	//std::cout << "select_variant_:  "  << gradient_vec_x.transpose() << std::endl;
 
 	gradient_vec_x += ref_variant_vel_[samples_left] * vel_ref_->global.x;
 	gradient_vec_y += ref_variant_vel_[samples_left] * vel_ref_->global.y;
 
 	gradient_vec_x += ref_variant_pos_[samples_left] * pos_ref_->global.x;
 	gradient_vec_y += ref_variant_pos_[samples_left] * pos_ref_->global.y;
-	//std::cout << "ref_variant_pos_:  "  << gradient_vec_x.transpose() << std::endl;
 
 	gradient_vec_x += ref_variant_cp_[samples_left] * cp_ref_->global.x;
 	gradient_vec_y += ref_variant_cp_[samples_left] * cp_ref_->global.y;
@@ -325,50 +370,6 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	gradient_vec = rot_mat * gradient_vec;//TODO: Use RTimesV
 
 	solver_->vector(vectorP).Set(gradient_vec, 0);
-
-	// PID mode:
-	// ---------
-	if (mpc_parameters_->is_pid_mode) {
-		const LinearDynamics &dyn = robot_->com()->dynamics_qp()[samples_left];
-
-		double kd = -2.;
-		double omega = sqrt(kGravity / com.z[0]);
-
-		// qx = - r*K*x / (BT*CT*C*A*x - BTCTCB*K*x)
-		CommonMatrixType qx = dyn.discr_ss.ss_output_mat * state_x;
-		qx *= (1. - kd);
-		double qx_d = qx(0);
-		std::cout << "A: " << dyn.discr_ss.ss_state_mat << std::endl;
-		std::cout << "C: " << dyn.discr_ss.ss_output_mat << std::endl;
-		std::cout << "BT: " << dyn.discr_ss.ss_input_mat_tr << std::endl;
-		CommonMatrixType bccax = dyn.discr_ss.ss_input_mat_tr * dyn.discr_ss.ss_output_mat_tr *
-				dyn.discr_ss.ss_output_mat * dyn.discr_ss.ss_state_mat * state_x;
-		CommonMatrixType bccbkx = dyn.discr_ss.ss_input_mat_tr * dyn.discr_ss.ss_output_mat_tr *
-				dyn.discr_ss.ss_output_mat * dyn.discr_ss.ss_input_mat * (kd - 1) * dyn.discr_ss.ss_output_mat * state_x;
-		qx_d /= (bccax(0) - bccbkx(0));
-
-		// qy = - r*(1-kd)*C*y / (BT*CT*C*A*y - BTCTCB*K*y)
-		CommonMatrixType qy = (1. - kd) * dyn.discr_ss.ss_output_mat * state_y;
-		double qy_d = qy(0);
-		CommonMatrixType bccay = dyn.discr_ss.ss_input_mat_tr * dyn.discr_ss.ss_output_mat_tr *
-				dyn.discr_ss.ss_output_mat * dyn.discr_ss.ss_state_mat * state_y;
-		CommonMatrixType bccbky = dyn.discr_ss.ss_input_mat_tr * dyn.discr_ss.ss_output_mat_tr *
-				dyn.discr_ss.ss_output_mat * dyn.discr_ss.ss_input_mat * (kd - 1) * dyn.discr_ss.ss_output_mat * state_y;
-		qy_d /= (bccay(0) - bccbky(0));
-
-		std::cout << "qx_d: " << qx_d << std::endl;
-		std::cout << "qy_d: " << qy_d << std::endl;
-		/*
-		// H = H - (1-q)*B^TC^TCB
-		hessian().block(0, 0, num_samples, num_samples) -= (1 - qx_d) * cp_dyn.discr_ss.ss_input_mat_tr * cp_dyn.discr_ss.ss_output_mat_tr *
-				cp_dyn.discr_ss.ss_input_mat * cp_dyn.discr_ss.ss_output_mat;
-		hessian().block(num_samples, num_samples, num_samples, num_samples) -= (1 - qy_d) * cp_dyn.discr_ss.ss_input_mat_tr * cp_dyn.discr_ss.ss_output_mat_tr *
-						cp_dyn.discr_ss.ss_input_mat * cp_dyn.discr_ss.ss_output_mat;
-		//p = q*p
-		solver_->vector(vectorP)().block(0, 0, 0, num_samples) *= qx_d;
-		solver_->vector(vectorP)().block(0, num_samples, 0, num_samples) *= qy_d;
-		 */
-	}
 }
 
 void QPBuilder::BuildConstraints(const MPCSolution &solution) {

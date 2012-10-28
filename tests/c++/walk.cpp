@@ -11,14 +11,14 @@ using namespace MPCWalkgen;
 
 int main() {
 
-	int num_samples_horizon = 5;
-	int num_samples_step = 8;
-	int num_samples_dsss = 8;
-	int num_steps_ssds = 2;
-	double sample_period_qp = .1;
-	double sample_period_first = .05;
-	double sample_period_act = .05;
-	const double kSecurityMargin = 0.02;
+	int num_samples_horizon 		= 16;
+	int num_samples_step 			= 8;
+	int num_samples_dsss 			= 8;
+	int num_steps_ssds 			= 2;
+	double sample_period_qp 		= .1;
+	double sample_period_first 		= .001;
+	double sample_period_act 		= .001;
+	const double kSecurityMargin 		= .02;
 
 	// Simulation parameters:
 	// ----------------------
@@ -36,18 +36,19 @@ int main() {
 	mpc_parameters.solver.name                    = QPOASES;
 	mpc_parameters.solver.num_wsrec               = 200;
 	mpc_parameters.dynamics_order                 = SECOND_ORDER;
+	mpc_parameters.is_pid_mode			= false;
 
 	mpc_parameters.weights.pos[0] 		= 0.;
 	mpc_parameters.weights.vel[0]  		= 1.;
 	mpc_parameters.weights.cop[0]  		= 0.;//0.00001;
 	mpc_parameters.weights.cp[0] 		= 0.;//1.;
-	mpc_parameters.weights.control[0] 	= 0.00001;
+	mpc_parameters.weights.control[0] 	= .0001;
 
 	mpc_parameters.weights.pos[1] 		= 0.;
 	mpc_parameters.weights.vel[1]  		= 1.;
-	mpc_parameters.weights.cop[1]  		= 0.;//1.;
+	mpc_parameters.weights.cop[1]  		= 1.;//1.;
 	mpc_parameters.weights.cp[1] 		= 0.;
-	mpc_parameters.weights.control[1] 	= 0.00001;
+	mpc_parameters.weights.control[1] 	= .00001;
 
 	// Robot parameters:
 	// -----------------
@@ -82,7 +83,7 @@ int main() {
 	RobotData robot_data(left_foot, right_foot, left_hip_yaw, right_hip_yaw, 0.);
 
 	robot_data.com(0) = 0.01;
-	robot_data.com(1) = 0.01;
+	robot_data.com(1) = 0.0;
 	robot_data.com(2) = 0.814;
 
 	robot_data.max_foot_vel = 1.;
@@ -133,24 +134,25 @@ int main() {
 	Walkgen walk;
 	walk.Init(mpc_parameters);
 	walk.Init(robot_data);
-	walk.robot()->com()->state().x[1] = .1;
+	//walk.robot()->com()->state().x[1] = .1;
 
 	// Go:
 	// ---
 	double curr_time = 0.;
-	walk.SetVelReference(0., 0., 0.);
+	walk.SetVelReference(0.1, 0., 0.);
 	int num_iterations = 0;
 	walk.clock().GetFrequency(1000);
 	walk.clock().ResetLocal();
-	for (; curr_time < 2.; curr_time += sample_period_act) {
+	for (; curr_time < 1; curr_time += sample_period_act) {
 		int online_timer = walk.clock().StartCounter();
-		std::cout << std::endl;
+		//std::cout << std::endl;
 		const MPCSolution &solution = walk.Go(curr_time);
-		//walk.solver()->DumpProblem("problem", curr_time, "txt");
-		std::cout << "com_prw.pos.x: " << solution.com_prw.pos.x_vec.transpose() << std::endl;
-		std::cout << "com_prw.vel: " << solution.com_prw.vel.x_vec.transpose() << std::endl;
-		std::cout << "com_prw.cp.x: " << solution.com_prw.cp.x_vec.transpose() << std::endl;
-		std::cout << "com_prw.cop.x_vec: " << solution.com_prw.cop.x_vec.transpose() << std::endl;
+		walk.solver()->DumpProblem("problem", curr_time, "txt");
+		//std::cout << "com_prw.pos.x: " << solution.com_prw.pos.x_vec.transpose() << std::endl;
+		//std::cout << "com_prw.pos.y: " << solution.com_prw.pos.y_vec.transpose() << std::endl;
+		//std::cout << "com_prw.vel: " << solution.com_prw.vel.x_vec.transpose() << std::endl;
+		//std::cout << "com_prw.cp.x: " << solution.com_prw.cp.x_vec.transpose() << std::endl;
+		//std::cout << "com_prw.cop.x_vec: " << solution.com_prw.cop.x_vec.transpose() << std::endl;
 		//std::cout << "com_act.pos: " << walk.output().com.x << "  com_act.vel: " << walk.output().com.dx << std::endl;
 		//Debug::Cout("sampling_times_vec", solution.sampling_times_vec);
 		//Debug::WriteToDatFile("hessian", curr_time, walk.solver()->hessian_mat()());
