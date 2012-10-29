@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.503"
+    ComputedModelVersion    "1.514"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Sun Oct 28 17:37:47 2012"
+  LastModifiedDate	  "Mon Oct 29 13:16:27 2012"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:503>"
+  ModelVersionFormat	  "1.%<AutoIncrement:514>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -668,7 +668,7 @@ Model {
   System {
     Name		    "walkgen"
     Location		    [702, 74, 977, 375]
-    Open		    off
+    Open		    on
     ModelBrowserVisibility  off
     ModelBrowserWidth	    200
     ScreenColor		    "white"
@@ -740,7 +740,7 @@ Model {
 	  Position		  [385, 61, 490, 754]
 	  TreatAsAtomicUnit	  on
 	  MinAlgLoopOccurrences	  off
-	  SystemSampleTime	  "0.005"
+	  SystemSampleTime	  "0.001"
 	  RTWSystemCode		  "Auto"
 	  FunctionWithSeparateData off
 	  MaskPromptString	  "Length of horizon [num. samples]|Position weight|Velocity weight|CoP weight|CP weight|Control weight|Step period [num. samples]|Length of initial double support phase [num. samples]|Steps before halt|Sampling period [s]|Time between recomputations [s]|Actuator sampling period [s]|Security margin [m]|Max number of working set recomputations|Dynamics order|Debug mode"
@@ -756,7 +756,7 @@ Model {
 	  MaskIconOpaque	  on
 	  MaskIconRotate	  "none"
 	  MaskIconUnits		  "autoscale"
-	  MaskValueString	  "16|0|1|0|0|0.001|8|8|2|0.1|0.005|0.005|0.02|20|3|1"
+	  MaskValueString	  "16|0|1|0.000001|0|0.001|8|8|2|0.1|0.001|0.001|0.02|200|3|1"
 	  MaskTabNameString	  ",,,,,,,,,,,,,,,"
 	  System {
 	    Name		    "Atomic Walkgen"
@@ -1054,7 +1054,7 @@ Model {
 	      Orientation	      "up"
 	      ShowName		      off
 	      Floating		      off
-	      Location		      [82, 43, 1595, 894]
+	      Location		      [88, 45, 1601, 899]
 	      Open		      off
 	      NumInputPorts	      "1"
 	      List {
@@ -1062,8 +1062,8 @@ Model {
 		axes1			"%<SignalLabel>"
 	      }
 	      TimeRange		      "5"
-	      YMin		      "-0.5"
-	      YMax		      "7.5"
+	      YMin		      "2.77556e-017"
+	      YMax		      "0.85"
 	      SaveName		      "ScopeData4"
 	      DataFormat	      "StructureWithTime"
 	      SampleTime	      "0"
@@ -1085,8 +1085,8 @@ Model {
 		axes1			"%<SignalLabel>"
 	      }
 	      TimeRange		      "0.5010330578512396"
-	      YMin		      "-0.02657455012853467"
-	      YMax		      "0.1116645244215938"
+	      YMin		      "0.02"
+	      YMax		      "0.2"
 	      SaveName		      "ScopeData5"
 	      DataFormat	      "StructureWithTime"
 	      SampleTime	      "0"
