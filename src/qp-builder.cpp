@@ -361,15 +361,15 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 
 	if (num_steps_previewed > 0) {
 		tmp_vec_.noalias() = select_mats.sample_step_trans * gradient_vec_x;
-		solver_->vector(vectorP).Set(tmp_vec_, 2 * num_samples);
+		solver_->vector(vectorP).Add(tmp_vec_, 2 * num_samples);
 		tmp_vec_.noalias() = select_mats.sample_step_trans * gradient_vec_y;
-		solver_->vector(vectorP).Set(tmp_vec_, 2 * num_samples + num_steps_previewed);
+		solver_->vector(vectorP).Add(tmp_vec_, 2 * num_samples + num_steps_previewed);
 	}
 
 	gradient_vec << gradient_vec_x, gradient_vec_y; //TODO: Unnecessary if rot_mat half the size
 	gradient_vec = rot_mat * gradient_vec;//TODO: Use RTimesV
 
-	solver_->vector(vectorP).Set(gradient_vec, 0);
+	solver_->vector(vectorP).Add(gradient_vec, 0);
 }
 
 void QPBuilder::BuildConstraints(const MPCSolution &solution) {
@@ -579,11 +579,11 @@ void QPBuilder::BuildFootPosConstraints(const MPCSolution &solution) {
 	tmp_mat_.noalias() = foot_inequalities_.y_mat * select.Vf;
 	solver_->constr_mat().AddTerm(tmp_mat_,  0, 2 * num_samples + num_steps_previewed);
 
-	solver_->vector(vectorBL).Set(foot_inequalities_.c_vec, 0);
+	solver_->vector(vectorBL).Add(foot_inequalities_.c_vec, 0);
 
 	tmp_vec_.noalias() =  foot_inequalities_.x_mat * select.VcfX;
 	tmp_vec_ += foot_inequalities_.y_mat * select.VcfY;
-	solver_->vector(vectorBL).Set(tmp_vec_,  0);
+	solver_->vector(vectorBL).Add(tmp_vec_,  0);
 
 	solver_->vector(vectorBU)().segment(0, tmp_vec_.size()).fill(kInf);
 }
@@ -609,12 +609,12 @@ void QPBuilder::BuildFootVelConstraints(const MPCSolution &solution) {
 
 	double upper_limit_x = max_vel * time_left + flying_foot->x(0);
 	double upper_limit_y = max_vel * time_left + flying_foot->y(0);
-	solver_->vector(vectorXU).Set(upper_limit_x, x_var_pos);
-	solver_->vector(vectorXU).Set(upper_limit_y, y_var_pos);
+	solver_->vector(vectorXU).Add(upper_limit_x, x_var_pos);
+	solver_->vector(vectorXU).Add(upper_limit_y, y_var_pos);
 	double lower_limit_x = -max_vel * time_left + flying_foot->x(0);
 	double lower_limit_y = -max_vel * time_left + flying_foot->y(0);
-	solver_->vector(vectorXL).Set(lower_limit_x, x_var_pos);
-	solver_->vector(vectorXL).Set(lower_limit_y, y_var_pos);
+	solver_->vector(vectorXL).Add(lower_limit_x, x_var_pos);
+	solver_->vector(vectorXL).Add(lower_limit_y, y_var_pos);
 }
 
 void QPBuilder::BuildCoPConstraints(const MPCSolution &solution) {
@@ -645,6 +645,6 @@ void QPBuilder::BuildCoPConstraints(const MPCSolution &solution) {
 	tmp_vec2_.segment(2 * num_samples, 2 * num_steps_previewed).fill(kInf);
 
 	int first_row = 0;
-	solver_->vector(vectorXL).Set(tmp_vec_, first_row);
-	solver_->vector(vectorXU).Set(tmp_vec2_, first_row);
+	solver_->vector(vectorXL).Add(tmp_vec_, first_row);
+	solver_->vector(vectorXU).Add(tmp_vec2_, first_row);
 }

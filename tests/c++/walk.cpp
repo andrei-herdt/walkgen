@@ -35,7 +35,7 @@ int main() {
 	mpc_parameters.solver.analysis                = false;
 	mpc_parameters.solver.name                    = QPOASES;
 	mpc_parameters.solver.num_wsrec               = 200;
-	mpc_parameters.dynamics_order                 = SECOND_ORDER;
+	mpc_parameters.dynamics_order                 = THIRD_ORDER;
 	mpc_parameters.is_pid_mode			= false;
 
 	mpc_parameters.weights.pos[0] 		= 0.;
@@ -82,7 +82,7 @@ int main() {
 
 	RobotData robot_data(left_foot, right_foot, left_hip_yaw, right_hip_yaw, 0.);
 
-	robot_data.com(0) = 0.01;
+	robot_data.com(0) = 0.0;
 	robot_data.com(1) = 0.0;
 	robot_data.com(2) = 0.814;
 
@@ -143,11 +143,11 @@ int main() {
 	int num_iterations = 0;
 	walk.clock().GetFrequency(1000);
 	walk.clock().ResetLocal();
-	for (; curr_time < 1; curr_time += sample_period_act) {
+	for (; curr_time < 10; curr_time += sample_period_act) {
 		int online_timer = walk.clock().StartCounter();
 		//std::cout << std::endl;
 		const MPCSolution &solution = walk.Go(curr_time);
-		walk.solver()->DumpProblem("problem", curr_time, "txt");
+		//walk.solver()->DumpProblem("problem", curr_time, "txt");
 		//std::cout << "com_prw.pos.x: " << solution.com_prw.pos.x_vec.transpose() << std::endl;
 		//std::cout << "com_prw.pos.y: " << solution.com_prw.pos.y_vec.transpose() << std::endl;
 		//std::cout << "com_prw.vel: " << solution.com_prw.vel.x_vec.transpose() << std::endl;
