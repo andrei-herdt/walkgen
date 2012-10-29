@@ -366,6 +366,10 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 		solver_->vector(vectorP).Add(tmp_vec_, 2 * num_samples + num_steps_previewed);
 	}
 
+	if (mpc_parameters_->is_pid_mode) {
+		gradient_vec_x *= qx_d;
+		gradient_vec_y *= qy_d;
+	}
 	gradient_vec << gradient_vec_x, gradient_vec_y; //TODO: Unnecessary if rot_mat half the size
 	gradient_vec = rot_mat * gradient_vec;//TODO: Use RTimesV
 
@@ -565,7 +569,6 @@ void QPBuilder::BuildFootPosInequalities(const MPCSolution &solution) {
 		}
 		++prev_ss_it;
 	}
-
 }
 
 void QPBuilder::BuildFootPosConstraints(const MPCSolution &solution) {
