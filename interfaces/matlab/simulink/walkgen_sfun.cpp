@@ -18,7 +18,7 @@ using namespace std;
 
 static void mdlInitializeSizes(SimStruct *S) {
 	// Expected number of parameters
-	ssSetNumSFcnParams(S, 16);
+	ssSetNumSFcnParams(S, 17);
 
 	// Parameter mismatch?
 	if (ssGetNumSFcnParams(S) != ssGetSFcnParamsCount(S)) {
@@ -88,6 +88,7 @@ static void mdlInitializeSampleTimes(SimStruct *S)
 #define MDL_START
 static void mdlStart(SimStruct *S) {
 	const static int kDebug = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 10)));
+	const static int kPIDMode = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 16)));
 
 	MPCParameters mpc_parameters;
 	mpc_parameters.num_samples_horizon  = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 0)));
@@ -122,6 +123,10 @@ static void mdlStart(SimStruct *S) {
 	mpc_parameters.weights.cp[1] 		= 0.;
 	mpc_parameters.weights.control[1] 	= 0.000001;
 
+	if (kPIDMode == 1) {
+		mpc_parameters.is_pid_mode = true;
+	}
+
 	Walkgen *walk = new Walkgen;
 	walk->Init(mpc_parameters);
 
@@ -133,7 +138,6 @@ static void mdlStart(SimStruct *S) {
 static void mdlOutputs(SimStruct *S, int_T tid) {
 	const double kSecurityMargin = *mxGetPr(ssGetSFcnParam(S, 7));
 	const double kMaxFootHeight = 0.03;
-	const double kGravity = 9.81;
 	const static int kDebug = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 10)));
 
 
@@ -183,7 +187,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 		right_foot.SetEdges(*foot_geometry[0], *foot_geometry[1], *foot_geometry[2], *foot_geometry[3], kSecurityMargin);
 
 		HipYawData left_hip_yaw;
-		left_hip_yaw.lower_pos_bound                   = -0.523599;
+		left_hip_yaw.lower_pos_bound       = -0.523599;
 		left_hip_yaw.upper_pos_bound                   = 0.785398;
 		left_hip_yaw.lower_vel_bound           = -3.54108;
 		left_hip_yaw.upper_vel_bound           = 3.54108;
@@ -238,12 +242,12 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 		robot->com()->state().z[2] = 0.;
 
 		ssSetIWorkValue(S, 0, 1);//Is initialized
+
+		walk->SetCPReference(*com_in[0], *com_in[1]);
 	} // End of initialization
 
 	// INPUT:
 	// ------
-	walk->SetPosReference(0., 0.);
-	walk->SetCPReference(0., 0.);
 	walk->SetVelReference(*vel_ref[0], *vel_ref[1], *vel_ref[2]);
 	RigidBodySystem *robot = walk->robot();
 	if (*closed_loop_in[0] > 0.5) {// TODO: Is there a better way for switching?

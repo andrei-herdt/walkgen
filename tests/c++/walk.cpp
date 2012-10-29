@@ -11,10 +11,10 @@ using namespace MPCWalkgen;
 
 int main() {
 
-	int num_samples_horizon 		= 16;
+	int num_samples_horizon 		= 10;
 	int num_samples_step 			= 8;
 	int num_samples_dsss 			= 8;
-	int num_steps_ssds 				= 2;
+	int num_steps_ssds 			= 2;
 	double sample_period_qp 		= .1;
 	double sample_period_first 		= .001;
 	double sample_period_act 		= .001;
@@ -34,15 +34,15 @@ int main() {
 	mpc_parameters.interpolate_whole_horizon      = true;
 	mpc_parameters.solver.analysis                = false;
 	mpc_parameters.solver.name                    = QPOASES;
-	mpc_parameters.solver.num_wsrec               = 20;
-	mpc_parameters.dynamics_order                 = THIRD_ORDER;
-	mpc_parameters.is_pid_mode			= false;
+	mpc_parameters.solver.num_wsrec               = 200;
+	mpc_parameters.dynamics_order                 = SECOND_ORDER;
+	mpc_parameters.is_pid_mode			= true;
 
 	mpc_parameters.weights.pos[0] 		= 0.;
-	mpc_parameters.weights.vel[0]  		= 1.;
+	mpc_parameters.weights.vel[0]  		= 0.;
 	mpc_parameters.weights.cop[0]  		= 0.;//0.00001;
-	mpc_parameters.weights.cp[0] 		= 0.;//1.;
-	mpc_parameters.weights.control[0] 	= .0001;
+	mpc_parameters.weights.cp[0] 		= 1.;//1.;
+	mpc_parameters.weights.control[0] 	= 1.;
 
 	mpc_parameters.weights.pos[1] 		= 0.;
 	mpc_parameters.weights.vel[1]  		= 1.;
@@ -82,8 +82,8 @@ int main() {
 
 	RobotData robot_data(left_foot, right_foot, left_hip_yaw, right_hip_yaw, 0.);
 
-	robot_data.com(0) = 0.0;
-	robot_data.com(1) = 0.0;
+	robot_data.com(0) = 0.1;
+	robot_data.com(1) = 0.1;
 	robot_data.com(2) = 0.814;
 
 	robot_data.max_foot_vel = 1.;
@@ -139,11 +139,11 @@ int main() {
 	// Go:
 	// ---
 	double curr_time = 0.;
-	walk.SetVelReference(0.1, 0., 0.);
+	walk.SetVelReference(0., 0., 0.);
 	int num_iterations = 0;
 	walk.clock().GetFrequency(1000);
 	walk.clock().ResetLocal();
-	for (; curr_time < 2; curr_time += sample_period_act) {
+	for (; curr_time < 5; curr_time += sample_period_act) {
 		int online_timer = walk.clock().StartCounter();
 		//std::cout << std::endl;
 		const MPCSolution &solution = walk.Go(curr_time);

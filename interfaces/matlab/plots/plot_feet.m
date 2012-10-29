@@ -9,11 +9,11 @@ lines_next_foot_x = plot(next_foot.time, next_foot.signals.values(:,1),'--rs','L
 hold on;
 lines_real_cop_x = plot(cop.time(1:length(cop.time),1), cop.signals.values(1:length(cop.time), 1),'black');
 
-subplot(1,2,2)
+subplot(1,2,2);
 lines_left_foot_y = plot(left_foot.time, left_foot.signals.values(:,2),'green');
-hold on
+hold on;
 lines_right_foot_y = plot(right_foot.time, right_foot.signals.values(:,2),'blue');
-hold on
+hold on;
 lines_next_foot_y = plot(next_foot.time, next_foot.signals.values(:,2),'--rs','LineWidth',2, 'MarkerEdgeColor','k', 'MarkerFaceColor','k', 'MarkerSize',2);
 hold on;
 lines_real_cop_y = plot(cop.time(1:length(cop.time),1), cop.signals.values(1:length(cop.time), 2),'black');
