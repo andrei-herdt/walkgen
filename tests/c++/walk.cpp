@@ -16,8 +16,8 @@ int main() {
 	int num_samples_dsss 			= 8;
 	int num_steps_ssds 			= 2;
 	double sample_period_qp 		= .1;
-	double sample_period_first 		= .001;
-	double sample_period_act 		= .001;
+	double sample_period_first 		= .1;
+	double sample_period_act 		= .1;
 	const double kSecurityMargin 	= .02;
 
 	// Simulation parameters:
@@ -36,19 +36,19 @@ int main() {
 	mpc_parameters.solver.name                    = QPOASES;
 	mpc_parameters.solver.num_wsrec               = 200;
 	mpc_parameters.dynamics_order                 = SECOND_ORDER;
-	mpc_parameters.is_pid_mode			= true;
+	mpc_parameters.is_pid_mode			= false;
 
 	mpc_parameters.weights.pos[0] 		= 0.;
 	mpc_parameters.weights.vel[0]  		= 0.;
 	mpc_parameters.weights.cop[0]  		= 0.;//0.00001;
 	mpc_parameters.weights.cp[0] 		= 1.;//1.;
-	mpc_parameters.weights.control[0] 	= 1.;
+	mpc_parameters.weights.control[0] 	= 0.;
 
 	mpc_parameters.weights.pos[1] 		= 0.;
-	mpc_parameters.weights.vel[1]  		= 1.;
-	mpc_parameters.weights.cop[1]  		= 1.;//1.;
-	mpc_parameters.weights.cp[1] 		= 0.;
-	mpc_parameters.weights.control[1] 	= .00001;
+	mpc_parameters.weights.vel[1]  		= 0.;
+	mpc_parameters.weights.cop[1]  		= 0.;//1.;
+	mpc_parameters.weights.cp[1] 		= 1.;
+	mpc_parameters.weights.control[1] 	= .0;
 
 	// Robot parameters:
 	// -----------------
@@ -82,8 +82,8 @@ int main() {
 
 	RobotData robot_data(left_foot, right_foot, left_hip_yaw, right_hip_yaw, 0.);
 
-	robot_data.com(0) = 0.1;
-	robot_data.com(1) = 0.1;
+	robot_data.com(0) = 0.01;
+	robot_data.com(1) = 0.05;
 	robot_data.com(2) = 0.814;
 
 	robot_data.max_foot_vel = 1.;

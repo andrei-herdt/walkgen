@@ -18,7 +18,7 @@ using namespace std;
 
 static void mdlInitializeSizes(SimStruct *S) {
 	// Expected number of parameters
-	ssSetNumSFcnParams(S, 17);
+	ssSetNumSFcnParams(S, 18);
 
 	// Parameter mismatch?
 	if (ssGetNumSFcnParams(S) != ssGetSFcnParamsCount(S)) {
@@ -28,13 +28,13 @@ static void mdlInitializeSizes(SimStruct *S) {
 	// Specify I/O
 	if (!ssSetNumInputPorts(S, 10)) return;
 	ssSetInputPortWidth(S, 0, 3);     //vel_ref
-	ssSetInputPortWidth(S, 1, 6);     //com_in
+	ssSetInputPortWidth(S, 1, 2);     //cp_ref
 	ssSetInputPortWidth(S, 2, 3);     //left_ankle_in
 	ssSetInputPortWidth(S, 3, 3);     //right_ankle_in
 	ssSetInputPortWidth(S, 4, 1);     //left_yaw
 	ssSetInputPortWidth(S, 5, 1);     //right_yaw
 	ssSetInputPortWidth(S, 6, 4);     //foot_geometry
-	ssSetInputPortWidth(S, 7, 1);     //closed_loop
+	ssSetInputPortWidth(S, 7, 6);     //com_in
 	ssSetInputPortWidth(S, 8, 2);     //cop
 	ssSetInputPortWidth(S, 9, 1);     //reset_in
 
@@ -49,7 +49,7 @@ static void mdlInitializeSizes(SimStruct *S) {
 	ssSetInputPortDirectFeedThrough(S, 8, 1);
 	ssSetInputPortDirectFeedThrough(S, 9, 1);
 
-	if (!ssSetNumOutputPorts(S,17)) return;
+	if (!ssSetNumOutputPorts(S,18)) return;
 	// Realized motions
 	ssSetOutputPortWidth(S, 0, 3);        //com
 	ssSetOutputPortWidth(S, 1, 3);        //dcom
@@ -72,6 +72,7 @@ static void mdlInitializeSizes(SimStruct *S) {
 	ssSetOutputPortWidth(S, 14, 30);      //analysis
 	ssSetOutputPortWidth(S, 15, 3 * kNumSamplesHorizon);	//com_control_prw
 	ssSetOutputPortWidth(S, 16, 3 * kNumSamplesHorizon);     //cp_prw (sample_instants, x, y)
+	ssSetOutputPortWidth(S, 17, 9);     //cp_prw (sample_instants, x, y)
 
 	ssSetNumSampleTimes(S, 1);
 
@@ -87,8 +88,8 @@ static void mdlInitializeSampleTimes(SimStruct *S)
 
 #define MDL_START
 static void mdlStart(SimStruct *S) {
-	const static int kDebug = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 10)));
-	const static int kPIDMode = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 16)));
+	int is_debug_in = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 10)));
+	int is_pid_mode_in = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 16)));
 
 	MPCParameters mpc_parameters;
 	mpc_parameters.num_samples_horizon  = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 0)));
@@ -100,16 +101,16 @@ static void mdlStart(SimStruct *S) {
 	mpc_parameters.period_actsample     = *mxGetPr(ssGetSFcnParam(S, 6));
 	mpc_parameters.solver.num_wsrec     = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 8)));
 	mpc_parameters.warmstart			= false;
-	if (kDebug == 0) {
+	if (is_debug_in == 0) {
 		mpc_parameters.interpolate_whole_horizon	= false;
 		mpc_parameters.solver.analysis			    = false;
 	} else {
 		mpc_parameters.interpolate_whole_horizon	= true;
 		mpc_parameters.solver.analysis			    = true;
 	}
-	mpc_parameters.solver.name                  = QPOASES;
+	mpc_parameters.solver.name                  	= QPOASES;
 
-	mpc_parameters.dynamics_order               = static_cast<SystemOrder>(static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 9))));
+	mpc_parameters.dynamics_order               	= static_cast<SystemOrder>(static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 9))));
 
 	mpc_parameters.weights.pos[0] 		= *mxGetPr(ssGetSFcnParam(S, 11));//1.;
 	mpc_parameters.weights.vel[0]  		= *mxGetPr(ssGetSFcnParam(S, 12));//0.;
@@ -123,7 +124,7 @@ static void mdlStart(SimStruct *S) {
 	mpc_parameters.weights.cp[1] 		= 0.;
 	mpc_parameters.weights.control[1] 	= 0.000001;
 
-	if (kPIDMode == 1) {
+	if (is_pid_mode_in == 1) {
 		mpc_parameters.is_pid_mode = true;
 	}
 
@@ -139,16 +140,17 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 	const double kSecurityMargin = *mxGetPr(ssGetSFcnParam(S, 7));
 	const double kMaxFootHeight = 0.03;
 	const static int kDebug = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 10)));
+	int is_closed_loop_in = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 17)));
 
 
 	InputRealPtrsType vel_ref         = ssGetInputPortRealSignalPtrs(S, 0);
-	InputRealPtrsType com_in          = ssGetInputPortRealSignalPtrs(S, 1);
+	InputRealPtrsType cp_ref          = ssGetInputPortRealSignalPtrs(S, 1);
 	InputRealPtrsType left_ankle_in   = ssGetInputPortRealSignalPtrs(S, 2);
 	InputRealPtrsType right_ankle_in  = ssGetInputPortRealSignalPtrs(S, 3);
 	InputRealPtrsType left_yaw        = ssGetInputPortRealSignalPtrs(S, 4);
 	InputRealPtrsType right_yaw       = ssGetInputPortRealSignalPtrs(S, 5);
 	InputRealPtrsType foot_geometry   = ssGetInputPortRealSignalPtrs(S, 6);
-	InputRealPtrsType closed_loop_in  = ssGetInputPortRealSignalPtrs(S, 7);
+	InputRealPtrsType com_in          = ssGetInputPortRealSignalPtrs(S, 7);
 	InputRealPtrsType cop_in          = ssGetInputPortRealSignalPtrs(S, 8);
 	InputRealPtrsType reset_in        = ssGetInputPortRealSignalPtrs(S, 9);
 
@@ -168,7 +170,8 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 	real_T *support        = ssGetOutputPortRealSignal(S, 13);
 	real_T *analysis       = ssGetOutputPortRealSignal(S, 14);
 	real_T *com_control_prw= ssGetOutputPortRealSignal(S, 15);
-	real_T *cp_prw        = ssGetOutputPortRealSignal(S, 16);
+	real_T *cp_prw         = ssGetOutputPortRealSignal(S, 16);
+	real_T *cur_state      = ssGetOutputPortRealSignal(S, 17);
 
 	Walkgen *walk = (Walkgen *)ssGetPWorkValue(S, 0);
 
@@ -188,12 +191,12 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 
 		HipYawData left_hip_yaw;
 		left_hip_yaw.lower_pos_bound       = -0.523599;
-		left_hip_yaw.upper_pos_bound                   = 0.785398;
-		left_hip_yaw.lower_vel_bound           = -3.54108;
-		left_hip_yaw.upper_vel_bound           = 3.54108;
+		left_hip_yaw.upper_pos_bound       = 0.785398;
+		left_hip_yaw.lower_vel_bound       = -3.54108;
+		left_hip_yaw.upper_vel_bound       = 3.54108;
 		left_hip_yaw.lower_acc_bound       = -0.1;
 		left_hip_yaw.upper_acc_bound       = 0.1;
-		HipYawData right_hip_yaw                  = left_hip_yaw;
+		HipYawData right_hip_yaw           = left_hip_yaw;
 
 		RobotData robot_data(left_foot, right_foot, left_hip_yaw, right_hip_yaw, 0.0);
 
@@ -249,8 +252,9 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 	// INPUT:
 	// ------
 	walk->SetVelReference(*vel_ref[0], *vel_ref[1], *vel_ref[2]);
+	walk->SetCPReference(*cp_ref[0], *cp_ref[1]);
 	RigidBodySystem *robot = walk->robot();
-	if (*closed_loop_in[0] > 0.5) {// TODO: Is there a better way for switching?
+	if (is_closed_loop_in > 0.5) {// TODO: Is there a better way for switching?
 		robot->com()->state().x[0] = *com_in[0];
 		robot->com()->state().y[0] = *com_in[1];
 		robot->com()->state().x[1] = *com_in[3];
@@ -312,31 +316,31 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 	// Previewed motions:
 	// ------------------
 	if (kDebug == 1) {
-		int nbsamples = solution.support_states_vec.size() - 1;
-		for (int sample = 0; sample < nbsamples; ++sample) {
+		int num_samples = solution.support_states_vec.size() - 1;
+		for (int sample = 0; sample < num_samples; ++sample) {
 			// CoM:
 			com_prw[sample] = solution.sampling_times_vec[sample+1];
-			com_prw[nbsamples + sample] = solution.com_prw.pos.x_vec[sample];
-			com_prw[2 * nbsamples + sample] = solution.com_prw.pos.y_vec[sample];
-			com_prw[3 * nbsamples + sample] = walk->output().com.z;
+			com_prw[num_samples + sample] = solution.com_prw.pos.x_vec[sample];
+			com_prw[2 * num_samples + sample] = solution.com_prw.pos.y_vec[sample];
+			com_prw[3 * num_samples + sample] = walk->output().com.z;
 			// CoP:
 			cop_prw[sample] = solution.sampling_times_vec[sample+1];
-			cop_prw[nbsamples + sample] = solution.com_prw.cop.x_vec[sample];
-			cop_prw[2 * nbsamples + sample] = solution.com_prw.cop.y_vec[sample];
+			cop_prw[num_samples + sample] = solution.com_prw.cop.x_vec[sample];
+			cop_prw[2 * num_samples + sample] = solution.com_prw.cop.y_vec[sample];
 			// CoM control vector:
 			com_control_prw[sample] = solution.sampling_times_vec[sample];
-			com_control_prw[nbsamples + sample] = solution.com_prw.control.x_vec[sample];
-			com_control_prw[2 * nbsamples + sample] = solution.com_prw.control.y_vec[sample];
+			com_control_prw[num_samples + sample] = solution.com_prw.control.x_vec[sample];
+			com_control_prw[2 * num_samples + sample] = solution.com_prw.control.y_vec[sample];
 			// CP:
 			cp_prw[sample] = solution.sampling_times_vec[sample+1];
-			cp_prw[nbsamples + sample] = solution.com_prw.cp.x_vec[sample];
-			cp_prw[2 * nbsamples + sample] = solution.com_prw.cp.y_vec[sample];
+			cp_prw[num_samples + sample] = solution.com_prw.cp.x_vec[sample];
+			cp_prw[2 * num_samples + sample] = solution.com_prw.cp.y_vec[sample];
 		}
 
 		int nbsteps_prw = solution.support_states_vec.back().step_number;
 		if (nbsteps_prw > 0) {
-			first_foot_prw[0] = solution.qp_solution_vec[2 * nbsamples];
-			first_foot_prw[1] = solution.qp_solution_vec[2 * nbsamples + nbsteps_prw];
+			first_foot_prw[0] = solution.qp_solution_vec[2 * num_samples];
+			first_foot_prw[1] = solution.qp_solution_vec[2 * num_samples + nbsteps_prw];
 		} else {
 			first_foot_prw[0] = solution.support_states_vec.front().x;
 			first_foot_prw[1] = solution.support_states_vec.front().y;
@@ -362,6 +366,18 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 		//for (int i = num_counters - 1; i >= 0; i--) {
 		analysis[/*i + */2] = walk->clock().GetTime(time_online);
 		//}
+
+		cur_state[0] = robot->com()->state().x[0];
+		cur_state[1] = robot->com()->state().x[1];
+		cur_state[2] = robot->com()->state().x[2];
+
+		cur_state[3] = robot->com()->state().y[0];
+		cur_state[4] = robot->com()->state().y[1];
+		cur_state[5] = robot->com()->state().y[2];
+
+		cur_state[6] = robot->com()->state().z[0];
+		cur_state[7] = robot->com()->state().z[1];
+		cur_state[8] = robot->com()->state().z[2];
 	}
 
 }
