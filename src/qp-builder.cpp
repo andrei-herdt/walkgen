@@ -114,18 +114,14 @@ void QPBuilder::PrecomputeObjective() {
 			// beta*Uz^(-T)*Uv*(Sv - Uv*Uz^(-1)*Sz)
 			tmp_mat_.noalias() = vel_dyn.state_mat - vel_dyn.input_mat * cop_dyn.input_mat_inv * cop_dyn.state_mat;
 			state_variant_[mat_num] = cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * mpc_parameters_->weights.vel[mode_num] * tmp_mat_;
-			std::cout << "gradient_vec_x_st: " << state_variant_[mat_num] << std::endl;
 			// delta*Uz^(-T)*Up*(Sp - Up*Uz^(-1)*Sz)
 			tmp_mat_.noalias() = pos_dyn.state_mat - pos_dyn.input_mat * cop_dyn.input_mat_inv * cop_dyn.state_mat;
 			state_variant_[mat_num] += cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * mpc_parameters_->weights.pos[mode_num] * tmp_mat_;
-			std::cout << "gradient_vec_x_st: " << state_variant_[mat_num] << std::endl;
 			// epsilon*Uz^(-T)*Uxi*(Sp - Uxi*Uz^(-1)*Sz)
 			tmp_mat_.noalias() = cp_dyn.state_mat - cp_dyn.input_mat * cop_dyn.input_mat_inv * cop_dyn.state_mat;
 			state_variant_[mat_num] += cop_dyn.input_mat_inv_tr * cp_dyn.input_mat_tr * mpc_parameters_->weights.cp[mode_num] * tmp_mat_;
-			std::cout << "gradient_vec_x_st: " << state_variant_[mat_num] << std::endl;
 			// - alpha*Uz^(-T)*Uz^(-1)*Sz
 			state_variant_[mat_num] -= cop_dyn.input_mat_inv_tr * mpc_parameters_->weights.control[mode_num] * cop_dyn.input_mat_inv * cop_dyn.state_mat;
-			std::cout << "gradient_vec_x_st: " << state_variant_[mat_num] << std::endl;
 
 			// alpha*Uz^(-T)*Uz^(-1)
 			select_variant_[mat_num]  = cop_dyn.input_mat_inv_tr * mpc_parameters_->weights.control[mode_num] * cop_dyn.input_mat_inv;
@@ -281,9 +277,6 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 		CommonMatrixType bccbky = dyn.discr_ss.ss_input_mat_tr * dyn.discr_ss.ss_output_mat_tr *
 				dyn.discr_ss.ss_output_mat * dyn.discr_ss.ss_input_mat * (1. - kd) * dyn.discr_ss.ss_output_mat * state_y;
 		qy_d /= (bccay(0) + bccbky(0));
-
-		//std::cout << "qx_d: " << qx_d << "  qy_d: " << qy_d << std::endl;
-
 	}
 
 	if (!solver_->do_build_cholesky()) {//TODO: This part is the most costly >50%
@@ -369,9 +362,9 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 
 	if (num_steps_previewed > 0) {
 		tmp_vec_.noalias() = select_mats.sample_step_trans * gradient_vec_x;
-		solver_->vector(vectorP).Add(tmp_vec_, 2 * num_samples);
+		solver_->gradient_vec().Add(tmp_vec_, 2 * num_samples);
 		tmp_vec_.noalias() = select_mats.sample_step_trans * gradient_vec_y;
-		solver_->vector(vectorP).Add(tmp_vec_, 2 * num_samples + num_steps_previewed);
+		solver_->gradient_vec().Add(tmp_vec_, 2 * num_samples + num_steps_previewed);
 	}
 
 	if (mpc_parameters_->is_pid_mode) {
@@ -382,7 +375,7 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	gradient_vec = rot_mat * gradient_vec;//TODO: Use RTimesV
 
 
-	solver_->vector(vectorP).Add(gradient_vec, 0);
+	solver_->gradient_vec().Add(gradient_vec, 0);
 }
 
 void QPBuilder::BuildConstraints(const MPCSolution &solution) {
@@ -591,13 +584,13 @@ void QPBuilder::BuildFootPosConstraints(const MPCSolution &solution) {
 	tmp_mat_.noalias() = foot_inequalities_.y_mat * select.Vf;
 	solver_->constr_mat().AddTerm(tmp_mat_,  0, 2 * num_samples + num_steps_previewed);
 
-	solver_->vector(vectorBL).Add(foot_inequalities_.c_vec, 0);
+	solver_->lc_bounds_vec().Add(foot_inequalities_.c_vec, 0);
 
 	tmp_vec_.noalias() =  foot_inequalities_.x_mat * select.VcfX;
 	tmp_vec_ += foot_inequalities_.y_mat * select.VcfY;
-	solver_->vector(vectorBL).Add(tmp_vec_,  0);
+	solver_->lc_bounds_vec().Add(tmp_vec_,  0);
 
-	solver_->vector(vectorBU)().segment(0, tmp_vec_.size()).fill(kInf);
+	solver_->uc_bounds_vec()().segment(0, tmp_vec_.size()).fill(kInf);
 }
 
 void QPBuilder::BuildFootVelConstraints(const MPCSolution &solution) {
@@ -621,12 +614,12 @@ void QPBuilder::BuildFootVelConstraints(const MPCSolution &solution) {
 
 	double upper_limit_x = max_vel * time_left + flying_foot->x(0);
 	double upper_limit_y = max_vel * time_left + flying_foot->y(0);
-	solver_->vector(vectorXU).Add(upper_limit_x, x_var_pos);
-	solver_->vector(vectorXU).Add(upper_limit_y, y_var_pos);
+	solver_->uv_bounds_vec().Add(upper_limit_x, x_var_pos);
+	solver_->uv_bounds_vec().Add(upper_limit_y, y_var_pos);
 	double lower_limit_x = -max_vel * time_left + flying_foot->x(0);
 	double lower_limit_y = -max_vel * time_left + flying_foot->y(0);
-	solver_->vector(vectorXL).Add(lower_limit_x, x_var_pos);
-	solver_->vector(vectorXL).Add(lower_limit_y, y_var_pos);
+	solver_->lv_bounds_vec().Add(lower_limit_x, x_var_pos);
+	solver_->lv_bounds_vec().Add(lower_limit_y, y_var_pos);
 }
 
 void QPBuilder::BuildCoPConstraints(const MPCSolution &solution) {
@@ -657,6 +650,6 @@ void QPBuilder::BuildCoPConstraints(const MPCSolution &solution) {
 	tmp_vec2_.segment(2 * num_samples, 2 * num_steps_previewed).fill(kInf);
 
 	int first_row = 0;
-	solver_->vector(vectorXL).Add(tmp_vec_, first_row);
-	solver_->vector(vectorXU).Add(tmp_vec2_, first_row);
+	solver_->lv_bounds_vec().Add(tmp_vec_, first_row);
+	solver_->uv_bounds_vec().Add(tmp_vec2_, first_row);
 }

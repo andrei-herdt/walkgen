@@ -1,5 +1,7 @@
 #include <mpc-walkgen/qp-solver.h>
 
+#include <mpc-walkgen/debug.h>
+
 #include <iostream>
 #include <fstream> 
 
@@ -43,21 +45,6 @@ QPSolver::~QPSolver() {
 	if (hessian_arr_ != 0x0) {
 		delete[] hessian_arr_;
 		hessian_arr_ = NULL;
-	}
-}
-
-QPVector &QPSolver::vector(const QPVectorType type) {//TODO:Remove this
-	switch(type) {
-	case vectorP:
-		return gradient_vec_;
-	case vectorBU:
-		return constr_u_bounds_vec_;
-	case vectorBL:
-		return constr_l_bounds_vec_;
-	case vectorXU:
-		return var_u_bounds_vec_;
-	default:
-		return var_l_bounds_vec_;
 	}
 }
 
@@ -142,6 +129,16 @@ void QPSolver::DumpProblem(const char *filename, double value, const char *endin
 		file << "Variables upper bounds" << num_variables_ <<":" << "\n" << var_u_bounds_vec_() << '\n';
 		file << "Variables lower bounds" << num_variables_ <<":" << "\n" << var_l_bounds_vec_() << '\n';
 	}
+}
+
+void QPSolver::DumpMatrices(double time, const char *ending) {
+	Debug::WriteToFile("H", time, ending, hessian_mat_().block(0, 0, num_variables_, num_variables_));
+	Debug::WriteToFile("p", time, ending, gradient_vec_().head(num_variables_));
+	Debug::WriteToFile("C", time, ending, cstr_mat_().block(0, 0, num_constr_, num_variables_));
+	Debug::WriteToFile("cu", time, ending, constr_u_bounds_vec_().head(num_constr_));
+	Debug::WriteToFile("cl", time, ending, constr_l_bounds_vec_().head(num_constr_));
+	Debug::WriteToFile("vu", time, ending, var_u_bounds_vec_().head(num_variables_));
+	Debug::WriteToFile("vl", time, ending, var_l_bounds_vec_().head(num_variables_));
 }
 
 #include <mpc-walkgen/qpoases-parser.h>
