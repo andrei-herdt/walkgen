@@ -53,7 +53,7 @@ void RigidBodySystem::Init(const RobotData &robot_data) {//TODO: Remove object r
 	current_support_.phase         = DS;
 	current_support_.foot          = LEFT;
 	current_support_.time_limit    = 1e9;
-	current_support_.num_steps_left   = 1;
+	current_support_.num_steps_left= 1;
 	current_support_.state_changed = true;
 	current_support_.x             = robot_data.left_foot.position[0];
 	current_support_.y             = robot_data.left_foot.position[1];
@@ -87,18 +87,18 @@ void RigidBodySystem::UpdateState(const MPCSolution &solution) {
 	left_foot_->state().z(ACCELERATION) 	= left_foot_->motion_act().acc.z_vec[next_sample];
 	left_foot_->state().yaw(ACCELERATION) 	= left_foot_->motion_act().acc.yaw_vec[next_sample];
 
-	right_foot_->state().x(POSITION) = right_foot_->motion_act().pos.x_vec[next_sample];
-	right_foot_->state().y(POSITION) = right_foot_->motion_act().pos.y_vec[next_sample];
-	right_foot_->state().z(POSITION) = right_foot_->motion_act().pos.z_vec[next_sample];
-	right_foot_->state().yaw(POSITION) = right_foot_->motion_act().pos.yaw_vec[next_sample];
-	right_foot_->state().x(VELOCITY) = right_foot_->motion_act().vel.x_vec[next_sample];
-	right_foot_->state().y(VELOCITY) = right_foot_->motion_act().vel.y_vec[next_sample];
-	right_foot_->state().z(VELOCITY) = right_foot_->motion_act().vel.z_vec[next_sample];
-	right_foot_->state().yaw(VELOCITY) = right_foot_->motion_act().vel.yaw_vec[next_sample];
-	right_foot_->state().x(ACCELERATION) = right_foot_->motion_act().acc.x_vec[next_sample];
-	right_foot_->state().y(ACCELERATION) = right_foot_->motion_act().acc.y_vec[next_sample];
-	right_foot_->state().z(ACCELERATION) = right_foot_->motion_act().acc.z_vec[next_sample];
-	right_foot_->state().yaw(ACCELERATION) = right_foot_->motion_act().acc.yaw_vec[next_sample];
+	right_foot_->state().x(POSITION) 		= right_foot_->motion_act().pos.x_vec[next_sample];
+	right_foot_->state().y(POSITION) 		= right_foot_->motion_act().pos.y_vec[next_sample];
+	right_foot_->state().z(POSITION) 		= right_foot_->motion_act().pos.z_vec[next_sample];
+	right_foot_->state().yaw(POSITION) 		= right_foot_->motion_act().pos.yaw_vec[next_sample];
+	right_foot_->state().x(VELOCITY) 		= right_foot_->motion_act().vel.x_vec[next_sample];
+	right_foot_->state().y(VELOCITY) 		= right_foot_->motion_act().vel.y_vec[next_sample];
+	right_foot_->state().z(VELOCITY) 		= right_foot_->motion_act().vel.z_vec[next_sample];
+	right_foot_->state().yaw(VELOCITY) 		= right_foot_->motion_act().vel.yaw_vec[next_sample];
+	right_foot_->state().x(ACCELERATION) 	= right_foot_->motion_act().acc.x_vec[next_sample];
+	right_foot_->state().y(ACCELERATION) 	= right_foot_->motion_act().acc.y_vec[next_sample];
+	right_foot_->state().z(ACCELERATION) 	= right_foot_->motion_act().acc.z_vec[next_sample];
+	right_foot_->state().yaw(ACCELERATION) 	= right_foot_->motion_act().acc.yaw_vec[next_sample];
 
 	if (!mpc_parameters_p_->is_closed_loop) {
 		com_->state().x(0) = solution.com_act.pos.x_vec[next_sample];

@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.654"
+    ComputedModelVersion    "1.663"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Thu Nov 01 12:47:03 2012"
+  LastModifiedDate	  "Thu Nov 01 17:41:55 2012"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:654>"
+  ModelVersionFormat	  "1.%<AutoIncrement:663>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -107,7 +107,7 @@ Model {
 	  $ObjectID		  2
 	  Version		  "1.3.0"
 	  StartTime		  "0.0"
-	  StopTime		  "1"
+	  StopTime		  "2"
 	  AbsTol		  "auto"
 	  FixedStep		  "1e-3"
 	  InitialStep		  "auto"
@@ -700,7 +700,7 @@ Model {
       FunctionWithSeparateData off
       System {
 	Name			"Simulation"
-	Location		[702, 74, 1448, 860]
+	Location		[702, 74, 1432, 860]
 	Open			on
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
@@ -722,11 +722,11 @@ Model {
 	Block {
 	  BlockType		  SubSystem
 	  Name			  "Atomic Walkgen"
-	  Ports			  [4, 1]
-	  Position		  [385, 69, 490, 766]
+	  Ports			  [3, 1]
+	  Position		  [385, 75, 490, 775]
 	  TreatAsAtomicUnit	  on
 	  MinAlgLoopOccurrences	  off
-	  SystemSampleTime	  "0.1"
+	  SystemSampleTime	  "0.001"
 	  RTWSystemCode		  "Auto"
 	  FunctionWithSeparateData off
 	  MaskPromptString	  "Length of horizon [num. samples]|Position weight|Velocity weight|CoP weight|CP weight|Control weight|Step period [num. samples]|Length of initial double support phase [num. samples]|Steps before halt|Sampling period [s]|Time between recomputations [s]|Actuator sampling period [s]|Security margin [m]|Max number of working set recomputations|Dynamics order|Debug mode|PID mode|Closed loop"
@@ -742,7 +742,7 @@ Model {
 	  MaskIconOpaque	  on
 	  MaskIconRotate	  "none"
 	  MaskIconUnits		  "autoscale"
-	  MaskValueString	  "5|0|0|0|1|0.0000001|8|8|2|0.1|0.1|0.1|0.02|200|2|1|0|0"
+	  MaskValueString	  "16|1|0|0|0|0.000001|8|8|2|0.1|0.001|0.001|0.02|200|2|1|0|0"
 	  MaskTabNameString	  ",,,,,,,,,,,,,,,,,"
 	  System {
 	    Name		    "Atomic Walkgen"
@@ -761,17 +761,8 @@ Model {
 	    ZoomFactor		    "100"
 	    Block {
 	      BlockType		      Inport
-	      Name		      "vel_ref"
-	      Position		      [35, 178, 65, 192]
-	      IconDisplay	      "Port number"
-	      OutDataType	      "sfix(16)"
-	      OutScaling	      "2^0"
-	    }
-	    Block {
-	      BlockType		      Inport
-	      Name		      "cp_ref"
-	      Position		      [35, 233, 65, 247]
-	      Port		      "2"
+	      Name		      "reference"
+	      Position		      [35, 223, 65, 237]
 	      IconDisplay	      "Port number"
 	      OutDataType	      "sfix(16)"
 	      OutScaling	      "2^0"
@@ -779,8 +770,8 @@ Model {
 	    Block {
 	      BlockType		      Inport
 	      Name		      "init"
-	      Position		      [35, 398, 65, 412]
-	      Port		      "3"
+	      Position		      [35, 423, 65, 437]
+	      Port		      "2"
 	      IconDisplay	      "Port number"
 	      OutDataType	      "sfix(16)"
 	      OutScaling	      "2^0"
@@ -788,8 +779,8 @@ Model {
 	    Block {
 	      BlockType		      Inport
 	      Name		      "state"
-	      Position		      [35, 593, 65, 607]
-	      Port		      "4"
+	      Position		      [35, 598, 65, 612]
+	      Port		      "3"
 	      IconDisplay	      "Port number"
 	      OutDataType	      "sfix(16)"
 	      OutScaling	      "2^0"
@@ -854,7 +845,7 @@ Model {
 	      BlockType		      BusSelector
 	      Name		      "Bus\nSelector1"
 	      Ports		      [1, 2]
-	      Position		      [110, 541, 115, 654]
+	      Position		      [110, 552, 115, 658]
 	      ShowName		      off
 	      OutputSignals	      "com_real,cop_real"
 	      Port {
@@ -874,7 +865,7 @@ Model {
 	      BlockType		      BusSelector
 	      Name		      "Bus\nSelector2"
 	      Ports		      [1, 5]
-	      Position		      [120, 264, 125, 546]
+	      Position		      [120, 299, 125, 561]
 	      ShowName		      off
 	      OutputSignals	      "left_initial_ankle,right_initial_ankle,left_initial_yaw,right_initial_yaw,Foot_Geom"
 	      Port {
@@ -909,6 +900,32 @@ Model {
 	      }
 	    }
 	    Block {
+	      BlockType		      BusSelector
+	      Name		      "Bus\nSelector3"
+	      Ports		      [1, 3]
+	      Position		      [115, 176, 120, 284]
+	      ShowName		      off
+	      OutputSignals	      "pos_ref,vel_ref,cp_ref"
+	      Port {
+		PortNumber		1
+		Name			"<pos_ref>"
+		RTWStorageClass		"Auto"
+		DataLoggingNameMode	"SignalName"
+	      }
+	      Port {
+		PortNumber		2
+		Name			"<vel_ref>"
+		RTWStorageClass		"Auto"
+		DataLoggingNameMode	"SignalName"
+	      }
+	      Port {
+		PortNumber		3
+		Name			"<cp_ref>"
+		RTWStorageClass		"Auto"
+		DataLoggingNameMode	"SignalName"
+	      }
+	    }
+	    Block {
 	      BlockType		      RateTransition
 	      Name		      "Protected RT1"
 	      Position		      [635, 245, 655, 265]
@@ -925,7 +942,7 @@ Model {
 	    Block {
 	      BlockType		      "S-Function"
 	      Name		      "S-Function"
-	      Ports		      [10, 19]
+	      Ports		      [11, 19]
 	      Position		      [285, 148, 375, 712]
 	      FunctionName	      "walkgen_sfun"
 	      Parameters	      "num_samples_horizon, num_samples_step, num_samples_dsss, num_steps_ssds, period_qpsample, period_mpcsample, period_actsample, security_margin, num_wsrec, dynamics_order, is_debug_mode, pos_weight, vel_weight, cop_weight, cp_weight, control_weight, is_pid_mode, is_closed_loop"
@@ -1336,80 +1353,6 @@ Model {
 	      DstPort		      1
 	    }
 	    Line {
-	      SrcBlock		      "vel_ref"
-	      SrcPort		      1
-	      DstBlock		      "S-Function"
-	      DstPort		      1
-	    }
-	    Line {
-	      SrcBlock		      "cp_ref"
-	      SrcPort		      1
-	      DstBlock		      "S-Function"
-	      DstPort		      2
-	    }
-	    Line {
-	      Name		      "<left_initial_ankle>"
-	      Labels		      [0, 0]
-	      SrcBlock		      "Bus\nSelector2"
-	      SrcPort		      1
-	      DstBlock		      "S-Function"
-	      DstPort		      3
-	    }
-	    Line {
-	      Name		      "<right_initial_ankle>"
-	      Labels		      [0, 0]
-	      SrcBlock		      "Bus\nSelector2"
-	      SrcPort		      2
-	      DstBlock		      "S-Function"
-	      DstPort		      4
-	    }
-	    Line {
-	      Name		      "<left_initial_yaw>"
-	      Labels		      [0, 0]
-	      SrcBlock		      "Bus\nSelector2"
-	      SrcPort		      3
-	      DstBlock		      "S-Function"
-	      DstPort		      5
-	    }
-	    Line {
-	      Name		      "<right_initial_yaw>"
-	      Labels		      [0, 0]
-	      SrcBlock		      "Bus\nSelector2"
-	      SrcPort		      4
-	      DstBlock		      "S-Function"
-	      DstPort		      6
-	    }
-	    Line {
-	      Name		      "<Foot_Geom>"
-	      Labels		      [0, 0]
-	      SrcBlock		      "Bus\nSelector2"
-	      SrcPort		      5
-	      DstBlock		      "S-Function"
-	      DstPort		      7
-	    }
-	    Line {
-	      Name		      "<com_real>"
-	      Labels		      [0, 0]
-	      SrcBlock		      "Bus\nSelector1"
-	      SrcPort		      1
-	      DstBlock		      "S-Function"
-	      DstPort		      8
-	    }
-	    Line {
-	      Name		      "<cop_real>"
-	      Labels		      [0, 0]
-	      SrcBlock		      "Bus\nSelector1"
-	      SrcPort		      2
-	      DstBlock		      "S-Function"
-	      DstPort		      9
-	    }
-	    Line {
-	      SrcBlock		      "Reset"
-	      SrcPort		      1
-	      DstBlock		      "S-Function"
-	      DstPort		      10
-	    }
-	    Line {
 	      Name		      "cur_state"
 	      Labels		      [0, 0]
 	      SrcBlock		      "S-Function"
@@ -1425,13 +1368,116 @@ Model {
 	      DstBlock		      "To Workspace4"
 	      DstPort		      1
 	    }
+	    Line {
+	      Name		      "<left_initial_ankle>"
+	      Labels		      [0, 0]
+	      SrcBlock		      "Bus\nSelector2"
+	      SrcPort		      1
+	      DstBlock		      "S-Function"
+	      DstPort		      4
+	    }
+	    Line {
+	      Name		      "<right_initial_ankle>"
+	      Labels		      [0, 0]
+	      SrcBlock		      "Bus\nSelector2"
+	      SrcPort		      2
+	      DstBlock		      "S-Function"
+	      DstPort		      5
+	    }
+	    Line {
+	      Name		      "<left_initial_yaw>"
+	      Labels		      [0, 0]
+	      SrcBlock		      "Bus\nSelector2"
+	      SrcPort		      3
+	      DstBlock		      "S-Function"
+	      DstPort		      6
+	    }
+	    Line {
+	      Name		      "<right_initial_yaw>"
+	      Labels		      [0, 0]
+	      SrcBlock		      "Bus\nSelector2"
+	      SrcPort		      4
+	      DstBlock		      "S-Function"
+	      DstPort		      7
+	    }
+	    Line {
+	      Name		      "<Foot_Geom>"
+	      Labels		      [0, 0]
+	      SrcBlock		      "Bus\nSelector2"
+	      SrcPort		      5
+	      DstBlock		      "S-Function"
+	      DstPort		      8
+	    }
+	    Line {
+	      Name		      "<com_real>"
+	      Labels		      [0, 0]
+	      SrcBlock		      "Bus\nSelector1"
+	      SrcPort		      1
+	      DstBlock		      "S-Function"
+	      DstPort		      9
+	    }
+	    Line {
+	      Name		      "<cop_real>"
+	      Labels		      [0, 0]
+	      SrcBlock		      "Bus\nSelector1"
+	      SrcPort		      2
+	      DstBlock		      "S-Function"
+	      DstPort		      10
+	    }
+	    Line {
+	      SrcBlock		      "Reset"
+	      SrcPort		      1
+	      DstBlock		      "S-Function"
+	      DstPort		      11
+	    }
+	    Line {
+	      SrcBlock		      "reference"
+	      SrcPort		      1
+	      DstBlock		      "Bus\nSelector3"
+	      DstPort		      1
+	    }
+	    Line {
+	      Name		      "<pos_ref>"
+	      Labels		      [0, 0]
+	      SrcBlock		      "Bus\nSelector3"
+	      SrcPort		      1
+	      Points		      [75, 0; 0, -15]
+	      DstBlock		      "S-Function"
+	      DstPort		      1
+	    }
+	    Line {
+	      Name		      "<vel_ref>"
+	      Labels		      [0, 0]
+	      SrcBlock		      "Bus\nSelector3"
+	      SrcPort		      2
+	      DstBlock		      "S-Function"
+	      DstPort		      2
+	    }
+	    Line {
+	      Name		      "<cp_ref>"
+	      Labels		      [0, 0]
+	      SrcBlock		      "Bus\nSelector3"
+	      SrcPort		      3
+	      Points		      [50, 0; 0, 15]
+	      DstBlock		      "S-Function"
+	      DstPort		      3
+	    }
 	  }
+	}
+	Block {
+	  BlockType		  BusCreator
+	  Name			  "Bus\nCreator1"
+	  Ports			  [3, 1]
+	  Position		  [280, 123, 285, 257]
+	  ShowName		  off
+	  Inputs		  "3"
+	  DisplayOption		  "bar"
 	}
 	Block {
 	  BlockType		  BusCreator
 	  Name			  "Bus\nCreator3"
 	  Ports			  [2, 1]
-	  Position		  [235, 661, 240, 699]
+	  Position		  [235, 641, 240, 679]
 	  ShowName		  off
 	  Inputs		  "2"
 	  DisplayOption		  "bar"
@@ -1447,7 +1493,7 @@ Model {
 	  BlockType		  BusCreator
 	  Name			  "Bus\nCreator4"
 	  Ports			  [5, 1]
-	  Position		  [265, 486, 270, 524]
+	  Position		  [265, 358, 270, 492]
 	  ShowName		  off
 	  Inputs		  "5"
 	  DisplayOption		  "bar"
@@ -1463,7 +1509,7 @@ Model {
 	  BlockType		  BusSelector
 	  Name			  "Bus\nSelector1"
 	  Ports			  [1, 4]
-	  Position		  [580, 360, 585, 480]
+	  Position		  [580, 365, 585, 485]
 	  ShowName		  off
 	  OutputSignals		  "com,cop,left_foot,right_foot"
 	  Port {
@@ -1495,7 +1541,7 @@ Model {
 	  BlockType		  BusSelector
 	  Name			  "Bus\nSelector2"
 	  Ports			  [1, 1]
-	  Position		  [581, 295, 609, 300]
+	  Position		  [581, 300, 609, 305]
 	  Orientation		  "up"
 	  ShowName		  off
 	  OutputSignals		  "com"
@@ -1510,7 +1556,7 @@ Model {
 	  BlockType		  SubSystem
 	  Name			  "CP Reference"
 	  Ports			  [0, 1]
-	  Position		  [30, 317, 95, 343]
+	  Position		  [25, 222, 90, 248]
 	  MinAlgLoopOccurrences	  off
 	  RTWSystemCode		  "Auto"
 	  FunctionWithSeparateData off
@@ -1809,7 +1855,7 @@ Model {
 	Block {
 	  BlockType		  Constant
 	  Name			  "Constant11"
-	  Position		  [30, 660, 180, 680]
+	  Position		  [30, 640, 180, 660]
 	  ShowName		  off
 	  FontName		  "Arial"
 	  FontSize		  8
@@ -1827,7 +1873,7 @@ Model {
 	Block {
 	  BlockType		  Constant
 	  Name			  "Constant17"
-	  Position		  [30, 445, 140, 465]
+	  Position		  [30, 365, 140, 385]
 	  ShowName		  off
 	  FontName		  "Arial"
 	  FontSize		  8
@@ -1845,7 +1891,7 @@ Model {
 	Block {
 	  BlockType		  Constant
 	  Name			  "Constant18"
-	  Position		  [30, 470, 140, 490]
+	  Position		  [30, 390, 140, 410]
 	  ShowName		  off
 	  FontName		  "Arial"
 	  FontSize		  8
@@ -1863,7 +1909,7 @@ Model {
 	Block {
 	  BlockType		  Constant
 	  Name			  "Constant19"
-	  Position		  [30, 495, 140, 515]
+	  Position		  [30, 415, 140, 435]
 	  ShowName		  off
 	  FontName		  "Arial"
 	  FontSize		  8
@@ -1881,7 +1927,7 @@ Model {
 	Block {
 	  BlockType		  Constant
 	  Name			  "Constant20"
-	  Position		  [30, 520, 140, 540]
+	  Position		  [30, 440, 140, 460]
 	  ShowName		  off
 	  FontName		  "Arial"
 	  FontSize		  8
@@ -1899,7 +1945,7 @@ Model {
 	Block {
 	  BlockType		  Constant
 	  Name			  "Constant21"
-	  Position		  [30, 545, 140, 565]
+	  Position		  [30, 465, 140, 485]
 	  ShowName		  off
 	  FontName		  "Arial"
 	  FontSize		  8
@@ -1915,34 +1961,328 @@ Model {
 	  }
 	}
 	Block {
-	  BlockType		  RateTransition
-	  Name			  "Protected RT1"
-	  Position		  [325, 320, 345, 340]
-	  Deterministic		  off
+	  BlockType		  SubSystem
+	  Name			  "Pos. Reference"
+	  Ports			  [0, 1]
+	  Position		  [25, 132, 90, 158]
+	  MinAlgLoopOccurrences	  off
+	  RTWSystemCode		  "Auto"
+	  FunctionWithSeparateData off
+	  Port {
+	    PortNumber		    1
+	    Name		    "pos_ref"
+	    PropagatedSignals	    "reference"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	  System {
+	    Name		    "Pos. Reference"
+	    Location		    [702, 74, 1446, 876]
+	    Open		    off
+	    ModelBrowserVisibility  off
+	    ModelBrowserWidth	    200
+	    ScreenColor		    "white"
+	    PaperOrientation	    "landscape"
+	    PaperPositionMode	    "auto"
+	    PaperType		    "A4"
+	    PaperUnits		    "centimeters"
+	    TiledPaperMargins	    [0.500000, 0.500000, 0.500000, 0.500000]
+	    TiledPageScale	    1
+	    ShowPageBoundaries	    off
+	    ZoomFactor		    "100"
+	    Block {
+	      BlockType		      Step
+	      Name		      "Activate2"
+	      Position		      [85, 128, 105, 142]
+	      Time		      "10"
+	      SampleTime	      "0.001"
+	    }
+	    Block {
+	      BlockType		      Step
+	      Name		      "Activate3"
+	      Position		      [75, 48, 95, 62]
+	      Time		      "7"
+	      SampleTime	      "0.001"
+	    }
+	    Block {
+	      BlockType		      Constant
+	      Name		      "Constant1"
+	      Position		      [210, 187, 320, 203]
+	      ShowName		      off
+	      FontName		      "Arial"
+	      FontSize		      8
+	      Value		      "[0., 0.]"
+	      OutDataType	      "sfix(16)"
+	      OutScaling	      "2^0"
+	    }
+	    Block {
+	      BlockType		      Constant
+	      Name		      "Constant12"
+	      Position		      [35, 27, 145, 43]
+	      ShowName		      off
+	      FontName		      "Arial"
+	      FontSize		      8
+	      Value		      "[-0.0, 0.]"
+	      OutDataType	      "sfix(16)"
+	      OutScaling	      "2^0"
+	    }
+	    Block {
+	      BlockType		      Constant
+	      Name		      "Constant13"
+	      Position		      [35, 152, 145, 168]
+	      ShowName		      off
+	      FontName		      "Arial"
+	      FontSize		      8
+	      Value		      "[0.1, 0.]"
+	      OutDataType	      "sfix(16)"
+	      OutScaling	      "2^0"
+	      Port {
+		PortNumber		1
+		Name			"vel_ref"
+		RTWStorageClass		"Auto"
+		DataLoggingNameMode	"SignalName"
+	      }
+	    }
+	    Block {
+	      BlockType		      Constant
+	      Name		      "Constant14"
+	      Position		      [35, 107, 145, 123]
+	      ShowName		      off
+	      FontName		      "Arial"
+	      FontSize		      8
+	      Value		      "[0.1, 0.]"
+	      OutDataType	      "sfix(16)"
+	      OutScaling	      "2^0"
+	    }
+	    Block {
+	      BlockType		      Constant
+	      Name		      "Constant15"
+	      Position		      [35, 72, 145, 88]
+	      ShowName		      off
+	      FontName		      "Arial"
+	      FontSize		      8
+	      Value		      "[-0.0, 0.]"
+	      OutDataType	      "sfix(16)"
+	      OutScaling	      "2^0"
+	      Port {
+		PortNumber		1
+		Name			"vel_ref"
+		RTWStorageClass		"Auto"
+		DataLoggingNameMode	"SignalName"
+	      }
+	    }
+	    Block {
+	      BlockType		      Constant
+	      Name		      "Constant2"
+	      Position		      [210, 92, 320, 108]
+	      ShowName		      off
+	      FontName		      "Arial"
+	      FontSize		      8
+	      Value		      "[0., 0.]"
+	      OutDataType	      "sfix(16)"
+	      OutScaling	      "2^0"
+	    }
+	    Block {
+	      BlockType		      Reference
+	      Name		      "Manual Switch"
+	      Ports		      [2, 1]
+	      Position		      [365, 127, 395, 163]
+	      SourceBlock	      "simulink/Signal\nRouting/Manual Switch"
+	      SourceType	      "Manual Switch"
+	      ShowPortLabels	      "FromPortIcon"
+	      SystemSampleTime	      "-1"
+	      FunctionWithSeparateData off
+	      RTWMemSecFuncInitTerm   "Inherit from model"
+	      RTWMemSecFuncExecute    "Inherit from model"
+	      RTWMemSecDataConstants  "Inherit from model"
+	      RTWMemSecDataInternal   "Inherit from model"
+	      RTWMemSecDataParameters "Inherit from model"
+	      sw		      "0"
+	      action		      "0"
+	      varsize		      off
+	    }
+	    Block {
+	      BlockType		      Reference
+	      Name		      "Manual Switch1"
+	      Ports		      [2, 1]
+	      Position		      [360, 47, 390, 83]
+	      SourceBlock	      "simulink/Signal\nRouting/Manual Switch"
+	      SourceType	      "Manual Switch"
+	      ShowPortLabels	      "FromPortIcon"
+	      SystemSampleTime	      "-1"
+	      FunctionWithSeparateData off
+	      RTWMemSecFuncInitTerm   "Inherit from model"
+	      RTWMemSecFuncExecute    "Inherit from model"
+	      RTWMemSecDataConstants  "Inherit from model"
+	      RTWMemSecDataInternal   "Inherit from model"
+	      RTWMemSecDataParameters "Inherit from model"
+	      sw		      "0"
+	      action		      "0"
+	      varsize		      off
+	    }
+	    Block {
+	      BlockType		      Sum
+	      Name		      "Sum1"
+	      Ports		      [2, 1]
+	      Position		      [485, 55, 505, 75]
+	      ShowName		      off
+	      IconShape		      "round"
+	      Inputs		      "|++"
+	      CollapseMode	      "All dimensions"
+	      InputSameDT	      off
+	      OutDataTypeMode	      "Inherit via internal rule"
+	      OutDataType	      "sfix(16)"
+	      OutScaling	      "2^0"
+	      SaturateOnIntegerOverflow	off
+	      Port {
+		PortNumber		1
+		Name			"reference"
+		RTWStorageClass		"Auto"
+		DataLoggingNameMode	"SignalName"
+	      }
+	    }
+	    Block {
+	      BlockType		      Switch
+	      Name		      "Switch2"
+	      Position		      [220, 120, 250, 150]
+	      Threshold		      "0.5"
+	      InputSameDT	      off
+	      OutDataType	      "sfix(16)"
+	      OutScaling	      "2^0"
+	      SaturateOnIntegerOverflow	off
+	    }
+	    Block {
+	      BlockType		      Switch
+	      Name		      "Switch3"
+	      Position		      [220, 40, 250, 70]
+	      Threshold		      "0.5"
+	      InputSameDT	      off
+	      OutDataType	      "sfix(16)"
+	      OutScaling	      "2^0"
+	      SaturateOnIntegerOverflow	off
+	    }
+	    Block {
+	      BlockType		      Outport
+	      Name		      "reference"
+	      Position		      [595, 58, 625, 72]
+	      IconDisplay	      "Port number"
+	    }
+	    Line {
+	      SrcBlock		      "Manual Switch1"
+	      SrcPort		      1
+	      DstBlock		      "Sum1"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "Constant2"
+	      SrcPort		      1
+	      Points		      [10, 0; 0, -25]
+	      DstBlock		      "Manual Switch1"
+	      DstPort		      2
+	    }
+	    Line {
+	      SrcBlock		      "Switch3"
+	      SrcPort		      1
+	      DstBlock		      "Manual Switch1"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "Constant1"
+	      SrcPort		      1
+	      Points		      [15, 0; 0, -40]
+	      DstBlock		      "Manual Switch"
+	      DstPort		      2
+	    }
+	    Line {
+	      SrcBlock		      "Manual Switch"
+	      SrcPort		      1
+	      Points		      [95, 0]
+	      DstBlock		      "Sum1"
+	      DstPort		      2
+	    }
+	    Line {
+	      SrcBlock		      "Switch2"
+	      SrcPort		      1
+	      DstBlock		      "Manual Switch"
+	      DstPort		      1
+	    }
+	    Line {
+	      Name		      "reference"
+	      Labels		      [0, 0]
+	      SrcBlock		      "Sum1"
+	      SrcPort		      1
+	      DstBlock		      "reference"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "Activate3"
+	      SrcPort		      1
+	      DstBlock		      "Switch3"
+	      DstPort		      2
+	    }
+	    Line {
+	      Name		      "vel_ref"
+	      Labels		      [0, 0]
+	      SrcBlock		      "Constant15"
+	      SrcPort		      1
+	      Points		      [0, -15]
+	      DstBlock		      "Switch3"
+	      DstPort		      3
+	    }
+	    Line {
+	      SrcBlock		      "Constant12"
+	      SrcPort		      1
+	      Points		      [0, 10]
+	      DstBlock		      "Switch3"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "Activate2"
+	      SrcPort		      1
+	      DstBlock		      "Switch2"
+	      DstPort		      2
+	    }
+	    Line {
+	      Name		      "vel_ref"
+	      Labels		      [0, 0]
+	      SrcBlock		      "Constant13"
+	      SrcPort		      1
+	      Points		      [0, -15]
+	      DstBlock		      "Switch2"
+	      DstPort		      3
+	    }
+	    Line {
+	      SrcBlock		      "Constant14"
+	      SrcPort		      1
+	      Points		      [0, 10]
+	      DstBlock		      "Switch2"
+	      DstPort		      1
+	    }
+	  }
 	}
 	Block {
 	  BlockType		  RateTransition
 	  Name			  "Protected RT2"
-	  Position		  [325, 145, 345, 165]
+	  Position		  [325, 180, 345, 200]
 	  Deterministic		  off
 	}
 	Block {
 	  BlockType		  RateTransition
 	  Name			  "Protected RT3"
-	  Position		  [325, 670, 345, 690]
+	  Position		  [325, 650, 345, 670]
 	  Deterministic		  off
 	}
 	Block {
 	  BlockType		  RateTransition
 	  Name			  "Protected RT4"
-	  Position		  [325, 495, 345, 515]
+	  Position		  [325, 415, 345, 435]
 	  Deterministic		  off
 	}
 	Block {
 	  BlockType		  Scope
 	  Name			  "Scope1"
 	  Ports			  [1]
-	  Position		  [588, 225, 602, 245]
+	  Position		  [588, 230, 602, 250]
 	  Orientation		  "up"
 	  NamePlacement		  "alternate"
 	  ShowName		  off
@@ -1965,12 +2305,12 @@ Model {
 	  BlockType		  Scope
 	  Name			  "Scope2"
 	  Ports			  [1]
-	  Position		  [602, 225, 618, 245]
+	  Position		  [602, 230, 618, 250]
 	  Orientation		  "up"
 	  NamePlacement		  "alternate"
 	  ShowName		  off
 	  Floating		  off
-	  Location		  [88, 45, 1601, 899]
+	  Location		  [82, 40, 1595, 894]
 	  Open			  off
 	  NumInputPorts		  "1"
 	  List {
@@ -1988,7 +2328,7 @@ Model {
 	  BlockType		  Scope
 	  Name			  "Scope3"
 	  Ports			  [1]
-	  Position		  [617, 225, 633, 245]
+	  Position		  [617, 230, 633, 250]
 	  Orientation		  "up"
 	  NamePlacement		  "alternate"
 	  ShowName		  off
@@ -2011,7 +2351,7 @@ Model {
 	  BlockType		  Scope
 	  Name			  "Scope4"
 	  Ports			  [1]
-	  Position		  [632, 225, 648, 245]
+	  Position		  [632, 230, 648, 250]
 	  Orientation		  "up"
 	  NamePlacement		  "alternate"
 	  ShowName		  off
@@ -2033,7 +2373,7 @@ Model {
 	Block {
 	  BlockType		  ToWorkspace
 	  Name			  "To Workspace14"
-	  Position		  [675, 365, 725, 385]
+	  Position		  [675, 370, 725, 390]
 	  ShowName		  off
 	  VariableName		  "com"
 	  MaxDataPoints		  "inf"
@@ -2043,7 +2383,7 @@ Model {
 	Block {
 	  BlockType		  ToWorkspace
 	  Name			  "To Workspace15"
-	  Position		  [675, 395, 725, 415]
+	  Position		  [675, 400, 725, 420]
 	  ShowName		  off
 	  VariableName		  "cop"
 	  MaxDataPoints		  "inf"
@@ -2053,7 +2393,7 @@ Model {
 	Block {
 	  BlockType		  ToWorkspace
 	  Name			  "To Workspace16"
-	  Position		  [675, 425, 725, 445]
+	  Position		  [675, 430, 725, 450]
 	  ShowName		  off
 	  VariableName		  "left_foot"
 	  MaxDataPoints		  "inf"
@@ -2063,7 +2403,7 @@ Model {
 	Block {
 	  BlockType		  ToWorkspace
 	  Name			  "To Workspace17"
-	  Position		  [675, 455, 725, 475]
+	  Position		  [675, 460, 725, 480]
 	  ShowName		  off
 	  VariableName		  "right_foot"
 	  MaxDataPoints		  "inf"
@@ -2074,7 +2414,7 @@ Model {
 	  BlockType		  SubSystem
 	  Name			  "Vel. Reference"
 	  Ports			  [0, 1]
-	  Position		  [30, 142, 95, 168]
+	  Position		  [25, 177, 90, 203]
 	  MinAlgLoopOccurrences	  off
 	  RTWSystemCode		  "Auto"
 	  FunctionWithSeparateData off
@@ -2207,7 +2547,7 @@ Model {
 	      RTWMemSecDataConstants  "Inherit from model"
 	      RTWMemSecDataInternal   "Inherit from model"
 	      RTWMemSecDataParameters "Inherit from model"
-	      sw		      "0"
+	      sw		      "1"
 	      action		      "0"
 	      varsize		      off
 	    }
@@ -2373,7 +2713,7 @@ Model {
 	Block {
 	  BlockType		  Constant
 	  Name			  "cop_real1"
-	  Position		  [30, 680, 180, 700]
+	  Position		  [30, 660, 180, 680]
 	  ShowName		  off
 	  Value			  "[0.01 0.01] %[-0.0144 0.105]"
 	  OutDataType		  "sfix(16)"
@@ -2406,7 +2746,6 @@ Model {
 	  Labels		  [0, 0]
 	  SrcBlock		  "Constant17"
 	  SrcPort		  1
-	  Points		  [105, 0]
 	  DstBlock		  "Bus\nCreator4"
 	  DstPort		  1
 	}
@@ -2415,7 +2754,6 @@ Model {
 	  Labels		  [0, 0]
 	  SrcBlock		  "Constant18"
 	  SrcPort		  1
-	  Points		  [85, 0; 0, 20]
 	  DstBlock		  "Bus\nCreator4"
 	  DstPort		  2
 	}
@@ -2432,7 +2770,6 @@ Model {
 	  Labels		  [0, 0]
 	  SrcBlock		  "Constant20"
 	  SrcPort		  1
-	  Points		  [85, 0; 0, -20]
 	  DstBlock		  "Bus\nCreator4"
 	  DstPort		  4
 	}
@@ -2441,7 +2778,6 @@ Model {
 	  Labels		  [0, 0]
 	  SrcBlock		  "Constant21"
 	  SrcPort		  1
-	  Points		  [105, 0]
 	  DstBlock		  "Bus\nCreator4"
 	  DstPort		  5
 	}
@@ -2460,14 +2796,6 @@ Model {
 	  SrcPort		  1
 	  DstBlock		  "Bus\nCreator3"
 	  DstPort		  2
-	}
-	Line {
-	  Name			  "vel_ref"
-	  Labels		  [0, 0]
-	  SrcBlock		  "Vel. Reference"
-	  SrcPort		  1
-	  DstBlock		  "Protected RT2"
-	  DstPort		  1
 	}
 	Line {
 	  Name			  "<com>"
@@ -2530,24 +2858,6 @@ Model {
 	  }
 	}
 	Line {
-	  SrcBlock		  "Protected RT2"
-	  SrcPort		  1
-	  DstBlock		  "Atomic Walkgen"
-	  DstPort		  1
-	}
-	Line {
-	  SrcBlock		  "Protected RT4"
-	  SrcPort		  1
-	  DstBlock		  "Atomic Walkgen"
-	  DstPort		  3
-	}
-	Line {
-	  SrcBlock		  "Protected RT3"
-	  SrcPort		  1
-	  DstBlock		  "Atomic Walkgen"
-	  DstPort		  4
-	}
-	Line {
 	  SrcBlock		  "Atomic Walkgen"
 	  SrcPort		  1
 	  DstBlock		  "Bus\nSelector1"
@@ -2562,18 +2872,52 @@ Model {
 	  DstPort		  1
 	}
 	Line {
+	  SrcBlock		  "Protected RT2"
+	  SrcPort		  1
+	  DstBlock		  "Atomic Walkgen"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Protected RT4"
+	  SrcPort		  1
+	  DstBlock		  "Atomic Walkgen"
+	  DstPort		  2
+	}
+	Line {
+	  SrcBlock		  "Protected RT3"
+	  SrcPort		  1
+	  DstBlock		  "Atomic Walkgen"
+	  DstPort		  3
+	}
+	Line {
+	  Name			  "pos_ref"
+	  Labels		  [0, 0]
+	  SrcBlock		  "Pos. Reference"
+	  SrcPort		  1
+	  DstBlock		  "Bus\nCreator1"
+	  DstPort		  1
+	}
+	Line {
+	  Name			  "vel_ref"
+	  Labels		  [0, 0]
+	  SrcBlock		  "Vel. Reference"
+	  SrcPort		  1
+	  DstBlock		  "Bus\nCreator1"
+	  DstPort		  2
+	}
+	Line {
 	  Name			  "cp_ref"
 	  Labels		  [0, 0]
 	  SrcBlock		  "CP Reference"
 	  SrcPort		  1
-	  DstBlock		  "Protected RT1"
-	  DstPort		  1
+	  DstBlock		  "Bus\nCreator1"
+	  DstPort		  3
 	}
 	Line {
-	  SrcBlock		  "Protected RT1"
+	  SrcBlock		  "Bus\nCreator1"
 	  SrcPort		  1
-	  DstBlock		  "Atomic Walkgen"
-	  DstPort		  2
+	  DstBlock		  "Protected RT2"
+	  DstPort		  1
 	}
       }
     }

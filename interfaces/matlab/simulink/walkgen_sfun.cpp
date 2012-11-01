@@ -26,17 +26,18 @@ static void mdlInitializeSizes(SimStruct *S) {
 	}
 
 	// Specify I/O
-	if (!ssSetNumInputPorts(S, 10)) return;
-	ssSetInputPortWidth(S, 0, 3);     //vel_ref
-	ssSetInputPortWidth(S, 1, 2);     //cp_ref
-	ssSetInputPortWidth(S, 2, 3);     //left_ankle_in
-	ssSetInputPortWidth(S, 3, 3);     //right_ankle_in
-	ssSetInputPortWidth(S, 4, 1);     //left_yaw
-	ssSetInputPortWidth(S, 5, 1);     //right_yaw
-	ssSetInputPortWidth(S, 6, 4);     //foot_geometry
-	ssSetInputPortWidth(S, 7, 6);     //com_in
-	ssSetInputPortWidth(S, 8, 2);     //cop
-	ssSetInputPortWidth(S, 9, 1);     //reset_in
+	if (!ssSetNumInputPorts(S, 11)) return;
+	ssSetInputPortWidth(S, 0, 2);     //pos_ref
+	ssSetInputPortWidth(S, 1, 3);     //vel_ref
+	ssSetInputPortWidth(S, 2, 2);     //cp_ref
+	ssSetInputPortWidth(S, 3, 3);     //left_ankle_in
+	ssSetInputPortWidth(S, 4, 3);     //right_ankle_in
+	ssSetInputPortWidth(S, 5, 1);     //left_yaw
+	ssSetInputPortWidth(S, 6, 1);     //right_yaw
+	ssSetInputPortWidth(S, 7, 4);     //foot_geometry
+	ssSetInputPortWidth(S, 8, 6);     //com_in
+	ssSetInputPortWidth(S, 9, 2);     //cop
+	ssSetInputPortWidth(S, 10, 1);    //reset_in
 
 	ssSetInputPortDirectFeedThrough(S, 0, 1);
 	ssSetInputPortDirectFeedThrough(S, 1, 1);
@@ -48,6 +49,7 @@ static void mdlInitializeSizes(SimStruct *S) {
 	ssSetInputPortDirectFeedThrough(S, 7, 1);
 	ssSetInputPortDirectFeedThrough(S, 8, 1);
 	ssSetInputPortDirectFeedThrough(S, 9, 1);
+   	ssSetInputPortDirectFeedThrough(S, 10, 1);
 
 	if (!ssSetNumOutputPorts(S,19)) return;
 	// Realized motions
@@ -146,16 +148,17 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 	int is_closed_loop_in           = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 17)));
 
 
-	InputRealPtrsType vel_ref         = ssGetInputPortRealSignalPtrs(S, 0);
-	InputRealPtrsType cp_ref          = ssGetInputPortRealSignalPtrs(S, 1);
-	InputRealPtrsType left_ankle_in   = ssGetInputPortRealSignalPtrs(S, 2);
-	InputRealPtrsType right_ankle_in  = ssGetInputPortRealSignalPtrs(S, 3);
-	InputRealPtrsType left_yaw        = ssGetInputPortRealSignalPtrs(S, 4);
-	InputRealPtrsType right_yaw       = ssGetInputPortRealSignalPtrs(S, 5);
-	InputRealPtrsType foot_geometry   = ssGetInputPortRealSignalPtrs(S, 6);
-	InputRealPtrsType com_in          = ssGetInputPortRealSignalPtrs(S, 7);
-	InputRealPtrsType cop_in          = ssGetInputPortRealSignalPtrs(S, 8);
-	InputRealPtrsType reset_in        = ssGetInputPortRealSignalPtrs(S, 9);
+	InputRealPtrsType pos_ref         = ssGetInputPortRealSignalPtrs(S, 0);
+	InputRealPtrsType vel_ref         = ssGetInputPortRealSignalPtrs(S, 1);
+	InputRealPtrsType cp_ref          = ssGetInputPortRealSignalPtrs(S, 2);
+	InputRealPtrsType left_ankle_in   = ssGetInputPortRealSignalPtrs(S, 3);
+	InputRealPtrsType right_ankle_in  = ssGetInputPortRealSignalPtrs(S, 4);
+	InputRealPtrsType left_yaw        = ssGetInputPortRealSignalPtrs(S, 5);
+	InputRealPtrsType right_yaw       = ssGetInputPortRealSignalPtrs(S, 6);
+	InputRealPtrsType foot_geometry   = ssGetInputPortRealSignalPtrs(S, 7);
+	InputRealPtrsType com_in          = ssGetInputPortRealSignalPtrs(S, 8);
+	InputRealPtrsType cop_in          = ssGetInputPortRealSignalPtrs(S, 9);
+	InputRealPtrsType reset_in        = ssGetInputPortRealSignalPtrs(S, 10);
 
 	real_T *com            = ssGetOutputPortRealSignal(S, 0);
 	real_T *dcom           = ssGetOutputPortRealSignal(S, 1);
@@ -256,9 +259,10 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 	// INPUT:
 	// ------
 	walk->SetVelReference(*vel_ref[0], *vel_ref[1], *vel_ref[2]);
+	walk->SetPosReference(*pos_ref[0], *pos_ref[1]);
 	walk->SetCPReference(*cp_ref[0], *cp_ref[1]);
 	RigidBodySystem *robot = walk->robot();
-	if (is_closed_loop_in > 0.5) {// TODO: Is there a better way for switching?
+	if (is_closed_loop_in > 0.5) {
 		robot->com()->state().x[0] = *com_in[0];
 		robot->com()->state().y[0] = *com_in[1];
 		robot->com()->state().x[1] = *com_in[3];
