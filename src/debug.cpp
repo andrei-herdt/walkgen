@@ -10,13 +10,14 @@ void Debug::Cout(const char *name, vector<double> vec) {
 		cout << endl;
 }
 
-void Debug::WriteToDatFile(const char *filename, double value, const MPCWalkgen::CommonMatrixType &mat) {
+void Debug::WriteToFile(const char *filename, double value, const char *ending, const MPCWalkgen::CommonMatrixType &mat) {
 	char file_index[256];
 	sprintf(file_index, "%.2f", value);
 	char name[256];
 	strcpy(name, filename); // copy string one into the result.
 	strcat(name, file_index);
-	strcat(name, ".dat");
+	strcat(name, ".");
+	strcat(name, ending);
 
 	std::ofstream file(name);
 	if (file.is_open()) {

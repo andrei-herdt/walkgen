@@ -14,7 +14,7 @@ public:
 	// \brief Print of std::vector
 	static void Cout(const char *name, std::vector<double> vec);
 
-	static void WriteToDatFile(const char *filename, double value, const MPCWalkgen::CommonMatrixType &mat);
+	static void WriteToFile(const char *filename, double value, const char *ending, const MPCWalkgen::CommonMatrixType &mat);
 };
 
 #endif /* DEBUG_H_ */
