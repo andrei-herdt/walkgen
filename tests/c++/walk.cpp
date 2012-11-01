@@ -11,9 +11,9 @@ using namespace MPCWalkgen;
 
 int main() {
 
-	int num_samples_horizon 		= 10;
-	int num_samples_step 			= 8;
-	int num_samples_dsss 			= 8;
+	int num_samples_horizon 		= 5;
+	int num_samples_step 			= 5;
+	int num_samples_dsss 			= 5;
 	int num_steps_ssds 			= 2;
 	double sample_period_qp 		= .1;
 	double sample_period_first 		= .1;
@@ -162,6 +162,7 @@ int main() {
 		walk.clock().ResetLocal();
 		num_iterations++;
 	}
+		walk.solver()->DumpMatrices(curr_time, "dat");
 	/*
 	walk.SetVelReference(0., 0., 0.);
 	for (; curr_time < 20; curr_time += sample_period_act) {

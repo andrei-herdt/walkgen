@@ -14,10 +14,10 @@ QPSolver::QPSolver(const SolverData *parameters, int nbvar_max, int nbcstr_max)
 ,gradient_vec_(nbvar_max)
 ,cstr_mat_(nbcstr_max, nbvar_max)
 ,cstr_arr_(NULL)
-,constr_u_bounds_vec_(nbcstr_max)
-,constr_l_bounds_vec_(nbcstr_max)
-,var_u_bounds_vec_(nbvar_max)
-,var_l_bounds_vec_(nbvar_max)
+,uc_bounds_vec_(nbcstr_max)
+,lc_bounds_vec_(nbcstr_max)
+,uv_bounds_vec_(nbvar_max)
+,lv_bounds_vec_(nbvar_max)
 ,num_variables_(0)
 ,num_variables_max_(nbvar_max)
 ,num_constr_(0)
@@ -52,10 +52,10 @@ void QPSolver::Reset() {
 	hessian_mat_.Reset(0.);
 	cstr_mat_.Reset(0.);
 	gradient_vec_.Reset(0.);
-	constr_u_bounds_vec_.Reset(0.);
-	constr_l_bounds_vec_.Reset(-0.);
-	var_u_bounds_vec_.Reset(0.);
-	var_l_bounds_vec_.Reset(-0.);
+	uc_bounds_vec_.Reset(0.);
+	lc_bounds_vec_.Reset(-0.);
+	uv_bounds_vec_.Reset(0.);
+	lv_bounds_vec_.Reset(-0.);
 }
 
 void QPSolver::SetVarIndices(const Eigen::VectorXi &order) {
@@ -64,15 +64,15 @@ void QPSolver::SetVarIndices(const Eigen::VectorXi &order) {
 	hessian_mat_.column_indices(order);
 	cstr_mat_.column_indices(order);
 	gradient_vec_.rowOrder(order);
-	var_u_bounds_vec_.rowOrder(order);
-	var_l_bounds_vec_.rowOrder(order);
+	uv_bounds_vec_.rowOrder(order);
+	lv_bounds_vec_.rowOrder(order);
 }
 
 void QPSolver::SetConstrIndices(const Eigen::VectorXi &order) {
 	constr_indices_vec_ = order;
 	cstr_mat_.row_indices(order);
-	constr_u_bounds_vec_.rowOrder(order);
-	constr_l_bounds_vec_.rowOrder(order);
+	uc_bounds_vec_.rowOrder(order);
+	lc_bounds_vec_.rowOrder(order);
 }
 
 
@@ -124,10 +124,10 @@ void QPSolver::DumpProblem(const char *filename, double value, const char *endin
 		file << "Hessian" << num_variables_ <<","<< num_variables_ <<":" << "\n" << hessian_mat_() << '\n';
 		file << "Gradient" << num_variables_ <<":" << "\n" << gradient_vec_() << '\n';
 		file << "Constraints matrix" << num_constr_ <<","<< num_variables_ <<":" << "\n" << cstr_mat_() << '\n';
-		file << "Constraints upper bounds" << num_constr_ <<":" << "\n" << constr_u_bounds_vec_() << '\n';
-		file << "Constraints lower bounds" << num_constr_ <<":" << "\n" << constr_l_bounds_vec_() << '\n';
-		file << "Variables upper bounds" << num_variables_ <<":" << "\n" << var_u_bounds_vec_() << '\n';
-		file << "Variables lower bounds" << num_variables_ <<":" << "\n" << var_l_bounds_vec_() << '\n';
+		file << "Constraints upper bounds" << num_constr_ <<":" << "\n" << uc_bounds_vec_() << '\n';
+		file << "Constraints lower bounds" << num_constr_ <<":" << "\n" << lc_bounds_vec_() << '\n';
+		file << "Variables upper bounds" << num_variables_ <<":" << "\n" << uv_bounds_vec_() << '\n';
+		file << "Variables lower bounds" << num_variables_ <<":" << "\n" << lv_bounds_vec_() << '\n';
 	}
 }
 
@@ -135,10 +135,10 @@ void QPSolver::DumpMatrices(double time, const char *ending) {
 	Debug::WriteToFile("H", time, ending, hessian_mat_().block(0, 0, num_variables_, num_variables_));
 	Debug::WriteToFile("p", time, ending, gradient_vec_().head(num_variables_));
 	Debug::WriteToFile("C", time, ending, cstr_mat_().block(0, 0, num_constr_, num_variables_));
-	Debug::WriteToFile("cu", time, ending, constr_u_bounds_vec_().head(num_constr_));
-	Debug::WriteToFile("cl", time, ending, constr_l_bounds_vec_().head(num_constr_));
-	Debug::WriteToFile("vu", time, ending, var_u_bounds_vec_().head(num_variables_));
-	Debug::WriteToFile("vl", time, ending, var_l_bounds_vec_().head(num_variables_));
+	Debug::WriteToFile("cu", time, ending, uc_bounds_vec_().head(num_constr_));
+	Debug::WriteToFile("cl", time, ending, lc_bounds_vec_().head(num_constr_));
+	Debug::WriteToFile("vu", time, ending, uv_bounds_vec_().head(num_variables_));
+	Debug::WriteToFile("vl", time, ending, lv_bounds_vec_().head(num_variables_));
 }
 
 #include <mpc-walkgen/qpoases-parser.h>

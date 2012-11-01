@@ -39,12 +39,12 @@ void LSSOLParser::Solve(MPCSolution &solution_data,
 
 
 	// Pile up XL and BL
-	bl_.segment(0,      num_variables_) = var_l_bounds_vec_().block(0,0,num_variables_,1);
-	bl_.segment(num_variables_, num_constr_) = constr_l_bounds_vec_().block(0,0,num_constr_,1);
+	bl_.segment(0,      num_variables_) = lv_bounds_vec_().block(0,0,num_variables_,1);
+	bl_.segment(num_variables_, num_constr_) = lc_bounds_vec_().block(0,0,num_constr_,1);
 
 	// Pile up XU and BU
-	bu_.segment(0,      num_variables_) = var_u_bounds_vec_().block(0,0,num_variables_,1);
-	bu_.segment(num_variables_, num_constr_) = constr_u_bounds_vec_().block(0,0,num_constr_,1);
+	bu_.segment(0,      num_variables_) = uv_bounds_vec_().block(0,0,num_variables_,1);
+	bu_.segment(num_variables_, num_constr_) = uc_bounds_vec_().block(0,0,num_constr_,1);
 
 	if (useWarmStart){
 		solution_data.qp_solution_vec = solution_data.initial_solution;

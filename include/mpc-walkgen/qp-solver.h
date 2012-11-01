@@ -62,11 +62,11 @@ protected:
 
 	QPMatrix cstr_mat_;
 	double *cstr_arr_;
-	QPVector constr_u_bounds_vec_;
-	QPVector constr_l_bounds_vec_;
+	QPVector uc_bounds_vec_;
+	QPVector lc_bounds_vec_;
 
-	QPVector var_u_bounds_vec_;
-	QPVector var_l_bounds_vec_;
+	QPVector uv_bounds_vec_;
+	QPVector lv_bounds_vec_;
 
 	int num_variables_, num_variables_max_;
 	int num_constr_, num_constr_max_;

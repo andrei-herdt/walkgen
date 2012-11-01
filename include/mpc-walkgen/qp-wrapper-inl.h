@@ -8,10 +8,10 @@ inline QPMatrix &hessian_mat() 			{return hessian_mat_;}
 inline QPVector &gradient_vec() 			{return gradient_vec_;};
 
 inline QPMatrix &constr_mat() 			{return cstr_mat_;}
-inline QPVector &uc_bounds_vec() 		{return constr_u_bounds_vec_;};
-inline QPVector &lc_bounds_vec() 		{return constr_l_bounds_vec_;};
-inline QPVector &uv_bounds_vec() 		{return var_u_bounds_vec_;};
-inline QPVector &lv_bounds_vec() 		{return var_l_bounds_vec_;};
+inline QPVector &uc_bounds_vec() 		{return uc_bounds_vec_;};
+inline QPVector &lc_bounds_vec() 		{return lc_bounds_vec_;};
+inline QPVector &uv_bounds_vec() 		{return uv_bounds_vec_;};
+inline QPVector &lv_bounds_vec() 		{return lv_bounds_vec_;};
 
 inline void num_var (int nbvar) 			{num_variables_ = nbvar;}
 inline int num_var () const 				{return num_variables_;}

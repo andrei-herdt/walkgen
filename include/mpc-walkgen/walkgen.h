@@ -36,19 +36,17 @@ public:
 	// \{
 	void SetPosReference(double x, double y);
 	void SetVelReference(double dx, double dy, double dyaw);
-	void SetVelReference(CommonVectorType dx, CommonVectorType dy, CommonVectorType dyaw);
+	void SetVelReference(const CommonVectorType &x_vec, const CommonVectorType &y_vec, const CommonVectorType &yaw_vec);
 	void SetCPReference(double x, double y);
 
 	const BodyState &bodyState(BodyType body) const;
 	void bodyState(BodyType body, const BodyState &state);
 	inline const ControlOutput &output() const { return output_; };
 	inline RigidBodySystem *robot() { return &robot_; };
-
 	inline QPSolver *solver() { return solver_; };
-
 	RealClock &clock() {return clock_;};
-
 	const MPCSolution &solution() {return solution_;};
+	inline const MPCParameters &mpc_parameters() const {return mpc_parameters_;};
 	// \}
 
 	//

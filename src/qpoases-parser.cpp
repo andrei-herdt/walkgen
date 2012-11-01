@@ -38,8 +38,8 @@ void QPOasesParser::Init() {
 	int max_iterations = 100;
 
 	qp_->init(hessian_mat_().data(), gradient_vec_().data(), cstr_mat_().data(),
-			var_l_bounds_vec_().data(), var_u_bounds_vec_().data(),
-			constr_l_bounds_vec_().data(), constr_u_bounds_vec_().data(),
+			lv_bounds_vec_().data(), uv_bounds_vec_().data(),
+			lc_bounds_vec_().data(), uc_bounds_vec_().data(),
 			max_iterations, NULL);
 
 }
@@ -88,13 +88,13 @@ void QPOasesParser::Solve(MPCSolution &solution,
 	int num_wsr = parameters_->num_wsrec;
 	if (warmstart) {
 		qp_->hotstart(hessian_mat_().data(), gradient_vec_().data(), cstr_mat_().data(),
-				var_l_bounds_vec_().data(), var_u_bounds_vec_().data(),
-				constr_l_bounds_vec_().data(), constr_u_bounds_vec_().data(),
+				lv_bounds_vec_().data(), uv_bounds_vec_().data(),
+				lc_bounds_vec_().data(), uc_bounds_vec_().data(),
 				num_wsr, NULL);
 	} else {
 		qp_->hotstart(hessian_mat_().data(), gradient_vec_().data(), cstr_mat_().data(),
-				var_l_bounds_vec_().data(), var_u_bounds_vec_().data(),
-				constr_l_bounds_vec_().data(), constr_u_bounds_vec_().data(),
+				lv_bounds_vec_().data(), uv_bounds_vec_().data(),
+				lc_bounds_vec_().data(), uc_bounds_vec_().data(),
 				num_wsr, NULL);
 	}
 

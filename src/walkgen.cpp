@@ -308,10 +308,10 @@ void Walkgen::SetVelReference(double dx, double dy, double dyaw){//TODO: Is newV
 	new_vel_ref_.local.yaw.fill(dyaw);
 }
 
-void Walkgen::SetVelReference(CommonVectorType dx, CommonVectorType dy, CommonVectorType dyaw){
-	new_vel_ref_.local.x = dx;
-	new_vel_ref_.local.y = dy;
-	new_vel_ref_.local.yaw = dyaw;
+void Walkgen::SetVelReference(const CommonVectorType &x_vec, const CommonVectorType &y_vec, const CommonVectorType &yaw_vec){
+	new_vel_ref_.local.x = x_vec;
+	new_vel_ref_.local.y = y_vec;
+	new_vel_ref_.local.yaw = yaw_vec;
 }
 
 void Walkgen::SetCPReference(double x, double y){
