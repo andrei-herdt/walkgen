@@ -24,10 +24,6 @@ const static double kInf = 1e10;
 //
 enum HullType{ FOOT_HULL, COP_HULL };//TODO: Remove this
 
-enum QPMatrixType{ HESSIAN, matrixA };//TODO: Remove this
-
-enum QPVectorType{ vectorP,  vectorBU,  vectorBL,  vectorXU,  vectorXL };//TODO: Remove this
-
 enum Derivative {
 	POSITION		= 0,
 	VELOCITY		= 1,
