@@ -1,5 +1,5 @@
 ##	Filename:  unittests/c++/Makefile
-##	Author:    Andrei Herdt (Joachim Ferreau)
+##	Author:    Andrei Herdt
 
 # select your operating system here!
 include make_dependencies.mk
@@ -13,7 +13,8 @@ IFLAGS      =  -I. \
                -I${I_DIR} \
 			   -I${EIGEN_DIR}
 
-TEST_EXES = walk${EXE}
+TEST_EXES = walk${EXE} \
+			pid-mode${EXE}
 
 
 ##
@@ -25,6 +26,9 @@ all: ${TEST_EXES}
 walk${EXE}: walk.${OBJEXT} ${SRC_DIR}libmpc-walkgen.${LIBEXT}
 	${CPP} ${DEF_TARGET} ${CPPFLAGS} $< ${SRC_DIR}libmpc-walkgen.${LIBEXT} ${THREAD_LIB} ${QPOASES_LIB} ${BLAS_LIB}
 
+pid-mode${EXE}: pid-mode.${OBJEXT} ${SRC_DIR}libmpc-walkgen.${LIBEXT}
+	${CPP} ${DEF_TARGET} ${CPPFLAGS} $< ${SRC_DIR}libmpc-walkgen.${LIBEXT} ${THREAD_LIB} ${QPOASES_LIB} ${BLAS_LIB}
+	
 clean: 
 	${RM} -f *.${OBJEXT} ${TEST_EXES}
 
