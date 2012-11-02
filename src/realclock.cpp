@@ -56,9 +56,7 @@ void RealClock::GetFrequency(unsigned long long milliseconds) {
 }
 
 int RealClock::StartCounter() {
-	if (num_counters_ >= num_max_counters_) {
-		return -1;
-	}
+	assert(num_counters_ < num_max_counters_);//TODO: Overflow possible?
 
 #ifdef __WIN32__
 	LARGE_INTEGER start_counter;
@@ -81,7 +79,8 @@ int RealClock::StartCounter() {
 }
 
 void RealClock::StopCounter(int index) {
-	if (index > -1 && index <= num_counters_) {
+	assert(index > -1 && index <= num_counters_);//TODO: Overflow possible?
+
 #ifdef __WIN32__
 		LARGE_INTEGER stop_counter;
 		QueryPerformanceCounter(&stop_counter);
@@ -95,7 +94,7 @@ void RealClock::StopCounter(int index) {
 		if (ticks_diff > max_ticks_vec_.at(index)) {
 			max_ticks_vec_.at(index) = ticks_diff;
 		}
-	}
+
 }
 
 void RealClock::StopLastCounter() {

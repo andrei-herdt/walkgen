@@ -128,17 +128,17 @@ const MPCSolution &Walkgen::Go(double time){
 		builder_->current_time(current_time_);
 		//clock_.StopCounter(first_timer);
 
-		int timer_build_problem = clock_.StartCounter();
+		//int timer_build_problem = clock_.StartCounter();
 		BuildProblem();
-		clock_.StopCounter(timer_build_problem);
+		//clock_.StopCounter(timer_build_problem);
 
-		int timer_solve = clock_.StartCounter();
+		//int timer_solve = clock_.StartCounter();
 		solver_->Solve(solution_, mpc_parameters_.warmstart, mpc_parameters_.solver.analysis);
-		clock_.StopCounter(timer_solve);
+		//clock_.StopCounter(timer_solve);
 
-		int timer_generate_traj = clock_.StartCounter();
+		//int timer_generate_traj = clock_.StartCounter();
 		GenerateTrajectories();
-		clock_.StopCounter(timer_generate_traj);
+		//clock_.StopCounter(timer_generate_traj);
 	}
 
 	if (time > next_act_sample_ - kEps) {

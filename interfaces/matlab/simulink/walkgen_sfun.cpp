@@ -186,14 +186,14 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 	// ----------------------------------
 	if (ssGetIWorkValue(S, 0) == 0) {
 		FootData left_foot;
-		left_foot.ankle_pos_local << 0, 0, 0;      //0, 0, 0.105;//TODO:Is not used
-		left_foot.sole_height = *foot_geometry[2] - *foot_geometry[3];
-		left_foot.sole_width = *foot_geometry[0] - *foot_geometry[1];
+		left_foot.ankle_pos_local 	<< 0, 0, 0;      //0, 0, 0.105;//TODO:Is not used
+		left_foot.sole_height 		= *foot_geometry[2] - *foot_geometry[3];
+		left_foot.sole_width 		= *foot_geometry[0] - *foot_geometry[1];
 		left_foot.SetEdges(*foot_geometry[0], *foot_geometry[1], *foot_geometry[2], *foot_geometry[3], kSecurityMargin);
 		FootData right_foot;
-		right_foot.ankle_pos_local << 0, 0, 0;     //0, 0, 0.105;//TODO:Is not used
-		right_foot.sole_height = *foot_geometry[2] - *foot_geometry[3];
-		right_foot.sole_width = *foot_geometry[0] - *foot_geometry[1];
+		right_foot.ankle_pos_local 	<< 0, 0, 0;     //0, 0, 0.105;//TODO:Is not used
+		right_foot.sole_height 		= *foot_geometry[2] - *foot_geometry[3];
+		right_foot.sole_width 		= *foot_geometry[0] - *foot_geometry[1];
 		right_foot.SetEdges(*foot_geometry[0], *foot_geometry[1], *foot_geometry[2], *foot_geometry[3], kSecurityMargin);
 
 		HipYawData left_hip_yaw;
@@ -275,9 +275,9 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 	// ---------------
 	double curr_time = ssGetT(S);
 	walk->clock().ResetLocal();
-	int time_online = walk->clock().StartCounter();
+	//int time_online = walk->clock().StartCounter();
 	const MPCSolution &solution = walk->Go(curr_time);
-	walk->clock().StopCounter(time_online);
+	//walk->clock().StopCounter(time_online);
 
 	// Assign to the output:
 	// ---------------------
@@ -373,7 +373,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 		analysis[2] = solution.analysis.objective_value;
 		int num_counters = walk->clock().GetNumCounters();
 		//for (int i = num_counters - 1; i >= 0; i--) {
-		analysis[/*i + */3] = walk->clock().GetTime(time_online);
+		//analysis[/*i + */3] = walk->clock().GetTime(time_online);
 		//}
 
 		cur_state[0] = robot->com()->state().x[0];
