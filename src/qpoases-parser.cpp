@@ -6,10 +6,10 @@ using namespace MPCWalkgen;
 using namespace Eigen;
 
 
-QPOasesParser::QPOasesParser(const SolverData *parameters, int num_variables, int num_constr)
+QPOasesParser::QPOasesParser(SolverData* const parameters, int num_variables, int num_constr)
 :QPSolver(parameters, num_variables, num_constr) {
 	qp_ = new qpOASES::SQProblem(num_variables, num_constr);
-	solution_vec_ = new double[num_variables];
+	solution_arr_ = new double[num_variables];
 	cstr_init_vec_ = new  qpOASES::Constraints(num_constr);
 	bounds_init_vec_ = new  qpOASES::Bounds(num_variables);
 }
@@ -19,9 +19,9 @@ QPOasesParser::~QPOasesParser() {
 		delete qp_;
 		qp_ = NULL;
 	}
-	if (solution_vec_ != 0x0) {
-		delete [] solution_vec_;
-		solution_vec_ = NULL;
+	if (solution_arr_ != 0x0) {
+		delete [] solution_arr_;
+		solution_arr_ = NULL;
 	}
 	if (cstr_init_vec_ != 0x0) {
 		delete cstr_init_vec_;
@@ -34,14 +34,12 @@ QPOasesParser::~QPOasesParser() {
 }
 
 void QPOasesParser::Init() {
-
 	int max_iterations = 100;
 
 	qp_->init(hessian_mat_().data(), gradient_vec_().data(), cstr_mat_().data(),
 			lv_bounds_vec_().data(), uv_bounds_vec_().data(),
 			lc_bounds_vec_().data(), uc_bounds_vec_().data(),
 			max_iterations, NULL);
-
 }
 
 void QPOasesParser::Solve(MPCSolution &solution,
@@ -71,7 +69,6 @@ void QPOasesParser::Solve(MPCSolution &solution,
 				cstr_init_vec_->setupConstraint(i, qpOASES::ST_UPPER);
 			}
 		}
-
 	} else {
 		if (solution.qp_solution_vec.rows() != num_variables_) {
 			solution.qp_solution_vec.setZero(num_variables_);
@@ -98,9 +95,14 @@ void QPOasesParser::Solve(MPCSolution &solution,
 				num_wsr, NULL);
 	}
 
-	qp_->getPrimalSolution(solution_vec_);
+	qp_->getPrimalSolution(solution_arr_);
 	for (int i = 0; i < num_variables_; ++i) {
-		solution.qp_solution_vec(i) = solution_vec_[i];
+		solution.qp_solution_vec(i) = solution_arr_[i];
+	}
+
+	if (parameters_->analysis) {
+		solution.analysis.objective_value = qp_->getObjVal();
+		solution.analysis.num_iterations = num_wsr;
 	}
 
 	/////// TODO: checked until here

@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.663"
+    ComputedModelVersion    "1.676"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Thu Nov 01 17:41:55 2012"
+  LastModifiedDate	  "Fri Nov 02 15:07:31 2012"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:663>"
+  ModelVersionFormat	  "1.%<AutoIncrement:676>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -667,7 +667,7 @@ Model {
   }
   System {
     Name		    "walkgen"
-    Location		    [702, 74, 977, 375]
+    Location		    [850, 74, 1125, 375]
     Open		    off
     ModelBrowserVisibility  off
     ModelBrowserWidth	    200
@@ -700,7 +700,7 @@ Model {
       FunctionWithSeparateData off
       System {
 	Name			"Simulation"
-	Location		[702, 74, 1432, 860]
+	Location		[850, 74, 1594, 876]
 	Open			on
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
@@ -742,7 +742,7 @@ Model {
 	  MaskIconOpaque	  on
 	  MaskIconRotate	  "none"
 	  MaskIconUnits		  "autoscale"
-	  MaskValueString	  "16|1|0|0|0|0.000001|8|8|2|0.1|0.001|0.001|0.02|200|2|1|0|0"
+	  MaskValueString	  "16|0|1|0|0|0.0001|8|8|2|0.1|0.001|0.001|0.02|1000|3|1|0|0"
 	  MaskTabNameString	  ",,,,,,,,,,,,,,,,,"
 	  System {
 	    Name		    "Atomic Walkgen"
@@ -779,7 +779,7 @@ Model {
 	    Block {
 	      BlockType		      Inport
 	      Name		      "state"
-	      Position		      [35, 598, 65, 612]
+	      Position		      [35, 603, 65, 617]
 	      Port		      "3"
 	      IconDisplay	      "Port number"
 	      OutDataType	      "sfix(16)"
@@ -845,7 +845,7 @@ Model {
 	      BlockType		      BusSelector
 	      Name		      "Bus\nSelector1"
 	      Ports		      [1, 2]
-	      Position		      [110, 552, 115, 658]
+	      Position		      [110, 554, 115, 661]
 	      ShowName		      off
 	      OutputSignals	      "com_real,cop_real"
 	      Port {
@@ -1468,7 +1468,7 @@ Model {
 	  BlockType		  BusCreator
 	  Name			  "Bus\nCreator1"
 	  Ports			  [3, 1]
-	  Position		  [280, 123, 285, 257]
+	  Position		  [265, 123, 270, 257]
 	  ShowName		  off
 	  Inputs		  "3"
 	  DisplayOption		  "bar"
@@ -1477,7 +1477,7 @@ Model {
 	  BlockType		  BusCreator
 	  Name			  "Bus\nCreator3"
 	  Ports			  [2, 1]
-	  Position		  [235, 641, 240, 679]
+	  Position		  [265, 641, 270, 679]
 	  ShowName		  off
 	  Inputs		  "2"
 	  DisplayOption		  "bar"
@@ -2295,8 +2295,8 @@ Model {
 	    axes1		    "%<SignalLabel>"
 	  }
 	  TimeRange		  "0.5010330578512396"
-	  YMin			  "-1000"
-	  YMax			  "20000"
+	  YMin			  "-0.6"
+	  YMax			  "0.9"
 	  SaveName		  "ScopeData2"
 	  DataFormat		  "StructureWithTime"
 	  SampleTime		  "0"

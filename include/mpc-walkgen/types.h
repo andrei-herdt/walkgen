@@ -186,7 +186,7 @@ struct MPC_WALKGEN_API ConvexHull {
 
 struct SolverData {
 	SolverName name;
-	int num_wsrec;  	//Maximal number of working set recomputations
+	int num_wsrec;  			//Maximal number of working set recomputations
 	bool analysis;
 };
 
@@ -213,7 +213,7 @@ struct MPC_WALKGEN_API MPCParameters {
 	SolverData solver;
 
 	/// \brief Compute the number of recomputations left until next sample
-	int GetMPCSamplesLeft(double firstSamplingPeriod) const;
+	int GetMPCSamplesLeft(double first_sampling_period) const;
 	/// \brief Number of simulation iterations between two feedback call
 	int num_samples_act() const;
 

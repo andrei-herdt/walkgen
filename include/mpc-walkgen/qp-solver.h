@@ -15,7 +15,7 @@ class QPSolver{
 	// Public methods:
 	//
 public:
-	QPSolver(const SolverData *parameters, int nbvar_max, int nbcstr_max);
+	QPSolver(SolverData* const parameters, int nbvar_max, int nbcstr_max);
 	virtual ~QPSolver() = 0;
 
 	virtual void Init() = 0;
@@ -74,14 +74,14 @@ protected:
 	Eigen::VectorXi var_indices_vec_;
 	Eigen::VectorXi constr_indices_vec_;
 
-	const SolverData *parameters_;
+	SolverData* const parameters_;
 
 	RealClock *clock_;
 
 #include <mpc-walkgen/qp-wrapper-inl.h>
 };
 
-QPSolver* createQPSolver(const SolverData &parameters, int nbvar_max, int nbcstr_max);
+QPSolver* createQPSolver(SolverData &parameters, int nbvar_max, int nbcstr_max);
 }
 
 #endif // MPC_WALKGEN_QP_SOLVER_H

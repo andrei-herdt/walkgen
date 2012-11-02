@@ -8,7 +8,7 @@
 using namespace MPCWalkgen;
 using namespace Eigen;
 
-QPSolver::QPSolver(const SolverData *parameters, int nbvar_max, int nbcstr_max)
+QPSolver::QPSolver(SolverData* const parameters, int nbvar_max, int nbcstr_max)
 :hessian_mat_(nbvar_max, nbvar_max)
 ,hessian_arr_(NULL)
 ,gradient_vec_(nbvar_max)
@@ -144,7 +144,7 @@ void QPSolver::DumpMatrices(double time, const char *ending) {
 #include <mpc-walkgen/qpoases-parser.h>
 #include <mpc-walkgen/lssol-parser.h>
 
-QPSolver *MPCWalkgen::createQPSolver(const SolverData &parameters, int num_vars, int num_constr) 
+QPSolver *MPCWalkgen::createQPSolver(SolverData& parameters, int num_vars, int num_constr)
 {//TODO: Remove this
 	QPSolver *solver = NULL;
 	if (parameters.name == LSSOL) {

@@ -11,7 +11,7 @@ namespace MPCWalkgen{
 
 	class QPOasesParser : public QPSolver{
 		public:
-			QPOasesParser(const SolverData *paremeters, int nbvar_max, int nbcstr_max);
+			QPOasesParser(SolverData* const paremeters, int nbvar_max, int nbcstr_max);
 			virtual ~QPOasesParser();
 
 			virtual void Init();
@@ -31,7 +31,7 @@ namespace MPCWalkgen{
 
 		protected:
 			qpOASES::SQProblem *qp_;
-			double *solution_vec_;
+			double *solution_arr_;
 			qpOASES::Constraints *cstr_init_vec_;
 			qpOASES::Bounds *bounds_init_vec_;
 

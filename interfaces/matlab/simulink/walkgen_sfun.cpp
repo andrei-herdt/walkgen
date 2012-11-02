@@ -370,9 +370,10 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 		// ---------
 		analysis[0] = solution.analysis.resolution_time;
 		analysis[1] = solution.analysis.num_iterations;
+		analysis[2] = solution.analysis.objective_value;
 		int num_counters = walk->clock().GetNumCounters();
 		//for (int i = num_counters - 1; i >= 0; i--) {
-		analysis[/*i + */2] = walk->clock().GetTime(time_online);
+		analysis[/*i + */3] = walk->clock().GetTime(time_online);
 		//}
 
 		cur_state[0] = robot->com()->state().x[0];

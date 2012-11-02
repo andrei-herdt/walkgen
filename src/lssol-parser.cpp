@@ -7,7 +7,7 @@ using namespace MPCWalkgen;
 using namespace Eigen;
 
 
-LSSOLParser::LSSOLParser(const SolverData *parameters, int num_vars, int num_constr)
+LSSOLParser::LSSOLParser(SolverData* const parameters, int num_vars, int num_constr)
 	:QPSolver(parameters, num_vars, num_constr)
 	,kx_(num_vars)
 	,bb_(1)
