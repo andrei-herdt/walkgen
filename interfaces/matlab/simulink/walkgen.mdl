@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.676"
+    ComputedModelVersion    "1.686"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Fri Nov 02 15:07:31 2012"
+  LastModifiedDate	  "Mon Nov 05 15:38:40 2012"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:676>"
+  ModelVersionFormat	  "1.%<AutoIncrement:686>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -107,7 +107,7 @@ Model {
 	  $ObjectID		  2
 	  Version		  "1.3.0"
 	  StartTime		  "0.0"
-	  StopTime		  "2"
+	  StopTime		  "1"
 	  AbsTol		  "auto"
 	  FixedStep		  "1e-3"
 	  InitialStep		  "auto"
@@ -726,7 +726,7 @@ Model {
 	  Position		  [385, 75, 490, 775]
 	  TreatAsAtomicUnit	  on
 	  MinAlgLoopOccurrences	  off
-	  SystemSampleTime	  "0.001"
+	  SystemSampleTime	  "0.005"
 	  RTWSystemCode		  "Auto"
 	  FunctionWithSeparateData off
 	  MaskPromptString	  "Length of horizon [num. samples]|Position weight|Velocity weight|CoP weight|CP weight|Control weight|Step period [num. samples]|Length of initial double support phase [num. samples]|Steps before halt|Sampling period [s]|Time between recomputations [s]|Actuator sampling period [s]|Security margin [m]|Max number of working set recomputations|Dynamics order|Debug mode|PID mode|Closed loop"
@@ -742,7 +742,7 @@ Model {
 	  MaskIconOpaque	  on
 	  MaskIconRotate	  "none"
 	  MaskIconUnits		  "autoscale"
-	  MaskValueString	  "16|0|1|0|0|0.0001|8|8|2|0.1|0.001|0.001|0.02|1000|3|1|0|0"
+	  MaskValueString	  "16|0|0|0|1|0.0001|8|8|2|0.1|0.005|0.005|0.02|1000|2|1|0|0"
 	  MaskTabNameString	  ",,,,,,,,,,,,,,,,,"
 	  System {
 	    Name		    "Atomic Walkgen"
@@ -2427,7 +2427,7 @@ Model {
 	  }
 	  System {
 	    Name		    "Vel. Reference"
-	    Location		    [707, 111, 1027, 304]
+	    Location		    [850, 74, 1170, 267]
 	    Open		    off
 	    ModelBrowserVisibility  off
 	    ModelBrowserWidth	    200
@@ -2547,7 +2547,7 @@ Model {
 	      RTWMemSecDataConstants  "Inherit from model"
 	      RTWMemSecDataInternal   "Inherit from model"
 	      RTWMemSecDataParameters "Inherit from model"
-	      sw		      "1"
+	      sw		      "0"
 	      action		      "0"
 	      varsize		      off
 	    }

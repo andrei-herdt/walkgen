@@ -11,13 +11,13 @@ using namespace MPCWalkgen;
 
 int main() {
 
-	int num_samples_horizon 		= 5;
+	int num_samples_horizon 		= 16;
 	int num_samples_step 			= 5;
 	int num_samples_dsss 			= 5;
 	int num_steps_ssds 			= 2;
 	double sample_period_qp 		= .1;
-	double sample_period_first 		= .1;
-	double sample_period_act 		= .1;
+	double sample_period_first 		= .001;
+	double sample_period_act 		= .001;
 	const double kSecurityMargin 	= .02;
 
 	// Simulation parameters:
@@ -36,19 +36,19 @@ int main() {
 	mpc_parameters.solver.name                    = QPOASES;
 	mpc_parameters.solver.num_wsrec               = 200;
 	mpc_parameters.dynamics_order                 = SECOND_ORDER;
-	mpc_parameters.is_pid_mode			= false;
+	mpc_parameters.is_pid_mode		      = false;
 
 	mpc_parameters.weights.pos[0] 		= 0.;
 	mpc_parameters.weights.vel[0]  		= 0.;
 	mpc_parameters.weights.cop[0]  		= 0.;//0.00001;
 	mpc_parameters.weights.cp[0] 		= 1.;//1.;
-	mpc_parameters.weights.control[0] 	= 0.;
+	mpc_parameters.weights.control[0] 	= .00001;
 
 	mpc_parameters.weights.pos[1] 		= 0.;
 	mpc_parameters.weights.vel[1]  		= 0.;
 	mpc_parameters.weights.cop[1]  		= 0.;//1.;
 	mpc_parameters.weights.cp[1] 		= 1.;
-	mpc_parameters.weights.control[1] 	= .0;
+	mpc_parameters.weights.control[1] 	= .00001;
 
 	// Robot parameters:
 	// -----------------
@@ -141,12 +141,13 @@ int main() {
 	double curr_time = 0.;
 	walk.SetVelReference(0., 0., 0.);
 	int num_iterations = 0;
-	walk.clock().GetFrequency(1000);
-	walk.clock().ResetLocal();
-	for (; curr_time < 5; curr_time += sample_period_act) {
-		int online_timer = walk.clock().StartCounter();
+	//walk.clock().GetFrequency(1000);
+	//walk.clock().ResetLocal();
+	for (; curr_time < .1; curr_time += sample_period_act) {
+		//int online_timer = walk.clock().StartCounter();
 		//std::cout << std::endl;
 		const MPCSolution &solution = walk.Go(curr_time);
+		walk.solver()->DumpMatrices(curr_time, "dat");
 		//walk.solver()->DumpProblem("problem", curr_time, "txt");
 		//std::cout << "com_prw.pos.x: " << solution.com_prw.pos.x_vec.transpose() << std::endl;
 		//std::cout << "com_prw.pos.y: " << solution.com_prw.pos.y_vec.transpose() << std::endl;
@@ -158,8 +159,8 @@ int main() {
 		//Debug::WriteToDatFile("hessian", curr_time, walk.solver()->hessian_mat()());
 		//Debug::WriteToDatFile("gradient", curr_time, walk.solver()->gradient_vec()());
 		//walk.clock().StopLastCounter();
-		walk.clock().StopCounter(online_timer);
-		walk.clock().ResetLocal();
+		//walk.clock().StopCounter(online_timer);
+		//walk.clock().ResetLocal();
 		num_iterations++;
 	}
 		walk.solver()->DumpMatrices(curr_time, "dat");

@@ -39,9 +39,15 @@ T = 0.1;
 N = 16;
 omega = sqrt(g/h);
 % Continuous model
-A_cp = [0, 1; omega^2, 0];
-b_cp = [0; -omega^2];
-c_cp = [1, 1/omega];
+%A_cp = [0, 1; omega^2, 0];
+%b_cp = [0; -omega^2];
+%A_cp = [-omega, omega; 0, omega];
+%b_cp = [0; -omega];
+%A_cp = [0, 1, 0; 0, 0, 1; 0, 0, 0];
+%b_cp = [0; 0; 1];
+A_cp = [-omega, 0; 0, omega];
+b_cp = [omega; -omega];
+%c_cp = [1, 1/omega];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% prediction matrixes %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -54,6 +60,7 @@ Acp_all_vel = [];
 bcp_all_vel = [];
 for i = 1:N
     Ad = expm(A_cp * T * i);
+    cond(expm(A_cp * T * i))
     Bd = inv(A_cp) * (Ad - 1) * b_cp;
     Acp_all_pos = [Acp_all_pos; Ad(1,:)];
     bcp_all_pos = [bcp_all_pos; Bd(1,:)];                                     

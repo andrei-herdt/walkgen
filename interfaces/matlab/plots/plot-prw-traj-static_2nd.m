@@ -34,12 +34,12 @@ lines_support_y = line([support.signals.values(:,1)';support.signals.values(:,1)
 
 %% Plot legend
 subplot(1,2,1);
-legend([lines_prw_com_x, lines_com_control_x, lines_real_com_x, lines_real_cop_x, lines_support_x(1)], 'com_{prw}^x','cop_{prw}^x','com_{real}^x','cop_{real}^x','new support');
+legend([lines_prw_com_x, lines_prw_cp_x, lines_com_control_x, lines_real_com_x, lines_real_cop_x, lines_support_x(1)], 'com_{prw}^x','cp_{prw}^x','cop_{prw}^x','com_{real}^x','cop_{real}^x','new support');
 xlabel('Time [s]');
 ylabel('X [m]');
 title('CoM Positions (previewed and realized)');
 subplot(1,2,2);
-legend([lines_prw_com_y, lines_com_control_y, lines_real_com_y, lines_real_cop_y, lines_support_y(1)], 'com_{prw}^y','cop_{prw}^y','com_{real}^y','cop_{real}^y','new support');
+legend([lines_prw_com_y, lines_prw_cp_y, lines_com_control_y, lines_real_com_y, lines_real_cop_y, lines_support_y(1)], 'com_{prw}^y','cp_{real}^y','cop_{prw}^y','com_{real}^y','cop_{real}^y','new support');
 xlabel('Time [s]');
 ylabel('Y [m]');
 title('CoM Positions (previewed and realized)');
