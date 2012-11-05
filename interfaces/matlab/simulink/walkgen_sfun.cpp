@@ -18,7 +18,7 @@ extern "C" {
 
 static void mdlInitializeSizes(SimStruct *S) {
 	// Expected number of parameters
-	ssSetNumSFcnParams(S, 18);
+	ssSetNumSFcnParams(S, 19);
 
 	// Parameter mismatch?
 	if (ssGetNumSFcnParams(S) != ssGetSFcnParamsCount(S)) {
@@ -94,6 +94,7 @@ static void mdlInitializeSampleTimes(SimStruct *S)
 static void mdlStart(SimStruct *S) {
 	int is_debug_in = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 10)));
 	int is_pid_mode_in = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 16)));
+	int is_constraints_in = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 18)));
 
 	MPCParameters mpc_parameters;
 	mpc_parameters.num_samples_horizon  = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 0)));
@@ -128,9 +129,11 @@ static void mdlStart(SimStruct *S) {
 	mpc_parameters.weights.cop[1]  		= 1.;
 	mpc_parameters.weights.cp[1] 		= 0.;
 	mpc_parameters.weights.control[1] 	= 0.000001;
-
 	if (is_pid_mode_in == 1) {
 		mpc_parameters.is_pid_mode = true;
+	}
+	if (is_constraints_in == 0) {
+		mpc_parameters.is_constraints = false;
 	}
 
 	Walkgen *walk = new Walkgen;

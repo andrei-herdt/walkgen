@@ -164,6 +164,7 @@ MPCParameters::MPCParameters()
 ,interpolate_whole_horizon(false)
 ,is_closed_loop(false)
 ,is_pid_mode(false)
+,is_constraints(true)
 ,dynamics_order(THIRD_ORDER)
 ,weights(2)
 {}
