@@ -336,8 +336,8 @@ struct LinearDynamicsMatrices{
 	CommonMatrixType input_mat_inv;
 	CommonMatrixType input_mat_inv_tr;
 
-	CommonMatrixType ss_state_mat, ss_state_mat_inv;
-	CommonMatrixType ss_input_mat, ss_input_mat_tr;
+	CommonMatrixType c_state_mat, c_state_mat_inv, d_state_mat, d_state_mat_inv;
+	CommonMatrixType c_input_mat, c_input_mat_tr, d_input_mat, d_input_mat_tr;
 	CommonMatrixType ss_output_mat, ss_output_mat_tr;
 	CommonMatrixType ss_feedthrough_mat;
 
@@ -345,9 +345,12 @@ struct LinearDynamicsMatrices{
 };
 
 struct LinearDynamics {
+	/// \name Preview matrices
+	/// \{
 	LinearDynamicsMatrices pos, vel, acc, jerk;
 	LinearDynamicsMatrices cop;		//\f$ \z = x - \frac{h}{g} \ddot x \f$
 	LinearDynamicsMatrices cp;		//\f$ \xi = x + \frac{1}{\omega}\dot x \f$
+	/// \}
 
 	LinearDynamicsMatrices cont_ss, discr_ss;	//State space dynamics
 

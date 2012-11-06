@@ -269,19 +269,19 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 		CommonMatrixType qx = -dyn.discr_ss.ss_output_mat * state_x;	//Capture point
 		qx *= (1. - kd);
 		qx_d = qx(0);
-		CommonMatrixType bccax = dyn.discr_ss.ss_input_mat_tr * dyn.discr_ss.ss_output_mat_tr *
-				dyn.discr_ss.ss_output_mat * dyn.discr_ss.ss_state_mat * state_x;
-		CommonMatrixType bccbkx = dyn.discr_ss.ss_input_mat_tr * dyn.discr_ss.ss_output_mat_tr *
-				dyn.discr_ss.ss_output_mat * dyn.discr_ss.ss_input_mat * (1. - kd) * dyn.discr_ss.ss_output_mat * state_x;
+		CommonMatrixType bccax = dyn.discr_ss.c_input_mat_tr * dyn.discr_ss.ss_output_mat_tr *
+				dyn.discr_ss.ss_output_mat * dyn.discr_ss.c_state_mat * state_x;
+		CommonMatrixType bccbkx = dyn.discr_ss.c_input_mat_tr * dyn.discr_ss.ss_output_mat_tr *
+				dyn.discr_ss.ss_output_mat * dyn.discr_ss.c_input_mat * (1. - kd) * dyn.discr_ss.ss_output_mat * state_x;
 		qx_d /= (bccax(0) + bccbkx(0));
 
 		// qy = - r*(1-kd)*C*y / (BT*CT*C*A*y - BTCTCB*K*y)
 		CommonMatrixType qy = -(1. - kd) * dyn.discr_ss.ss_output_mat * state_y;
 		qy_d = qy(0);
-		CommonMatrixType bccay = dyn.discr_ss.ss_input_mat_tr * dyn.discr_ss.ss_output_mat_tr *
-				dyn.discr_ss.ss_output_mat * dyn.discr_ss.ss_state_mat * state_y;
-		CommonMatrixType bccbky = dyn.discr_ss.ss_input_mat_tr * dyn.discr_ss.ss_output_mat_tr *
-				dyn.discr_ss.ss_output_mat * dyn.discr_ss.ss_input_mat * (1. - kd) * dyn.discr_ss.ss_output_mat * state_y;
+		CommonMatrixType bccay = dyn.discr_ss.c_input_mat_tr * dyn.discr_ss.ss_output_mat_tr *
+				dyn.discr_ss.ss_output_mat * dyn.discr_ss.c_state_mat * state_y;
+		CommonMatrixType bccbky = dyn.discr_ss.c_input_mat_tr * dyn.discr_ss.ss_output_mat_tr *
+				dyn.discr_ss.ss_output_mat * dyn.discr_ss.c_input_mat * (1. - kd) * dyn.discr_ss.ss_output_mat * state_y;
 		qy_d /= (bccay(0) + bccbky(0));
 	}
 

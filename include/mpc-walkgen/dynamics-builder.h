@@ -59,6 +59,13 @@ private:
 			int nbsamples
 	);
 
+	void BuildSecondOrderCoPInputGeneral(LinearDynamicsMatrices &dyn_mat,
+			double height,
+			double sample_period_first,
+			double sample_period_rest,
+			int nbsamples
+	);
+
 	void BuildThirdOrder(LinearDynamicsMatrices &dyn,
 			double height,
 			double sample_period_first,
@@ -66,6 +73,10 @@ private:
 			int nbsamples,
 			Derivative derivative
 	);
+
+	void ComputeDiscreteInputVecGeneral(LinearDynamicsMatrices &dyn_mat);
+
+	void ComputeDiscreteStateMatGeneral(LinearDynamicsMatrices &dyn_mat, double sample_period);
 
 	// Computes the discrete state matrix via \f[ e^{AT} \f]
 	void ComputeDiscreteStateMat(LinearDynamics &dyn,

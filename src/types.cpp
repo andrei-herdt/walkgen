@@ -385,10 +385,10 @@ void LinearDynamicsMatrices::SetZero(int state_dim, int input_dim, int output_di
 	input_mat_inv.setZero(num_samples, num_samples);
 	input_mat_inv_tr.setZero(num_samples, num_samples);
 
-	ss_state_mat.setZero(state_dim, state_dim);
-	ss_input_mat.setZero(state_dim, input_dim);
-	ss_output_mat.setZero(input_dim, state_dim);
-	ss_feedthrough_mat.setZero(input_dim, state_dim);
+	c_state_mat.setZero(state_dim, state_dim);
+	c_input_mat.setZero(state_dim, input_dim);
+	ss_output_mat.setZero(output_dim, state_dim);
+	ss_feedthrough_mat.setZero(output_dim, input_dim);
 }
 
 void LinearDynamics::SetZero(int state_dim, int input_dim, int output_dim, int num_samples) {
