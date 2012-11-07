@@ -2,7 +2,6 @@
 
 #if (defined __WIN32__)
 # include <Windows.h>
-# include <cassert>
 #elif defined __LINUX__
 #include <stdint.h>
 #include <unistd.h>
@@ -19,6 +18,7 @@
 #endif // __WIN32__
 
 #include <iostream>
+#include <cassert>
 
 using namespace MPCWalkgen;
 

@@ -47,12 +47,11 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, doubl
 	BuildSecondOrderCoPOutput(dyn.cop, height, sample_period_first, sample_period_rest, num_samples, COP);
 	 */
 
-	BuildSecondOrderCoPInput(dyn, height, sample_period_first, sample_period_rest, num_samples);
-
+	/// New
 	double omega = sqrt(kGravity/height);
 	double omega_square = kGravity/height;
 
-	// Continuous state space dynamics:
+	// Continuous (general) state space dynamics:
 	dyn.SetZero(2, 1, 1, num_samples);
 	dyn.cont_ss.c_state_mat(0, 1) = 1.; dyn.cont_ss.c_state_mat(1, 0) = omega_square;
 	dyn.cont_ss.c_state_mat_inv = dyn.cont_ss.c_state_mat.inverse();
@@ -60,20 +59,35 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, doubl
 
 	dyn.pos.c_state_mat = dyn.cont_ss.c_state_mat;
 	dyn.pos.c_state_mat_inv = dyn.cont_ss.c_state_mat_inv;
+	dyn.pos.c_input_mat = dyn.cont_ss.c_input_mat;
 	dyn.pos.ss_output_mat(0, 0) = 1.;
 	BuildSecondOrderCoPInputGeneral(dyn.pos, height, sample_period_first, sample_period_rest, num_samples);
+	std::cout << "U_pos: " << dyn.pos.state_mat << std::endl << std::endl;
+
 	dyn.vel.c_state_mat = dyn.cont_ss.c_state_mat;
 	dyn.vel.c_state_mat_inv = dyn.cont_ss.c_state_mat_inv;
+	dyn.vel.c_input_mat = dyn.cont_ss.c_input_mat;
 	dyn.vel.ss_output_mat(0, 1) = 1.;
 	BuildSecondOrderCoPInputGeneral(dyn.vel, height, sample_period_first, sample_period_rest, num_samples);
 	dyn.cp.c_state_mat = dyn.cont_ss.c_state_mat;
 	dyn.cp.c_state_mat_inv = dyn.cont_ss.c_state_mat_inv;
+	dyn.cp.c_input_mat = dyn.cont_ss.c_input_mat;
 	dyn.cp.ss_output_mat(0, 0) = 1.; dyn.cp.ss_output_mat(0, 1) = 1./omega;
 	BuildSecondOrderCoPInputGeneral(dyn.cp, height, sample_period_first, sample_period_rest, num_samples);
-	dyn.acc.ss_output_mat(0, 0) = omega_square; dyn.acc.ss_feedthrough_mat(0, 1) = -omega_square;
+	dyn.acc.c_state_mat = dyn.cont_ss.c_state_mat;
+	dyn.cp.c_state_mat_inv = dyn.cont_ss.c_state_mat_inv;
+	dyn.acc.c_input_mat = dyn.cont_ss.c_input_mat;
+	dyn.acc.ss_output_mat(0, 0) = omega_square;
+	dyn.acc.ss_feedthrough_mat(0, 0) = -omega_square;
 	BuildSecondOrderCoPInputGeneral(dyn.acc, height, sample_period_first, sample_period_rest, num_samples);
 	dyn.cop.ss_feedthrough_mat(0, 0) = 1.;
 	BuildSecondOrderCoPInputGeneral(dyn.cop, height, sample_period_first, sample_period_rest, num_samples);
+
+	/// OLD
+	BuildSecondOrderCoPInput(dyn, height, sample_period_first, sample_period_rest, num_samples);
+
+	std::cout << "U_pos_old: " << dyn.pos.state_mat << std::endl << std::endl;
+
 
 }
 
@@ -328,7 +342,6 @@ void DynamicsBuilder::BuildSecondOrderCoPInputGeneral(LinearDynamicsMatrices &dy
 	assert(num_samples > 0.);
 	assert(sample_period_first > 0.);
 	assert(sample_period_rest > 0.);
-	assert(dyn_mat.c_state_mat.isDiagonal());// Eigenvalue
 
 	//Eigenvalue decomposition of state matrix: \f[ S e^{\lambda T}S^{-1} \f]
 	eigen_solver_.compute(dyn_mat.c_state_mat);
@@ -341,20 +354,25 @@ void DynamicsBuilder::BuildSecondOrderCoPInputGeneral(LinearDynamicsMatrices &dy
 	// position and velocity
 	for (int row = 0; row < num_samples; row++) {
 		ComputeDiscreteStateMatGeneral(dyn_mat, sp1 + row * sp2);
+
 		ComputeDiscreteInputVecGeneral(dyn_mat);
 
 		dyn_mat.state_mat.block(row, 0, 1, 2) = dyn_mat.ss_output_mat * dyn_mat.d_state_mat;
 		// Fill diagonal starting at (row, 0)
 		for (int col = 0; col + row < num_samples; col++) {
-			dyn_mat.input_mat(row + col, col) = dyn_mat.ss_output_mat * dyn_mat.d_input_mat;
+			dyn_mat.input_mat.block(row + col, col, 1, 1) = dyn_mat.ss_output_mat * dyn_mat.d_input_mat;
 		}
 	}
+	std::cout << "state_mat: " << dyn_mat.state_mat << std::endl << std::endl;
+	std::cout << "input_mat: " << dyn_mat.input_mat << std::endl << std::endl;
 
 	dyn_mat.input_mat_tr = dyn_mat.input_mat.transpose();
 	dyn_mat.input_mat_inv = dyn_mat.input_mat.inverse();
 	dyn_mat.input_mat_inv_tr = dyn_mat.input_mat_inv.transpose();
 
-	assert(!dyn_mat.input_mat_inv.isZero(kEps) && !dyn_mat.input_mat_tr.isZero(kEps));}
+	assert(!dyn_mat.state_mat.isZero(kEps));
+	assert(!dyn_mat.input_mat_inv.isZero(kEps) && !dyn_mat.input_mat_tr.isZero(kEps));
+}
 
 void DynamicsBuilder::ComputeDiscreteStateMatGeneral(LinearDynamicsMatrices &dyn_mat, double sample_period) {
 	diag_exp_eig_mat_(0, 0) = exp(eigenval_vec_[0] * sample_period);
@@ -364,6 +382,9 @@ void DynamicsBuilder::ComputeDiscreteStateMatGeneral(LinearDynamicsMatrices &dyn
 }
 
 void DynamicsBuilder::ComputeDiscreteInputVecGeneral(LinearDynamicsMatrices &dyn_mat) {
+	std::cout << "dyn_mat.c_state_mat_inv: " << dyn_mat.c_state_mat_inv << std::endl;
+	std::cout << "dyn_mat.c_input_mat: " << dyn_mat.c_input_mat << std::endl;
+	std::cout << "identity_mat_: " << identity_mat_ << std::endl;
 	tmp_vec_.noalias() = -dyn_mat.c_state_mat_inv  * identity_mat_ * dyn_mat.c_input_mat ;
 	dyn_mat.d_input_mat.noalias() = dyn_mat.c_state_mat_inv * dyn_mat.d_state_mat * dyn_mat.c_input_mat + tmp_vec_;
 	dyn_mat.d_input_mat_tr = dyn_mat.d_input_mat.transpose();

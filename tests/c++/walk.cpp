@@ -14,10 +14,10 @@ int main() {
 	int num_samples_horizon 		= 16;
 	int num_samples_step 			= 5;
 	int num_samples_dsss 			= 5;
-	int num_steps_ssds 			= 2;
+	int num_steps_ssds 				= 2;
 	double sample_period_qp 		= .1;
-	double sample_period_first 		= .001;
-	double sample_period_act 		= .001;
+	double sample_period_first 		= .005;
+	double sample_period_act 		= .005;
 	const double kSecurityMargin 	= .02;
 
 	// Simulation parameters:
