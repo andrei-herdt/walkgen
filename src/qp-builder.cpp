@@ -214,9 +214,18 @@ void QPBuilder::TransformControlVector(MPCSolution &solution) {
 	global_cop_y_vec += select.sample_step * feet_y_vec;
 
 	CommonVectorType state_x(mpc_parameters_->dynamics_order), state_y(mpc_parameters_->dynamics_order);
-	for (int i = 0; i < mpc_parameters_->dynamics_order; i++) {
-		state_x(i) = com.x(i);
-		state_y(i) = com.y(i);
+	if (mpc_parameters_->formulation == DECOUPLED_MODES) {
+		Matrix2D state_trans_mat;
+		state_trans_mat.setZero();
+		state_trans_mat(0, 0) = 1.; state_trans_mat(0, 1) = -1./sqrt(kGravity / com.z[0]);
+		state_trans_mat(1, 0) = 1.; state_trans_mat(1, 1) = 1./sqrt(kGravity / com.z[0]);
+		state_x = state_trans_mat * com.x.head(mpc_parameters_->dynamics_order);
+		state_y = state_trans_mat * com.y.head(mpc_parameters_->dynamics_order);
+	} else {
+		for (int i = 0; i < mpc_parameters_->dynamics_order; i++) {
+			state_x(i) = com.x(i);
+			state_y(i) = com.y(i);
+		}
 	}
 
 	//TODO(performance): Optimize this for first interpolate_whole_horizon == false
@@ -250,9 +259,18 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	int num_samples = mpc_parameters_->num_samples_horizon;
 
 	CommonVectorType state_x(mpc_parameters_->dynamics_order), state_y(mpc_parameters_->dynamics_order);
-	for (int i = 0; i < mpc_parameters_->dynamics_order; i++) {
-		state_x(i) = com.x(i);
-		state_y(i) = com.y(i);
+	if (mpc_parameters_->formulation == DECOUPLED_MODES) {
+		Matrix2D state_trans_mat;
+		state_trans_mat.setZero();
+		state_trans_mat(0, 0) = 1.; state_trans_mat(0, 1) = -1./sqrt(kGravity / com.z[0]);
+		state_trans_mat(1, 0) = 1.; state_trans_mat(1, 1) = 1./sqrt(kGravity / com.z[0]);
+		state_x = state_trans_mat * com.x.head(mpc_parameters_->dynamics_order);
+		state_y = state_trans_mat * com.y.head(mpc_parameters_->dynamics_order);
+	} else {
+		for (int i = 0; i < mpc_parameters_->dynamics_order; i++) {
+			state_x(i) = com.x(i);
+			state_y(i) = com.y(i);
+		}
 	}
 
 	// PID mode:
@@ -347,6 +365,7 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 
 	gradient_vec_x = state_variant_[samples_left] * state_x;
 	gradient_vec_y = state_variant_[samples_left] * state_y;
+	// Formulation in Krause2012S
 	if (mpc_parameters_->dynamics_order == SECOND_ORDER) {
 		double zx_cur = com.x(0) - com.z(0)/kGravity*com.x(2);
 		double zy_cur = com.y(0) - com.z(0)/kGravity*com.y(2);

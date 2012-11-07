@@ -18,7 +18,7 @@ public:
 	RigidBodySystem();
 	~RigidBodySystem();
 
-	void Init(const MPCParameters *mpc_parameters_p);
+	void Init(const MPCParameters *mpc_parameters);
 
 	void Init(const RobotData &robot_data);
 
@@ -37,7 +37,7 @@ public:
 	// Private data members:
 	//
 private:
-	const MPCParameters *mpc_parameters_p_;
+	const MPCParameters *mpc_parameters_;
 	RobotData robot_data_;
 
 	DynamicsBuilder dynamics_builder_;

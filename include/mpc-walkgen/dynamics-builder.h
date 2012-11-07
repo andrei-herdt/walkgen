@@ -16,7 +16,7 @@ public:
 
 	~DynamicsBuilder();
 
-	void Init();
+	void Init(const MPCParameters *mpc_parameters);
 
 	void Build(SystemOrder dynamics_order,
 			LinearDynamics &dyn,
@@ -92,6 +92,8 @@ private:
 	// Private data members:
 	//
 private:
+
+	const MPCParameters *mpc_parameters_;
 
 	// \name Elements for the computation of discrete state-space models
 	// \{

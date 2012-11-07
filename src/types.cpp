@@ -166,6 +166,7 @@ MPCParameters::MPCParameters()
 ,is_pid_mode(false)
 ,is_constraints(true)
 ,dynamics_order(THIRD_ORDER)
+,formulation(STANDARD)
 ,weights(2)
 {}
 

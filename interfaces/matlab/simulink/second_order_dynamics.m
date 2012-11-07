@@ -34,7 +34,7 @@ Ad_matlab = c2d(sys, T);
 %% Krause's dynamics %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 g = 9.81;
-h = 0.814;
+h = 0.914;
 T = 0.1;
 N = 16;
 omega = sqrt(g/h);
@@ -54,6 +54,7 @@ b_cp = [omega; -omega];
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % first we create matrixes which contain the different sampling models
 disp('build matrices...')
+Acp_all= [];
 Acp_all_pos = [];
 bcp_all_pos = [];
 Acp_all_vel = [];
@@ -62,6 +63,7 @@ for i = 1:N
     Ad = expm(A_cp * T * i);
     cond(expm(A_cp * T * i))
     Bd = inv(A_cp) * (Ad - 1) * b_cp;
+    Acp_all = [Acp_all; Ad];
     Acp_all_pos = [Acp_all_pos; Ad(1,:)];
     bcp_all_pos = [bcp_all_pos; Bd(1,:)];                                     
     Acp_all_vel = [Acp_all_vel; Ad(2,:)];

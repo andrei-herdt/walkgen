@@ -7,7 +7,7 @@
 using namespace MPCWalkgen;
 using namespace Eigen;
 
-RigidBodySystem::RigidBodySystem(): mpc_parameters_p_(NULL) {
+RigidBodySystem::RigidBodySystem(): mpc_parameters_(NULL) {
 	com_ 		= new CoMBody();
 	left_foot_ 	= new FootBody(LEFT);
 	right_foot_ = new FootBody(RIGHT);
@@ -30,13 +30,14 @@ RigidBodySystem::~RigidBodySystem() {
 	}
 }
 
-void RigidBodySystem::Init(const MPCParameters *mpc_parameters_p) {
-	mpc_parameters_p_ = mpc_parameters_p;
+void RigidBodySystem::Init(const MPCParameters *mpc_parameters) {
+	mpc_parameters_ = mpc_parameters;
 
-	com_->Init(mpc_parameters_p_);
+	dynamics_builder_.Init(mpc_parameters_);
+	com_->Init(mpc_parameters_);
 	com_->Init(&dynamics_builder_);
-	left_foot_->Init(mpc_parameters_p_);
-	right_foot_->Init(mpc_parameters_p_);
+	left_foot_->Init(mpc_parameters_);
+	right_foot_->Init(mpc_parameters_);
 }
 
 void RigidBodySystem::Init(const RobotData &robot_data) {//TODO: Remove object robot_data
@@ -62,7 +63,7 @@ void RigidBodySystem::Init(const RobotData &robot_data) {//TODO: Remove object r
 }
 
 void RigidBodySystem::ComputeDynamics() {
-	com_->ComputeDynamics(mpc_parameters_p_->dynamics_order);
+	com_->ComputeDynamics(mpc_parameters_->dynamics_order);
 }
 
 void RigidBodySystem::Interpolate(MPCSolution &solution, double current_time, const Reference &ref){
@@ -73,7 +74,7 @@ void RigidBodySystem::Interpolate(MPCSolution &solution, double current_time, co
 
 void RigidBodySystem::UpdateState(const MPCSolution &solution) {
 
-	int next_sample = mpc_parameters_p_->num_samples_act() - 1;
+	int next_sample = mpc_parameters_->num_samples_act() - 1;
 	left_foot_->state().x(POSITION) 		= left_foot_->motion_act().pos.x_vec[next_sample];
 	left_foot_->state().y(POSITION) 		= left_foot_->motion_act().pos.y_vec[next_sample];
 	left_foot_->state().z(POSITION) 		= left_foot_->motion_act().pos.z_vec[next_sample];
@@ -100,7 +101,7 @@ void RigidBodySystem::UpdateState(const MPCSolution &solution) {
 	right_foot_->state().z(ACCELERATION) 	= right_foot_->motion_act().acc.z_vec[next_sample];
 	right_foot_->state().yaw(ACCELERATION) 	= right_foot_->motion_act().acc.yaw_vec[next_sample];
 
-	if (!mpc_parameters_p_->is_closed_loop) {
+	if (!mpc_parameters_->is_closed_loop) {
 		com_->state().x(0) = solution.com_act.pos.x_vec[next_sample];
 		com_->state().y(0) = solution.com_act.pos.y_vec[next_sample];
 		com_->state().x(1) = solution.com_act.vel.x_vec[next_sample];

@@ -48,6 +48,10 @@ enum SystemOrder { FIRST_ORDER = 1, SECOND_ORDER = 2, THIRD_ORDER = 3 };
 
 enum Mode { INITIAL = 0, STANDING = 1, WALK = 2 };
 
+enum Formulation {
+	STANDARD,			//State is directly the state of the particle
+	DECOUPLED_MODES		//Stable and unstable modes are decoupled
+};
 //
 // Typedefs:
 //
@@ -208,6 +212,8 @@ struct MPC_WALKGEN_API MPCParameters {
 	bool is_constraints;				//Turns on all constraints
 
 	SystemOrder dynamics_order;
+
+	Formulation formulation;
 
 	WeightCoefficients weights;
 

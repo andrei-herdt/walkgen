@@ -9,13 +9,14 @@ using namespace MPCWalkgen;
 //
 // Public methods:
 //
-DynamicsBuilder::DynamicsBuilder() {
-	Init();
-}
+DynamicsBuilder::DynamicsBuilder():mpc_parameters_(NULL)
+{}
 
 DynamicsBuilder::~DynamicsBuilder() {}
 
-void DynamicsBuilder::Init() {
+void DynamicsBuilder::Init(const MPCParameters *mpc_parameters) {
+	mpc_parameters_ = mpc_parameters;
+
 	eigenval_vec_.setZero(); eigenvec_mat_.setZero(); eigenvec_mat_inv_.setZero();
 	diag_exp_eig_mat_.setZero();
 
@@ -47,32 +48,49 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, doubl
 	BuildSecondOrderCoPOutput(dyn.cop, height, sample_period_first, sample_period_rest, num_samples, COP);
 	 */
 
-	/// New
 	double omega = sqrt(kGravity/height);
 	double omega_square = kGravity/height;
 
-	// Continuous (general) state space dynamics:
 	dyn.SetZero(2, 1, 1, num_samples);
-	dyn.cont_ss.c_state_mat(0, 1) = 1.; dyn.cont_ss.c_state_mat(1, 0) = omega_square;
-	dyn.cont_ss.c_state_mat_inv = dyn.cont_ss.c_state_mat.inverse();
-	dyn.cont_ss.c_input_mat(0) = 0.; dyn.cont_ss.c_input_mat(1) = - omega_square;
+	if (mpc_parameters_->formulation == STANDARD) {
+		dyn.cont_ss.c_state_mat(0, 1) = 1.; dyn.cont_ss.c_state_mat(1, 0) = omega_square;
+		dyn.cont_ss.c_state_mat_inv = dyn.cont_ss.c_state_mat.inverse();
+		dyn.cont_ss.c_input_mat(0) = 0.; dyn.cont_ss.c_input_mat(1) = - omega_square;
 
-	dyn.pos.c_state_mat = dyn.cont_ss.c_state_mat;
+		dyn.pos.ss_output_mat(0, 0) = 1.;
+		dyn.vel.ss_output_mat(0, 1) = 1.;
+		dyn.cp.ss_output_mat(0, 0) = 1.;
+		dyn.cp.ss_output_mat(0, 1) = 1./omega;
+	} else if (mpc_parameters_->formulation == DECOUPLED_MODES) {
+		// Continuous (general) state space dynamics:
+		dyn.cont_ss.c_state_mat(0, 0) = -omega;
+		dyn.cont_ss.c_state_mat(1, 1) = omega;
+		dyn.cont_ss.c_state_mat_inv = dyn.cont_ss.c_state_mat.inverse();
+		dyn.cont_ss.c_input_mat(0) = omega;
+		dyn.cont_ss.c_input_mat(1) = -omega;
+
+		dyn.pos.ss_output_mat(0, 0) = 1./2.;
+		dyn.pos.ss_output_mat(0, 1) = 1./2.;
+		dyn.vel.ss_output_mat(0, 0) = -omega/2.;
+		dyn.vel.ss_output_mat(0, 1) = omega/2.;
+		dyn.cp.ss_output_mat(0, 0) = 0.;
+		dyn.cp.ss_output_mat(0, 1) = 1.;
+	}
+
+
+	dyn.pos.c_state_mat 	= dyn.cont_ss.c_state_mat;
 	dyn.pos.c_state_mat_inv = dyn.cont_ss.c_state_mat_inv;
-	dyn.pos.c_input_mat = dyn.cont_ss.c_input_mat;
-	dyn.pos.ss_output_mat(0, 0) = 1.;
+	dyn.pos.c_input_mat 	= dyn.cont_ss.c_input_mat;
 	BuildSecondOrderCoPInputGeneral(dyn.pos, height, sample_period_first, sample_period_rest, num_samples);
 
-	dyn.vel.c_state_mat = dyn.cont_ss.c_state_mat;
+	dyn.vel.c_state_mat 	= dyn.cont_ss.c_state_mat;
 	dyn.vel.c_state_mat_inv = dyn.cont_ss.c_state_mat_inv;
-	dyn.vel.c_input_mat = dyn.cont_ss.c_input_mat;
-	dyn.vel.ss_output_mat(0, 1) = 1.;
+	dyn.vel.c_input_mat 	= dyn.cont_ss.c_input_mat;
 	BuildSecondOrderCoPInputGeneral(dyn.vel, height, sample_period_first, sample_period_rest, num_samples);
 
-	dyn.cp.c_state_mat = dyn.cont_ss.c_state_mat;
-	dyn.cp.c_state_mat_inv = dyn.cont_ss.c_state_mat_inv;
-	dyn.cp.c_input_mat = dyn.cont_ss.c_input_mat;
-	dyn.cp.ss_output_mat(0, 0) = 1.; dyn.cp.ss_output_mat(0, 1) = 1./omega;
+	dyn.cp.c_state_mat 		= dyn.cont_ss.c_state_mat;
+	dyn.cp.c_state_mat_inv 	= dyn.cont_ss.c_state_mat_inv;
+	dyn.cp.c_input_mat 		= dyn.cont_ss.c_input_mat;
 	BuildSecondOrderCoPInputGeneral(dyn.cp, height, sample_period_first, sample_period_rest, num_samples);
 
 	dyn.cop.input_mat.setIdentity();
@@ -82,10 +100,6 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, doubl
 
 	dyn.acc.state_mat = omega_square*(dyn.pos.state_mat - dyn.cop.state_mat);
 	dyn.acc.input_mat = omega_square*(dyn.pos.input_mat - dyn.cop.input_mat);
-
-	/// OLD
-	//BuildSecondOrderCoPInput(dyn, height, sample_period_first, sample_period_rest, num_samples);
-
 }
 
 void DynamicsBuilder::BuildThirdOrder(LinearDynamics &dyn, double height, double sample_period_first, double sample_period_rest, int num_samples) {
@@ -264,23 +278,26 @@ void DynamicsBuilder::BuildSecondOrderCoPInput(LinearDynamics &dyn, double heigh
 
 	dyn.SetZero(2, 1, 1, num_samples);
 
-	double omega = sqrt(kGravity/height);
+	double omega 		= sqrt(kGravity/height);
 	double omega_square = kGravity/height;
 
 	// Continuous dynamics:
-	dyn.cont_ss.c_state_mat(0, 1) = 1.; dyn.cont_ss.c_state_mat(1, 0) = omega_square;
-	dyn.cont_ss.c_state_mat_inv = dyn.cont_ss.c_state_mat.inverse();
-	dyn.cont_ss.c_input_mat(0) = 0.; dyn.cont_ss.c_input_mat(1) = - omega_square;
+	dyn.cont_ss.c_state_mat(0, 1) 	= 1.;
+	dyn.cont_ss.c_state_mat(1, 0) 	= omega_square;
+	dyn.cont_ss.c_state_mat_inv 	= dyn.cont_ss.c_state_mat.inverse();
+	dyn.cont_ss.c_input_mat(0) 		= 0.;
+	dyn.cont_ss.c_input_mat(1) 		= -omega_square;
 	// Capture point as output:
-	dyn.cont_ss.ss_output_mat(0) = 1.; dyn.cont_ss.ss_output_mat(1) = 1./omega;
-	dyn.discr_ss.ss_output_mat = dyn.cont_ss.ss_output_mat;
-	dyn.discr_ss.ss_output_mat_tr = dyn.discr_ss.ss_output_mat.transpose();
+	dyn.cont_ss.ss_output_mat(0) 	= 1.;
+	dyn.cont_ss.ss_output_mat(1) 	= 1./omega;
+	dyn.discr_ss.ss_output_mat 		= dyn.cont_ss.ss_output_mat;
+	dyn.discr_ss.ss_output_mat_tr 	= dyn.discr_ss.ss_output_mat.transpose();
 
 	//Eigenvalue decomposition of state matrix: \f[ S e^{\lambda T}S^{-1} \f]
 	eigen_solver_.compute(dyn.cont_ss.c_state_mat);
-	eigenval_vec_ = eigen_solver_.eigenvalues().real();
-	eigenvec_mat_ = eigen_solver_.eigenvectors().real();
-	eigenvec_mat_inv_ = eigenvec_mat_.inverse();
+	eigenval_vec_ 		= eigen_solver_.eigenvalues().real();
+	eigenvec_mat_ 		= eigen_solver_.eigenvectors().real();
+	eigenvec_mat_inv_ 	= eigenvec_mat_.inverse();
 
 	double sp1 = sample_period_first;
 	double sp2 = sample_period_rest;
