@@ -379,8 +379,10 @@ void WeightCoefficients::SetCoefficients(Reference &ref) {
 	}
 }
 
-void LinearDynamicsMatrices::SetZero(int state_dim, int input_dim, int output_dim, int num_samples) {
+void LinearDynamicsMatrices::SetZero(int state_dim, int input_dim, int output_dim, int num_samples, int stable_dim, int unstable_dim) {
 	state_mat.setZero(num_samples, state_dim);
+	stab_state_mat.setZero(num_samples, stable_dim);
+	unst_state_mat.setZero(num_samples, unstable_dim);
 	input_mat.setZero(num_samples, num_samples);
 	input_mat_tr.setZero(num_samples, num_samples);
 	input_mat_inv.setZero(num_samples, num_samples);
@@ -394,16 +396,16 @@ void LinearDynamicsMatrices::SetZero(int state_dim, int input_dim, int output_di
 	ss_feedthrough_mat.setZero(output_dim, input_dim);
 }
 
-void LinearDynamics::SetZero(int state_dim, int input_dim, int output_dim, int num_samples) {
-	pos.SetZero(state_dim, input_dim, output_dim, num_samples);
-	vel.SetZero(state_dim, input_dim, output_dim, num_samples);
-	acc.SetZero(state_dim, input_dim, output_dim, num_samples);
-	jerk.SetZero(state_dim, input_dim, output_dim, num_samples);
-	cop.SetZero(state_dim, input_dim, output_dim, num_samples);
-	cp.SetZero(state_dim, input_dim, output_dim, num_samples);
+void LinearDynamics::SetZero(int state_dim, int input_dim, int output_dim, int num_samples, int stable_dim, int unstable_dim) {
+	pos.SetZero(state_dim, input_dim, output_dim, num_samples, stable_dim, unstable_dim);
+	vel.SetZero(state_dim, input_dim, output_dim, num_samples, stable_dim, unstable_dim);
+	acc.SetZero(state_dim, input_dim, output_dim, num_samples, stable_dim, unstable_dim);
+	jerk.SetZero(state_dim, input_dim, output_dim, num_samples, stable_dim, unstable_dim);
+	cop.SetZero(state_dim, input_dim, output_dim, num_samples, stable_dim, unstable_dim);
+	cp.SetZero(state_dim, input_dim, output_dim, num_samples, stable_dim, unstable_dim);
 
-	cont_ss.SetZero(state_dim, input_dim, output_dim, num_samples);
-	discr_ss.SetZero(state_dim, input_dim, output_dim, num_samples);
+	cont_ss.SetZero(state_dim, input_dim, output_dim, num_samples, stable_dim, unstable_dim);
+	discr_ss.SetZero(state_dim, input_dim, output_dim, num_samples, stable_dim, unstable_dim);
 }
 
 

@@ -52,6 +52,7 @@ enum Formulation {
 	STANDARD,			//State is directly the state of the particle
 	DECOUPLED_MODES		//Stable and unstable modes are decoupled
 };
+
 //
 // Typedefs:
 //
@@ -336,6 +337,8 @@ struct MPC_WALKGEN_API ControlOutput {
 
 struct LinearDynamicsMatrices{
 	CommonMatrixType state_mat;
+	CommonMatrixType stab_state_mat;	//Unstable modes state matrix
+	CommonMatrixType unst_state_mat;	//Unstable modes state matrix
 	CommonMatrixType state_mat_inv;
 	CommonMatrixType input_mat;
 	CommonMatrixType input_mat_tr;
@@ -347,7 +350,13 @@ struct LinearDynamicsMatrices{
 	CommonMatrixType ss_output_mat, ss_output_mat_tr;
 	CommonMatrixType ss_feedthrough_mat;
 
-	void SetZero(int state_dim, int input_dim, int output_dim, int num_samples);
+	void SetZero(int state_dim,
+			int input_dim,
+			int output_dim,
+			int num_samples,
+			int stable_dim = 0,
+			int unstable_dim = 0		//Dimension of the unstable modes
+	);
 };
 
 struct LinearDynamics {
@@ -363,7 +372,9 @@ struct LinearDynamics {
 	void SetZero(int state_dim,
 			int input_dim,
 			int output_dim,
-			int num_samples
+			int num_samples,
+			int stable_dim = 0,			//Number of stable modes
+			int unstable_dim = 0		//Number of unstable modes
 	);
 };
 

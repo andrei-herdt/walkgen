@@ -31,20 +31,23 @@ public:
 	//
 private:
 
-	void BuildSecondOrder(LinearDynamics &dyn,
+	void BuildSecondOrder(
+			LinearDynamics &dyn,
 			double height,
 			double sample_period_first,
 			double sample_period_rest,
 			int num_samples
 	);
-	void BuildThirdOrder(LinearDynamics &dyn,
+	void BuildThirdOrder(
+			LinearDynamics &dyn,
 			double height,
 			double sample_period_first,
 			double sample_period_rest,
 			int num_samples
 	);
 
-	void BuildSecondOrderCoPOutput(LinearDynamicsMatrices &dyn,
+	void BuildSecondOrderCoPOutput(
+			LinearDynamicsMatrices &dyn,
 			double height,
 			double sample_period_first,
 			double sample_period_rest,
@@ -52,14 +55,24 @@ private:
 			Derivative derivative
 	);
 
-	void BuildSecondOrderCoPInput(LinearDynamics &dyn,
+	void BuildSecondOrderCoPInput(
+			LinearDynamics &dyn,
 			double height,
 			double sample_period_first,
 			double sample_period_rest,
 			int nbsamples
 	);
 
-	void BuildSecondOrderCoPInputGeneral(LinearDynamicsMatrices &dyn_mat,
+	void BuildSecondOrderCoPInputGeneral(
+			LinearDynamicsMatrices &dyn_mat,
+			double height,
+			double sample_period_first,
+			double sample_period_rest,
+			int nbsamples
+	);
+
+	void BuildSecondOrderCoPInputDecoupled(
+			LinearDynamicsMatrices &dyn_mat,
 			double height,
 			double sample_period_first,
 			double sample_period_rest,
@@ -74,18 +87,34 @@ private:
 			Derivative derivative
 	);
 
-	void ComputeDiscreteInputVecGeneral(LinearDynamicsMatrices &dyn_mat);
-
-	void ComputeDiscreteStateMatGeneral(LinearDynamicsMatrices &dyn_mat, double sample_period);
-
 	// Computes the discrete state matrix via \f[ e^{AT} \f]
-	void ComputeDiscreteStateMat(LinearDynamics &dyn,
-			double sample_period_first
+	void ComputeDiscreteStateMatGeneral(
+			Matrix2D &d_state_mat,
+			const LinearDynamicsMatrices &dyn_mat,
+			double sample_period
+	);
+
+	void ComputeDiscreteInputVecGeneral(
+			Matrix2D &d_input_mat,
+			const Matrix2D &d_state_mat,
+			const LinearDynamicsMatrices &dyn_mat
+	);
+
+	void ComputeDiscreteStateMat(
+			LinearDynamics &dyn,
+			double sample_period
 	);
 
 	// Computes the discrete input vector via \f[ A^{-1}(A_d-I)B \f]
-	void ComputeDiscreteInputVec(LinearDynamics &dyn
+	void ComputeDiscreteInputVec(
+			LinearDynamics &dyn
 	);
+
+	void ComputeDiscreteStateMatDecoupled(
+			LinearDynamicsMatrices &dyn_mat,
+			double sample_period
+	);
+
 
 
 	//
@@ -97,6 +126,9 @@ private:
 
 	// \name Elements for the computation of discrete state-space models
 	// \{
+	//std::vector<Matrix2D> state_mat_vec;			//Vector of state matrices
+	//std::vector<Vector2D> input_mat_vec;			//Vector of input matrices
+
 	Vector2D eigenval_vec_;							//Vector of eigenvalues
 	Matrix2D eigenvec_mat_, eigenvec_mat_inv_;		//Eigenvector matrices
 
