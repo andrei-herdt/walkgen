@@ -12,8 +12,8 @@ using namespace MPCWalkgen;
 int main() {
 
 	int num_samples_horizon 		= 16;
-	int num_samples_step 			= 5;
-	int num_samples_dsss 			= 5;
+	int num_samples_step 			= 8;
+	int num_samples_dsss 			= 8;
 	int num_steps_ssds 				= 2;
 	double sample_period_qp 		= .1;
 	double sample_period_first 		= .1;
@@ -36,7 +36,7 @@ int main() {
 	mpc_parameters.solver.name                    = QPOASES;
 	mpc_parameters.solver.num_wsrec               = 200;
 	mpc_parameters.dynamics_order                 = SECOND_ORDER;
-	mpc_parameters.formulation		      = DECOUPLED_MODES;
+	mpc_parameters.formulation		      = STANDARD;
 	mpc_parameters.is_pid_mode		      = false;
 
 	mpc_parameters.weights.pos[0] 		= 0.;
@@ -148,6 +148,7 @@ int main() {
 		//int online_timer = walk.clock().StartCounter();
 		//std::cout << std::endl;
 		const MPCSolution &solution = walk.Go(curr_time);
+		std::cout<< "curr_time: " << curr_time << std::endl;
 		walk.solver()->DumpMatrices(curr_time, "dat");
 		//walk.solver()->DumpProblem("problem", curr_time, "txt");
 		//std::cout << "com_prw.pos.x: " << solution.com_prw.pos.x_vec.transpose() << std::endl;

@@ -70,7 +70,7 @@ for i = 1:N
     U_pos = [U_pos; C_pos * Ad^(i-1)*Bd];
 end
 S_pos;
-U_pos;
+U_pos
 
 S_pos_st = [];
 S_pos_unst = [];
@@ -84,7 +84,7 @@ for i = 1:N
     U_pos_dec(i,1) = C_pos(1,1) * Bd(1);
     U_pos_dec(1,i) = C_pos(1,2) * Bd(2);
 end
-U_pos_dec
+U_pos_dec;
 
 S_pos_st = [];
 S_pos_unst = [];
@@ -101,7 +101,7 @@ for i = 1:N
     U_pos_dec(i,1) = C_pos(1,1) * Ui(1);
     U_pos_dec(1,i) = C_pos(1,2) * Ui(2);
 end
-U_pos_dec
+U_pos_dec;
 
 %% PID
 kd = -1;

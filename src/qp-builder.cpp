@@ -152,6 +152,9 @@ void QPBuilder::BuildProblem(MPCSolution &solution) {
 
 	if (mpc_parameters_->is_constraints) {
 		int num_constr = 5 * solution.support_states_vec.back().step_number;	// Foot placement
+		if (mpc_parameters_->formulation == DECOUPLED_MODES) {
+			num_constr += 2;
+		}
 		solver_->num_constr(num_constr);
 		BuildConstraints(solution);
 	} else {
@@ -412,6 +415,42 @@ void QPBuilder::BuildConstraints(const MPCSolution &solution) {
 		BuildFootPosConstraints(solution);
 		//BuildFootVelConstraints(solution);
 	}
+}
+
+void QPBuilder::BuildStateConstraints(const MPCSolution &solution) {
+	int num_steps_previewed = solution.support_states_vec.back().step_number;
+	int num_samples = mpc_parameters_->num_samples_horizon;
+	int num_ineqs = 5;
+
+	const BodyState &com = robot_->com()->state();
+	CommonVectorType state_x(mpc_parameters_->dynamics_order), state_y(mpc_parameters_->dynamics_order);
+	Matrix2D state_trans_mat = Matrix2D::Zero();
+	state_trans_mat(0, 0) = 1.;
+	state_trans_mat(0, 1) = -1./sqrt(kGravity / com.z[0]);
+	state_trans_mat(1, 0) = 1.;
+	state_trans_mat(1, 1) = 1./sqrt(kGravity / com.z[0]);
+	state_x = state_trans_mat * com.x.head(mpc_parameters_->dynamics_order);
+
+	// Choose the precomputed element depending on the period until next sample
+	int samples_left = mpc_parameters_->GetMPCSamplesLeft(solution.sampling_times_vec[1] - solution.sampling_times_vec[0]);
+	samples_left += mpc_parameters_->weights.active_mode * mpc_parameters_->GetNumRecomputations();
+	const LinearDynamics &dyn = robot_->com()->dynamics_qp()[samples_left];//TODO: The dynamics are they there?
+
+	//X:
+	// x_0 < \sum Au^{-(j-1)}*Bu*u_j < x_0
+	//CuAu^-(N)*\mu_x
+	solver_->constr_mat()().block(num_ineqs * num_steps_previewed, (num_samples + num_steps_previewed)*2, 1, 1) = dyn.unstable_mode.;
+	solver_->constr_mat()().block(num_ineqs*num_steps_previewed, 0, 1, num_samples) = dyn.unstable_mode.input_mat.block(0,0,0,num_samples);
+	solver_->lc_bounds_vec()().block(num_ineqs * num_steps_previewed, 2) = x_0;
+	solver_->uc_bounds_vec()().block(num_ineqs * num_steps_previewed, 2) = x_0;
+	//Y:
+	// y_0 < \sum Au^{-(j-1)}*Bu*u_j < y_0
+	//CuAu^-(N)*\mu_y
+	solver_->constr_mat()().block(num_ineqs * num_steps_previewed, (num_samples + num_steps_previewed)*2, 1, 1) = dyn.unstable_mode.;
+	solver_->constr_mat()().block(num_ineqs*num_steps_previewed + 1, num_samples, 1, num_samples) = dyn.unstable_mode.input_mat.block(0,0,0,num_samples);
+	solver_->lc_bounds_vec()().block(num_ineqs*num_steps_previewed + 1, 2) = y_0;
+	solver_->uc_bounds_vec()().block(num_ineqs*num_steps_previewed + 1, 2) = y_0;
+
 }
 
 void QPBuilder::ComputeWarmStart(MPCSolution &solution) {

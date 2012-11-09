@@ -354,8 +354,8 @@ struct LinearDynamicsMatrices{
 			int input_dim,
 			int output_dim,
 			int num_samples,
-			int stable_dim = 0,
-			int unstable_dim = 0		//Dimension of the unstable modes
+			int stable_dim,
+			int unstable_dim		//Dimension of the unstable modes
 	);
 };
 
@@ -373,8 +373,8 @@ struct LinearDynamics {
 			int input_dim,
 			int output_dim,
 			int num_samples,
-			int stable_dim = 0,			//Number of stable modes
-			int unstable_dim = 0		//Number of unstable modes
+			int stable_dim,			//Number of stable modes
+			int unstable_dim		//Number of unstable modes
 	);
 };
 

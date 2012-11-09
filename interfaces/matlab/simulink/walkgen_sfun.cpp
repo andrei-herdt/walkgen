@@ -135,7 +135,7 @@ static void mdlStart(SimStruct *S) {
 	if (is_constraints_in == 0) {
 		mpc_parameters.is_constraints = false;
 	}
-	mpc_parameters.formulation = DECOUPLED_MODES;
+	mpc_parameters.formulation = STANDARD;
 
 	Walkgen *walk = new Walkgen;
 	walk->Init(mpc_parameters);
@@ -210,7 +210,6 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 		HipYawData right_hip_yaw           = left_hip_yaw;
 
 		RobotData robot_data(left_foot, right_foot, left_hip_yaw, right_hip_yaw, 0.0);
-
 		robot_data.com(0) = *com_in[0];		// TODO: This initialization did not work
 		robot_data.com(1) = *com_in[1];
 		robot_data.com(2) = *com_in[2];

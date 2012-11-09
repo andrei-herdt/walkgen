@@ -90,12 +90,11 @@ private:
 	// Computes the discrete state matrix via \f[ e^{AT} \f]
 	void ComputeDiscreteStateMatGeneral(
 			Matrix2D &d_state_mat,
-			const LinearDynamicsMatrices &dyn_mat,
 			double sample_period
 	);
 
 	void ComputeDiscreteInputVecGeneral(
-			Matrix2D &d_input_mat,
+			CommonMatrixType &d_input_mat,
 			const Matrix2D &d_state_mat,
 			const LinearDynamicsMatrices &dyn_mat
 	);
@@ -111,7 +110,7 @@ private:
 	);
 
 	void ComputeDiscreteStateMatDecoupled(
-			LinearDynamicsMatrices &dyn_mat,
+			Matrix2D &d_state_mat,
 			double sample_period
 	);
 
