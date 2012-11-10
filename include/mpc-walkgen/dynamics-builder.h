@@ -23,7 +23,7 @@ public:
 			double height,
 			double sample_period_first,
 			double sample_period_rest,
-			int nbsamples
+			int num_samples
 	);
 
 	//
@@ -51,7 +51,7 @@ private:
 			double height,
 			double sample_period_first,
 			double sample_period_rest,
-			int nbsamples,
+			int num_samples,
 			Derivative derivative
 	);
 
@@ -60,7 +60,7 @@ private:
 			double height,
 			double sample_period_first,
 			double sample_period_rest,
-			int nbsamples
+			int num_samples
 	);
 
 	void BuildSecondOrderCoPInputGeneral(
@@ -68,23 +68,26 @@ private:
 			double height,
 			double sample_period_first,
 			double sample_period_rest,
-			int nbsamples
+			int num_samples
 	);
 
 	void BuildSecondOrderCoPInputDecoupled(
 			LinearDynamicsMatrices &dyn_mat,
-			double height,
-			double sample_period_first,
-			double sample_period_rest,
-			int nbsamples
+			const std::vector<CommonMatrixType> &d_state_mat_vec,
+			const std::vector<CommonMatrixType> &d_input_mat_vec
 	);
 
 	void BuildThirdOrder(LinearDynamicsMatrices &dyn,
 			double height,
 			double sample_period_first,
 			double sample_period_rest,
-			int nbsamples,
+			int num_samples,
 			Derivative derivative
+	);
+
+	void ComputeDiscreteSSDynamics(
+			LinearDynamics &dyn,
+			const std::vector<double> &sampling_periods_vec
 	);
 
 	// Computes the discrete state matrix via \f[ e^{AT} \f]
@@ -93,9 +96,9 @@ private:
 			double sample_period
 	);
 
-	void ComputeDiscreteInputVecGeneral(
+	void ComputeDiscreteInputMatGeneral(
 			CommonMatrixType &d_input_mat,
-			const Matrix2D &d_state_mat,
+			const CommonMatrixType &d_state_mat,
 			const LinearDynamicsMatrices &dyn_mat
 	);
 
@@ -110,7 +113,7 @@ private:
 	);
 
 	void ComputeDiscreteStateMatDecoupled(
-			Matrix2D &d_state_mat,
+			CommonMatrixType &d_state_mat,
 			double sample_period
 	);
 
@@ -123,11 +126,8 @@ private:
 
 	const MPCParameters *mpc_parameters_;
 
-	// \name Elements for the computation of discrete state-space models
+	// \name Intermediate elements for the computation of discrete state-space models
 	// \{
-	//std::vector<Matrix2D> state_mat_vec;			//Vector of state matrices
-	//std::vector<Vector2D> input_mat_vec;			//Vector of input matrices
-
 	Vector2D eigenval_vec_;							//Vector of eigenvalues
 	Matrix2D eigenvec_mat_, eigenvec_mat_inv_;		//Eigenvector matrices
 

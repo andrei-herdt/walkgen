@@ -2,10 +2,18 @@
 
 using namespace std;
 
-void Debug::Cout(const char *name, vector<double> vec) {
+void Debug::Cout(const char *name, vector<double> &vec) {
 		cout << name << endl;
 		for (int i=0; i < vec.size(); i++) {
 			cout << vec[i] << " ";
+		}
+		cout << endl;
+}
+
+void Debug::Cout(const char *name, vector<MPCWalkgen::CommonMatrixType> &vec) {
+		cout << name << endl;
+		for (int i=0; i < vec.size(); i++) {
+			cout << vec[i] << " " << endl;
 		}
 		cout << endl;
 }

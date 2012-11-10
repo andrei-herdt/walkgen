@@ -415,6 +415,10 @@ void QPBuilder::BuildConstraints(const MPCSolution &solution) {
 		BuildFootPosConstraints(solution);
 		//BuildFootVelConstraints(solution);
 	}
+
+	if (mpc_parameters_->formulation == DECOUPLED_MODES) {
+		BuildStateConstraints(solution);
+	}
 }
 
 void QPBuilder::BuildStateConstraints(const MPCSolution &solution) {
@@ -430,27 +434,144 @@ void QPBuilder::BuildStateConstraints(const MPCSolution &solution) {
 	state_trans_mat(1, 0) = 1.;
 	state_trans_mat(1, 1) = 1./sqrt(kGravity / com.z[0]);
 	state_x = state_trans_mat * com.x.head(mpc_parameters_->dynamics_order);
+	state_y = state_trans_mat * com.y.head(mpc_parameters_->dynamics_order);
 
+	// Build equality constraints for the unstable modes at end of horizon:
+	// --------------------------------------------------------------------
 	// Choose the precomputed element depending on the period until next sample
 	int samples_left = mpc_parameters_->GetMPCSamplesLeft(solution.sampling_times_vec[1] - solution.sampling_times_vec[0]);
 	samples_left += mpc_parameters_->weights.active_mode * mpc_parameters_->GetNumRecomputations();
 	const LinearDynamics &dyn = robot_->com()->dynamics_qp()[samples_left];//TODO: The dynamics are they there?
 
 	//X:
-	// x_0 < \sum Au^{-(j-1)}*Bu*u_j < x_0
-	//CuAu^-(N)*\mu_x
-	solver_->constr_mat()().block(num_ineqs * num_steps_previewed, (num_samples + num_steps_previewed)*2, 1, 1) = dyn.unstable_mode.;
-	solver_->constr_mat()().block(num_ineqs*num_steps_previewed, 0, 1, num_samples) = dyn.unstable_mode.input_mat.block(0,0,0,num_samples);
-	solver_->lc_bounds_vec()().block(num_ineqs * num_steps_previewed, 2) = x_0;
-	solver_->uc_bounds_vec()().block(num_ineqs * num_steps_previewed, 2) = x_0;
-	//Y:
-	// y_0 < \sum Au^{-(j-1)}*Bu*u_j < y_0
-	//CuAu^-(N)*\mu_y
-	solver_->constr_mat()().block(num_ineqs * num_steps_previewed, (num_samples + num_steps_previewed)*2, 1, 1) = dyn.unstable_mode.;
-	solver_->constr_mat()().block(num_ineqs*num_steps_previewed + 1, num_samples, 1, num_samples) = dyn.unstable_mode.input_mat.block(0,0,0,num_samples);
-	solver_->lc_bounds_vec()().block(num_ineqs*num_steps_previewed + 1, 2) = y_0;
-	solver_->uc_bounds_vec()().block(num_ineqs*num_steps_previewed + 1, 2) = y_0;
+	// x_0 < Au^{-N}*\mu_x - \sum Au^{-(j-1)}*Bu*u_j < x_0
+	solver_->constr_mat()()(num_ineqs * num_steps_previewed, (num_samples + num_steps_previewed)*2) = dyn.d_state_mat_vec.back()(1,1);
+	double atimesb;
+	for (int i = 0; i < num_samples; i++) {
+		atimesb = dyn.d_state_mat_vec[i](1,1) * dyn.d_input_mat_vec[i](1);
+		solver_->constr_mat()()(num_ineqs * num_steps_previewed, i) = atimesb;
+	}
+	solver_->lc_bounds_vec()()(num_ineqs * num_steps_previewed) = state_x(1);
+	solver_->uc_bounds_vec()()(num_ineqs * num_steps_previewed) = state_x(1);
 
+	//Y:
+	// y_0 < Au^{-N}*\mu_y - \sum Au^{-(j-1)}*Bu*u_j < y_0
+	solver_->constr_mat()()(num_ineqs * num_steps_previewed, (num_samples + num_steps_previewed)*2 + 1) = dyn.d_state_mat_vec.back()(1,1);
+	for (int i = 0; i < num_samples; i++) {
+		atimesb = dyn.d_state_mat_vec[i](1,1) * dyn.d_input_mat_vec[i](1);
+		solver_->constr_mat()()(num_ineqs*num_steps_previewed + 1, num_samples + i) = atimesb;
+	}
+	solver_->lc_bounds_vec()()(num_ineqs*num_steps_previewed + 1) = state_y(1);
+	solver_->uc_bounds_vec()()(num_ineqs*num_steps_previewed + 1) = state_y(1);
+}
+
+void QPBuilder::BuildFootPosInequalities(const MPCSolution &solution) {
+	int num_ineqs = 5;
+	int num_steps = solution.support_states_vec.back().step_number;
+
+	foot_inequalities_.Resize(num_ineqs * num_steps , num_steps);
+
+	std::vector<SupportState>::const_iterator prev_ss_it = solution.support_states_vec.begin();
+	++prev_ss_it;//Point at the first previewed instant
+	for( int i = 0; i < mpc_parameters_->num_samples_horizon; ++i ){
+		//foot positioning constraints
+		if( prev_ss_it->state_changed && prev_ss_it->step_number > 0 && prev_ss_it->phase != DS){
+
+			--prev_ss_it;//Foot polygons are defined with respect to the supporting foot
+			robot_->GetConvexHull(hull_, FOOT_HULL, *prev_ss_it);
+			hull_.RotateVertices(prev_ss_it->yaw);
+			hull_.BuildInequalities(prev_ss_it->foot);
+			++prev_ss_it;
+
+			int step_number = (prev_ss_it->step_number - 1);
+
+			foot_inequalities_.x_mat.block( step_number * num_ineqs, step_number, num_ineqs, 1) = hull_.a_vec.segment(0, num_ineqs);
+			foot_inequalities_.y_mat.block( step_number * num_ineqs, step_number, num_ineqs, 1) = hull_.b_vec.segment(0, num_ineqs);
+			foot_inequalities_.c_vec.segment(step_number * num_ineqs, num_ineqs) = hull_.d_vec.segment(0, num_ineqs);
+		}
+		++prev_ss_it;
+	}
+}
+
+void QPBuilder::BuildFootPosConstraints(const MPCSolution &solution) {
+	int num_steps_previewed = solution.support_states_vec.back().step_number;
+	const SelectionMatrices &select = preview_->selection_matrices();
+	int num_samples = mpc_parameters_->num_samples_horizon;
+
+	tmp_mat_.noalias() = foot_inequalities_.x_mat * select.Vf;
+	solver_->constr_mat().AddTerm(tmp_mat_,  0,  2 * num_samples);
+
+	tmp_mat_.noalias() = foot_inequalities_.y_mat * select.Vf;
+	solver_->constr_mat().AddTerm(tmp_mat_,  0, 2 * num_samples + num_steps_previewed);
+
+	solver_->lc_bounds_vec().Add(foot_inequalities_.c_vec, 0);
+
+	tmp_vec_.noalias() =  foot_inequalities_.x_mat * select.VcfX;
+	tmp_vec_ += foot_inequalities_.y_mat * select.VcfY;
+	solver_->lc_bounds_vec().Add(tmp_vec_,  0);
+
+	solver_->uc_bounds_vec()().segment(0, tmp_vec_.size()).fill(kInf);
+}
+
+void QPBuilder::BuildFootVelConstraints(const MPCSolution &solution) {
+	assert(robot_->robot_data().max_foot_vel > kEps);
+
+	double raise_time = 0.05;//TODO: Hard coded value has to come from robot_
+	double time_left = solution.support_states_vec.front().time_limit - raise_time - current_time_;
+	double max_vel = robot_->robot_data().max_foot_vel;
+
+	int num_steps_previewed = solution.support_states_vec.back().step_number;
+	int x_var_pos = mpc_parameters_->num_samples_horizon;
+	int y_var_pos = mpc_parameters_->num_samples_horizon + num_steps_previewed;
+
+	const BodyState *flying_foot;
+	const SupportState &current_support = solution.support_states_vec.front();
+	if (current_support.foot == LEFT) {
+		flying_foot = &robot_->right_foot()->state();
+	} else {
+		flying_foot = &robot_->left_foot()->state();
+	}
+
+	double upper_limit_x = max_vel * time_left + flying_foot->x(0);
+	double upper_limit_y = max_vel * time_left + flying_foot->y(0);
+	solver_->uv_bounds_vec().Add(upper_limit_x, x_var_pos);
+	solver_->uv_bounds_vec().Add(upper_limit_y, y_var_pos);
+	double lower_limit_x = -max_vel * time_left + flying_foot->x(0);
+	double lower_limit_y = -max_vel * time_left + flying_foot->y(0);
+	solver_->lv_bounds_vec().Add(lower_limit_x, x_var_pos);
+	solver_->lv_bounds_vec().Add(lower_limit_y, y_var_pos);
+}
+
+void QPBuilder::BuildCoPConstraints(const MPCSolution &solution) {
+	int num_samples = mpc_parameters_->num_samples_horizon;
+	std::vector<SupportState>::const_iterator prev_ss_it = solution.support_states_vec.begin();
+
+	robot_->GetConvexHull(hull_, COP_HULL, *prev_ss_it);
+
+	int num_steps_previewed = solution.support_states_vec.back().step_number;
+	int size = 2 * num_samples + 2 * num_steps_previewed;
+	tmp_vec_.resize(size);
+	tmp_vec2_.resize(size);
+
+	++prev_ss_it;//Points at the first previewed instant
+	for (int i = 0; i < num_samples; ++i) {
+		if (prev_ss_it->state_changed) {
+			robot_->GetConvexHull(hull_, COP_HULL, *prev_ss_it);
+		}
+		tmp_vec_(i)  = min(hull_.x_vec(0), hull_.x_vec(3));
+		tmp_vec2_(i) = max(hull_.x_vec(0), hull_.x_vec(3));
+
+		tmp_vec_(num_samples + i) = min(hull_.y_vec(0), hull_.y_vec(1));
+		tmp_vec2_(num_samples + i)= max(hull_.y_vec(0), hull_.y_vec(1));
+		++prev_ss_it;
+	}
+
+	tmp_vec_.segment(2 * num_samples, 2 * num_steps_previewed).fill(-kInf);
+	tmp_vec2_.segment(2 * num_samples, 2 * num_steps_previewed).fill(kInf);
+
+	int first_row = 0;
+	solver_->lv_bounds_vec().Add(tmp_vec_, first_row);
+	solver_->uv_bounds_vec().Add(tmp_vec2_, first_row);
 }
 
 void QPBuilder::ComputeWarmStart(MPCSolution &solution) {
@@ -609,111 +730,3 @@ void QPBuilder::ComputeWarmStart(MPCSolution &solution) {
 
 }
 
-void QPBuilder::BuildFootPosInequalities(const MPCSolution &solution) {
-	int num_ineqs = 5;
-	int num_steps = solution.support_states_vec.back().step_number;
-
-	foot_inequalities_.Resize(num_ineqs * num_steps , num_steps);
-
-	std::vector<SupportState>::const_iterator prev_ss_it = solution.support_states_vec.begin();
-	++prev_ss_it;//Point at the first previewed instant
-	for( int i = 0; i < mpc_parameters_->num_samples_horizon; ++i ){
-		//foot positioning constraints
-		if( prev_ss_it->state_changed && prev_ss_it->step_number > 0 && prev_ss_it->phase != DS){
-
-			--prev_ss_it;//Foot polygons are defined with respect to the supporting foot
-			robot_->GetConvexHull(hull_, FOOT_HULL, *prev_ss_it);
-			hull_.RotateVertices(prev_ss_it->yaw);
-			hull_.BuildInequalities(prev_ss_it->foot);
-			++prev_ss_it;
-
-			int step_number = (prev_ss_it->step_number - 1);
-
-			foot_inequalities_.x_mat.block( step_number * num_ineqs, step_number, num_ineqs, 1) = hull_.a_vec.segment(0, num_ineqs);
-			foot_inequalities_.y_mat.block( step_number * num_ineqs, step_number, num_ineqs, 1) = hull_.b_vec.segment(0, num_ineqs);
-			foot_inequalities_.c_vec.segment(step_number * num_ineqs, num_ineqs) = hull_.d_vec.segment(0, num_ineqs);
-		}
-		++prev_ss_it;
-	}
-}
-
-void QPBuilder::BuildFootPosConstraints(const MPCSolution &solution) {
-	int num_steps_previewed = solution.support_states_vec.back().step_number;
-	const SelectionMatrices &select = preview_->selection_matrices();
-	int num_samples = mpc_parameters_->num_samples_horizon;
-
-	tmp_mat_.noalias() = foot_inequalities_.x_mat * select.Vf;
-	solver_->constr_mat().AddTerm(tmp_mat_,  0,  2 * num_samples);
-
-	tmp_mat_.noalias() = foot_inequalities_.y_mat * select.Vf;
-	solver_->constr_mat().AddTerm(tmp_mat_,  0, 2 * num_samples + num_steps_previewed);
-
-	solver_->lc_bounds_vec().Add(foot_inequalities_.c_vec, 0);
-
-	tmp_vec_.noalias() =  foot_inequalities_.x_mat * select.VcfX;
-	tmp_vec_ += foot_inequalities_.y_mat * select.VcfY;
-	solver_->lc_bounds_vec().Add(tmp_vec_,  0);
-
-	solver_->uc_bounds_vec()().segment(0, tmp_vec_.size()).fill(kInf);
-}
-
-void QPBuilder::BuildFootVelConstraints(const MPCSolution &solution) {
-	assert(robot_->robot_data().max_foot_vel > kEps);
-
-	double raise_time = 0.05;//TODO: Hard coded value has to come from robot_
-	double time_left = solution.support_states_vec.front().time_limit - raise_time - current_time_;
-	double max_vel = robot_->robot_data().max_foot_vel;
-
-	int num_steps_previewed = solution.support_states_vec.back().step_number;
-	int x_var_pos = mpc_parameters_->num_samples_horizon;
-	int y_var_pos = mpc_parameters_->num_samples_horizon + num_steps_previewed;
-
-	const BodyState *flying_foot;
-	const SupportState &current_support = solution.support_states_vec.front();
-	if (current_support.foot == LEFT) {
-		flying_foot = &robot_->right_foot()->state();
-	} else {
-		flying_foot = &robot_->left_foot()->state();
-	}
-
-	double upper_limit_x = max_vel * time_left + flying_foot->x(0);
-	double upper_limit_y = max_vel * time_left + flying_foot->y(0);
-	solver_->uv_bounds_vec().Add(upper_limit_x, x_var_pos);
-	solver_->uv_bounds_vec().Add(upper_limit_y, y_var_pos);
-	double lower_limit_x = -max_vel * time_left + flying_foot->x(0);
-	double lower_limit_y = -max_vel * time_left + flying_foot->y(0);
-	solver_->lv_bounds_vec().Add(lower_limit_x, x_var_pos);
-	solver_->lv_bounds_vec().Add(lower_limit_y, y_var_pos);
-}
-
-void QPBuilder::BuildCoPConstraints(const MPCSolution &solution) {
-	int num_samples = mpc_parameters_->num_samples_horizon;
-	std::vector<SupportState>::const_iterator prev_ss_it = solution.support_states_vec.begin();
-
-	robot_->GetConvexHull(hull_, COP_HULL, *prev_ss_it);
-
-	int num_steps_previewed = solution.support_states_vec.back().step_number;
-	int size = 2 * num_samples + 2 * num_steps_previewed;
-	tmp_vec_.resize(size);
-	tmp_vec2_.resize(size);
-
-	++prev_ss_it;//Points at the first previewed instant
-	for (int i = 0; i < num_samples; ++i) {
-		if (prev_ss_it->state_changed) {
-			robot_->GetConvexHull(hull_, COP_HULL, *prev_ss_it);
-		}
-		tmp_vec_(i)  = min(hull_.x_vec(0), hull_.x_vec(3));
-		tmp_vec2_(i) = max(hull_.x_vec(0), hull_.x_vec(3));
-
-		tmp_vec_(num_samples + i) = min(hull_.y_vec(0), hull_.y_vec(1));
-		tmp_vec2_(num_samples + i)= max(hull_.y_vec(0), hull_.y_vec(1));
-		++prev_ss_it;
-	}
-
-	tmp_vec_.segment(2 * num_samples, 2 * num_steps_previewed).fill(-kInf);
-	tmp_vec2_.segment(2 * num_samples, 2 * num_steps_previewed).fill(kInf);
-
-	int first_row = 0;
-	solver_->lv_bounds_vec().Add(tmp_vec_, first_row);
-	solver_->uv_bounds_vec().Add(tmp_vec2_, first_row);
-}

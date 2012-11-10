@@ -64,6 +64,8 @@ typedef MatrixRowMaj CommonMatrixType;
 typedef Eigen::Vector2d Vector2D;
 typedef Eigen::VectorXd CommonVectorType;
 
+typedef unsigned int uint;
+
 //
 // Data structures:
 //
@@ -336,26 +338,42 @@ struct MPC_WALKGEN_API ControlOutput {
 };
 
 struct LinearDynamicsMatrices{
+	// \name Prediction matrices
+	// \{
 	CommonMatrixType state_mat;
-	CommonMatrixType stab_state_mat;	//Unstable modes state matrix
-	CommonMatrixType unst_state_mat;	//Unstable modes state matrix
 	CommonMatrixType state_mat_inv;
+	CommonMatrixType stab_state_mat;		//Stable modes state matrix
+	CommonMatrixType unst_state_mat;		//Unstable modes state matrix
+
 	CommonMatrixType input_mat;
 	CommonMatrixType input_mat_tr;
 	CommonMatrixType input_mat_inv;
 	CommonMatrixType input_mat_inv_tr;
+	// \}
 
-	CommonMatrixType c_state_mat, c_state_mat_inv, d_state_mat, d_state_mat_inv;
-	CommonMatrixType c_input_mat, c_input_mat_tr, d_input_mat, d_input_mat_tr;
-	CommonMatrixType ss_output_mat, ss_output_mat_tr;
-	CommonMatrixType ss_feedthrough_mat;
+	// \name State-space dynamics matrices
+	// \{
+	CommonMatrixType c_state_mat;			//Continuous state matrix
+	CommonMatrixType c_state_mat_inv;		//Inverse of continuous state matrix
+	CommonMatrixType d_state_mat;			//Discrete state matrix
+	CommonMatrixType d_state_mat_inv;		//Inverse of discrete state matrix
+
+	CommonMatrixType c_input_mat;			//Continuous input matrix
+	CommonMatrixType c_input_mat_tr;		//Transpose of continuous input matrix
+	CommonMatrixType d_input_mat;			//Discrete input matrix
+	CommonMatrixType d_input_mat_tr;		//Transpose of discrete input matrix
+
+	CommonMatrixType ss_output_mat;			//Output matrix
+	CommonMatrixType ss_output_mat_tr;		//Transpose of output matrix
+	CommonMatrixType ss_feedthrough_mat;	//Feedthrough matrix
+	// \}
 
 	void SetZero(int state_dim,
 			int input_dim,
 			int output_dim,
 			int num_samples,
-			int stable_dim,
-			int unstable_dim		//Dimension of the unstable modes
+			int stable_dim,			//Number of stable modes
+			int unstable_dim		//Number of unstable modes
 	);
 };
 
@@ -368,6 +386,9 @@ struct LinearDynamics {
 	/// \}
 
 	LinearDynamicsMatrices cont_ss, discr_ss;	//State space dynamics
+
+	std::vector<CommonMatrixType> d_state_mat_vec;	//Vector of powers of discrete state matrices
+	std::vector<CommonMatrixType> d_input_mat_vec;	//Vector of discrete input matrices
 
 	void SetZero(int state_dim,
 			int input_dim,

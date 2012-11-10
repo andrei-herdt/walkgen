@@ -12,7 +12,8 @@ class Debug {
 
 public:
 	// \brief Print of std::vector
-	static void Cout(const char *name, std::vector<double> vec);
+	static void Cout(const char *name, std::vector<double> &vec);
+	static void Cout(const char *name, std::vector<MPCWalkgen::CommonMatrixType> &vec);
 
 	static void Cout(const char *name, const MPCWalkgen::CommonMatrixType &mat);
 

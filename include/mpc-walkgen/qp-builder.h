@@ -29,8 +29,6 @@ public:
 
 	void BuildProblem(MPCSolution &solution);
 
-	void ComputeWarmStart(MPCSolution &solution);
-
 	void TransformControlVector(MPCSolution &solution);
 
 	void BuildGlobalVelocityReference(const MPCSolution &solution);
@@ -55,6 +53,8 @@ private:
 	void BuildFootVelConstraints(const MPCSolution &solution);
 
 	void BuildCoPConstraints(const MPCSolution &solution);
+
+	void ComputeWarmStart(MPCSolution &solution);
 
 	//
 	// Private data members:

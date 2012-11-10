@@ -135,7 +135,7 @@ static void mdlStart(SimStruct *S) {
 	if (is_constraints_in == 0) {
 		mpc_parameters.is_constraints = false;
 	}
-	mpc_parameters.formulation = STANDARD;
+	mpc_parameters.formulation = DECOUPLED_MODES;
 
 	Walkgen *walk = new Walkgen;
 	walk->Init(mpc_parameters);
