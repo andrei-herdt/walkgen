@@ -143,27 +143,33 @@ void QPBuilder::PrecomputeObjective() {
 }
 
 void QPBuilder::BuildProblem(MPCSolution &solution) {
+	assert(mpc_parameters_->num_samples_horizon > 0);
+
 	// DIMENSION OF QP:
 	// ----------------
-	int num_variables = 2 * mpc_parameters_->num_samples_horizon +				// com
-			2 * solution.support_states_vec.back().step_number;					// Foot placement
-	solver_->num_var(num_variables);
-	BuildObjective(solution);
+	int num_variables = 2 * mpc_parameters_->num_samples_horizon +			// com
+			2 * solution.support_states_vec.back().step_number;				// Foot placement
+	int num_constr = 0;
+
+	if (mpc_parameters_->formulation == DECOUPLED_MODES) {
+		num_variables += 2;
+		num_constr += 2;
+	}
 
 	if (mpc_parameters_->is_constraints) {
-		int num_constr = 5 * solution.support_states_vec.back().step_number;	// Foot placement
-		if (mpc_parameters_->formulation == DECOUPLED_MODES) {
-			num_constr += 2;
-		}
-		solver_->num_constr(num_constr);
-		BuildConstraints(solution);
+		num_constr += 5 * solution.support_states_vec.back().step_number;	// Foot placement
 	} else {
 		solver_->uv_bounds_vec().Reset(kInf);
 		solver_->lv_bounds_vec().Reset(-kInf);
 	}
 
+	solver_->num_var(num_variables);
+	solver_->num_constr(num_constr);
+	BuildObjective(solution);
+	BuildConstraints(solution);
+
 	if (mpc_parameters_->warmstart) {
-		ComputeWarmStart(solution);//TODO: Modify the solution?
+		ComputeWarmStart(solution);//TODO: Modify the solution or the problem?
 	}
 }
 
