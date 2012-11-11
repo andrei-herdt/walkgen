@@ -36,7 +36,7 @@ int main() {
 	mpc_parameters.solver.name                    = QPOASES;
 	mpc_parameters.solver.num_wsrec               = 200;
 	mpc_parameters.dynamics_order                 = SECOND_ORDER;
-	mpc_parameters.formulation		      = STANDARD;
+	mpc_parameters.formulation		      = DECOUPLED_MODES;
 	mpc_parameters.is_pid_mode		      = false;
 
 	mpc_parameters.weights.pos[0] 		= 0.;
@@ -144,7 +144,7 @@ int main() {
 	int num_iterations = 0;
 	//walk.clock().GetFrequency(1000);
 	//walk.clock().ResetLocal();
-	for (; curr_time < .1; curr_time += sample_period_act) {
+	for (; curr_time < 1.; curr_time += sample_period_act) {
 		//int online_timer = walk.clock().StartCounter();
 		//std::cout << std::endl;
 		const MPCSolution &solution = walk.Go(curr_time);

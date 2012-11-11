@@ -2,7 +2,7 @@
 
 using namespace std;
 
-void Debug::Cout(const char *name, vector<double> &vec) {
+void Debug::Cout(const char *name, const vector<double> &vec) {
 		cout << name << endl;
 		for (int i=0; i < vec.size(); i++) {
 			cout << vec[i] << " ";
@@ -10,7 +10,7 @@ void Debug::Cout(const char *name, vector<double> &vec) {
 		cout << endl;
 }
 
-void Debug::Cout(const char *name, vector<MPCWalkgen::CommonMatrixType> &vec) {
+void Debug::Cout(const char *name, const vector<MPCWalkgen::CommonMatrixType> &vec) {
 		cout << name << endl;
 		for (int i=0; i < vec.size(); i++) {
 			cout << vec[i] << " " << endl;

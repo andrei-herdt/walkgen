@@ -7,7 +7,7 @@ using namespace MPCWalkgen;
 HeuristicPreview::HeuristicPreview(Reference *ref, RigidBodySystem *robot, const MPCParameters *mpc_parameters, RealClock *clock)
 :robot_(robot)
 ,mpc_parameters_(mpc_parameters)
-,select_matrices_(mpc_parameters->num_samples_horizon)
+,select_matrices_(mpc_parameters->num_samples_horizon + 1)//TODO: Unstable mode number fixed to 1 but should be give as parameter
 ,rot_mat_ (CommonMatrixType::Zero(2*mpc_parameters_->num_samples_horizon, 2*mpc_parameters_->num_samples_horizon))
 ,rot_mat2_(CommonMatrixType::Zero(2*mpc_parameters_->num_samples_horizon, 2*mpc_parameters_->num_samples_horizon))
 ,rot_mat2_tr_(CommonMatrixType::Zero(2*mpc_parameters_->num_samples_horizon, 2*mpc_parameters_->num_samples_horizon))
@@ -124,22 +124,19 @@ void HeuristicPreview::BuildRotationMatrix(MPCSolution &solution){//TODO: Move t
 // Private methods:
 //
 void HeuristicPreview::BuildSelectionMatrices(MPCSolution &solution) {//Move to qp-builder
-	assert(select_matrices_.sample_step.rows() == mpc_parameters_->num_samples_horizon);
-
 	const BodyState *left_foot_p = &robot_->left_foot()->state();
 	const BodyState *right_foot_p = &robot_->right_foot()->state();
 
 	int num_steps_previewed = solution.support_states_vec.back().step_number;
 	int num_samples = mpc_parameters_->num_samples_horizon;
+	int num_rows = num_samples + 1;	//TODO: Fixed value for number unstable modes
 
 	if (select_matrices_.sample_step.cols() != num_steps_previewed){
-		select_matrices_.sample_step.		resize(num_samples, num_steps_previewed);
-		select_matrices_.sample_step_trans.	resize(num_steps_previewed, num_samples);
+		select_matrices_.sample_step.		resize(num_rows, num_steps_previewed);
+		select_matrices_.sample_step_trans.	resize(num_steps_previewed, num_rows);
 		select_matrices_.Vf.				resize(num_steps_previewed, num_steps_previewed);
 		select_matrices_.VcfX.				resize(num_steps_previewed);
 		select_matrices_.VcfY.				resize(num_steps_previewed);
-		select_matrices_.sample_mstep.		resize(num_samples, num_steps_previewed);
-		select_matrices_.sample_mstep_trans.resize(num_steps_previewed, num_samples);
 	}
 	select_matrices_.SetZero();
 
@@ -148,7 +145,6 @@ void HeuristicPreview::BuildSelectionMatrices(MPCSolution &solution) {//Move to 
 	for (int i = 0; i < num_samples; i++) {
 		if (supp_state_it->step_number > 0) {
 			select_matrices_.sample_step(i, supp_state_it->step_number - 1) = select_matrices_.sample_step_trans(supp_state_it->step_number-1, i) = 1.0;
-			select_matrices_.sample_mstep(i, supp_state_it->step_number - 1) = select_matrices_.sample_mstep_trans(supp_state_it->step_number-1, i) = 1.0;
 			if (supp_state_it->step_number == 1 && supp_state_it->state_changed && supp_state_it->phase == SS) {
 				--supp_state_it;
 				select_matrices_.VcfX(0) = supp_state_it->x;
@@ -163,14 +159,13 @@ void HeuristicPreview::BuildSelectionMatrices(MPCSolution &solution) {//Move to 
 		} else {
 			select_matrices_.sample_step_cx(i) = supp_state_it->x;
 			select_matrices_.sample_step_cy(i) = supp_state_it->y;
-			select_matrices_.sample_mstep_cx(i) = supp_state_it->x;
-			select_matrices_.sample_mstep_cy(i) = supp_state_it->y;
-			if (supp_state_it->phase == DS) {
-				select_matrices_.sample_mstep_cx(i) = left_foot_p->x(0) / 2. + right_foot_p->x(0) / 2.;
-				select_matrices_.sample_mstep_cy(i) = left_foot_p->y(0) / 2. + right_foot_p->y(0) / 2.;
-			}
 		}
 		++supp_state_it;
 	}
-
+	// Copy last row generated above to the following (last) row (concerning the capture point position)
+	select_matrices_.sample_step_cx(num_samples) = select_matrices_.sample_step_cx(num_samples - 1);
+	select_matrices_.sample_step_cy(num_samples) = select_matrices_.sample_step_cy(num_samples - 1);
+	int num_cols = select_matrices_.sample_step.cols();
+	select_matrices_.sample_step.block(num_samples, 0, 1, num_cols) = select_matrices_.sample_step.block(num_samples - 1, 0, 1, num_cols);
+	select_matrices_.sample_step_trans.block(0, num_samples, num_cols, 1) = select_matrices_.sample_step_trans.block(0, num_samples - 1, num_cols, 1);
 }

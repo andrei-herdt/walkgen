@@ -380,11 +380,11 @@ void WeightCoefficients::SetCoefficients(Reference &ref) {
 }
 
 void LinearDynamicsMatrices::SetZero(int state_dim, int input_dim, int output_dim, int num_samples, int stable_dim, int unstable_dim) {
-	state_mat.setZero(num_samples, state_dim);
+	state_mat.setZero(num_samples + unstable_dim, stable_dim);
 	//stab_state_mat.setZero(num_samples, stable_dim);
 	//unst_state_mat.setZero(num_samples, unstable_dim);
-	input_mat.setZero(num_samples, num_samples + unstable_dim);
-	input_mat_tr.setZero(num_samples + unstable_dim, num_samples);
+	input_mat.setZero(num_samples + unstable_dim, num_samples + unstable_dim);
+	input_mat_tr.setZero(num_samples + unstable_dim, num_samples + unstable_dim);
 	input_mat_inv.setZero(num_samples, num_samples);
 	input_mat_inv_tr.setZero(num_samples, num_samples);
 
@@ -408,6 +408,7 @@ void LinearDynamics::SetZero(int state_dim, int input_dim, int output_dim, int n
 	discr_ss.SetZero(state_dim, input_dim, output_dim, num_samples, stable_dim, unstable_dim);
 
 	d_state_mat_vec.resize(num_samples, CommonMatrixType::Zero(state_dim, state_dim));
+	d_state_mat_pow_vec.resize(num_samples, CommonMatrixType::Zero(state_dim, state_dim));
 	d_input_mat_vec.resize(num_samples, CommonMatrixType::Zero(state_dim, input_dim));
 }
 
@@ -420,19 +421,16 @@ SelectionMatrices::SelectionMatrices(int num_rows)
 ,Vf(num_rows, num_rows)
 ,VcfX(num_rows)
 ,VcfY(num_rows)
-,sample_mstep_cx(num_rows)
-,sample_mstep_cy(num_rows)
-,sample_mstep(num_rows, num_rows)
-,sample_mstep_trans(num_rows, num_rows)
 {}
 
 void SelectionMatrices::SetZero() {
-	sample_step.setZero(); sample_step_trans.setZero();
-	sample_step_cx.setZero(); sample_step_cy.setZero();
+	sample_step.setZero();
+	sample_step_trans.setZero();
+	sample_step_cx.setZero();
+	sample_step_cy.setZero();
 	Vf.setZero();
-	VcfX.setZero();  VcfY.setZero();
-	sample_mstep_cx.setZero(); sample_mstep_cy.setZero();
-	sample_mstep.setZero(); sample_mstep_trans.setZero();
+	VcfX.setZero();
+	VcfY.setZero();
 }
 
 void RelativeInequalities::Resize(int rows, int cols){

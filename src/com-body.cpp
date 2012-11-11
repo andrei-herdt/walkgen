@@ -21,7 +21,9 @@ void CoMBody::Interpolate(MPCSolution &solution, double current_time, const Refe
 		state_trans_mat(0, 0) = 1.; state_trans_mat(0, 1) = -1./sqrt(kGravity / state_.z[0]);
 		state_trans_mat(1, 0) = 1.; state_trans_mat(1, 1) = 1./sqrt(kGravity / state_.z[0]);
 		state_x = state_trans_mat * state_.x.head(mpc_parameters_->dynamics_order);
+		state_x = state_x.head(1);
 		state_y = state_trans_mat * state_.y.head(mpc_parameters_->dynamics_order);
+		state_y = state_y.head(1);
 	} else {
 		for (int i = 0; i < mpc_parameters_->dynamics_order; i++) {
 			state_x(i) = state_.x(i);
