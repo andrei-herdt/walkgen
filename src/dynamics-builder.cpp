@@ -55,7 +55,15 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, doubl
 	double omega_square = kGravity/height;
 
 	if (mpc_parameters_->formulation == STANDARD) {
-		dyn.SetZero(2, 1, 1, num_samples, 1, 1);
+		int state_dim = 2;
+		int num_stable_modes = state_dim;
+		int num_unstable_modes = state_dim - num_stable_modes;
+		int input_dim = 1;
+		int output_dim = 1;
+		dyn.SetZero(state_dim, input_dim, output_dim, num_samples, num_stable_modes, num_unstable_modes);
+
+		// Continuous (general) state space dynamics:
+		// ------------------------------------------
 		dyn.cont_ss.c_state_mat(0, 1) = 1.;
 		dyn.cont_ss.c_state_mat(1, 0) = omega_square;
 		dyn.cont_ss.c_state_mat_inv = dyn.cont_ss.c_state_mat.inverse();
@@ -67,9 +75,12 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, doubl
 		dyn.cp.ss_output_mat(0, 0) = 1.;
 		dyn.cp.ss_output_mat(0, 1) = 1./omega;
 	} else if (mpc_parameters_->formulation == DECOUPLED_MODES) {
+		int state_dim = 2;
 		int num_stable_modes = 1;
-		int num_unstable_modes = 1;
-		dyn.SetZero(2, 1, 1, num_samples, num_stable_modes, num_unstable_modes);
+		int num_unstable_modes = state_dim - num_stable_modes;
+		int input_dim = 1;
+		int output_dim = 1;
+		dyn.SetZero(state_dim, input_dim, output_dim, num_samples, num_stable_modes, num_unstable_modes);
 
 		// Continuous (general) state space dynamics:
 		// ------------------------------------------
@@ -433,22 +444,20 @@ void DynamicsBuilder::BuildSecondOrderCoPInputDecoupled(LinearDynamicsMatrices &
 	int num_samples = d_state_mat_vec.size();
 
 	dyn_mat.input_mat(0,0) = dyn_mat.ss_output_mat(0,0) * d_input_mat_vec.at(0)(0, 0);
-	dyn_mat.stab_state_mat(0,0) = dyn_mat.ss_output_mat(0,0) * d_state_mat_vec.at(0)(0,0);
-	dyn_mat.unst_state_mat(num_samples - 1, 0) = dyn_mat.ss_output_mat(0,1);
+	dyn_mat.input_mat(num_samples - 1, num_samples) = dyn_mat.ss_output_mat(0,1);
+	dyn_mat.state_mat(0,0) = dyn_mat.ss_output_mat(0,0) * d_state_mat_vec.at(0)(0,0);
 	CommonMatrixType d_state_mat_temp = Matrix2D::Identity();
 	CommonMatrixType d_state_mat_pow = Matrix2D::Zero();
 	for (int row = 1; row < num_samples; row++) {
-		std::cout << "row" << row << std::endl;
-		std::cout << "num_samples" << num_samples << std::endl;
 		// Ad2^row
 		d_state_mat_temp *= d_state_mat_vec.at(1);
 		// Ad1 * Ad2^row
 		d_state_mat_pow = d_state_mat_temp * d_state_mat_vec.at(0);
 
 		//Sc(row,:) = Cs*Ad2s^row * Ad1s
-		dyn_mat.stab_state_mat(0, 0) = dyn_mat.ss_output_mat(0, 0) * d_state_mat_pow(0, 0);
+		dyn_mat.state_mat(0, 0) = dyn_mat.ss_output_mat(0, 0) * d_state_mat_pow(0, 0);
 		//Su(N - 1 - row,:) = Cu*Ad2u^row * Ad1u
-		dyn_mat.unst_state_mat(num_samples - 1 - row, 0) = dyn_mat.ss_output_mat(0, 1) * d_state_mat_temp(1, 1) * d_state_mat_vec.at(1)(1, 1);
+		dyn_mat.input_mat(num_samples - 1 - row, num_samples) = dyn_mat.ss_output_mat(0, 1) * d_state_mat_temp(1, 1) * d_state_mat_vec.at(1)(1, 1);
 		//U(row,0) = Cs*Ad2s^row * Bd1s
 		dyn_mat.input_mat(row, 0) = dyn_mat.ss_output_mat(0,0) * d_state_mat_temp(0,0) * d_input_mat_vec.at(0)(0);
 		//U(0,row) = Cu*Ad2u^row * Bd2u

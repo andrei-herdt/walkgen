@@ -381,10 +381,10 @@ void WeightCoefficients::SetCoefficients(Reference &ref) {
 
 void LinearDynamicsMatrices::SetZero(int state_dim, int input_dim, int output_dim, int num_samples, int stable_dim, int unstable_dim) {
 	state_mat.setZero(num_samples, state_dim);
-	stab_state_mat.setZero(num_samples, stable_dim);
-	unst_state_mat.setZero(num_samples, unstable_dim);
-	input_mat.setZero(num_samples, num_samples);
-	input_mat_tr.setZero(num_samples, num_samples);
+	//stab_state_mat.setZero(num_samples, stable_dim);
+	//unst_state_mat.setZero(num_samples, unstable_dim);
+	input_mat.setZero(num_samples, num_samples + unstable_dim);
+	input_mat_tr.setZero(num_samples + unstable_dim, num_samples);
 	input_mat_inv.setZero(num_samples, num_samples);
 	input_mat_inv_tr.setZero(num_samples, num_samples);
 
@@ -394,7 +394,6 @@ void LinearDynamicsMatrices::SetZero(int state_dim, int input_dim, int output_di
 	d_input_mat.setZero(state_dim, input_dim); 	d_input_mat_tr.setZero(input_dim, state_dim);
 	ss_output_mat.setZero(output_dim, state_dim); 	ss_output_mat_tr.setZero(state_dim, input_dim);
 	ss_feedthrough_mat.setZero(output_dim, input_dim);
-
 }
 
 void LinearDynamics::SetZero(int state_dim, int input_dim, int output_dim, int num_samples, int stable_dim, int unstable_dim) {

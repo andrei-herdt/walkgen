@@ -36,7 +36,7 @@ int main() {
 	mpc_parameters.solver.name                    = QPOASES;
 	mpc_parameters.solver.num_wsrec               = 200;
 	mpc_parameters.dynamics_order                 = SECOND_ORDER;
-	mpc_parameters.formulation		      = DECOUPLED_MODES;
+	mpc_parameters.formulation		      = STANDARD;
 	mpc_parameters.is_pid_mode		      = false;
 
 	mpc_parameters.weights.pos[0] 		= 0.;
