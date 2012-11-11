@@ -211,14 +211,17 @@ void QPBuilder::BuildGlobalVelocityReference(const MPCSolution &solution) {
 void QPBuilder::TransformControlVector(MPCSolution &solution) {
 	int num_samples = mpc_parameters_->num_samples_horizon;
 	int num_steps = solution.support_states_vec.back().step_number;
+	int num_unst_modes = 1;//TODO: Unstab. modes
 
 	const SelectionMatrices &select = preview_->selection_matrices();
 	const CommonMatrixType &rot_mat = preview_->rot_mat();
 	const BodyState &com = robot_->com()->state();
 
-	const CommonVectorType &local_cop_vec = solution.qp_solution_vec;
-	const CommonVectorType feet_x_vec = solution.qp_solution_vec.segment(2 * num_samples, num_steps);
-	const CommonVectorType feet_y_vec = solution.qp_solution_vec.segment(2 * num_samples + num_steps, num_steps);
+	const CommonVectorType &feet_x_vec = solution.qp_solution_vec.segment(2*(num_samples + num_unst_modes), num_steps);
+	const CommonVectorType &feet_y_vec = solution.qp_solution_vec.segment(2*(num_samples + num_unst_modes) + num_steps, num_steps);
+
+	const CommonVectorType &local_cop_vec_x = solution.qp_solution_vec.segment(0, num_samples);
+	const CommonVectorType &local_cop_vec_y = solution.qp_solution_vec.segment(num_samples + num_unst_modes, num_samples);
 
 	CommonVectorType &global_cop_x_vec = solution.com_prw.cop.x_vec;
 	CommonVectorType &global_cop_y_vec = solution.com_prw.cop.y_vec;
@@ -230,21 +233,16 @@ void QPBuilder::TransformControlVector(MPCSolution &solution) {
 
 	for (int s = 0; s < num_samples_interp; ++s) {
 		// Rotate in local frame: Rx*x - Ry*y;
-		global_cop_x_vec(s) =  rot_mat(s, s) * local_cop_vec(s) - rot_mat(s, num_samples + s) * local_cop_vec(num_samples + s);
+		//global_cop_x_vec(s) =  rot_mat(s, s) * local_cop_vec_x(s) - rot_mat(s, num_samples + s) * local_cop_vec_y(s);
+		//global_cop_x_vec(s) += select.sample_step_cx(s);
+		//global_cop_y_vec(s) =  rot_mat(num_samples + s, num_samples + s) * local_cop_vec_y(s) - rot_mat(num_samples + s, s) * local_cop_vec_x(s);
+		//global_cop_y_vec(s) += select.sample_step_cy(s);
 		global_cop_x_vec(s) += select.sample_step_cx(s);
-		global_cop_y_vec(s) =  rot_mat(num_samples + s, num_samples + s) * local_cop_vec(num_samples + s) - rot_mat(num_samples + s, s) * local_cop_vec(s);
 		global_cop_y_vec(s) += select.sample_step_cy(s);
 	}
 
-	// CoP position in the global frame
-	//for (int step = 0; step < num_steps; step++) {
-	//
-	//}
-	std::cout << select.sample_step.cols() << std::endl;
-	std::cout << feet_x_vec.rows() << std::endl;
-	std::cout << global_cop_x_vec.rows() << std::endl;
-	global_cop_x_vec += select.sample_step.block(0, 0, num_samples, num_steps) * feet_x_vec;//TODO(performance): Optimize this for first interpolate_whole_horizon == false
-	global_cop_y_vec += select.sample_step.block(0, 0, num_samples, num_steps) * feet_y_vec;
+	global_cop_x_vec += select.sample_step.block(0, 0, num_samples + num_steps, num_steps) * feet_x_vec;//TODO(performance): Optimize this for first interpolate_whole_horizon == false
+	global_cop_y_vec += select.sample_step.block(0, 0, num_samples + num_steps, num_steps) * feet_y_vec;
 
 	CommonVectorType state_x(mpc_parameters_->dynamics_order), state_y(mpc_parameters_->dynamics_order);
 	if (mpc_parameters_->formulation == DECOUPLED_MODES) {
@@ -264,10 +262,10 @@ void QPBuilder::TransformControlVector(MPCSolution &solution) {
 	//TODO(performance): Optimize this for first interpolate_whole_horizon == false
 	// Transform to com motion
 	int samples_left = mpc_parameters_->GetMPCSamplesLeft(solution.sampling_times_vec[1] - solution.sampling_times_vec[0]);
-	const LinearDynamicsMatrices &copdyn = robot_->com()->dynamics_qp()[samples_left].cop;
-	solution.com_prw.control.x_vec.noalias() = global_cop_x_vec - copdyn.state_mat.block(0, 0, num_samples, 1) * state_x(0);
+	const LinearDynamicsMatrices &cop_dyn = robot_->com()->dynamics_qp()[samples_left].cop;
+	solution.com_prw.control.x_vec.noalias() = global_cop_x_vec - cop_dyn.state_mat.block(0, 0, num_samples, 1) * state_x(0);
 	//solution.com_prw.control.x_vec.noalias() = copdyn.input_mat_inv * tmp_vec_;
-	solution.com_prw.control.y_vec.noalias() = global_cop_y_vec - copdyn.state_mat.block(0, 0, num_samples, 1) * state_y(0);
+	solution.com_prw.control.y_vec.noalias() = global_cop_y_vec - cop_dyn.state_mat.block(0, 0, num_samples, 1) * state_y(0);
 	//solution.com_prw.control.y_vec.noalias() = copdyn.input_mat_inv * tmp_vec_;
 
 }
