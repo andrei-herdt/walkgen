@@ -19,7 +19,7 @@ void Debug::Cout(const char *name, const vector<MPCWalkgen::CommonMatrixType> &v
 }
 
 void Debug::Cout(const char *name, const MPCWalkgen::CommonMatrixType &mat) {
-		cout << name << ": " << endl;
+		cout << name << ": [" << mat.rows() << "," << mat.cols() << "]" << endl;
 		cout << mat << endl;
 }
 

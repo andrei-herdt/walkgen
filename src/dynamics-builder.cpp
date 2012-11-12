@@ -131,8 +131,11 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, doubl
 		// Build prediction matrices (S, U, UT, Uinv, UTinv):
 		// --------------------------------------------------
 		BuildSecondOrderCoPInputDecoupled(dyn.pos, dyn.d_state_mat_vec, dyn.d_input_mat_vec);
+		Debug::Cout("dyn.pos.input_mat",dyn.pos.input_mat);
 		BuildSecondOrderCoPInputDecoupled(dyn.vel, dyn.d_state_mat_vec, dyn.d_input_mat_vec);
+		Debug::Cout("dyn.vel.input_mat",dyn.vel.input_mat);
 		BuildSecondOrderCoPInputDecoupled(dyn.cp, dyn.d_state_mat_vec, dyn.d_input_mat_vec);
+		Debug::Cout("dyn.cp.input_mat",dyn.cp.input_mat);
 
 		dyn.cop.input_mat.block(0, 0, num_samples, num_samples).setIdentity();
 		dyn.cop.input_mat_tr.block(0, 0, num_samples, num_samples).setIdentity();

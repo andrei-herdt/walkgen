@@ -282,7 +282,7 @@ struct Motion {
 	Trajectory cp;
 	Trajectory cop;
 
-	void SetZero(int size);
+	void SetZero(int num_samples, int num_unst_modes);
 };
 
 

@@ -85,8 +85,9 @@ void Walkgen::Init(MPCParameters &mpc_parameters) {
 
 	// Resize:
 	// -------
-	solution_.com_act.SetZero(mpc_parameters_.num_samples_act());
-	solution_.com_prw.SetZero(mpc_parameters_.num_samples_horizon);
+	int num_unstable_modes = 1;
+	solution_.com_act.SetZero(mpc_parameters_.num_samples_act(), num_unstable_modes);
+	solution_.com_prw.SetZero(mpc_parameters_.num_samples_horizon, num_unstable_modes);
 
 	solution_.pos_ref.SetZero(mpc_parameters_.num_samples_horizon);		//DEPRECATED:
 

@@ -13,11 +13,11 @@ Interpolation::Interpolation()
 Interpolation::~Interpolation(){}
 
 
-void Interpolation::Interpolate(CommonVectorType &solution_vec, const LinearDynamicsMatrices &dyn,
+void Interpolation::Interpolate(CommonVectorType &trajectory_vec, const LinearDynamicsMatrices &dyn,
 		const CommonVectorType &state_vec, const CommonVectorType &u_vec)//TODO: Unnecessary method
 {
-	solution_vec.setZero();//TODO: Unnecessary
-	solution_vec.noalias() = dyn.state_mat * state_vec + dyn.input_mat * u_vec;
+	trajectory_vec.setZero();//TODO: Unnecessary
+	trajectory_vec.noalias() = dyn.state_mat * state_vec + dyn.input_mat * u_vec;
 }
 
 void Interpolation::Interpolate(CommonVectorType &solution_vec, const LinearDynamicsMatrices &dyn,

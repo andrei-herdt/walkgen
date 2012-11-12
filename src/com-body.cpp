@@ -1,5 +1,6 @@
 #include <mpc-walkgen/com-body.h>
 #include <mpc-walkgen/tools.h>
+#include <mpc-walkgen/debug.h>
 
 #include <iostream>
 

@@ -137,17 +137,20 @@ void MPCSolution::Reset(){
 }
 
 void Trajectory::SetZero(int size) {
-	x_vec.setZero(size); y_vec.setZero(size); z_vec.setZero(size); yaw_vec.setZero(size);
+	x_vec.setZero(size);
+	y_vec.setZero(size);
+	z_vec.setZero(size);
+	yaw_vec.setZero(size);
 }
 
-void Motion::SetZero(int size) {
-	pos.SetZero(size);
-	vel.SetZero(size);
-	acc.SetZero(size);
-	jerk.SetZero(size);
-	control.SetZero(size);
-	cop.SetZero(size);
-	cp.SetZero(size);
+void Motion::SetZero(int num_samples, int num_unst_modes) {
+	pos.SetZero(num_samples);
+	vel.SetZero(num_samples);
+	acc.SetZero(num_samples);
+	jerk.SetZero(num_samples);
+	control.SetZero(num_samples + num_unst_modes);
+	cop.SetZero(num_samples);
+	cp.SetZero(num_samples);
 }
 
 
@@ -380,11 +383,11 @@ void WeightCoefficients::SetCoefficients(Reference &ref) {
 }
 
 void LinearDynamicsMatrices::SetZero(int state_dim, int input_dim, int output_dim, int num_samples, int stable_dim, int unstable_dim) {
-	state_mat.setZero(num_samples + unstable_dim, stable_dim);
+	state_mat.setZero(num_samples, stable_dim);
 	//stab_state_mat.setZero(num_samples, stable_dim);
 	//unst_state_mat.setZero(num_samples, unstable_dim);
-	input_mat.setZero(num_samples + unstable_dim, num_samples + unstable_dim);
-	input_mat_tr.setZero(num_samples + unstable_dim, num_samples + unstable_dim);
+	input_mat.setZero(num_samples, num_samples + unstable_dim);
+	input_mat_tr.setZero(num_samples + unstable_dim, num_samples);
 	input_mat_inv.setZero(num_samples, num_samples);
 	input_mat_inv_tr.setZero(num_samples, num_samples);
 
