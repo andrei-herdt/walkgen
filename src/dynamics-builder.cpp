@@ -133,9 +133,9 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, doubl
 		BuildSecondOrderCoPInputDecoupled(dyn.pos, dyn.d_state_mat_vec, dyn.d_input_mat_vec);
 		Debug::Cout("dyn.pos.input_mat",dyn.pos.input_mat);
 		BuildSecondOrderCoPInputDecoupled(dyn.vel, dyn.d_state_mat_vec, dyn.d_input_mat_vec);
-		Debug::Cout("dyn.vel.input_mat",dyn.vel.input_mat);
+		//Debug::Cout("dyn.vel.input_mat",dyn.vel.input_mat);
 		BuildSecondOrderCoPInputDecoupled(dyn.cp, dyn.d_state_mat_vec, dyn.d_input_mat_vec);
-		Debug::Cout("dyn.cp.input_mat",dyn.cp.input_mat);
+		//Debug::Cout("dyn.cp.input_mat",dyn.cp.input_mat);
 
 		dyn.cop.input_mat.block(0, 0, num_samples, num_samples).setIdentity();
 		dyn.cop.input_mat_tr.block(0, 0, num_samples, num_samples).setIdentity();
@@ -462,14 +462,16 @@ void DynamicsBuilder::BuildSecondOrderCoPInputDecoupled(LinearDynamicsMatrices &
 		// Ad1 * Ad2^row
 		d_state_mat_pow = d_state_mat_temp * d_state_mat_vec.at(0);
 
-		//Sc(row,:) = Cs*Ad2s^row * Ad1s
-		dyn_mat.state_mat(0, 0) = dyn_mat.ss_output_mat(0, 0) * d_state_mat_pow(0, 0);
-		//Su(N - 1 - row,:) = Cu*Ad2u^row * Ad1u
-		dyn_mat.input_mat(num_samples - 1 - row, num_samples) = dyn_mat.ss_output_mat(0, 1) * d_state_mat_temp(1, 1) * d_state_mat_vec.at(1)(1, 1);
+		//Ss(row,:) = Cs*Ad2s^row * Ad1s
+		dyn_mat.state_mat(row, 0) = dyn_mat.ss_output_mat(0, 0) * d_state_mat_pow(0, 0);
+
+		dyn_mat.input_mat(row, row) = dyn_mat.ss_output_mat(0, 0) * d_input_mat_vec.at(0)(0, 0);
+		//Su(N - 1 - row,:) = Cu*Ad2u^row;//new * Ad1u
+		dyn_mat.input_mat(num_samples - 1 - row, num_samples) = - dyn_mat.ss_output_mat(0, 1) * d_state_mat_temp(1, 1);//new * d_state_mat_vec.at(1)(1, 1);
 		//U(row,0) = Cs*Ad2s^row * Bd1s
 		dyn_mat.input_mat(row, 0) = dyn_mat.ss_output_mat(0,0) * d_state_mat_temp(0,0) * d_input_mat_vec.at(0)(0);
 		//U(0,row) = Cu*Ad2u^row * Bd2u
-		dyn_mat.input_mat(0, row) = dyn_mat.ss_output_mat(0,1) * d_state_mat_temp(1,1) * d_input_mat_vec.at(1)(1);
+		dyn_mat.input_mat(0, row) = - dyn_mat.ss_output_mat(0,1) * d_state_mat_temp(1,1) * d_input_mat_vec.at(1)(1);
 		// Fill diagonal starting at (row, 0)
 		for (int col = 1; col + row < num_samples; col++) {
 			//U(row+col,col) = Cs * Ad2s^row * Bd2s

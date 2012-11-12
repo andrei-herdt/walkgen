@@ -28,6 +28,9 @@ namespace MPCWalkgen{
     void Interpolate(CommonVectorType &solution_vec, const LinearDynamicsMatrices &dyn, 
       const CommonVectorType &state_vec, double u);
 
+    void Interpolate(CommonVectorType &solution_vec, const LinearDynamicsMatrices &dyn,
+          const CommonVectorType &state_vec, double u, double mu);
+
     void ComputeNormalPolynomCoefficients(
       Eigen::Matrix<double,6,1> &factor, const Eigen::Vector3d &initialstate,
       const Eigen::Vector3d &finalState, double T ) const;

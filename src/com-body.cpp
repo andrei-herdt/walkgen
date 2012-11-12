@@ -32,29 +32,30 @@ void CoMBody::Interpolate(MPCSolution &solution, double current_time, const Refe
 		}
 	}
 
+	int size_contr = solution.com_prw.control.x_vec.rows();
 	// Position:
 	interpolation_.Interpolate(solution.com_act.pos.x_vec, dynamics_act().pos,
-			state_x, solution.com_prw.control.x_vec[0]);
+			state_x, solution.com_prw.control.x_vec[0], solution.com_prw.control.x_vec[size_contr - 1]);
 	interpolation_.Interpolate(solution.com_act.pos.y_vec, dynamics_act().pos,
-			state_y, solution.com_prw.control.y_vec[0]);
+			state_y, solution.com_prw.control.y_vec[0], solution.com_prw.control.y_vec[size_contr - 1]);
 
 	// Velocity:
 	interpolation_.Interpolate(solution.com_act.vel.x_vec, dynamics_act().vel,
-			state_x, solution.com_prw.control.x_vec[0]);
+			state_x, solution.com_prw.control.x_vec[0], solution.com_prw.control.x_vec[size_contr - 1]);
 	interpolation_.Interpolate(solution.com_act.vel.y_vec, dynamics_act().vel,
-			state_y, solution.com_prw.control.y_vec[0]);
+			state_y, solution.com_prw.control.y_vec[0], solution.com_prw.control.y_vec[size_contr - 1]);
 
 	// Acceleration:
 	interpolation_.Interpolate(solution.com_act.acc.x_vec, dynamics_act().acc,
-			state_x, solution.com_prw.control.x_vec[0]);
+			state_x, solution.com_prw.control.x_vec[0], solution.com_prw.control.x_vec[size_contr - 1]);
 	interpolation_.Interpolate(solution.com_act.acc.y_vec, dynamics_act().acc,
-			state_y, solution.com_prw.control.y_vec[0]);
+			state_y, solution.com_prw.control.y_vec[0], solution.com_prw.control.y_vec[size_contr - 1]);
 
 	// CoP:
 	interpolation_.Interpolate(solution.com_act.cop.x_vec, dynamics_act().cop,
-			state_x, solution.com_prw.control.x_vec[0]);
+			state_x, solution.com_prw.control.x_vec[0], solution.com_prw.control.x_vec[size_contr - 1]);
 	interpolation_.Interpolate(solution.com_act.cop.y_vec, dynamics_act().cop,
-			state_y, solution.com_prw.control.y_vec[0]);
+			state_y, solution.com_prw.control.y_vec[0], solution.com_prw.control.y_vec[size_contr - 1]);
 
 	// QP sampling rate:
 	// -----------------

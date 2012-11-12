@@ -72,6 +72,7 @@ void Walkgen::Init(MPCParameters &mpc_parameters) {
 	int num_constr_max = num_constr_step * num_steps_max;
 	solver_ = createQPSolver(mpc_parameters_.solver, num_vars_max,  num_constr_max );
 
+	/*
 	// Set order of optimization variables
 	Eigen::VectorXi order(solver_->num_var_max());
 	for (int i = 0; i < mpc_parameters_.num_samples_horizon; ++i) {// 0,2,4,1,3,5 (CoM)
@@ -82,6 +83,7 @@ void Walkgen::Init(MPCParameters &mpc_parameters) {
 		order(i) = i;
 	}
 	solver_->SetVarIndices(order);
+	*/
 
 	// Resize:
 	// -------

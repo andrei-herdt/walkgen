@@ -37,14 +37,20 @@ void QPBuilder::PrecomputeObjective() {
 	// --------------------------
 	int num_samples = mpc_parameters_->num_samples_horizon;
 	int num_unst_modes = 1;
-	Eigen::VectorXi order(2 * (num_samples + num_unst_modes));
+
+	//TODO: Why setting order here again?
+	/*
+	Eigen::VectorXi order(2*(num_samples + num_unst_modes));
 	for (int i = 0; i < num_samples + num_unst_modes; ++i) {
-		order(i) = 2 * i;
-		order(i + num_samples + num_unst_modes) = 2 * i + 1;
+		//order(i) = 2 * i;
+		//order(i + num_samples + num_unst_modes) = 2 * i + 1;
+		order(i) = i;
+		order(num_samples + num_unst_modes + i) = num_samples + num_unst_modes + i;
 	}
-	QPMatrix chol(2 * (num_samples + num_unst_modes), 2 * (num_samples + num_unst_modes));
 	chol.row_indices(order);
 	chol.column_indices(order);
+	*/
+	QPMatrix chol(2*(num_samples + num_unst_modes), 2 * (num_samples + num_unst_modes));
 
 	int num_modes = mpc_parameters_->weights.control.size();
 	int num_recomp = mpc_parameters_->GetNumRecomputations();
@@ -105,9 +111,7 @@ void QPBuilder::PrecomputeObjective() {
 			// Q += epsilon*Uz^(-T)*Uxi^T*Uxi*Uz^(-1)
 			//tmp_mat_.noalias() = cop_dyn.input_mat_inv_tr * cp_dyn.input_mat_tr * cp_dyn.input_mat * cop_dyn.input_mat_inv;
 			tmp_mat_.noalias() = cp_dyn.input_mat_tr * cp_dyn.input_mat;
-			Debug::Cout("cp_dyn.input_mat", cp_dyn.input_mat);
 			hessian_mat +=  mpc_parameters_->weights.cp[mode_num] * tmp_mat_;
-			Debug::Cout("hessian_mat", hessian_mat);
 
 			const_hessian_mat_[mat_num] = hessian_mat;
 			// Q += gamma*I
@@ -376,7 +380,6 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 			hessian.AddTerm(hessian_x, 0, 0);
 			hessian.AddTerm(hessian_y, num_samples, num_samples);
 		} else {
-			std::cout << const_hessian_n_mat_[samples_left] << std::endl;
 			hessian.AddTerm(const_hessian_n_mat_[samples_left], 0, 0);
 			hessian.AddTerm(const_hessian_n_mat_[samples_left], num_samples + num_unstable_modes, num_samples + num_unstable_modes);
 		}
@@ -484,6 +487,7 @@ void QPBuilder::BuildStateConstraints(const MPCSolution &solution) {
 	int num_steps_previewed = solution.support_states_vec.back().step_number;
 	int num_samples = mpc_parameters_->num_samples_horizon;
 	int num_ineqs = 5;
+	int num_unst_modes = 1;
 
 	const BodyState &com = robot_->com()->state();
 	CommonVectorType state_x(mpc_parameters_->dynamics_order), state_y(mpc_parameters_->dynamics_order);
@@ -508,20 +512,20 @@ void QPBuilder::BuildStateConstraints(const MPCSolution &solution) {
 	double atimesb;
 	for (int col_x = 0; col_x < num_samples; col_x++) {
 		atimesb = dyn.d_state_mat_pow_vec[col_x](1,1) * dyn.d_input_mat_vec[col_x](1);
-		solver_->constr_mat()()(num_ineqs * num_steps_previewed, col_x) = atimesb;
+		solver_->constr_mat()()(num_ineqs * num_steps_previewed, col_x) = -atimesb;
 	}
 	solver_->lc_bounds_vec()()(num_ineqs * num_steps_previewed) = state_x(1);
 	solver_->uc_bounds_vec()()(num_ineqs * num_steps_previewed) = state_x(1);
 
 	//Y:
 	// y_0 < Au^{-N}*\mu_y - \sum Au^{-(j-1)}*Bu*u_j < y_0
-	solver_->constr_mat()()(num_ineqs * num_steps_previewed, num_samples*2 + 1) = dyn.d_state_mat_vec.back()(1,1);
+	solver_->constr_mat()()(num_ineqs * num_steps_previewed + num_unst_modes, num_samples*2 + 1) = dyn.d_state_mat_pow_vec.back()(1,1);
 	for (int col_y = 0; col_y < num_samples; col_y++) {
 		atimesb = dyn.d_state_mat_pow_vec[col_y](1,1) * dyn.d_input_mat_vec[col_y](1);
-		solver_->constr_mat()()(num_ineqs*num_steps_previewed + 1, num_samples + 1 + col_y) = atimesb;
+		solver_->constr_mat()()(num_ineqs*num_steps_previewed + num_unst_modes, num_samples + num_unst_modes + col_y) = -atimesb;
 	}
-	solver_->lc_bounds_vec()()(num_ineqs*num_steps_previewed + 1) = state_y(1);
-	solver_->uc_bounds_vec()()(num_ineqs*num_steps_previewed + 1) = state_y(1);
+	solver_->lc_bounds_vec()()(num_ineqs*num_steps_previewed + num_unst_modes) = state_y(1);
+	solver_->uc_bounds_vec()()(num_ineqs*num_steps_previewed + num_unst_modes) = state_y(1);
 }
 
 void QPBuilder::BuildFootPosInequalities(const MPCSolution &solution) {

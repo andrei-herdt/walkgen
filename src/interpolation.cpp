@@ -12,10 +12,8 @@ Interpolation::Interpolation()
 
 Interpolation::~Interpolation(){}
 
-
 void Interpolation::Interpolate(CommonVectorType &trajectory_vec, const LinearDynamicsMatrices &dyn,
-		const CommonVectorType &state_vec, const CommonVectorType &u_vec)//TODO: Unnecessary method
-{
+		const CommonVectorType &state_vec, const CommonVectorType &u_vec) {//TODO: Unnecessary method
 	trajectory_vec.setZero();//TODO: Unnecessary
 	trajectory_vec.noalias() = dyn.state_mat * state_vec + dyn.input_mat * u_vec;
 }
@@ -24,6 +22,15 @@ void Interpolation::Interpolate(CommonVectorType &solution_vec, const LinearDyna
 		const CommonVectorType &state_vec, double u) {//TODO: Unnecessary method
 	tmp_vec_.resize(dyn.input_mat.cols());
 	tmp_vec_.fill(u);
+	solution_vec.noalias() = dyn.state_mat * state_vec + dyn.input_mat * tmp_vec_;
+}
+
+void Interpolation::Interpolate(CommonVectorType &solution_vec, const LinearDynamicsMatrices &dyn,
+		const CommonVectorType &state_vec, double u, double mu) {//TODO: Unnecessary method
+	int num_unst_modes = 1;
+	tmp_vec_.resize(dyn.input_mat.cols());
+	tmp_vec_.fill(u);
+	tmp_vec_(dyn.input_mat.cols() - 1) = mu;
 	solution_vec.noalias() = dyn.state_mat * state_vec + dyn.input_mat * tmp_vec_;
 }
 

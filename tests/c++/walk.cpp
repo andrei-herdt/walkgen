@@ -1,5 +1,4 @@
-// This test has been written for the terminal based analysis 
-// of the computation time
+// This test test serves for the analysis of the computation time
 // Author: Andrei Herdt
 
 #include <mpc-walkgen.h>
@@ -14,11 +13,11 @@ int main() {
 	int num_samples_horizon 		= 16;
 	int num_samples_step 			= 8;
 	int num_samples_dsss 			= 8;
-	int num_steps_ssds 				= 2;
+	int num_steps_ssds 			= 2;
 	double sample_period_qp 		= .1;
 	double sample_period_first 		= .1;
-	double sample_period_act 		= .1;
-	const double kSecurityMargin 	= .02;
+	double sample_period_act 		= .05;
+	const double kSecurityMargin 		= .02;
 
 	// Simulation parameters:
 	// ----------------------
@@ -43,13 +42,14 @@ int main() {
 	mpc_parameters.weights.vel[0]  		= 0.;
 	mpc_parameters.weights.cop[0]  		= 0.;//0.00001;
 	mpc_parameters.weights.cp[0] 		= 0.;//1.;
-	mpc_parameters.weights.control[0] 	= 0.;
+	mpc_parameters.weights.control[0] 	= .001;
 
 	mpc_parameters.weights.pos[1] 		= 1.;
 	mpc_parameters.weights.vel[1]  		= 0.;
 	mpc_parameters.weights.cop[1]  		= 0.;//1.;
 	mpc_parameters.weights.cp[1] 		= 0.;
-	mpc_parameters.weights.control[1] 	= 0.;
+	mpc_parameters.weights.control[1] 	= 0.001;
+	mpc_parameters.is_constraints 		= false;
 
 	// Robot parameters:
 	// -----------------
@@ -84,7 +84,7 @@ int main() {
 	RobotData robot_data(left_foot, right_foot, left_hip_yaw, right_hip_yaw, 0.);
 
 	robot_data.com(0) = 0.01;
-	robot_data.com(1) = 0.05;
+	robot_data.com(1) = 0.01;
 	robot_data.com(2) = 0.814;
 
 	robot_data.max_foot_vel = 1.;
@@ -144,7 +144,7 @@ int main() {
 	int num_iterations = 0;
 	//walk.clock().GetFrequency(1000);
 	//walk.clock().ResetLocal();
-	for (; curr_time < .1; curr_time += sample_period_act) {
+	for (; curr_time < .6; curr_time += sample_period_act) {
 		//int online_timer = walk.clock().StartCounter();
 		//std::cout << std::endl;
 		const MPCSolution &solution = walk.Go(curr_time);
