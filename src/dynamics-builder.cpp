@@ -132,8 +132,8 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, doubl
 
 		dyn.pos.ss_output_mat(0, 0) = 1./2.;
 		dyn.pos.ss_output_mat(0, 1) = 1./2.;
-		dyn.vel.ss_output_mat(0, 0) = omega/2.;
-		dyn.vel.ss_output_mat(0, 1) = -omega/2.;
+		dyn.vel.ss_output_mat(0, 0) = -omega/2.;
+		dyn.vel.ss_output_mat(0, 1) = omega/2.;
 		dyn.cp.ss_output_mat(0, 0) = 0.;
 		dyn.cp.ss_output_mat(0, 1) = 1.;
 

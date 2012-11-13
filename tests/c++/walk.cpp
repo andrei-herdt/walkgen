@@ -144,7 +144,7 @@ int main() {
 	int num_iterations = 0;
 	//walk.clock().GetFrequency(1000);
 	//walk.clock().ResetLocal();
-	for (; curr_time < 1.; curr_time += sample_period_act) {
+	for (; curr_time < .8; curr_time += sample_period_act) {
 		//int online_timer = walk.clock().StartCounter();
 		//std::cout << std::endl;
 		const MPCSolution &solution = walk.Go(curr_time);
@@ -154,7 +154,8 @@ int main() {
 		
 		std::cout << "com_prw.pos.x: " << solution.com_prw.pos.x_vec.transpose() << std::endl;
 		std::cout << "com_prw.pos.y: " << solution.com_prw.pos.y_vec.transpose() << std::endl;
-		
+		Debug::Cout("com_prw.vel.x", solution.com_prw.vel.x_vec);
+		Debug::Cout("com_prw.vel.y", solution.com_prw.vel.y_vec);
 		//std::cout << "com_prw.vel: " << solution.com_prw.vel.x_vec.transpose() << std::endl;
 		//std::cout << "com_prw.cp.x: " << solution.com_prw.cp.x_vec.transpose() << std::endl;
 		

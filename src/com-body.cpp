@@ -25,8 +25,8 @@ void CoMBody::Interpolate(MPCSolution &solution, double current_time, const Refe
 		state_x = state_trans_mat * state_.x.head(mpc_parameters_->dynamics_order);
 		state_y = state_trans_mat * state_.y.head(mpc_parameters_->dynamics_order);
 	} else {*/
-		state_x = state_.x.head(mpc_parameters_->dynamics_order);
-		state_y = state_.x.head(mpc_parameters_->dynamics_order);
+	state_x = state_.x.head(mpc_parameters_->dynamics_order);
+	state_y = state_.y.head(mpc_parameters_->dynamics_order);
 	//}
 
 	// Position:
