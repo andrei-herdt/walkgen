@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.727"
+    ComputedModelVersion    "1.728"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Mon Nov 12 17:37:03 2012"
+  LastModifiedDate	  "Tue Nov 13 11:00:42 2012"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:727>"
+  ModelVersionFormat	  "1.%<AutoIncrement:728>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -107,7 +107,7 @@ Model {
 	  $ObjectID		  2
 	  Version		  "1.3.0"
 	  StartTime		  "0.0"
-	  StopTime		  "1"
+	  StopTime		  "0.2"
 	  AbsTol		  "auto"
 	  FixedStep		  "1e-3"
 	  InitialStep		  "auto"
@@ -668,7 +668,7 @@ Model {
   System {
     Name		    "walkgen"
     Location		    [850, 74, 1125, 375]
-    Open		    off
+    Open		    on
     ModelBrowserVisibility  off
     ModelBrowserWidth	    200
     ScreenColor		    "white"
@@ -726,7 +726,7 @@ Model {
 	  Position		  [385, 75, 490, 775]
 	  TreatAsAtomicUnit	  on
 	  MinAlgLoopOccurrences	  off
-	  SystemSampleTime	  "0.005"
+	  SystemSampleTime	  "0.1"
 	  RTWSystemCode		  "Auto"
 	  FunctionWithSeparateData off
 	  MaskPromptString	  "Length of horizon [num. samples]|Position weight|Velocity weight|CoP weight|CP weight|Control weight|Step period [num. samples]|Length of initial double support phase [num. samples]|Steps before halt|Sampling period [s]|Time between recomputations [s]|Actuator sampling period [s]|Security margin [m]|Max number of working set recomputations|Dynamics order|Debug mode|PID mode|Closed loop|Constraints"
@@ -742,7 +742,7 @@ Model {
 	  MaskIconOpaque	  on
 	  MaskIconRotate	  "none"
 	  MaskIconUnits		  "autoscale"
-	  MaskValueString	  "16|0|1|0.000000|0|0.0000|8|8|2|0.1|0.1|0.005|0.02|400|2|1|0|0|0"
+	  MaskValueString	  "16|1|0|0.000000|0|0.0000|8|8|2|0.1|0.1|0.1|0.02|400|2|1|0|0|0"
 	  MaskTabNameString	  ",,,,,,,,,,,,,,,,,,"
 	  System {
 	    Name		    "Atomic Walkgen"

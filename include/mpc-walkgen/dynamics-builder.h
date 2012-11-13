@@ -114,6 +114,7 @@ private:
 			LinearDynamics &dyn
 	);
 
+	// \brief (remark)We suppose that the state matrix is diagonal
 	void ComputeDiscreteStateMatDecoupled(
 			CommonMatrixType &d_state_mat,
 			double sample_period

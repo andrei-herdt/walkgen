@@ -16,7 +16,7 @@ void CoMBody::Interpolate(MPCSolution &solution, double current_time, const Refe
 	// Actuator sampling rate:
 	// -----------------------
 	CommonVectorType state_x(mpc_parameters_->dynamics_order), state_y(mpc_parameters_->dynamics_order);
-	if (mpc_parameters_->formulation == DECOUPLED_MODES) {
+	/*if (mpc_parameters_->formulation == DECOUPLED_MODES) {
 		Matrix2D state_trans_mat = Matrix2D::Zero();
 		state_trans_mat(0, 0) = 1.;
 		state_trans_mat(0, 1) = -1. / sqrt(kGravity / state_.z[0]);
@@ -24,12 +24,10 @@ void CoMBody::Interpolate(MPCSolution &solution, double current_time, const Refe
 		state_trans_mat(1, 1) = 1. / sqrt(kGravity / state_.z[0]);
 		state_x = state_trans_mat * state_.x.head(mpc_parameters_->dynamics_order);
 		state_y = state_trans_mat * state_.y.head(mpc_parameters_->dynamics_order);
-	} else {
-		for (int i = 0; i < mpc_parameters_->dynamics_order; i++) {
-			state_x(i) = state_.x(i);
-			state_y(i) = state_.y(i);
-		}
-	}
+	} else {*/
+		state_x = state_.x.head(mpc_parameters_->dynamics_order);
+		state_y = state_.x.head(mpc_parameters_->dynamics_order);
+	//}
 
 	// Position:
 	interpolation_.Interpolate(solution.com_act.pos.x_vec, dynamics_act().pos,
@@ -62,13 +60,13 @@ void CoMBody::Interpolate(MPCSolution &solution, double current_time, const Refe
 		if (mpc_parameters_->formulation == DECOUPLED_MODES) {
 			Matrix2D state_trans_mat = Matrix2D::Zero();
 			state_trans_mat(0, 0) = 1.;
-			state_trans_mat(0, 1) = -1./sqrt(kGravity / state_.z[0]);
+			state_trans_mat(0, 1) = -1. / sqrt(kGravity / state_.z[0]);
 			state_trans_mat(1, 0) = 1.;
-			state_trans_mat(1, 1) = 1./sqrt(kGravity / state_.z[0]);
+			state_trans_mat(1, 1) = 1. / sqrt(kGravity / state_.z[0]);
 			state_x = state_trans_mat * state_.x.head(mpc_parameters_->dynamics_order);
-			state_x = state_x.head(1);
+			state_x = state_x.head(1);	//stable mode
 			state_y = state_trans_mat * state_.y.head(mpc_parameters_->dynamics_order);
-			state_y = state_y.head(1);
+			state_y = state_y.head(1);	//stable mode
 		}
 
 		int samples_left = mpc_parameters_->GetMPCSamplesLeft(solution.sampling_times_vec[1] - solution.sampling_times_vec[0]);

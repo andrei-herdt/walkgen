@@ -70,7 +70,7 @@ for i = 1:N
     U_pos = [U_pos; C_pos * Ad^(i-1)*Bd];
 end
 S_pos;
-U_pos
+U_pos;
 
 S_pos_st = [];
 S_pos_unst = [];
@@ -102,6 +102,34 @@ for i = 1:N
     U_pos_dec(1,i) = C_pos(1,2) * Ui(2);
 end
 U_pos_dec;
+
+%% Decoupled second order model
+A_cp = [-omega, 0; 0, omega];
+B_cp = [omega; -omega];
+C_pos = [1/2, 1/2];
+
+trans_mat = [1, -1/omega; 1, 1/omega];
+inv_trans_mat = inv(trans_mat);
+
+csys = ss(A_cp, B_cp, C_pos, []);
+T = 0.1;
+Ad_vec = [];
+dsys = c2d(csys, T);
+As = dsys.A(1,1);
+Au = dsys.A(2,2);
+for i = 1:N
+   Ad_vec = [Ad_vec; [As^i, 0; 0, Au^(-i)]]; 
+end
+
+S_pos_s = [];
+S_pos_u = [];
+U_pos_s = [];
+U_pos_u = [];
+U_pos_s = [U_pos_s; dsys.C(1)*dsys.B(1);];
+for i = 1:N-1
+    U_pos_s = [U_pos_s; dsys.C(1)*Ad_vec(2*i-1, 1)*dsys.B(1)];
+    U_pos_u = [U_pos_u; -dsys.C(2)*Ad_vec(2*i, 2)*dsys.B(2)];
+end
 
 %% PID
 kd = -1;
