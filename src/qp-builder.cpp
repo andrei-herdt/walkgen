@@ -49,7 +49,7 @@ void QPBuilder::PrecomputeObjective() {
 	}
 	chol.row_indices(order);
 	chol.column_indices(order);
-	*/
+	 */
 	QPMatrix chol(2*(num_samples + num_unst_modes), 2 * (num_samples + num_unst_modes));
 
 	int num_modes = mpc_parameters_->weights.control.size();
@@ -227,7 +227,7 @@ void QPBuilder::TransformControlVector(MPCSolution &solution) {
 	const CommonVectorType &feet_y_vec = solution.qp_solution_vec.segment(2*(num_samples + num_unst_modes) + num_steps, num_steps);
 
 	const CommonVectorType &local_cop_vec_x = solution.qp_solution_vec.segment(0, num_samples);
-	const CommonVectorType &local_cop_vec_y = solution.qp_solution_vec.segment(num_samples, num_samples);
+	const CommonVectorType &local_cop_vec_y = solution.qp_solution_vec.segment(num_samples + num_unst_modes, num_samples);
 	//New
 	const CommonVectorType &local_contr_vec_x = solution.qp_solution_vec.segment(0, num_samples + num_unst_modes);
 	const CommonVectorType &local_contr_vec_y = solution.qp_solution_vec.segment(num_samples + num_unst_modes, num_samples + num_unst_modes);
@@ -429,7 +429,10 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	CommonVectorType gradient_vec_x(num_samples + num_unst_modes), gradient_vec_y(num_samples + num_unst_modes), gradient_vec(2 * (num_samples + num_unst_modes));//TODO: Make this member
 
 	gradient_vec_x = state_variant_[samples_left] * state_x(0);
+	////Debug::Cout("gradient_vec_x", gradient_vec_x);
 	gradient_vec_y = state_variant_[samples_left] * state_y(0);
+	////Debug::Cout("gradient_vec_y", gradient_vec_y);
+
 	// Formulation in Krause2012S
 	if (mpc_parameters_->dynamics_order == SECOND_ORDER) {
 		double zx_cur = com.x(0) - com.z(0)/kGravity*com.x(2);
@@ -440,15 +443,23 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 
 	gradient_vec_x += select_variant_[samples_left] * select_mats.sample_step_cx;
 	gradient_vec_y += select_variant_[samples_left] * select_mats.sample_step_cy;
+	////Debug::Cout("gradient_vec_x", gradient_vec_x);
+	////Debug::Cout("gradient_vec_y", gradient_vec_y);
 
 	gradient_vec_x.head(num_samples) += ref_variant_vel_[samples_left].block(0, 0, num_samples, num_samples) * vel_ref_->global.x;//TODO: Why was bigger size necessary?
 	gradient_vec_y.head(num_samples) += ref_variant_vel_[samples_left].block(0, 0, num_samples, num_samples) * vel_ref_->global.y;
+	////Debug::Cout("gradient_vec_x", gradient_vec_x);
+	////Debug::Cout("gradient_vec_y", gradient_vec_y);
 
 	gradient_vec_x.head(num_samples) += ref_variant_pos_[samples_left].block(0, 0, num_samples, num_samples) * pos_ref_->global.x;
 	gradient_vec_y.head(num_samples) += ref_variant_pos_[samples_left].block(0, 0, num_samples, num_samples) * pos_ref_->global.y;
+	////Debug::Cout("gradient_vec_x", gradient_vec_x);
+	////Debug::Cout("gradient_vec_y", gradient_vec_y);
 
 	gradient_vec_x.head(num_samples) += ref_variant_cp_[samples_left].block(0, 0, num_samples, num_samples) * cp_ref_->global.x;
 	gradient_vec_y.head(num_samples) += ref_variant_cp_[samples_left].block(0, 0, num_samples, num_samples) * cp_ref_->global.y;
+	////Debug::Cout("gradient_vec_x", gradient_vec_x);
+	////Debug::Cout("gradient_vec_y", gradient_vec_y);
 
 	if (num_steps_previewed > 0) {
 		tmp_vec_.noalias() = select_mats.sample_step_trans * gradient_vec_x;

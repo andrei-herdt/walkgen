@@ -16,6 +16,7 @@ public:
 	static void Cout(const char *name, const std::vector<MPCWalkgen::CommonMatrixType> &vec);
 
 	static void Cout(const char *name, const MPCWalkgen::CommonMatrixType &mat);
+	static void Cout(const char *name, const MPCWalkgen::CommonVectorType &vec);
 
 	static void WriteToFile(const char *filename, double value, const char *ending, const MPCWalkgen::CommonMatrixType &mat);
 };

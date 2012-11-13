@@ -23,7 +23,8 @@ public:
 			double height,
 			double sample_period_first,
 			double sample_period_rest,
-			int num_samples
+			int num_samples,
+			bool actuation
 	);
 
 	//
@@ -36,7 +37,8 @@ private:
 			double height,
 			double sample_period_first,
 			double sample_period_rest,
-			int num_samples
+			int num_samples,
+			bool actuation
 	);
 	void BuildThirdOrder(
 			LinearDynamics &dyn,

@@ -27,10 +27,10 @@ void DynamicsBuilder::Init(const MPCParameters *mpc_parameters) {
 	precomp_input_mat_.setZero();  // \f[ -A^{-1}\mathbb{I}B \f]
 }
 
-void DynamicsBuilder::Build(SystemOrder dynamics_order, LinearDynamics &dyn, double height, double sample_period_first, double sample_period_rest, int num_samples) {
+void DynamicsBuilder::Build(SystemOrder dynamics_order, LinearDynamics &dyn, double height, double sample_period_first, double sample_period_rest, int num_samples, bool actuation) {
 	switch (dynamics_order) {
 	case SECOND_ORDER:
-		BuildSecondOrder(dyn, height, sample_period_first, sample_period_rest, num_samples);
+		BuildSecondOrder(dyn, height, sample_period_first, sample_period_rest, num_samples, actuation);
 		break;
 	case THIRD_ORDER:
 		BuildThirdOrder(dyn, height, sample_period_first, sample_period_rest, num_samples);
@@ -41,7 +41,7 @@ void DynamicsBuilder::Build(SystemOrder dynamics_order, LinearDynamics &dyn, dou
 //
 // Private methods:
 //
-void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, double sample_period_first, double sample_period_rest, int num_samples) {
+void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, double sample_period_first, double sample_period_rest, int num_samples, bool actuation) {
 	assert(sample_period_first > 0. && sample_period_rest > 0.);
 
 	/*
@@ -54,7 +54,7 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, doubl
 	double omega = sqrt(kGravity/height);
 	double omega_square = kGravity/height;
 
-	if (mpc_parameters_->formulation == STANDARD) {
+	if (mpc_parameters_->formulation == STANDARD || actuation) {
 		int state_dim = 2;
 		int num_stable_modes = state_dim;
 		int num_unstable_modes = state_dim - num_stable_modes;
@@ -64,6 +64,7 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, doubl
 
 		// Continuous (general) state space dynamics:
 		// ------------------------------------------
+		/*
 		dyn.cont_ss.c_state_mat(0, 1) = 1.;
 		dyn.cont_ss.c_state_mat(1, 0) = omega_square;
 		dyn.cont_ss.c_state_mat_inv = dyn.cont_ss.c_state_mat.inverse();
@@ -74,12 +75,26 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, doubl
 		dyn.vel.ss_output_mat(0, 1) = 1.;
 		dyn.cp.ss_output_mat(0, 0) = 1.;
 		dyn.cp.ss_output_mat(0, 1) = 1./omega;
+		*/
+
+		dyn.cont_ss.c_state_mat(0, 0) = -omega;
+		dyn.cont_ss.c_state_mat(1, 1) = omega;
+		dyn.cont_ss.c_state_mat_inv = dyn.cont_ss.c_state_mat.inverse();
+		dyn.cont_ss.c_input_mat(0) = omega;
+		dyn.cont_ss.c_input_mat(1) = -omega;
+
+		dyn.pos.ss_output_mat(0, 0) = 1./2.;
+		dyn.pos.ss_output_mat(0, 1) = 1./2.;
+		dyn.vel.ss_output_mat(0, 0) = -omega/2.;
+		dyn.vel.ss_output_mat(0, 1) = omega/2.;
+		dyn.cp.ss_output_mat(0, 0) = 0.;
+		dyn.cp.ss_output_mat(0, 1) = 1.;
 
 		dyn.pos.c_state_mat 	= dyn.cont_ss.c_state_mat;
 		dyn.pos.c_state_mat_inv = dyn.cont_ss.c_state_mat_inv;
 		dyn.pos.c_input_mat 	= dyn.cont_ss.c_input_mat;
 		BuildSecondOrderCoPInputGeneral(dyn.pos, height, sample_period_first, sample_period_rest, num_samples);
-
+		Debug::Cout("dyn.pos.input_mat_act", dyn.pos.input_mat);
 		dyn.vel.c_state_mat 	= dyn.cont_ss.c_state_mat;
 		dyn.vel.c_state_mat_inv = dyn.cont_ss.c_state_mat_inv;
 		dyn.vel.c_input_mat 	= dyn.cont_ss.c_input_mat;
@@ -98,8 +113,7 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, doubl
 		dyn.acc.state_mat = omega_square*(dyn.pos.state_mat - dyn.cop.state_mat);
 		dyn.acc.input_mat = omega_square*(dyn.pos.input_mat - dyn.cop.input_mat);
 
-
-	} else if (mpc_parameters_->formulation == DECOUPLED_MODES) {
+	} else if (mpc_parameters_->formulation == DECOUPLED_MODES && !actuation) {
 		int state_dim = 2;
 		int num_stable_modes = 1;
 		int num_unstable_modes = state_dim - num_stable_modes;
@@ -131,11 +145,11 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, doubl
 		// Build prediction matrices (S, U, UT, Uinv, UTinv):
 		// --------------------------------------------------
 		BuildSecondOrderCoPInputDecoupled(dyn.pos, dyn.d_state_mat_vec, dyn.d_input_mat_vec);
-		Debug::Cout("dyn.pos.input_mat",dyn.pos.input_mat);
+		Debug::Cout("dyn.pos.input_mat", dyn.pos.input_mat);
 		BuildSecondOrderCoPInputDecoupled(dyn.vel, dyn.d_state_mat_vec, dyn.d_input_mat_vec);
-		//Debug::Cout("dyn.vel.input_mat",dyn.vel.input_mat);
+		//Debug::Cout("dyn.vel.input_mat", dyn.vel.input_mat);
 		BuildSecondOrderCoPInputDecoupled(dyn.cp, dyn.d_state_mat_vec, dyn.d_input_mat_vec);
-		//Debug::Cout("dyn.cp.input_mat",dyn.cp.input_mat);
+		//Debug::Cout("dyn.cp.input_mat", dyn.cp.input_mat);
 
 		dyn.cop.input_mat.block(0, 0, num_samples, num_samples).setIdentity();
 		dyn.cop.input_mat_tr.block(0, 0, num_samples, num_samples).setIdentity();

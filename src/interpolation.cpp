@@ -3,8 +3,7 @@
 using namespace MPCWalkgen;
 using namespace Eigen;
 
-Interpolation::Interpolation()
-{
+Interpolation::Interpolation() {
 	AinvNorm_(0,0) = 6  ;  AinvNorm_(0,1) = -3  ;  AinvNorm_(0,2) = 0.5;
 	AinvNorm_(1,0) = -15;  AinvNorm_(1,1) = 7   ;  AinvNorm_(1,2) = -1;
 	AinvNorm_(2,0) = 10 ;  AinvNorm_(2,1) = -4  ;  AinvNorm_(2,2) = 0.5;
@@ -22,28 +21,19 @@ void Interpolation::Interpolate(CommonVectorType &solution_vec, const LinearDyna
 		const CommonVectorType &state_vec, double u) {//TODO: Unnecessary method
 	tmp_vec_.resize(dyn.input_mat.cols());
 	tmp_vec_.fill(u);
-	solution_vec.noalias() = dyn.state_mat * state_vec + dyn.input_mat * tmp_vec_;
-}
-
-void Interpolation::Interpolate(CommonVectorType &solution_vec, const LinearDynamicsMatrices &dyn,
-		const CommonVectorType &state_vec, double u, double mu) {//TODO: Unnecessary method
-	int num_unst_modes = 1;
-	tmp_vec_.resize(dyn.input_mat.cols());
-	tmp_vec_.fill(u);
-	tmp_vec_(dyn.input_mat.cols() - 1) = mu;
-	solution_vec.noalias() = dyn.state_mat * state_vec + dyn.input_mat * tmp_vec_;
+	solution_vec.noalias() = dyn.state_mat*state_vec + dyn.input_mat*tmp_vec_;
 }
 
 void Interpolation::ComputeNormalPolynomCoefficients( Eigen::Matrix<double,6,1> &factor,
-		const Vector3d &initialstate, const Vector3d &finalState, double T) const {
-	factor(5) = initialstate(0);
-	factor(4) = T*initialstate(1);
-	factor(3) = T*T*initialstate(2)/2;
+		const Vector3d &initial_state, const Vector3d &final_state, double T) const {
+	factor(5) = initial_state(0);
+	factor(4) = T*initial_state(1);
+	factor(3) = T*T*initial_state(2)/2;
 
 	Vector3d b;
-	b(0) = finalState(0) - factor(5) - factor(4) - factor(3);
-	b(1) = finalState(1) - factor(4) - 2*factor(3);
-	b(2) = finalState(2) - 2*factor(3);
+	b(0) = final_state(0) - factor(5) - factor(4) - factor(3);
+	b(1) = final_state(1) - factor(4) - 2*factor(3);
+	b(2) = final_state(2) - 2*factor(3);
 
 	Vector3d abc;
 
@@ -54,8 +44,7 @@ void Interpolation::ComputeNormalPolynomCoefficients( Eigen::Matrix<double,6,1> 
 }
 
 void Interpolation::ComputePolynomCoefficients( Eigen::Matrix<double,6,1>  &factor,
-		const Vector3d &initialstate, const Vector3d &finalState, double T ) const
-{
+		const Vector3d &initialstate, const Vector3d &finalState, double T ) const {
 	Matrix3d Ainv;
 	Vector3d b;
 

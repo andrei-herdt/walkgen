@@ -23,6 +23,11 @@ void Debug::Cout(const char *name, const MPCWalkgen::CommonMatrixType &mat) {
 		cout << mat << endl;
 }
 
+void Debug::Cout(const char *name, const MPCWalkgen::CommonVectorType &vec) {
+		cout << name << ": [" << vec.rows() << "]" << endl;
+		cout << vec.transpose() << endl;
+}
+
 void Debug::WriteToFile(const char *filename, double value, const char *ending, const MPCWalkgen::CommonMatrixType &mat) {
 	char file_index[256];
 	sprintf(file_index, "%.4f", value);

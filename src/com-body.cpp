@@ -17,14 +17,13 @@ void CoMBody::Interpolate(MPCSolution &solution, double current_time, const Refe
 	// -----------------------
 	CommonVectorType state_x(mpc_parameters_->dynamics_order), state_y(mpc_parameters_->dynamics_order);
 	if (mpc_parameters_->formulation == DECOUPLED_MODES) {
-		Matrix2D state_trans_mat;
-		state_trans_mat.setZero();
-		state_trans_mat(0, 0) = 1.; state_trans_mat(0, 1) = -1./sqrt(kGravity / state_.z[0]);
-		state_trans_mat(1, 0) = 1.; state_trans_mat(1, 1) = 1./sqrt(kGravity / state_.z[0]);
+		Matrix2D state_trans_mat = Matrix2D::Zero();
+		state_trans_mat(0, 0) = 1.;
+		state_trans_mat(0, 1) = -1. / sqrt(kGravity / state_.z[0]);
+		state_trans_mat(1, 0) = 1.;
+		state_trans_mat(1, 1) = 1. / sqrt(kGravity / state_.z[0]);
 		state_x = state_trans_mat * state_.x.head(mpc_parameters_->dynamics_order);
-		state_x = state_x.head(1);
 		state_y = state_trans_mat * state_.y.head(mpc_parameters_->dynamics_order);
-		state_y = state_y.head(1);
 	} else {
 		for (int i = 0; i < mpc_parameters_->dynamics_order; i++) {
 			state_x(i) = state_.x(i);
@@ -32,35 +31,46 @@ void CoMBody::Interpolate(MPCSolution &solution, double current_time, const Refe
 		}
 	}
 
-	int size_contr = solution.com_prw.control.x_vec.rows();
 	// Position:
 	interpolation_.Interpolate(solution.com_act.pos.x_vec, dynamics_act().pos,
-			state_x, solution.com_prw.control.x_vec[0], solution.com_prw.control.x_vec[size_contr - 1]);
+			state_x, solution.com_prw.control.x_vec[0]);
 	interpolation_.Interpolate(solution.com_act.pos.y_vec, dynamics_act().pos,
-			state_y, solution.com_prw.control.y_vec[0], solution.com_prw.control.y_vec[size_contr - 1]);
+			state_y, solution.com_prw.control.y_vec[0]);
 
 	// Velocity:
 	interpolation_.Interpolate(solution.com_act.vel.x_vec, dynamics_act().vel,
-			state_x, solution.com_prw.control.x_vec[0], solution.com_prw.control.x_vec[size_contr - 1]);
+			state_x, solution.com_prw.control.x_vec[0]);
 	interpolation_.Interpolate(solution.com_act.vel.y_vec, dynamics_act().vel,
-			state_y, solution.com_prw.control.y_vec[0], solution.com_prw.control.y_vec[size_contr - 1]);
+			state_y, solution.com_prw.control.y_vec[0]);
 
 	// Acceleration:
 	interpolation_.Interpolate(solution.com_act.acc.x_vec, dynamics_act().acc,
-			state_x, solution.com_prw.control.x_vec[0], solution.com_prw.control.x_vec[size_contr - 1]);
+			state_x, solution.com_prw.control.x_vec[0]);
 	interpolation_.Interpolate(solution.com_act.acc.y_vec, dynamics_act().acc,
-			state_y, solution.com_prw.control.y_vec[0], solution.com_prw.control.y_vec[size_contr - 1]);
+			state_y, solution.com_prw.control.y_vec[0]);
 
 	// CoP:
 	interpolation_.Interpolate(solution.com_act.cop.x_vec, dynamics_act().cop,
-			state_x, solution.com_prw.control.x_vec[0], solution.com_prw.control.x_vec[size_contr - 1]);
+			state_x, solution.com_prw.control.x_vec[0]);
 	interpolation_.Interpolate(solution.com_act.cop.y_vec, dynamics_act().cop,
-			state_y, solution.com_prw.control.y_vec[0], solution.com_prw.control.y_vec[size_contr - 1]);
+			state_y, solution.com_prw.control.y_vec[0]);
 
 	// QP sampling rate:
 	// -----------------
 	// Position:
 	if (mpc_parameters_->interpolate_whole_horizon) {
+		if (mpc_parameters_->formulation == DECOUPLED_MODES) {
+			Matrix2D state_trans_mat = Matrix2D::Zero();
+			state_trans_mat(0, 0) = 1.;
+			state_trans_mat(0, 1) = -1./sqrt(kGravity / state_.z[0]);
+			state_trans_mat(1, 0) = 1.;
+			state_trans_mat(1, 1) = 1./sqrt(kGravity / state_.z[0]);
+			state_x = state_trans_mat * state_.x.head(mpc_parameters_->dynamics_order);
+			state_x = state_x.head(1);
+			state_y = state_trans_mat * state_.y.head(mpc_parameters_->dynamics_order);
+			state_y = state_y.head(1);
+		}
+
 		int samples_left = mpc_parameters_->GetMPCSamplesLeft(solution.sampling_times_vec[1] - solution.sampling_times_vec[0]);
 		interpolation_.Interpolate(solution.com_prw.pos.x_vec, dynamics_qp()[samples_left].pos,
 				state_x, solution.com_prw.control.x_vec);

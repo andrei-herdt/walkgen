@@ -45,12 +45,12 @@ void RigidBody::ComputeDynamics(SystemOrder dynamics_order) {
 	std::vector<LinearDynamics>::iterator dyn_it = dynamics_qp_vec_.begin();
 	for (int k = 0; k < num_dynamics; ++k) {
 		sp_first = mpc_parameters_->period_mpcsample * (k+1);
-		dyn_build_p_->Build(dynamics_order, *dyn_it, com_height, sp_first, sp_rest, num_samples);
+		dyn_build_p_->Build(dynamics_order, *dyn_it, com_height, sp_first, sp_rest, num_samples, false);
 		++dyn_it;
 	}
 
 	num_samples = mpc_parameters_->num_samples_act();
 	sp_first = mpc_parameters_->period_actsample;
 	sp_rest = mpc_parameters_->period_actsample;
-	dyn_build_p_->Build(dynamics_order, dynamics_act_, com_height, sp_first, sp_rest, num_samples);
+	dyn_build_p_->Build(dynamics_order, dynamics_act_, com_height, sp_first, sp_rest, num_samples, true);
 }
