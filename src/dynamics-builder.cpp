@@ -124,18 +124,18 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, doubl
 
 		// Continuous (general) state space dynamics:
 		// ------------------------------------------
-		dyn.cont_ss.c_state_mat(0, 0) = -omega;
-		dyn.cont_ss.c_state_mat(1, 1) = omega;
-		dyn.cont_ss.c_state_mat_inv = dyn.cont_ss.c_state_mat.inverse();
-		dyn.cont_ss.c_input_mat(0) = omega;
-		dyn.cont_ss.c_input_mat(1) = -omega;
+		dyn.cont_ss.c_state_mat(0, 0) 	= -omega;
+		dyn.cont_ss.c_state_mat(1, 1) 	= omega;
+		dyn.cont_ss.c_state_mat_inv 	= dyn.cont_ss.c_state_mat.inverse();
+		dyn.cont_ss.c_input_mat(0) 		= omega;
+		dyn.cont_ss.c_input_mat(1) 		= -omega;
 
-		dyn.pos.ss_output_mat(0, 0) = 1./2.;
-		dyn.pos.ss_output_mat(0, 1) = 1./2.;
-		dyn.vel.ss_output_mat(0, 0) = -omega/2.;
-		dyn.vel.ss_output_mat(0, 1) = omega/2.;
-		dyn.cp.ss_output_mat(0, 0) = 0.;
-		dyn.cp.ss_output_mat(0, 1) = 1.;
+		dyn.pos.ss_output_mat(0, 0) 	= 1./2.;
+		dyn.pos.ss_output_mat(0, 1) 	= 1./2.;
+		dyn.vel.ss_output_mat(0, 0) 	= -omega/2.;
+		dyn.vel.ss_output_mat(0, 1) 	= omega/2.;
+		dyn.cp.ss_output_mat(0, 0) 		= 0.;
+		dyn.cp.ss_output_mat(0, 1) 		= 1.;
 
 		// Build discrete state space dynamics:
 		// ------------------------------------
@@ -147,9 +147,7 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, doubl
 		// --------------------------------------------------
 		BuildSecondOrderCoPInputDecoupled(dyn.pos, dyn.d_state_mat_vec, dyn.d_input_mat_vec);
 		BuildSecondOrderCoPInputDecoupled(dyn.vel, dyn.d_state_mat_vec, dyn.d_input_mat_vec);
-		//Debug::Cout("dyn.vel.input_mat", dyn.vel.input_mat);
 		BuildSecondOrderCoPInputDecoupled(dyn.cp, dyn.d_state_mat_vec, dyn.d_input_mat_vec);
-		//Debug::Cout("dyn.cp.input_mat", dyn.cp.input_mat);
 
 		dyn.cop.input_mat.block(0, 0, num_samples, num_samples).setIdentity();
 		dyn.cop.input_mat_tr.block(0, 0, num_samples, num_samples).setIdentity();

@@ -102,6 +102,7 @@ void QPOasesParser::Solve(MPCSolution &solution,
 
 	if (parameters_->analysis) {
 		solution.analysis.objective_value = qp_->getObjVal();
+		std::cout << "objval: " << solution.analysis.objective_value << std::endl;
 		solution.analysis.num_iterations = num_wsr;
 	}
 

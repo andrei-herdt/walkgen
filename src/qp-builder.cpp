@@ -522,7 +522,7 @@ void QPBuilder::BuildStateConstraints(const MPCSolution &solution) {
 	solver_->constr_mat()()(num_ineqs * num_steps_previewed, num_samples) = pow(dyn.d_state_mat_pow_vec.back()(1,1),-1);
 	double atimesb;
 	for (int col_x = 0; col_x < num_samples; col_x++) {
-		atimesb = pow(dyn.d_state_mat_pow_vec[col_x](1,1),-1) * dyn.d_input_mat_vec[col_x](1);
+		atimesb = pow(dyn.d_state_mat_pow_vec[col_x](1,1), -1) * dyn.d_input_mat_vec[col_x](1);
 		solver_->constr_mat()()(num_ineqs * num_steps_previewed, col_x) = -atimesb;
 	}
 	solver_->lc_bounds_vec()()(num_ineqs * num_steps_previewed) = state_x(1);

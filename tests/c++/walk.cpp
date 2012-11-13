@@ -15,8 +15,8 @@ int main() {
 	int num_samples_dsss 			= 8;
 	int num_steps_ssds 			= 2;
 	double sample_period_qp 		= .1;
-	double sample_period_first 		= .1;
-	double sample_period_act 		= .1;
+	double sample_period_first 		= .001;
+	double sample_period_act 		= .001;
 	const double kSecurityMargin 		= .02;
 
 	// Simulation parameters:
@@ -31,7 +31,7 @@ int main() {
 	mpc_parameters.period_actsample       = sample_period_act;
 	mpc_parameters.warmstart                      = false;
 	mpc_parameters.interpolate_whole_horizon      = true;
-	mpc_parameters.solver.analysis                = false;
+	mpc_parameters.solver.analysis                = true;
 	mpc_parameters.solver.name                    = QPOASES;
 	mpc_parameters.solver.num_wsrec               = 200;
 	mpc_parameters.dynamics_order                 = SECOND_ORDER;
@@ -144,7 +144,7 @@ int main() {
 	int num_iterations = 0;
 	//walk.clock().GetFrequency(1000);
 	//walk.clock().ResetLocal();
-	for (; curr_time < .8; curr_time += sample_period_act) {
+	for (; curr_time < .1; curr_time += sample_period_act) {
 		//int online_timer = walk.clock().StartCounter();
 		//std::cout << std::endl;
 		const MPCSolution &solution = walk.Go(curr_time);
