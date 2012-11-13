@@ -496,17 +496,17 @@ void QPBuilder::BuildConstraints(const MPCSolution &solution) {
 
 void QPBuilder::BuildStateConstraints(const MPCSolution &solution) {
 	int num_steps_previewed = solution.support_states_vec.back().step_number;
-	int num_samples = mpc_parameters_->num_samples_horizon;
-	int num_ineqs = 5;
-	int num_unst_modes = 1;
+	int num_samples 		= mpc_parameters_->num_samples_horizon;
+	int num_ineqs 			= 5;
+	int num_unst_modes 		= 1;
 
 	const BodyState &com = robot_->com()->state();
 	CommonVectorType state_x(mpc_parameters_->dynamics_order), state_y(mpc_parameters_->dynamics_order);
 	Matrix2D state_trans_mat = Matrix2D::Zero();
 	state_trans_mat(0, 0) = 1.;
-	state_trans_mat(0, 1) = -1./sqrt(kGravity / com.z[0]);
+	state_trans_mat(0, 1) = -1. / sqrt(kGravity / com.z[0]);
 	state_trans_mat(1, 0) = 1.;
-	state_trans_mat(1, 1) = 1./sqrt(kGravity / com.z[0]);
+	state_trans_mat(1, 1) = 1. / sqrt(kGravity / com.z[0]);
 	state_x = state_trans_mat * com.x.head(mpc_parameters_->dynamics_order);
 	state_y = state_trans_mat * com.y.head(mpc_parameters_->dynamics_order);
 
@@ -519,7 +519,7 @@ void QPBuilder::BuildStateConstraints(const MPCSolution &solution) {
 
 	//X:
 	// x_0 < Au^{-N}*\mu_x - \sum Au^{-(j-1)}*Bu*u_j < x_0
-	solver_->constr_mat()()(num_ineqs * num_steps_previewed, num_samples) = pow(dyn.d_state_mat_pow_vec.back()(1,1),-1);
+	solver_->constr_mat()()(num_ineqs * num_steps_previewed, num_samples) = pow(dyn.d_state_mat_pow_vec.back()(1,1), -1);
 	double atimesb;
 	for (int col_x = 0; col_x < num_samples; col_x++) {
 		atimesb = pow(dyn.d_state_mat_pow_vec[col_x](1,1), -1) * dyn.d_input_mat_vec[col_x](1);
@@ -532,7 +532,7 @@ void QPBuilder::BuildStateConstraints(const MPCSolution &solution) {
 	// y_0 < Au^{-N}*\mu_y - \sum Au^{-(j-1)}*Bu*u_j < y_0
 	solver_->constr_mat()()(num_ineqs * num_steps_previewed + num_unst_modes, num_samples*2 + 1) = pow(dyn.d_state_mat_pow_vec.back()(1,1), -1);
 	for (int col_y = 0; col_y < num_samples; col_y++) {
-		atimesb = pow(dyn.d_state_mat_pow_vec[col_y](1,1),-1) * dyn.d_input_mat_vec[col_y](1);
+		atimesb = pow(dyn.d_state_mat_pow_vec[col_y](1,1), -1) * dyn.d_input_mat_vec[col_y](1);
 		solver_->constr_mat()()(num_ineqs*num_steps_previewed + num_unst_modes, num_samples + num_unst_modes + col_y) = -atimesb;
 	}
 	solver_->lc_bounds_vec()()(num_ineqs*num_steps_previewed + num_unst_modes) = state_y(1);

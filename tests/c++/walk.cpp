@@ -15,8 +15,8 @@ int main() {
 	int num_samples_dsss 			= 8;
 	int num_steps_ssds 			= 2;
 	double sample_period_qp 		= .1;
-	double sample_period_first 		= .001;
-	double sample_period_act 		= .001;
+	double sample_period_first 		= .05;
+	double sample_period_act 		= .05;
 	const double kSecurityMargin 		= .02;
 
 	// Simulation parameters:
@@ -144,29 +144,26 @@ int main() {
 	int num_iterations = 0;
 	//walk.clock().GetFrequency(1000);
 	//walk.clock().ResetLocal();
-	for (; curr_time < .1; curr_time += sample_period_act) {
+	for (; curr_time < 1.21; curr_time += sample_period_act) {
 		//int online_timer = walk.clock().StartCounter();
 		//std::cout << std::endl;
 		const MPCSolution &solution = walk.Go(curr_time);
+		std::cout << std::endl;
+		std::cout << std::endl;
 		std::cout<< "curr_time: " << curr_time << std::endl;
+		std::cout << "--------------------" << std::endl;
 		walk.solver()->DumpMatrices(curr_time, "dat");
 		//walk.solver()->DumpProblem("problem", curr_time, "txt");
 		
-		std::cout << "com_prw.pos.x: " << solution.com_prw.pos.x_vec.transpose() << std::endl;
-		std::cout << "com_prw.pos.y: " << solution.com_prw.pos.y_vec.transpose() << std::endl;
+		Debug::Cout("com_prw.pos.x", solution.com_prw.pos.x_vec);
 		Debug::Cout("com_prw.vel.x", solution.com_prw.vel.x_vec);
-		Debug::Cout("com_prw.vel.y", solution.com_prw.vel.y_vec);
 		//std::cout << "com_prw.vel: " << solution.com_prw.vel.x_vec.transpose() << std::endl;
 		//std::cout << "com_prw.cp.x: " << solution.com_prw.cp.x_vec.transpose() << std::endl;
 		
 	 	std::cout << std::endl;	
-		std::cout << "com_prw.cop.x_vec: " << solution.com_prw.cop.x_vec.transpose() << std::endl;
 		std::cout << "com_prw.control.x_vec: " << solution.com_prw.control.x_vec.transpose() << std::endl;
-		std::cout << "com_prw.cop.y_vec: " << solution.com_prw.cop.y_vec.transpose() << std::endl;
-		std::cout << "com_prw.control.y_vec: " << solution.com_prw.control.y_vec.transpose() << std::endl;
 	 	std::cout << std::endl;	
 		std::cout << "com_act.pos.x: " << walk.output().com.x << "  com_act.vel.x: " << walk.output().com.dx << std::endl;
-		std::cout << "com_act.pos.y: " << walk.output().com.y << "  com_act.vel.y: " << walk.output().com.dy << std::endl;
 		
 		//Debug::Cout("sampling_times_vec", solution.sampling_times_vec);
 		//Debug::WriteToDatFile("hessian", curr_time, walk.solver()->hessian_mat()());
