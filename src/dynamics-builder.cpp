@@ -146,7 +146,6 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, doubl
 		// Build prediction matrices (S, U, UT, Uinv, UTinv):
 		// --------------------------------------------------
 		BuildSecondOrderCoPInputDecoupled(dyn.pos, dyn.d_state_mat_vec, dyn.d_input_mat_vec);
-		Debug::Cout("dyn.pos.input_mat", dyn.pos.input_mat);
 		BuildSecondOrderCoPInputDecoupled(dyn.vel, dyn.d_state_mat_vec, dyn.d_input_mat_vec);
 		//Debug::Cout("dyn.vel.input_mat", dyn.vel.input_mat);
 		BuildSecondOrderCoPInputDecoupled(dyn.cp, dyn.d_state_mat_vec, dyn.d_input_mat_vec);
@@ -472,7 +471,7 @@ void DynamicsBuilder::BuildSecondOrderCoPInputDecoupled(LinearDynamicsMatrices &
 	dyn_mat.state_mat(0,0) = dyn_mat.ss_output_mat(0,0) * d_state_mat_vec.at(0)(0,0);
 	CommonMatrixType d_state_mat_temp = Matrix2D::Identity();
 
-	double Ad1s, Ad1u, Ad2s, Ad2u;	//Stable and unstable parts of discretized state matrices
+	double Ad1s, Ad2s, Ad2u;	//Stable and unstable parts of discretized state matrices
 	Ad1s = d_state_mat_vec.at(0)(0,0);
 	for (int row = 1; row < num_samples; row++) {
 		Ad2s = d_state_mat_vec.at(1)(0,0);
@@ -486,7 +485,7 @@ void DynamicsBuilder::BuildSecondOrderCoPInputDecoupled(LinearDynamicsMatrices &
 		//U(row, row) = Cs * Bs
 		dyn_mat.input_mat(row, row) = dyn_mat.ss_output_mat(0, 0) * d_input_mat_vec.at(0)(0, 0);
 		//(Su): U(N - 1 - row, N) = Cu*Ad2u^(-row);
-		dyn_mat.input_mat(num_samples - 1 - row, num_samples) = - dyn_mat.ss_output_mat(0, 1) * d_state_mat_temp(1, 1);//new * d_state_mat_vec.at(1)(1, 1);
+		dyn_mat.input_mat(num_samples - 1 - row, num_samples) = dyn_mat.ss_output_mat(0, 1) * d_state_mat_temp(1, 1);//new * d_state_mat_vec.at(1)(1, 1);
 		//U(row, 0) = Cs*Ad2s^row * Bd1s
 		dyn_mat.input_mat(row, 0) = dyn_mat.ss_output_mat(0,0) * d_state_mat_temp(0,0) * d_input_mat_vec.at(0)(0);
 		//U(0,row) = -Cu*Ad2u^row * Bd2u

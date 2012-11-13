@@ -519,10 +519,10 @@ void QPBuilder::BuildStateConstraints(const MPCSolution &solution) {
 
 	//X:
 	// x_0 < Au^{-N}*\mu_x - \sum Au^{-(j-1)}*Bu*u_j < x_0
-	solver_->constr_mat()()(num_ineqs * num_steps_previewed, num_samples) = dyn.d_state_mat_pow_vec.back()(1,1);
+	solver_->constr_mat()()(num_ineqs * num_steps_previewed, num_samples) = pow(dyn.d_state_mat_pow_vec.back()(1,1),-1);
 	double atimesb;
 	for (int col_x = 0; col_x < num_samples; col_x++) {
-		atimesb = dyn.d_state_mat_pow_vec[col_x](1,1) * dyn.d_input_mat_vec[col_x](1);
+		atimesb = pow(dyn.d_state_mat_pow_vec[col_x](1,1),-1) * dyn.d_input_mat_vec[col_x](1);
 		solver_->constr_mat()()(num_ineqs * num_steps_previewed, col_x) = -atimesb;
 	}
 	solver_->lc_bounds_vec()()(num_ineqs * num_steps_previewed) = state_x(1);
@@ -530,9 +530,9 @@ void QPBuilder::BuildStateConstraints(const MPCSolution &solution) {
 
 	//Y:
 	// y_0 < Au^{-N}*\mu_y - \sum Au^{-(j-1)}*Bu*u_j < y_0
-	solver_->constr_mat()()(num_ineqs * num_steps_previewed + num_unst_modes, num_samples*2 + 1) = dyn.d_state_mat_pow_vec.back()(1,1);
+	solver_->constr_mat()()(num_ineqs * num_steps_previewed + num_unst_modes, num_samples*2 + 1) = pow(dyn.d_state_mat_pow_vec.back()(1,1), -1);
 	for (int col_y = 0; col_y < num_samples; col_y++) {
-		atimesb = dyn.d_state_mat_pow_vec[col_y](1,1) * dyn.d_input_mat_vec[col_y](1);
+		atimesb = pow(dyn.d_state_mat_pow_vec[col_y](1,1),-1) * dyn.d_input_mat_vec[col_y](1);
 		solver_->constr_mat()()(num_ineqs*num_steps_previewed + num_unst_modes, num_samples + num_unst_modes + col_y) = -atimesb;
 	}
 	solver_->lc_bounds_vec()()(num_ineqs*num_steps_previewed + num_unst_modes) = state_y(1);
