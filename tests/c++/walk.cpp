@@ -44,10 +44,10 @@ int main() {
 	mpc_parameters.weights.cp[0] 		= 1.;//1.;
 	mpc_parameters.weights.control[0] 	= 0.;
 
-	mpc_parameters.weights.pos[1] 		= 1.;
+	mpc_parameters.weights.pos[1] 		= 0.;
 	mpc_parameters.weights.vel[1]  		= 0.;
 	mpc_parameters.weights.cop[1]  		= 0.;//1.;
-	mpc_parameters.weights.cp[1] 		= 0.;
+	mpc_parameters.weights.cp[1] 		= 1.;
 	mpc_parameters.weights.control[1] 	= 0.;
 	mpc_parameters.is_constraints 		= false;
 
@@ -57,8 +57,8 @@ int main() {
 	left_foot.ankle_pos_local 	<< 0, 0, 0.105;
 	left_foot.sole_height 		= 0.138;
 	left_foot.sole_width 		= 0.2172;
-	left_foot.position[0] 		= 0.;//= 0.00949035;
-	left_foot.position[1] 		= 0.;//= 0.095;
+	left_foot.position[0] 		= 0.01;
+	left_foot.position[1] 		= 0.1;
 	left_foot.position[2] 		= 0.0;
 	left_foot.SetEdges(0.2172, 0.0, 0.138, 0.0, kSecurityMargin);
 
@@ -144,7 +144,7 @@ int main() {
 	int num_iterations = 0;
 	//walk.clock().GetFrequency(1000);
 	//walk.clock().ResetLocal();
-	for (; curr_time < 1.21; curr_time += sample_period_act) {
+	for (; curr_time < .5; curr_time += sample_period_act) {
 		//int online_timer = walk.clock().StartCounter();
 		//std::cout << std::endl;
 		const MPCSolution &solution = walk.Go(curr_time);

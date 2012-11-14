@@ -139,6 +139,8 @@ void QPBuilder::PrecomputeObjective() {
 			//state_variant_[mat_num] += cop_dyn.input_mat_inv_tr * cp_dyn.input_mat_tr * mpc_parameters_->weights.cp[mode_num] * tmp_mat_;
 			tmp_mat_.noalias() = cp_dyn.state_mat;//New - cp_dyn.input_mat * cop_dyn.state_mat;
 			state_variant_[mat_num] += cp_dyn.input_mat_tr * mpc_parameters_->weights.cp[mode_num] * tmp_mat_;
+			Debug::Cout("cp_dyn.state_mat", cp_dyn.state_mat);
+			Debug::Cout("cp_dyn.input_mat_tr", cp_dyn.input_mat_tr);
 
 			// - alpha*Uz^(-T)*Uz^(-1)*Sz
 			//state_variant_[mat_num] -= cop_dyn.input_mat_inv_tr * mpc_parameters_->weights.control[mode_num] * cop_dyn.input_mat_inv * cop_dyn.state_mat;
@@ -247,24 +249,24 @@ void QPBuilder::TransformControlVector(MPCSolution &solution) {
 	CommonVectorType global_contr_x_vec = CommonVectorType::Zero(size_contrvec);
 	CommonVectorType global_contr_y_vec = CommonVectorType::Zero(size_contrvec);
 
-	for (int s = 0; s < num_samples_interp; ++s) {
-		// Rotate in local frame: Rx*x - Ry*y;
-		//global_cop_x_vec(s) =  rot_mat(s, s) * local_cop_vec_x(s) - rot_mat(s, num_samples + s) * local_cop_vec_y(s);
-		//global_cop_x_vec(s) += select.sample_step_cx(s);
-		//global_cop_y_vec(s) =  rot_mat(num_samples + s, num_samples + s) * local_cop_vec_y(s) - rot_mat(num_samples + s, s) * local_cop_vec_x(s);
-		//global_cop_y_vec(s) += select.sample_step_cy(s);
-		global_cop_x_vec(s) = local_cop_vec_x(s) + select.sample_step_cx(s);
-		global_cop_y_vec(s) = local_cop_vec_y(s) + select.sample_step_cy(s);
-		//New
-		global_contr_x_vec(s) = local_contr_vec_x(s) + select.sample_step_cx(s);
-		global_contr_y_vec(s) = local_contr_vec_y(s) + select.sample_step_cy(s);
-	}
+	//for (int s = 0; s < num_samples_interp; ++s) {
+	// Rotate in local frame: Rx*x - Ry*y;
+	//global_cop_x_vec(s) =  rot_mat(s, s) * local_cop_vec_x(s) - rot_mat(s, num_samples + s) * local_cop_vec_y(s);
+	//global_cop_x_vec(s) += select.sample_step_cx(s);
+	//global_cop_y_vec(s) =  rot_mat(num_samples + s, num_samples + s) * local_cop_vec_y(s) - rot_mat(num_samples + s, s) * local_cop_vec_x(s);
+	//global_cop_y_vec(s) += select.sample_step_cy(s);
+	//global_cop_x_vec(s) = local_cop_vec_x(s) + select.sample_step_cx(s);
+	//global_cop_y_vec(s) = local_cop_vec_y(s) + select.sample_step_cy(s);
+	//New
+	//global_contr_x_vec(s) = local_contr_vec_x(s) + select.sample_step_cx(s);
+	//global_contr_y_vec(s) = local_contr_vec_y(s) + select.sample_step_cy(s);
+	//}
 	//New: Transform position of capture point to global
-	global_contr_x_vec(size_contrvec - 1) = local_contr_vec_x(size_contrvec - 1) + select.sample_step_cx(size_contrvec - 1);
-	global_contr_y_vec(size_contrvec - 1) = local_contr_vec_y(size_contrvec - 1) + select.sample_step_cy(size_contrvec - 1);
+	global_contr_x_vec = local_contr_vec_x + select.sample_step_cx;
+	global_contr_y_vec = local_contr_vec_y + select.sample_step_cy;
 
-	global_cop_x_vec += select.sample_step.block(0, 0, num_samples, num_steps) * feet_x_vec;//TODO(performance): Optimize this for first interpolate_whole_horizon == false
-	global_cop_y_vec += select.sample_step.block(0, 0, num_samples, num_steps) * feet_y_vec;
+	//global_cop_x_vec += select.sample_step.block(0, 0, num_samples, num_steps) * feet_x_vec;//TODO(performance): Optimize this for first interpolate_whole_horizon == false
+	//global_cop_y_vec += select.sample_step.block(0, 0, num_samples, num_steps) * feet_y_vec;
 	//New
 	global_contr_x_vec += select.sample_step * feet_x_vec;
 	global_contr_y_vec += select.sample_step * feet_y_vec;
@@ -279,10 +281,8 @@ void QPBuilder::TransformControlVector(MPCSolution &solution) {
 		state_x = state_trans_mat * com.x.head(mpc_parameters_->dynamics_order);
 		state_y = state_trans_mat * com.y.head(mpc_parameters_->dynamics_order);
 	} else {
-		for (int i = 0; i < mpc_parameters_->dynamics_order; i++) {
-			state_x(i) = com.x(i);
-			state_y(i) = com.y(i);
-		}
+		state_x = com.x.head(mpc_parameters_->dynamics_order);
+		state_y = com.y.head(mpc_parameters_->dynamics_order);
 	}
 
 	//TODO(performance): Optimize this for first interpolate_whole_horizon == false
@@ -321,16 +321,14 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 		Matrix2D state_trans_mat;
 		state_trans_mat.setZero();
 		state_trans_mat(0, 0) = 1.;
-		state_trans_mat(0, 1) = -1./sqrt(kGravity / com.z[0]);
+		state_trans_mat(0, 1) = -1. / sqrt(kGravity / com.z[0]);
 		state_trans_mat(1, 0) = 1.;
-		state_trans_mat(1, 1) = 1./sqrt(kGravity / com.z[0]);
+		state_trans_mat(1, 1) = 1. / sqrt(kGravity / com.z[0]);
 		state_x = state_trans_mat * com.x.head(mpc_parameters_->dynamics_order);
 		state_y = state_trans_mat * com.y.head(mpc_parameters_->dynamics_order);
 	} else {
-		for (int i = 0; i < mpc_parameters_->dynamics_order; i++) {
-			state_x(i) = com.x(i);
-			state_y(i) = com.y(i);
-		}
+		state_x = com.x.head(mpc_parameters_->dynamics_order);
+		state_y = com.y.head(mpc_parameters_->dynamics_order);
 	}
 
 	// PID mode:
@@ -427,11 +425,9 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	}
 
 	CommonVectorType gradient_vec_x(num_samples + num_unst_modes), gradient_vec_y(num_samples + num_unst_modes), gradient_vec(2 * (num_samples + num_unst_modes));//TODO: Make this member
-
+	Debug::Cout("state_variant_[samples_left]", state_variant_[samples_left]);
 	gradient_vec_x = state_variant_[samples_left] * state_x(0);
-	////Debug::Cout("gradient_vec_x", gradient_vec_x);
 	gradient_vec_y = state_variant_[samples_left] * state_y(0);
-	////Debug::Cout("gradient_vec_y", gradient_vec_y);
 
 	// Formulation in Krause2012S
 	if (mpc_parameters_->dynamics_order == SECOND_ORDER) {
@@ -441,25 +437,18 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 		gradient_vec_y[0] -= mpc_parameters_->weights.control[0] * zy_cur;
 	}
 
-	gradient_vec_x += select_variant_[samples_left] * select_mats.sample_step_cx;
-	gradient_vec_y += select_variant_[samples_left] * select_mats.sample_step_cy;
-	////Debug::Cout("gradient_vec_x", gradient_vec_x);
-	////Debug::Cout("gradient_vec_y", gradient_vec_y);
+	Debug::Cout("select_variant_[samples_left]", select_variant_[samples_left]);
+	gradient_vec_x.head(num_samples) += select_variant_[samples_left].block(0, 0, num_samples, num_samples) * select_mats.sample_step_cx.head(num_samples);
+	gradient_vec_y.head(num_samples) += select_variant_[samples_left].block(0, 0, num_samples, num_samples) * select_mats.sample_step_cy.head(num_samples);
 
 	gradient_vec_x.head(num_samples) += ref_variant_vel_[samples_left].block(0, 0, num_samples, num_samples) * vel_ref_->global.x;//TODO: Why was bigger size necessary?
 	gradient_vec_y.head(num_samples) += ref_variant_vel_[samples_left].block(0, 0, num_samples, num_samples) * vel_ref_->global.y;
-	////Debug::Cout("gradient_vec_x", gradient_vec_x);
-	////Debug::Cout("gradient_vec_y", gradient_vec_y);
 
 	gradient_vec_x.head(num_samples) += ref_variant_pos_[samples_left].block(0, 0, num_samples, num_samples) * pos_ref_->global.x;
 	gradient_vec_y.head(num_samples) += ref_variant_pos_[samples_left].block(0, 0, num_samples, num_samples) * pos_ref_->global.y;
-	////Debug::Cout("gradient_vec_x", gradient_vec_x);
-	////Debug::Cout("gradient_vec_y", gradient_vec_y);
 
 	gradient_vec_x.head(num_samples) += ref_variant_cp_[samples_left].block(0, 0, num_samples, num_samples) * cp_ref_->global.x;
 	gradient_vec_y.head(num_samples) += ref_variant_cp_[samples_left].block(0, 0, num_samples, num_samples) * cp_ref_->global.y;
-	////Debug::Cout("gradient_vec_x", gradient_vec_x);
-	////Debug::Cout("gradient_vec_y", gradient_vec_y);
 
 	if (num_steps_previewed > 0) {
 		tmp_vec_.noalias() = select_mats.sample_step_trans * gradient_vec_x;

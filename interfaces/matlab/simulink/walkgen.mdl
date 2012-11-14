@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.755"
+    ComputedModelVersion    "1.757"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Wed Nov 14 10:11:39 2012"
+  LastModifiedDate	  "Wed Nov 14 10:17:17 2012"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:755>"
+  ModelVersionFormat	  "1.%<AutoIncrement:757>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -667,7 +667,7 @@ Model {
   }
   System {
     Name		    "walkgen"
-    Location		    [850, 74, 1125, 375]
+    Location		    [848, 74, 1123, 375]
     Open		    off
     ModelBrowserVisibility  off
     ModelBrowserWidth	    200
@@ -1855,7 +1855,7 @@ Model {
 	Block {
 	  BlockType		  Constant
 	  Name			  "Constant1"
-	  Position		  [30, 310, 140, 330]
+	  Position		  [30, 365, 140, 385]
 	  ShowName		  off
 	  FontName		  "Arial"
 	  FontSize		  8
@@ -1863,6 +1863,12 @@ Model {
 	  Value			  "[-0.035, 0.22, 0.0]"
 	  OutDataType		  "sfix(16)"
 	  OutScaling		  "2^0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "left_initial_ankle"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
 	}
 	Block {
 	  BlockType		  Constant
@@ -1878,24 +1884,6 @@ Model {
 	  Port {
 	    PortNumber		    1
 	    Name		    "com_real"
-	    RTWStorageClass	    "Auto"
-	    DataLoggingNameMode	    "SignalName"
-	  }
-	}
-	Block {
-	  BlockType		  Constant
-	  Name			  "Constant17"
-	  Position		  [30, 365, 140, 385]
-	  ShowName		  off
-	  FontName		  "Arial"
-	  FontSize		  8
-	  FontWeight		  "bold"
-	  Value			  "[-0.0, 0., 0.0]"
-	  OutDataType		  "sfix(16)"
-	  OutScaling		  "2^0"
-	  Port {
-	    PortNumber		    1
-	    Name		    "left_initial_ankle"
 	    RTWStorageClass	    "Auto"
 	    DataLoggingNameMode	    "SignalName"
 	  }
@@ -1935,6 +1923,18 @@ Model {
 	    RTWStorageClass	    "Auto"
 	    DataLoggingNameMode	    "SignalName"
 	  }
+	}
+	Block {
+	  BlockType		  Constant
+	  Name			  "Constant2"
+	  Position		  [30, 315, 140, 335]
+	  ShowName		  off
+	  FontName		  "Arial"
+	  FontSize		  8
+	  FontWeight		  "bold"
+	  Value			  "[-0.0, 0., 0.0]"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
 	}
 	Block {
 	  BlockType		  Constant
@@ -2756,7 +2756,7 @@ Model {
 	Line {
 	  Name			  "left_initial_ankle"
 	  Labels		  [0, 0]
-	  SrcBlock		  "Constant17"
+	  SrcBlock		  "Constant1"
 	  SrcPort		  1
 	  DstBlock		  "Bus\nCreator4"
 	  DstPort		  1
