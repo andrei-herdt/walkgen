@@ -15,7 +15,7 @@ CoMBody::~CoMBody() {}
 void CoMBody::Interpolate(MPCSolution &solution, double current_time, const Reference &ref){
 	// Actuator sampling rate:
 	// -----------------------
-	CommonVectorType state_x(mpc_parameters_->dynamics_order), state_y(mpc_parameters_->dynamics_order);
+	CommonVectorType state_x, state_y;
 	/*if (mpc_parameters_->formulation == DECOUPLED_MODES) {
 		Matrix2D state_trans_mat = Matrix2D::Zero();
 		state_trans_mat(0, 0) = 1.;
@@ -59,14 +59,45 @@ void CoMBody::Interpolate(MPCSolution &solution, double current_time, const Refe
 	if (mpc_parameters_->interpolate_whole_horizon) {
 		if (mpc_parameters_->formulation == DECOUPLED_MODES) {
 			Matrix2D state_trans_mat = Matrix2D::Zero();
+			CommonVectorType tmp_state_x, tmp_state_y;
 			state_trans_mat(0, 0) = 1.;
 			state_trans_mat(0, 1) = -1. / sqrt(kGravity / state_.z[0]);
 			state_trans_mat(1, 0) = 1.;
 			state_trans_mat(1, 1) = 1. / sqrt(kGravity / state_.z[0]);
-			state_x = state_trans_mat * state_.x.head(mpc_parameters_->dynamics_order);
-			state_x = state_x.head(1);	//stable mode
-			state_y = state_trans_mat * state_.y.head(mpc_parameters_->dynamics_order);
-			state_y = state_y.head(1);	//stable mode
+			tmp_state_x = state_trans_mat * state_.x.head(mpc_parameters_->dynamics_order);
+			state_x = tmp_state_x.head(1);
+			tmp_state_y = state_trans_mat * state_.y.head(mpc_parameters_->dynamics_order);
+			state_y = tmp_state_y.head(1);
+			//TODO: Simplify this
+			int samples_left = mpc_parameters_->GetMPCSamplesLeft(solution.sampling_times_vec[1] - solution.sampling_times_vec[0]);
+			interpolation_.Interpolate(solution.com_prw.pos.x_vec, dynamics_qp()[samples_left].pos,
+					state_x, solution.com_prw.control.x_vec);
+			interpolation_.Interpolate(solution.com_prw.pos.y_vec, dynamics_qp()[samples_left].pos,
+					state_y, solution.com_prw.control.y_vec);
+
+			// Velocity:
+			interpolation_.Interpolate(solution.com_prw.vel.x_vec, dynamics_qp()[samples_left].vel,
+					state_x, solution.com_prw.control.x_vec);
+			interpolation_.Interpolate(solution.com_prw.vel.y_vec, dynamics_qp()[samples_left].vel,
+					state_y, solution.com_prw.control.y_vec);
+
+			// Acceleration:
+			interpolation_.Interpolate(solution.com_prw.acc.x_vec, dynamics_qp()[samples_left].acc,
+					state_x, solution.com_prw.control.x_vec);
+			interpolation_.Interpolate(solution.com_prw.acc.y_vec, dynamics_qp()[samples_left].acc,
+					state_y, solution.com_prw.control.y_vec);
+
+			// Capture point:
+			interpolation_.Interpolate(solution.com_prw.cp.x_vec, dynamics_qp()[samples_left].cp,
+					state_x, solution.com_prw.control.x_vec);
+			interpolation_.Interpolate(solution.com_prw.cp.y_vec, dynamics_qp()[samples_left].cp,
+					state_y, solution.com_prw.control.y_vec);
+
+			// Center of pressure:
+			interpolation_.Interpolate(solution.com_prw.cop.x_vec, dynamics_qp()[samples_left].cop,
+					state_x, solution.com_prw.control.x_vec);
+			interpolation_.Interpolate(solution.com_prw.cop.y_vec, dynamics_qp()[samples_left].cop,
+					state_y, solution.com_prw.control.y_vec);
 		}
 
 		int samples_left = mpc_parameters_->GetMPCSamplesLeft(solution.sampling_times_vec[1] - solution.sampling_times_vec[0]);
