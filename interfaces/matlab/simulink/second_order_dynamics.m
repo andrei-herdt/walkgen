@@ -1,35 +1,4 @@
 clear;
-%%Constants:
-kGravity = 9.81;
-height = 0.91;
-T = 0.1;
-sp_first = 0.1;
-sp_rest = 0.1;
-
-cont_state_mat(1,2) = 1.;
-cont_state_mat(2,1) = 1.;
-
-%%Eigen values of A
-eig_1 = -1.;
-eig_2 = 1.;
-eig_mat_1(1,1) = eig_1 * sp_first;
-eig_mat_1(2,2) = eig_2 * sp_first;
-
-
-cont_input_mat(2,1) = -height / kGravity;
-
-[V,S] = eig(cont_state_mat);
-
-invV = inv(V);
-
-Ad_custom = V*diag(exp(diag(S)*T))*invV;
-
-%%Discretization with Matlab
-sys = ss(cont_state_mat, cont_input_mat, [1,0;0,1], []);
-
-
-Ad_matlab = c2d(sys, T);
-
 %% Constants
 g = 9.81;
 h = 0.814;
@@ -38,99 +7,71 @@ N = 16;
 omega = sqrt(g/h);
 
 %% Dynamics
-% Continuous model
-%A_cp = [0, 1; omega^2, 0];
-%b_cp = [0; -omega^2];
-%A_cp = [-omega, omega; 0, omega];
-%b_cp = [0; -omega];
-%A_cp = [0, 1, 0; 0, 0, 1; 0, 0, 0];
-%b_cp = [0; 0; 1];
-A_cp = [-omega, 0; 0, omega];
-B_cp = [omega; -omega];
-C_pos = [1/2, 1/2];
+%%% Continuous model
+%%%% Third order model (not tested!)
+%Ac = [0, 1, 0; 0, 0, 1; 0, 0, 0];
+%Bc = [0; 0; 1];
+%C = [1; 0; 0;];          %position
+%%%% Second order model
+Ac = [0, 1; omega^2, 0];
+Bc = [0; -omega^2];
+%Ac = [-omega, omega; 0, omega];
+%Bc = [0; -omega];
+%Ac = [-omega, 0; 0, omega];
+%Bc = [omega; -omega];
+%C = [1/2, 1/2];          %position
+C = [0, 1];              %capture point
 
-%% Prediction matrices
-S_pos = [];
-U_pos = [];
-for i = 1:N
-    Ad = expm(A_cp * T * i);
-    Bd = inv(A_cp) * (Ad - eye(2,2)) * B_cp;
-    S_pos = [S_pos; C_pos * Ad];
-    U_pos = [U_pos; C_pos * Bd];
-end
-S_pos;
-U_pos;
+%% Prediction matrices for a constant sampling rate
+%%% Decoupled modes and standard (ss, c2d, powers of A)
 
-S_pos = [];
-U_pos = [];
-Ad = expm(A_cp * T);
-Bd = inv(A_cp) * (Ad - eye(2,2)) * B_cp;
-for i = 1:N
-    S_pos = [S_pos; C_pos * Ad^i];
-    U_pos = [U_pos; C_pos * Ad^(i-1)*Bd];
-end
-S_pos;
-U_pos;
-
-S_pos_st = [];
-S_pos_unst = [];
-U_pos_dec = zeros(N,N);
-for i = 1:N
-    Ad(1,1) = exp(A_cp(1,1) * T * i);
-    Ad(2,2) = exp(-A_cp(2,2) * T * i);
-    Bd = inv(A_cp) * (Ad - eye(2,2)) * B_cp;
-    S_pos_st = [S_pos_st; C_pos(1,1) * Ad(1,1)];
-    S_pos_unst = [S_pos_unst; C_pos(1,2) * Ad(2,2)];
-    U_pos_dec(i,1) = C_pos(1,1) * Bd(1);
-    U_pos_dec(1,i) = C_pos(1,2) * Bd(2);
-end
-U_pos_dec;
-
-S_pos_st = [];
-S_pos_unst = [];
-U_pos_dec = zeros(N, N);
-Ad(1,1) = exp(A_cp(1, 1)*T);
-Ad(2,2) = exp(-A_cp(2, 2)*T);
-Bd = inv(A_cp) * (Ad - eye(2,2)) * B_cp;
-for i = 1:N
-    Adi = Ad^i;
-    Adii = Ad^(i-1);
-    Ui = Adii * Bd;
-    S_pos_st = [S_pos_st; C_pos(1,1) * Adi(1,1)];
-    S_pos_unst = [S_pos_unst; C_pos(1,2) * Adi(2,2)];
-    U_pos_dec(i,1) = C_pos(1,1) * Ui(1);
-    U_pos_dec(1,i) = C_pos(1,2) * Ui(2);
-end
-U_pos_dec;
-
-%% Decoupled second order model
-A_cp = [-omega, 0; 0, omega];
-B_cp = [omega; -omega];
-C_pos = [1/2, 1/2];
-
-trans_mat = [1, -1/omega; 1, 1/omega];
-inv_trans_mat = inv(trans_mat);
-
-csys = ss(A_cp, B_cp, C_pos, []);
-T = 0.1;
+csys = ss(Ac, Bc, C, []);
 Ad_vec = [];
 dsys = c2d(csys, T);
+
+%%%% Standard form
+S = zeros(N, 2);
+U = zeros(N, N);
+% Fill state matrix and main diagonal of input matrix
+for i = 1:N
+   S(i,:) = dsys.C * dsys.A;
+   U(i,i) = dsys.C * dsys.B;
+end
+
+% Fill lower triangle of input matrix
+for i = 1:N-1
+    CAB = dsys.C * dsys.A^i * dsys.B;
+    %fill diagonal i+1
+    for j = 1:N-i
+        U(i+j, j) = CAB;
+    end
+end
+H = U'*U;
+disp('Condition number (standard form): ');
+disp(cond(H));
+
+%%%% Decoupled form (Goodwin - Chapter11)
 As = dsys.A(1,1);
 Au = dsys.A(2,2);
 for i = 1:N
-   Ad_vec = [Ad_vec; [As^i, 0; 0, Au^(-i)]]; 
+   Ad_vec = [Ad_vec; [As^i, 0; 0, Au^(-i)]]; %powers of A
 end
 
-S_pos_s = [];
-S_pos_u = [];
-U_pos_s = [];
-U_pos_u = [];
-U_pos_s = [U_pos_s; dsys.C(1)*dsys.B(1);];
+S_s = zeros(N, 1);
+S_u = zeros(N, 1);
+U_s = zeros(N, N);
+U_u = zeros(N, N);
+U_s(1:N+1:end) = dsys.C(1) * dsys.B(1);
 for i = 1:N-1
-    U_pos_s = [U_pos_s; dsys.C(1)*Ad_vec(2*i-1, 1)*dsys.B(1)];
-    U_pos_u = [U_pos_u; -dsys.C(2)*Ad_vec(2*i, 2)*dsys.B(2)];
+    CABs = dsys.C(1) * Ad_vec(2*i-1, 1) * dsys.B(1);
+    CABu = -dsys.C(2) * Ad_vec(2*i, 2) * dsys.B(2);
+    %fill diagonal i+1
+    for j = 1:N-i
+        U_s(i+j, j) = CABs;
+        U_u(j, i+j) = CABu;
+    end
 end
-
-%% PID
-kd = -1;
-q = (1-kd)/(omega^2*kd);
+U = U_s + U_u;
+H = U'*U;
+disp('Condition number of regularized sub hessian (decoupled modes): ');
+disp(cond(H));
