@@ -15,7 +15,7 @@ class QPSolver{
 	// Public methods:
 	//
 public:
-	QPSolver(SolverData* const parameters, int nbvar_max, int nbcstr_max);
+	QPSolver(SolverData* const parameters, int num_var_max, int num_constr_max);
 	virtual ~QPSolver() = 0;
 
 	virtual void Init() = 0;

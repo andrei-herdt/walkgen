@@ -54,6 +54,8 @@ private:
 
 	void BuildCoPConstraints(const MPCSolution &solution);
 
+	void BuildTerminalConstraints(const MPCSolution &solution);
+
 	void ComputeWarmStart(MPCSolution &solution);
 
 	//

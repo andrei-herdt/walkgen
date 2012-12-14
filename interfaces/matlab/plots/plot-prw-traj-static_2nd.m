@@ -2,6 +2,7 @@ figure;
 %% Parameters
 num_samples = sim_parameters.signals.values(1,1);
 di = 1;
+
 %% Plot previewed
 for i = 1:di:length(com_prw.time) - di
     subplot(1,2,1);

@@ -66,10 +66,12 @@ void Walkgen::Init(MPCParameters &mpc_parameters) {
 	int num_constr_step = 5;// TODO: Move this to MPCParameters
 	int num_steps_max = mpc_parameters_.num_steps_max();
 	int num_vars_max = 2 * (mpc_parameters_.num_samples_horizon + num_steps_max);
+	int num_constr_max = 0;
 	if (mpc_parameters_.formulation == DECOUPLED_MODES) {
 		num_vars_max += 2;
+		num_constr_max += 2;
 	}
-	int num_constr_max = num_constr_step * num_steps_max;
+	num_constr_max += num_constr_step * num_steps_max;
 	solver_ = createQPSolver(mpc_parameters_.solver, num_vars_max,  num_constr_max );
 
 	/*

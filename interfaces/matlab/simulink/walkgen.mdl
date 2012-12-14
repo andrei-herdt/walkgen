@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.757"
+    ComputedModelVersion    "1.799"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Wed Nov 14 10:17:17 2012"
+  LastModifiedDate	  "Fri Dec 14 18:32:46 2012"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:757>"
+  ModelVersionFormat	  "1.%<AutoIncrement:799>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -667,7 +667,7 @@ Model {
   }
   System {
     Name		    "walkgen"
-    Location		    [848, 74, 1123, 375]
+    Location		    [850, 74, 1125, 375]
     Open		    off
     ModelBrowserVisibility  off
     ModelBrowserWidth	    200
@@ -729,21 +729,21 @@ Model {
 	  SystemSampleTime	  "0.001"
 	  RTWSystemCode		  "Auto"
 	  FunctionWithSeparateData off
-	  MaskPromptString	  "Length of horizon [num. samples]|Position weight|Velocity weight|CoP weight|CP weight|Control weight|Step period [num. samples]|Length of initial double support phase [num. samples]|Steps before halt|Sampling period [s]|Time between recomputations [s]|Actuator sampling period [s]|Security margin [m]|Max number of working set recomputations|Dynamics order|Debug mode|PID mode|Closed loop|Constraints"
-	  MaskStyleString	  "edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit"
-	  MaskTunableValueString  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
-	  MaskCallbackString	  "||||||||||||||||||"
-	  MaskEnableString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
-	  MaskVisibilityString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
-	  MaskToolTipString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
-	  MaskVarAliasString	  ",,,,,,,,,,,,,,,,,,"
-	  MaskVariables		  "num_samples_horizon=@1;pos_weight=@2;vel_weight=@3;cop_weight=@4;cp_weight=@5;control_weight=@6;num_samples_step=@7;num_samples_dsss=@8;num_steps_ssds=@9;period_qpsample=@10;period_mpcsample=@11;period_actsample=@12;security_margin=@13;num_wsrec=@14;dynamics_order=@15;is_debug_mode=@16;is_pid_mode=@17;is_closed_loop=@18;is_constraints=@19;"
+	  MaskPromptString	  "Length of horizon [num. samples]|Position weight|Velocity weight|CoP weight|CP weight|Control weight|Step period [num. samples]|Length of initial double support phase [num. samples]|Steps before halt|Sampling period [s]|Time between recomputations [s]|Actuator sampling period [s]|Security margin [m]|Max number of working set recomputations|Dynamics order|Debug mode|PID mode|Closed loop|Constraints|Formulation"
+	  MaskStyleString	  "edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit"
+	  MaskTunableValueString  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	  MaskCallbackString	  "|||||||||||||||||||"
+	  MaskEnableString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	  MaskVisibilityString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	  MaskToolTipString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	  MaskVarAliasString	  ",,,,,,,,,,,,,,,,,,,"
+	  MaskVariables		  "num_samples_horizon=@1;pos_weight=@2;vel_weight=@3;cop_weight=@4;cp_weight=@5;control_weight=@6;num_samples_step=@7;num_samples_dsss=@8;num_steps_ssds=@9;period_qpsample=@10;period_mpcsample=@11;period_actsample=@12;security_margin=@13;num_wsrec=@14;dynamics_order=@15;is_debug_mode=@16;is_pid_mode=@17;is_closed_loop=@18;is_constraints=@19;formulation=@20;"
 	  MaskIconFrame		  on
 	  MaskIconOpaque	  on
 	  MaskIconRotate	  "none"
 	  MaskIconUnits		  "autoscale"
-	  MaskValueString	  "16|0|0|0.000000|1|0.0000|8|8|2|0.1|0.001|0.001|0.02|2|2|1|0|0|0"
-	  MaskTabNameString	  ",,,,,,,,,,,,,,,,,,"
+	  MaskValueString	  "16|0|0|0.000000|1|0|8|8|2|0.1|0.1|0.001|0.02|100|2|1|0|0|0|1"
+	  MaskTabNameString	  ",,,,,,,,,,,,,,,,,,,"
 	  System {
 	    Name		    "Atomic Walkgen"
 	    Location		    [702, 74, 1446, 876]
@@ -945,7 +945,7 @@ Model {
 	      Ports		      [11, 19]
 	      Position		      [285, 148, 375, 712]
 	      FunctionName	      "walkgen_sfun"
-	      Parameters	      "num_samples_horizon, num_samples_step, num_samples_dsss, num_steps_ssds, period_qpsample, period_mpcsample, period_actsample, security_margin, num_wsrec, dynamics_order, is_debug_mode, pos_weight, vel_weight, cop_weight, cp_weight, control_weight, is_pid_mode, is_closed_loop, is_constraints"
+	      Parameters	      "num_samples_horizon, num_samples_step, num_samples_dsss, num_steps_ssds, period_qpsample, period_mpcsample, period_actsample, security_margin, num_wsrec, dynamics_order, is_debug_mode, pos_weight, vel_weight, cop_weight, cp_weight, control_weight, is_pid_mode, is_closed_loop, is_constraints, formulation"
 	      Port {
 		PortNumber		1
 		Name			"com"
@@ -1855,7 +1855,7 @@ Model {
 	Block {
 	  BlockType		  Constant
 	  Name			  "Constant1"
-	  Position		  [30, 365, 140, 385]
+	  Position		  [25, 280, 135, 300]
 	  ShowName		  off
 	  FontName		  "Arial"
 	  FontSize		  8
@@ -1863,12 +1863,6 @@ Model {
 	  Value			  "[-0.035, 0.22, 0.0]"
 	  OutDataType		  "sfix(16)"
 	  OutScaling		  "2^0"
-	  Port {
-	    PortNumber		    1
-	    Name		    "left_initial_ankle"
-	    RTWStorageClass	    "Auto"
-	    DataLoggingNameMode	    "SignalName"
-	  }
 	}
 	Block {
 	  BlockType		  Constant
@@ -1884,24 +1878,6 @@ Model {
 	  Port {
 	    PortNumber		    1
 	    Name		    "com_real"
-	    RTWStorageClass	    "Auto"
-	    DataLoggingNameMode	    "SignalName"
-	  }
-	}
-	Block {
-	  BlockType		  Constant
-	  Name			  "Constant18"
-	  Position		  [30, 390, 140, 410]
-	  ShowName		  off
-	  FontName		  "Arial"
-	  FontSize		  8
-	  FontWeight		  "bold"
-	  Value			  "[-0.035, -0.0059, 0.0]"
-	  OutDataType		  "sfix(16)"
-	  OutScaling		  "2^0"
-	  Port {
-	    PortNumber		    1
-	    Name		    "right_initial_ankle"
 	    RTWStorageClass	    "Auto"
 	    DataLoggingNameMode	    "SignalName"
 	  }
@@ -1927,7 +1903,7 @@ Model {
 	Block {
 	  BlockType		  Constant
 	  Name			  "Constant2"
-	  Position		  [30, 315, 140, 335]
+	  Position		  [30, 335, 140, 355]
 	  ShowName		  off
 	  FontName		  "Arial"
 	  FontSize		  8
@@ -1971,6 +1947,54 @@ Model {
 	    RTWStorageClass	    "Auto"
 	    DataLoggingNameMode	    "SignalName"
 	  }
+	}
+	Block {
+	  BlockType		  Constant
+	  Name			  "Constant3"
+	  Position		  [30, 365, 140, 385]
+	  ShowName		  off
+	  FontName		  "Arial"
+	  FontSize		  8
+	  FontWeight		  "bold"
+	  Value			  "[-0.0, 0., 0.0]"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "left_initial_ankle"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Constant
+	  Name			  "Constant4"
+	  Position		  [30, 390, 140, 410]
+	  ShowName		  off
+	  FontName		  "Arial"
+	  FontSize		  8
+	  FontWeight		  "bold"
+	  Value			  "[-0.0, 0., 0.0]"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "right_initial_ankle"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
+	}
+	Block {
+	  BlockType		  Constant
+	  Name			  "Constant5"
+	  Position		  [30, 310, 140, 330]
+	  ShowName		  off
+	  FontName		  "Arial"
+	  FontSize		  8
+	  FontWeight		  "bold"
+	  Value			  "[-0.035, -0.0059, 0.0]"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
 	}
 	Block {
 	  BlockType		  SubSystem
@@ -2299,16 +2323,17 @@ Model {
 	  NamePlacement		  "alternate"
 	  ShowName		  off
 	  Floating		  off
-	  Location		  [82, 40, 1595, 891]
+	  Location		  [82, 43, 1595, 894]
 	  Open			  off
 	  NumInputPorts		  "1"
+	  ZoomMode		  "yonly"
 	  List {
 	    ListType		    AxesTitles
 	    axes1		    "%<SignalLabel>"
 	  }
 	  TimeRange		  "1"
-	  YMin			  "-40000"
-	  YMax			  "140000"
+	  YMin			  "0"
+	  YMax			  "5.25e+007"
 	  SaveName		  "ScopeData2"
 	  DataFormat		  "StructureWithTime"
 	  SampleTime		  "0"
@@ -2317,14 +2342,15 @@ Model {
 	  BlockType		  Scope
 	  Name			  "Scope2"
 	  Ports			  [1]
-	  Position		  [602, 230, 618, 250]
+	  Position		  [607, 230, 623, 250]
 	  Orientation		  "up"
 	  NamePlacement		  "alternate"
 	  ShowName		  off
 	  Floating		  off
-	  Location		  [79, 40, 1595, 894]
+	  Location		  [79, 40, 1595, 891]
 	  Open			  off
 	  NumInputPorts		  "1"
+	  ZoomMode		  "yonly"
 	  List {
 	    ListType		    AxesTitles
 	    axes1		    "%<SignalLabel>"
@@ -2340,12 +2366,12 @@ Model {
 	  BlockType		  Scope
 	  Name			  "Scope3"
 	  Ports			  [1]
-	  Position		  [617, 230, 633, 250]
+	  Position		  [627, 230, 643, 250]
 	  Orientation		  "up"
 	  NamePlacement		  "alternate"
 	  ShowName		  off
 	  Floating		  off
-	  Location		  [82, 40, 1595, 894]
+	  Location		  [79, 40, 1595, 894]
 	  Open			  off
 	  NumInputPorts		  "1"
 	  List {
@@ -2363,12 +2389,12 @@ Model {
 	  BlockType		  Scope
 	  Name			  "Scope4"
 	  Ports			  [1]
-	  Position		  [632, 230, 648, 250]
+	  Position		  [647, 230, 663, 250]
 	  Orientation		  "up"
 	  NamePlacement		  "alternate"
 	  ShowName		  off
 	  Floating		  off
-	  Location		  [88, 45, 1601, 899]
+	  Location		  [85, 45, 1601, 899]
 	  Open			  off
 	  NumInputPorts		  "1"
 	  List {
@@ -2473,7 +2499,7 @@ Model {
 	      ShowName		      off
 	      FontName		      "Arial"
 	      FontSize		      8
-	      Value		      "[0., 0.0, 0.0]"
+	      Value		      "[0.0, 0.0, 0.0]"
 	      OutDataType	      "sfix(16)"
 	      OutScaling	      "2^0"
 	    }
@@ -2756,7 +2782,7 @@ Model {
 	Line {
 	  Name			  "left_initial_ankle"
 	  Labels		  [0, 0]
-	  SrcBlock		  "Constant1"
+	  SrcBlock		  "Constant3"
 	  SrcPort		  1
 	  DstBlock		  "Bus\nCreator4"
 	  DstPort		  1
@@ -2764,7 +2790,7 @@ Model {
 	Line {
 	  Name			  "right_initial_ankle"
 	  Labels		  [0, 0]
-	  SrcBlock		  "Constant18"
+	  SrcBlock		  "Constant4"
 	  SrcPort		  1
 	  DstBlock		  "Bus\nCreator4"
 	  DstPort		  2
@@ -2829,7 +2855,7 @@ Model {
 	  Labels		  [0, 0]
 	  SrcBlock		  "Bus\nSelector1"
 	  SrcPort		  2
-	  Points		  [20, 0]
+	  Points		  [25, 0]
 	  Branch {
 	    DstBlock		    "To Workspace15"
 	    DstPort		    1
@@ -2844,7 +2870,7 @@ Model {
 	  Labels		  [0, 0]
 	  SrcBlock		  "Bus\nSelector1"
 	  SrcPort		  3
-	  Points		  [35, 0]
+	  Points		  [45, 0]
 	  Branch {
 	    DstBlock		    "To Workspace16"
 	    DstPort		    1
@@ -2859,7 +2885,7 @@ Model {
 	  Labels		  [0, 0]
 	  SrcBlock		  "Bus\nSelector1"
 	  SrcPort		  4
-	  Points		  [50, 0]
+	  Points		  [65, 0]
 	  Branch {
 	    DstBlock		    "To Workspace17"
 	    DstPort		    1

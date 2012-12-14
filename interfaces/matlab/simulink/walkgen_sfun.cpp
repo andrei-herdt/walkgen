@@ -18,7 +18,7 @@ extern "C" {
 
 static void mdlInitializeSizes(SimStruct *S) {
 	// Expected number of parameters
-	ssSetNumSFcnParams(S, 19);
+	ssSetNumSFcnParams(S, 20);
 
 	// Parameter mismatch?
 	if (ssGetNumSFcnParams(S) != ssGetSFcnParamsCount(S)) {
@@ -95,6 +95,7 @@ static void mdlStart(SimStruct *S) {
 	int is_debug_in = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 10)));
 	int is_pid_mode_in = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 16)));
 	int is_constraints_in = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 18)));
+	int formulation_in = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 19)));
 
 	MPCParameters mpc_parameters;
 	mpc_parameters.num_samples_horizon  = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 0)));
@@ -135,7 +136,11 @@ static void mdlStart(SimStruct *S) {
 	if (is_constraints_in == 0) {
 		mpc_parameters.is_constraints = false;
 	}
-	mpc_parameters.formulation = DECOUPLED_MODES;
+	if (formulation_in == 0) {
+		mpc_parameters.formulation = STANDARD;
+	} else if (formulation_in == 1) {
+		mpc_parameters.formulation = DECOUPLED_MODES;
+	}
 
 	Walkgen *walk = new Walkgen;
 	walk->Init(mpc_parameters);

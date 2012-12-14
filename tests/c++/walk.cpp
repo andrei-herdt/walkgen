@@ -15,8 +15,8 @@ int main() {
 	int num_samples_dsss 			= 8;
 	int num_steps_ssds 			= 2;
 	double sample_period_qp 		= .1;
-	double sample_period_first 		= .1;
-	double sample_period_act 		= .1;
+	double sample_period_first 		= .01;
+	double sample_period_act 		= .01;
 	const double kSecurityMargin 		= .02;
 
 	// Simulation parameters:
@@ -49,7 +49,7 @@ int main() {
 	mpc_parameters.weights.cop[1]  		= 0.;//1.;
 	mpc_parameters.weights.cp[1] 		= 1.;
 	mpc_parameters.weights.control[1] 	= 0.;
-	mpc_parameters.is_constraints 		= false;
+	mpc_parameters.is_constraints 		= true;
 
 	// Robot parameters:
 	// -----------------
@@ -140,7 +140,7 @@ int main() {
 	// Go:
 	// ---
 	double curr_time = 0.;
-	walk.SetVelReference(0., 0., 0.);
+	walk.SetVelReference(0.0, 0., 0.);
 	int num_iterations = 0;
 	//walk.clock().GetFrequency(1000);
 	//walk.clock().ResetLocal();
@@ -148,22 +148,22 @@ int main() {
 		//int online_timer = walk.clock().StartCounter();
 		//std::cout << std::endl;
 		const MPCSolution &solution = walk.Go(curr_time);
-		std::cout << std::endl;
-		std::cout << std::endl;
-		std::cout<< "curr_time: " << curr_time << std::endl;
-		std::cout << "--------------------" << std::endl;
-		walk.solver()->DumpMatrices(curr_time, "dat");
-		//walk.solver()->DumpProblem("problem", curr_time, "txt");
+		//std::cout << std::endl;
+		//std::cout << std::endl;
+		//std::cout<< "curr_time: " << curr_time << std::endl;
+		//std::cout << "--------------------" << std::endl;
+		//walk.solver()->DumpMatrices(curr_time, "dat");
+		walk.solver()->DumpProblem("problem", curr_time, "txt");
 		
-		Debug::Cout("com_prw.pos.x", solution.com_prw.pos.x_vec);
-		Debug::Cout("com_prw.vel.x", solution.com_prw.vel.x_vec);
+		//Debug::Cout("com_prw.pos.x", solution.com_prw.pos.x_vec);
+		//Debug::Cout("com_prw.vel.x", solution.com_prw.vel.x_vec);
 		//std::cout << "com_prw.vel: " << solution.com_prw.vel.x_vec.transpose() << std::endl;
-		//std::cout << "com_prw.cp.x: " << solution.com_prw.cp.x_vec.transpose() << std::endl;
+		std::cout << "com_prw.cp.x: " << solution.com_prw.cp.x_vec.transpose() << std::endl;
 		
-	 	std::cout << std::endl;	
-		std::cout << "com_prw.control.x_vec: " << solution.com_prw.control.x_vec.transpose() << std::endl;
-	 	std::cout << std::endl;	
-		std::cout << "com_act.pos.x: " << walk.output().com.x << "  com_act.vel.x: " << walk.output().com.dx << std::endl;
+	 	//std::cout << std::endl;
+		//std::cout << "com_prw.control.x_vec: " << solution.com_prw.control.x_vec.transpose() << std::endl;
+	 	//std::cout << std::endl;
+		//std::cout << "com_act.pos.x: " << walk.output().com.x << "  com_act.vel.x: " << walk.output().com.dx << std::endl;
 		
 		//Debug::Cout("sampling_times_vec", solution.sampling_times_vec);
 		//Debug::WriteToDatFile("hessian", curr_time, walk.solver()->hessian_mat()());

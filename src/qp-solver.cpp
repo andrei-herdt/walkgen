@@ -8,32 +8,32 @@
 using namespace MPCWalkgen;
 using namespace Eigen;
 
-QPSolver::QPSolver(SolverData* const parameters, int nbvar_max, int nbcstr_max)
-:hessian_mat_(nbvar_max, nbvar_max)
+QPSolver::QPSolver(SolverData* const parameters, int num_var_max, int num_constr_max)
+:hessian_mat_(num_var_max, num_var_max)
 ,hessian_arr_(NULL)
-,gradient_vec_(nbvar_max)
-,cstr_mat_(nbcstr_max, nbvar_max)
+,gradient_vec_(num_var_max)
+,cstr_mat_(num_constr_max, num_var_max)
 ,cstr_arr_(NULL)
-,uc_bounds_vec_(nbcstr_max)
-,lc_bounds_vec_(nbcstr_max)
-,uv_bounds_vec_(nbvar_max)
-,lv_bounds_vec_(nbvar_max)
+,uc_bounds_vec_(num_constr_max)
+,lc_bounds_vec_(num_constr_max)
+,uv_bounds_vec_(num_var_max)
+,lv_bounds_vec_(num_var_max)
 ,num_variables_(0)
-,num_variables_max_(nbvar_max)
+,num_variables_max_(num_var_max)
 ,num_constr_(0)
-,num_constr_max_(nbcstr_max)
-,var_indices_vec_(nbvar_max)
-,constr_indices_vec_(nbvar_max + nbcstr_max)
+,num_constr_max_(num_constr_max)
+,var_indices_vec_(num_var_max)
+,constr_indices_vec_(num_var_max + num_constr_max)
 ,parameters_(parameters)
 ,clock_(NULL) {
-	for (int i = 0; i < nbvar_max; ++i) {
+	for (int i = 0; i < num_var_max; ++i) {
 		var_indices_vec_(i) = i;
 	}
-	for (int i = 0; i < nbvar_max + nbcstr_max; ++i) {
+	for (int i = 0; i < num_var_max + num_constr_max; ++i) {
 		constr_indices_vec_(i) = i;
 	}
-	cstr_arr_ = new double[nbvar_max * nbcstr_max];
-	hessian_arr_ = new double[nbvar_max * nbvar_max];
+	cstr_arr_ = new double[num_var_max * num_constr_max];
+	hessian_arr_ = new double[num_var_max * num_var_max];
 
 }
 
@@ -56,6 +56,9 @@ void QPSolver::Reset() {
 	lc_bounds_vec_.Reset(-0.);
 	uv_bounds_vec_.Reset(0.);
 	lv_bounds_vec_.Reset(-0.);
+
+	num_constr_ = 0;
+	num_variables_ = 0;
 }
 
 void QPSolver::SetVarIndices(const Eigen::VectorXi &order) {
