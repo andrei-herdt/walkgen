@@ -147,16 +147,16 @@ void QPBuilder::PrecomputeObjective() {
 
 			// alpha*Uz^(-T)*Uz^(-1)
 			//select_variant_[mat_num]  = cop_dyn.input_mat_inv_tr * mpc_parameters_->weights.control[mode_num] * cop_dyn.input_mat_inv;
-			select_variant_[mat_num]  = mpc_parameters_->weights.control[mode_num] * identity_mat;
+			select_variant_[mat_num]  = mpc_parameters_->weights.control[mode_num] * identity_mat.block(0, 0, num_samples + num_unst_modes, num_samples);
 			// beta*Uz^(-T)*Uv^T*Uv*Uz^(-1)
 			//select_variant_[mat_num] += cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * mpc_parameters_->weights.vel[mode_num] * vel_dyn.input_mat * cop_dyn.input_mat_inv;
-			select_variant_[mat_num] += vel_dyn.input_mat_tr * mpc_parameters_->weights.vel[mode_num] * vel_dyn.input_mat;
+			select_variant_[mat_num] += vel_dyn.input_mat_tr * mpc_parameters_->weights.vel[mode_num] * vel_dyn.input_mat.block(0, 0, num_samples, num_samples);
 			// delta*Uz^(-T)*Up^T*Up*Uz^(-1)
 			//select_variant_[mat_num] += cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * mpc_parameters_->weights.pos[mode_num] * pos_dyn.input_mat * cop_dyn.input_mat_inv;
-			select_variant_[mat_num] += pos_dyn.input_mat_tr * mpc_parameters_->weights.pos[mode_num] * pos_dyn.input_mat;
+			select_variant_[mat_num] += pos_dyn.input_mat_tr * mpc_parameters_->weights.pos[mode_num] * pos_dyn.input_mat.block(0, 0, num_samples, num_samples);
 			// epsilon*Uz^(-T)*Uxi^T*Uxi*Uz^(-1)
 			//select_variant_[mat_num] += cop_dyn.input_mat_inv_tr * cp_dyn.input_mat_tr * mpc_parameters_->weights.cp[mode_num] * cp_dyn.input_mat * cop_dyn.input_mat_inv;
-			select_variant_[mat_num] += cp_dyn.input_mat_tr * mpc_parameters_->weights.cp[mode_num] * cp_dyn.input_mat;
+			select_variant_[mat_num] += cp_dyn.input_mat_tr * mpc_parameters_->weights.cp[mode_num] * cp_dyn.input_mat.block(0, 0, num_samples, num_samples);
 			// - beta*Uz^(-T)*Uv^T
 			//ref_variant_vel_[mat_num] = -cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * mpc_parameters_->weights.vel[mode_num];
 			ref_variant_vel_[mat_num] = -vel_dyn.input_mat_tr * mpc_parameters_->weights.vel[mode_num];
@@ -434,17 +434,17 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 		gradient_vec_y[0] -= mpc_parameters_->weights.control[0] * zy_cur;
 	}
 
-	gradient_vec_x.head(num_samples) += select_variant_[samples_left].block(0, 0, num_samples, num_samples) * select_mats.sample_step_cx.head(num_samples);
-	gradient_vec_y.head(num_samples) += select_variant_[samples_left].block(0, 0, num_samples, num_samples) * select_mats.sample_step_cy.head(num_samples);
+	gradient_vec_x += select_variant_[samples_left] * select_mats.sample_step_cx;
+	gradient_vec_y += select_variant_[samples_left] * select_mats.sample_step_cy;
 
-	gradient_vec_x.head(num_samples) += ref_variant_vel_[samples_left].block(0, 0, num_samples, num_samples) * vel_ref_->global.x;//TODO: Why was bigger size necessary?
-	gradient_vec_y.head(num_samples) += ref_variant_vel_[samples_left].block(0, 0, num_samples, num_samples) * vel_ref_->global.y;
+	gradient_vec_x += ref_variant_vel_[samples_left] * vel_ref_->global.x;//TODO: Why was bigger size necessary?
+	gradient_vec_y += ref_variant_vel_[samples_left] * vel_ref_->global.y;
 
-	gradient_vec_x.head(num_samples) += ref_variant_pos_[samples_left].block(0, 0, num_samples, num_samples) * pos_ref_->global.x;
-	gradient_vec_y.head(num_samples) += ref_variant_pos_[samples_left].block(0, 0, num_samples, num_samples) * pos_ref_->global.y;
+	gradient_vec_x += ref_variant_pos_[samples_left] * pos_ref_->global.x;
+	gradient_vec_y += ref_variant_pos_[samples_left] * pos_ref_->global.y;
 
-	gradient_vec_x.head(num_samples) += ref_variant_cp_[samples_left].block(0, 0, num_samples, num_samples) * cp_ref_->global.x;
-	gradient_vec_y.head(num_samples) += ref_variant_cp_[samples_left].block(0, 0, num_samples, num_samples) * cp_ref_->global.y;
+	gradient_vec_x += ref_variant_cp_[samples_left] * cp_ref_->global.x;
+	gradient_vec_y += ref_variant_cp_[samples_left] * cp_ref_->global.y;
 
 	if (num_steps_previewed > 0) {
 		tmp_vec_.noalias() = select_mats.sample_step_trans * gradient_vec_x.head(num_samples);
@@ -678,26 +678,26 @@ void QPBuilder::BuildTerminalConstraints(const MPCSolution &solution) {
 
 	// Terminal equality constraint on \mu
 	// X:
-	solver_->lv_bounds_vec()()(num_samples) = 0.;
-	solver_->uv_bounds_vec()()(num_samples) = 0.;
+	//solver_->lv_bounds_vec()()(num_samples) = 0.;
+	//solver_->uv_bounds_vec()()(num_samples) = 0.;
 	// Y:
-	solver_->lv_bounds_vec()()(2*num_samples + num_unst_modes) = 0.;
-	solver_->uv_bounds_vec()()(2*num_samples + num_unst_modes) = 0.;
+	//solver_->lv_bounds_vec()()(2*num_samples + num_unst_modes) = 0.;
+	//solver_->uv_bounds_vec()()(2*num_samples + num_unst_modes) = 0.;
 
 	// Terminal inequality constraint on \mu
 	// cop_min < cp - Vp - Vcpc < cop_max
 	const SelectionMatrices &select = preview_->selection_matrices();
 	// X:
-	solver_->constr_mat()()(num_constr, num_samples) = 1.;
+	solver_->constr_mat()()(num_constr, num_samples) = 1.;	// Capture point x
 	if (num_steps_previewed > 0) {
-		solver_->constr_mat()()(num_constr, 2*(num_samples + num_unst_modes)) = -1.;
+		solver_->constr_mat()()(num_constr, 2*(num_samples + num_unst_modes) + num_steps_previewed - 1) = -1.;	// Last foot x
 	}
 	solver_->lc_bounds_vec()()(num_constr) = min_x + select.sample_step_cx(num_samples - 1);
 	solver_->uc_bounds_vec()()(num_constr) = max_x + select.sample_step_cx(num_samples - 1);
 	// Y:
-	solver_->constr_mat()()(num_constr + 1, 2*(num_samples + num_unst_modes)) = 1.;
+	solver_->constr_mat()()(num_constr + 1, 2*num_samples + num_unst_modes) = 1.; // Capture point y
 	if (num_steps_previewed > 0) {
-		solver_->constr_mat()()(num_constr + 1, 2*(num_samples + num_unst_modes) + num_steps_previewed) = -1.;
+		solver_->constr_mat()()(num_constr + 1, 2*(num_samples + num_unst_modes) + 2*num_steps_previewed - 1) = -1.; // Last foot y
 	}
 	solver_->lc_bounds_vec()()(num_constr + 1) = min_y + select.sample_step_cy(num_samples - 1);
 	solver_->uc_bounds_vec()()(num_constr + 1) = max_y + select.sample_step_cy(num_samples - 1);
