@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.812"
+    ComputedModelVersion    "1.826"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Sat Dec 15 12:44:30 2012"
+  LastModifiedDate	  "Mon Dec 17 18:00:49 2012"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:812>"
+  ModelVersionFormat	  "1.%<AutoIncrement:826>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -667,7 +667,7 @@ Model {
   }
   System {
     Name		    "walkgen"
-    Location		    [850, 74, 1125, 375]
+    Location		    [764, 74, 1039, 375]
     Open		    off
     ModelBrowserVisibility  off
     ModelBrowserWidth	    200
@@ -701,7 +701,7 @@ Model {
       System {
 	Name			"Simulation"
 	Location		[850, 74, 1594, 876]
-	Open			on
+	Open			off
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
 	ScreenColor		"white"
@@ -726,28 +726,28 @@ Model {
 	  Position		  [385, 75, 490, 775]
 	  TreatAsAtomicUnit	  on
 	  MinAlgLoopOccurrences	  off
-	  SystemSampleTime	  "0.001"
+	  SystemSampleTime	  "0.01"
 	  RTWSystemCode		  "Auto"
 	  FunctionWithSeparateData off
-	  MaskPromptString	  "Length of horizon [num. samples]|Position weight|Velocity weight|CoP weight|CP weight|Control weight|Step period [num. samples]|Length of initial double support phase [num. samples]|Steps before halt|Sampling period [s]|Time between recomputations [s]|Actuator sampling period [s]|Security margin [m]|Max number of working set recomputations|Dynamics order|Debug mode|PID mode|Closed loop|Constraints|Formulation"
-	  MaskStyleString	  "edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit"
-	  MaskTunableValueString  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
-	  MaskCallbackString	  "|||||||||||||||||||"
-	  MaskEnableString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
-	  MaskVisibilityString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
-	  MaskToolTipString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
-	  MaskVarAliasString	  ",,,,,,,,,,,,,,,,,,,"
-	  MaskVariables		  "num_samples_horizon=@1;pos_weight=@2;vel_weight=@3;cop_weight=@4;cp_weight=@5;control_weight=@6;num_samples_step=@7;num_samples_dsss=@8;num_steps_ssds=@9;period_qpsample=@10;period_mpcsample=@11;period_actsample=@12;security_margin=@13;num_wsrec=@14;dynamics_order=@15;is_debug_mode=@16;is_pid_mode=@17;is_closed_loop=@18;is_constraints=@19;formulation=@20;"
+	  MaskPromptString	  "Length of horizon [num. samples]|Position weight|Velocity weight|CoP weight|CP weight|Control weight|Step period [num. samples]|Length of initial double support phase [num. samples]|Steps before halt|Sampling period [s]|Time between recomputations [s]|Actuator sampling period [s]|Security margin [m]|Max number of working set recomputations|Dynamics order|Debug mode|PID mode|Closed loop|Inequality constraints|Formulation|Dump problmes"
+	  MaskStyleString	  "edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit"
+	  MaskTunableValueString  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	  MaskCallbackString	  "||||||||||||||||||||"
+	  MaskEnableString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	  MaskVisibilityString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	  MaskToolTipString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	  MaskVarAliasString	  ",,,,,,,,,,,,,,,,,,,,"
+	  MaskVariables		  "num_samples_horizon=@1;pos_weight=@2;vel_weight=@3;cop_weight=@4;cp_weight=@5;control_weight=@6;num_samples_step=@7;num_samples_dsss=@8;num_steps_ssds=@9;period_qpsample=@10;period_mpcsample=@11;period_actsample=@12;security_margin=@13;num_wsrec=@14;dynamics_order=@15;is_debug_mode=@16;is_pid_mode=@17;is_closed_loop=@18;is_ineq_constraints=@19;formulation=@20;dump_problems=@21;"
 	  MaskIconFrame		  on
 	  MaskIconOpaque	  on
 	  MaskIconRotate	  "none"
 	  MaskIconUnits		  "autoscale"
-	  MaskValueString	  "16|0|1|0|0.1|1|8|8|2|0.1|0.01|0.001|0.02|100|2|1|0|0|1|1"
-	  MaskTabNameString	  ",,,,,,,,,,,,,,,,,,,"
+	  MaskValueString	  "16|0|0|0|1|0|8|8|2|0.1|0.01|0.01|0.02|100|2|1|0|0|1|1|1"
+	  MaskTabNameString	  ",,,,,,,,,,,,,,,,,,,,"
 	  System {
 	    Name		    "Atomic Walkgen"
-	    Location		    [702, 74, 1446, 876]
-	    Open		    off
+	    Location		    [764, 74, 1512, 876]
+	    Open		    on
 	    ModelBrowserVisibility  off
 	    ModelBrowserWidth	    200
 	    ScreenColor		    "white"
@@ -945,7 +945,7 @@ Model {
 	      Ports		      [11, 19]
 	      Position		      [285, 148, 375, 712]
 	      FunctionName	      "walkgen_sfun"
-	      Parameters	      "num_samples_horizon, num_samples_step, num_samples_dsss, num_steps_ssds, period_qpsample, period_mpcsample, period_actsample, security_margin, num_wsrec, dynamics_order, is_debug_mode, pos_weight, vel_weight, cop_weight, cp_weight, control_weight, is_pid_mode, is_closed_loop, is_constraints, formulation"
+	      Parameters	      "num_samples_horizon, num_samples_step, num_samples_dsss, num_steps_ssds, period_qpsample, period_mpcsample, period_actsample, security_margin, num_wsrec, dynamics_order, is_debug_mode, pos_weight, vel_weight, cop_weight, cp_weight, control_weight, is_pid_mode, is_closed_loop, is_ineq_constraints, formulation, dump_problems"
 	      Port {
 		PortNumber		1
 		Name			"com"
@@ -2329,7 +2329,7 @@ Model {
 	  NamePlacement		  "alternate"
 	  ShowName		  off
 	  Floating		  off
-	  Location		  [79, 40, 1595, 894]
+	  Location		  [85, 45, 1601, 899]
 	  Open			  off
 	  NumInputPorts		  "1"
 	  ZoomMode		  "yonly"
@@ -2338,8 +2338,8 @@ Model {
 	    axes1		    "%<SignalLabel>"
 	  }
 	  TimeRange		  "1"
-	  YMin			  "0"
-	  YMax			  "5.25"
+	  YMin			  "-0.05"
+	  YMax			  "0.85"
 	  SaveName		  "ScopeData2"
 	  DataFormat		  "StructureWithTime"
 	  SampleTime		  "0"
@@ -2353,7 +2353,7 @@ Model {
 	  NamePlacement		  "alternate"
 	  ShowName		  off
 	  Floating		  off
-	  Location		  [79, 40, 1595, 894]
+	  Location		  [79, 49, 1595, 903]
 	  Open			  off
 	  NumInputPorts		  "1"
 	  ZoomMode		  "yonly"
@@ -2377,7 +2377,7 @@ Model {
 	  NamePlacement		  "alternate"
 	  ShowName		  off
 	  Floating		  off
-	  Location		  [79, 49, 1595, 903]
+	  Location		  [79, 40, 1595, 894]
 	  Open			  off
 	  NumInputPorts		  "1"
 	  List {
@@ -2505,7 +2505,7 @@ Model {
 	      ShowName		      off
 	      FontName		      "Arial"
 	      FontSize		      8
-	      Value		      "[0.1, 0.0, 0.0]"
+	      Value		      "[0.01, 0.0, 0.0]"
 	      OutDataType	      "sfix(16)"
 	      OutScaling	      "2^0"
 	    }
@@ -2998,6 +2998,9 @@ Model {
     }
     Annotation {
       Position		      [94, 138]
+    }
+    Annotation {
+      Position		      [119, 128]
     }
   }
 }

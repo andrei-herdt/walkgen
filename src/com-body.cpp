@@ -69,8 +69,6 @@ void CoMBody::Interpolate(MPCSolution &solution, double current_time, const Refe
 			tmp_state_y = state_trans_mat * state_.y.head(mpc_parameters_->dynamics_order);
 			state_y = tmp_state_y.head(1);
 			//TODO: Simplify this
-			std::cout << "solution.com_prw.control.x_vec: " << solution.com_prw.control.x_vec.transpose() << std::endl;
-
 			int samples_left = mpc_parameters_->GetMPCSamplesLeft(solution.sampling_times_vec[1] - solution.sampling_times_vec[0]);
 			interpolation_.Interpolate(solution.com_prw.pos.x_vec, dynamics_qp()[samples_left].pos,
 					state_x, solution.com_prw.control.x_vec);

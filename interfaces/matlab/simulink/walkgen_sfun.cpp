@@ -18,7 +18,7 @@ extern "C" {
 
 static void mdlInitializeSizes(SimStruct *S) {
 	// Expected number of parameters
-	ssSetNumSFcnParams(S, 20);
+	ssSetNumSFcnParams(S, 21);
 
 	// Parameter mismatch?
 	if (ssGetNumSFcnParams(S) != ssGetSFcnParamsCount(S)) {
@@ -155,6 +155,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 	const double kMaxFootHeight     = 0.03;
 	const static int kDebug         = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 10)));
 	int is_closed_loop_in           = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 17)));
+	int dump_problems_in 			= static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 20)));
 
 
 	InputRealPtrsType pos_ref         = ssGetInputPortRealSignalPtrs(S, 0);
@@ -286,6 +287,10 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 	//int time_online = walk->clock().StartCounter();
 	const MPCSolution &solution = walk->Go(curr_time);
 	//walk->clock().StopCounter(time_online);
+
+	if (dump_problems_in == 1) {
+		walk->solver()->DumpProblem("problem", curr_time, "dat");
+	}
 
 	// Assign to the output:
 	// ---------------------

@@ -44,9 +44,9 @@ private:
 
 	void BuildObjective(const MPCSolution &solution);
 
-	void BuildConstraints(const MPCSolution &solution);
+	void BuildInequalityConstraints(const MPCSolution &solution);
 
-	void BuildStateConstraints(const MPCSolution &solution);
+	void BuildCPConstraints(const MPCSolution &solution);
 
 	void BuildFootPosConstraints(const MPCSolution &solution);
 

@@ -140,27 +140,29 @@ int main() {
 	// Go:
 	// ---
 	double curr_time = 0.;
-	walk.SetVelReference(0.0, 0., 0.);
+	walk.SetVelReference(0.01, 0., 0.);
 	int num_iterations = 0;
 	//walk.clock().GetFrequency(1000);
 	//walk.clock().ResetLocal();
-	for (; curr_time < .5; curr_time += sample_period_act) {
+	for (; curr_time < 3.1; curr_time += sample_period_act) {
 		//int online_timer = walk.clock().StartCounter();
 		//std::cout << std::endl;
 		const MPCSolution &solution = walk.Go(curr_time);
-		//std::cout << std::endl;
-		//std::cout << std::endl;
-		//std::cout<< "curr_time: " << curr_time << std::endl;
-		//std::cout << "--------------------" << std::endl;
+		std::cout << std::endl;
+		std::cout << std::endl;
+		std::cout<< "curr_time: " << curr_time << std::endl;
+		std::cout << "--------------------" << std::endl;
 		//walk.solver()->DumpMatrices(curr_time, "dat");
 		walk.solver()->DumpProblem("problem", curr_time, "txt");
 		
 		//Debug::Cout("com_prw.pos.x", solution.com_prw.pos.x_vec);
 		//Debug::Cout("com_prw.vel.x", solution.com_prw.vel.x_vec);
 		//std::cout << "com_prw.vel: " << solution.com_prw.vel.x_vec.transpose() << std::endl;
-		std::cout << "com_prw.cp.x: " << solution.com_prw.cp.x_vec.transpose() << std::endl;
 		
-	 	//std::cout << std::endl;
+		std::cout << "com_prw.cp.x: " << solution.com_prw.cp.x_vec.transpose() << std::endl;
+		std::cout << "com_prw.cp.y: " << solution.com_prw.cp.y_vec.transpose() << std::endl;
+	 	
+		//std::cout << std::endl;
 		//std::cout << "com_prw.control.x_vec: " << solution.com_prw.control.x_vec.transpose() << std::endl;
 	 	//std::cout << std::endl;
 		//std::cout << "com_act.pos.x: " << walk.output().com.x << "  com_act.vel.x: " << walk.output().com.dx << std::endl;
@@ -173,7 +175,7 @@ int main() {
 		//walk.clock().ResetLocal();
 		num_iterations++;
 	}
-		walk.solver()->DumpMatrices(curr_time, "dat");
+		//walk.solver()->DumpMatrices(curr_time, "dat");
 	/*
 	walk.SetVelReference(0., 0., 0.);
 	for (; curr_time < 20; curr_time += sample_period_act) {

@@ -177,7 +177,6 @@ void QPBuilder::BuildProblem(MPCSolution &solution) {
 	// ----------------
 	int num_variables = 2 * mpc_parameters_->num_samples_horizon +			// com
 			2 * solution.support_states_vec.back().step_number;				// Foot placement
-	int num_constr = 0;
 
 	if (mpc_parameters_->formulation == DECOUPLED_MODES) {
 		num_variables += 2;
@@ -185,14 +184,13 @@ void QPBuilder::BuildProblem(MPCSolution &solution) {
 
 	solver_->uv_bounds_vec().Reset(kInf);
 	solver_->lv_bounds_vec().Reset(-kInf);
-	if (mpc_parameters_->is_constraints) {
-	}
 
 	solver_->num_var(num_variables);
-	solver_->num_constr(num_constr);
 
 	BuildObjective(solution);
-	BuildConstraints(solution);
+	if (mpc_parameters_->is_constraints) {
+		BuildInequalityConstraints(solution);
+	}
 
 	if (mpc_parameters_->warmstart) {
 		ComputeWarmStart(solution);//TODO: Modify the solution or the problem?
@@ -392,19 +390,15 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 		hessian.cholesky(chol);
 	}
 
-	if (num_steps_previewed > 0) {//TODO: Make depending on dyn.input_mat.cols()
-		tmp_mat_.noalias() = const_hessian_mat_[samples_left].block(0, 0, num_samples, num_samples) * select_mats.sample_step;
+	if (num_steps_previewed > 0) {
+		//tmp_mat_.noalias() = const_hessian_mat_[samples_left].block(0, 0, num_samples, num_samples) * select_mats.sample_step;
+		tmp_mat_.noalias() = select_variant_[samples_left] * select_mats.sample_step;
 		hessian.AddTerm(tmp_mat_, 0, 2 * (num_samples + num_unstable_modes));
 		hessian.AddTerm(tmp_mat_, num_samples + num_unstable_modes, 2*(num_samples + num_unstable_modes) + num_steps_previewed);
 
-		tmp_mat_.noalias() = select_mats.sample_step_trans * const_hessian_mat_[samples_left].block(0, 0, num_samples, num_samples) * select_mats.sample_step;
-		hessian.AddTerm(tmp_mat_, 2*(num_samples + num_unstable_modes), 2*(num_samples + num_unstable_modes));
-		hessian.AddTerm(tmp_mat_, 2*(num_samples + num_unstable_modes) + num_steps_previewed, 2*(num_samples + num_unstable_modes) + num_steps_previewed);
-
 		if (!solver_->do_build_cholesky()) {
-			tmp_mat_.noalias() = select_mats.sample_step_trans * const_hessian_mat_[samples_left].block(0, 0, num_samples, num_samples);
-			hessian.AddTerm(tmp_mat_, 2*(num_samples + num_unstable_modes), 0);
-			hessian.AddTerm(tmp_mat_, 2*(num_samples + num_unstable_modes) + num_steps_previewed, (num_samples + num_unstable_modes));
+			hessian.AddTerm(tmp_mat_.transpose(), 2*(num_samples + num_unstable_modes), 0);
+			hessian.AddTerm(tmp_mat_.transpose(), 2*(num_samples + num_unstable_modes) + num_steps_previewed, (num_samples + num_unstable_modes));
 
 			// rotate the lower left block
 			// TODO(andrei): Rotation can be done before addition
@@ -413,6 +407,12 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 			//MTimesRT(low_triang_mat, rot_mat2);
 			//hessian().block(2 * num_samples, 0, 2 * num_steps_previewed, 2 * num_samples) = low_triang_mat;
 		}
+
+		//tmp_mat_.noalias() = select_mats.sample_step_trans * const_hessian_mat_[samples_left].block(0, 0, num_samples, num_samples) * select_mats.sample_step;
+		tmp_mat_.noalias() = select_mats.sample_step_trans * select_variant_[samples_left].block(0, 0, num_samples, num_samples) * select_mats.sample_step;
+		hessian.AddTerm(tmp_mat_, 2*(num_samples + num_unstable_modes), 2*(num_samples + num_unstable_modes));
+		hessian.AddTerm(tmp_mat_, 2*(num_samples + num_unstable_modes) + num_steps_previewed, 2*(num_samples + num_unstable_modes) + num_steps_previewed);
+
 
 		// rotate the upper right block
 		// TODO(efficiency): Rotation can be done before addition
@@ -448,9 +448,9 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 
 	if (num_steps_previewed > 0) {
 		tmp_vec_.noalias() = select_mats.sample_step_trans * gradient_vec_x.head(num_samples);
-		solver_->gradient_vec().Add(tmp_vec_, 2 *  (num_samples + num_unstable_modes));
+		solver_->gradient_vec().Add(tmp_vec_, 2*(num_samples + num_unstable_modes));
 		tmp_vec_.noalias() = select_mats.sample_step_trans * gradient_vec_y.head(num_samples);
-		solver_->gradient_vec().Add(tmp_vec_, 2 * (num_samples + num_unstable_modes) + num_steps_previewed);
+		solver_->gradient_vec().Add(tmp_vec_, 2*(num_samples + num_unstable_modes) + num_steps_previewed);
 	}
 
 	if (mpc_parameters_->is_pid_mode) {
@@ -462,28 +462,28 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 
 
 	solver_->gradient_vec().Add(gradient_vec, 0);
+
+	if (mpc_parameters_->formulation == DECOUPLED_MODES) {
+		BuildCPConstraints(solution);
+	}
 }
 
-void QPBuilder::BuildConstraints(const MPCSolution &solution) {
+void QPBuilder::BuildInequalityConstraints(const MPCSolution &solution) {
 	//TODO: Create Index class
 
 	int num_steps_previewed = solution.support_states_vec.back().step_number;
 
 	BuildCoPConstraints(solution);
-	if (num_steps_previewed > 0){
+	if (num_steps_previewed > 0) {
 		BuildFootPosInequalities(solution);
 		BuildFootPosConstraints(solution);
 		//BuildFootVelConstraints(solution);
 	}
 
-	if (mpc_parameters_->formulation == DECOUPLED_MODES) {
-		BuildStateConstraints(solution);
-	}
-
-	BuildTerminalConstraints(solution);
+	//BuildTerminalConstraints(solution);
 }
 
-void QPBuilder::BuildStateConstraints(const MPCSolution &solution) {
+void QPBuilder::BuildCPConstraints(const MPCSolution &solution) {
 	int num_steps_previewed = solution.support_states_vec.back().step_number;
 	int num_samples 		= mpc_parameters_->num_samples_horizon;
 	int num_unst_modes 		= 1;
@@ -520,11 +520,11 @@ void QPBuilder::BuildStateConstraints(const MPCSolution &solution) {
 	solver_->constr_mat().AddTerm(-atimesb_vec.transpose(), num_constr, 0);
 
 	if (num_steps_previewed > 0) {
-		tmp_vec_ = -atimesb_vec.transpose() * select_mats.sample_step.block(0, 0, num_samples, num_steps_previewed);
+		tmp_vec_ = -atimesb_vec.transpose() * select_mats.sample_step;
 		solver_->constr_mat().AddTerm(tmp_vec_, num_constr, 2*(num_samples + num_unst_modes));
 	}
 
-	double vcpc = atimesb_vec.transpose() * select_mats.sample_step_cx.head(num_samples);
+	double vcpc = atimesb_vec.transpose() * select_mats.sample_step_cx;
 	solver_->lc_bounds_vec()()(num_constr) = state_x(1) + vcpc;
 	solver_->uc_bounds_vec()()(num_constr) = state_x(1) + vcpc;
 
@@ -534,11 +534,11 @@ void QPBuilder::BuildStateConstraints(const MPCSolution &solution) {
 	solver_->constr_mat().AddTerm(-atimesb_vec.transpose(), num_constr + num_unst_modes, num_samples + num_unst_modes);
 
 	if (num_steps_previewed > 0) {
-		tmp_vec_ = -atimesb_vec.transpose() * select_mats.sample_step.block(0, 0, num_samples, num_steps_previewed);
+		tmp_vec_ = -atimesb_vec.transpose() * select_mats.sample_step;
 		solver_->constr_mat().AddTerm(tmp_vec_, num_constr + num_unst_modes, 2*(num_samples + num_unst_modes) + num_steps_previewed);
 	}
 
-	vcpc = atimesb_vec.transpose() * select_mats.sample_step_cy.head(num_samples);
+	vcpc = atimesb_vec.transpose() * select_mats.sample_step_cy;
 	solver_->lc_bounds_vec()()(num_constr + num_unst_modes) = state_y(1) + vcpc;
 	solver_->uc_bounds_vec()()(num_constr + num_unst_modes) = state_y(1) + vcpc;
 
@@ -576,23 +576,24 @@ void QPBuilder::BuildFootPosConstraints(const MPCSolution &solution) {
 	int num_steps_previewed = solution.support_states_vec.back().step_number;
 	const SelectionMatrices &select = preview_->selection_matrices();
 	int num_samples = mpc_parameters_->num_samples_horizon;
+	int num_unst_modes = 1;
 
 	int num_constr = solver_->num_constr();
-	solver_->num_constr(num_constr + 5 * num_steps_previewed);
+	solver_->num_constr(num_constr + 5*num_steps_previewed);
 
 	tmp_mat_.noalias() = foot_inequalities_.x_mat * select.Vf;
-	solver_->constr_mat().AddTerm(tmp_mat_,  0,  2 * num_samples);
+	solver_->constr_mat().AddTerm(tmp_mat_,  num_constr,  2*(num_samples + num_unst_modes) );
 
 	tmp_mat_.noalias() = foot_inequalities_.y_mat * select.Vf;
-	solver_->constr_mat().AddTerm(tmp_mat_,  0, 2 * num_samples + num_steps_previewed);
+	solver_->constr_mat().AddTerm(tmp_mat_,  num_constr, 2*(num_samples + num_unst_modes) + num_steps_previewed);
 
-	solver_->lc_bounds_vec().Add(foot_inequalities_.c_vec, 0);
+	solver_->lc_bounds_vec().Add(foot_inequalities_.c_vec, num_constr);
 
 	tmp_vec_.noalias() =  foot_inequalities_.x_mat * select.VcfX;
 	tmp_vec_ += foot_inequalities_.y_mat * select.VcfY;
-	solver_->lc_bounds_vec().Add(tmp_vec_,  0);
+	solver_->lc_bounds_vec().Add(tmp_vec_,  num_constr);
 
-	solver_->uc_bounds_vec()().segment(0, tmp_vec_.size()).fill(kInf);
+	solver_->uc_bounds_vec()().segment(num_constr, tmp_vec_.size()).fill(kInf);
 }
 
 void QPBuilder::BuildFootVelConstraints(const MPCSolution &solution) {
