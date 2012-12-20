@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.826"
+    ComputedModelVersion    "1.845"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Mon Dec 17 18:00:49 2012"
+  LastModifiedDate	  "Thu Dec 20 11:32:39 2012"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:826>"
+  ModelVersionFormat	  "1.%<AutoIncrement:845>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -107,7 +107,7 @@ Model {
 	  $ObjectID		  2
 	  Version		  "1.3.0"
 	  StartTime		  "0.0"
-	  StopTime		  "3"
+	  StopTime		  "0.5"
 	  AbsTol		  "auto"
 	  FixedStep		  "1e-3"
 	  InitialStep		  "auto"
@@ -633,6 +633,9 @@ Model {
       FixptAsFi		      off
     }
     Block {
+      BlockType		      Terminator
+    }
+    Block {
       BlockType		      Constant
       Value		      "1"
       VectorParams1D	      on
@@ -667,7 +670,7 @@ Model {
   }
   System {
     Name		    "walkgen"
-    Location		    [764, 74, 1039, 375]
+    Location		    [850, 74, 1125, 375]
     Open		    off
     ModelBrowserVisibility  off
     ModelBrowserWidth	    200
@@ -701,7 +704,7 @@ Model {
       System {
 	Name			"Simulation"
 	Location		[850, 74, 1594, 876]
-	Open			off
+	Open			on
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
 	ScreenColor		"white"
@@ -729,25 +732,25 @@ Model {
 	  SystemSampleTime	  "0.01"
 	  RTWSystemCode		  "Auto"
 	  FunctionWithSeparateData off
-	  MaskPromptString	  "Length of horizon [num. samples]|Position weight|Velocity weight|CoP weight|CP weight|Control weight|Step period [num. samples]|Length of initial double support phase [num. samples]|Steps before halt|Sampling period [s]|Time between recomputations [s]|Actuator sampling period [s]|Security margin [m]|Max number of working set recomputations|Dynamics order|Debug mode|PID mode|Closed loop|Inequality constraints|Formulation|Dump problmes"
-	  MaskStyleString	  "edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit"
-	  MaskTunableValueString  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
-	  MaskCallbackString	  "||||||||||||||||||||"
-	  MaskEnableString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
-	  MaskVisibilityString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
-	  MaskToolTipString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
-	  MaskVarAliasString	  ",,,,,,,,,,,,,,,,,,,,"
-	  MaskVariables		  "num_samples_horizon=@1;pos_weight=@2;vel_weight=@3;cop_weight=@4;cp_weight=@5;control_weight=@6;num_samples_step=@7;num_samples_dsss=@8;num_steps_ssds=@9;period_qpsample=@10;period_mpcsample=@11;period_actsample=@12;security_margin=@13;num_wsrec=@14;dynamics_order=@15;is_debug_mode=@16;is_pid_mode=@17;is_closed_loop=@18;is_ineq_constraints=@19;formulation=@20;dump_problems=@21;"
+	  MaskPromptString	  "Length of horizon [num. samples]|Position weight|Velocity weight|CoP weight|CP weight|Control weight|Step period [num. samples]|Length of initial double support phase [num. samples]|Steps before halt|Sampling period [s]|Time between recomputations [s]|Actuator sampling period [s]|Security margin [m]|Max number of working set recomputations|Dynamics order|Debug mode|PID mode|Closed loop|Inequality constraints|Formulation|Dump problmes|Terminal constraints"
+	  MaskStyleString	  "edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit"
+	  MaskTunableValueString  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	  MaskCallbackString	  "|||||||||||||||||||||"
+	  MaskEnableString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	  MaskVisibilityString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	  MaskToolTipString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	  MaskVarAliasString	  ",,,,,,,,,,,,,,,,,,,,,"
+	  MaskVariables		  "num_samples_horizon=@1;pos_weight=@2;vel_weight=@3;cop_weight=@4;cp_weight=@5;control_weight=@6;num_samples_step=@7;num_samples_dsss=@8;num_steps_ssds=@9;period_qpsample=@10;period_mpcsample=@11;period_actsample=@12;security_margin=@13;num_wsrec=@14;dynamics_order=@15;is_debug_mode=@16;is_pid_mode=@17;is_closed_loop=@18;is_ineq_constraints=@19;formulation=@20;dump_problems=@21;is_terminal_constr=@22;"
 	  MaskIconFrame		  on
 	  MaskIconOpaque	  on
 	  MaskIconRotate	  "none"
 	  MaskIconUnits		  "autoscale"
-	  MaskValueString	  "16|0|0|0|1|0|8|8|2|0.1|0.01|0.01|0.02|100|2|1|0|0|1|1|1"
-	  MaskTabNameString	  ",,,,,,,,,,,,,,,,,,,,"
+	  MaskValueString	  "16|0|0|1|1|0|8|8|2|0.1|0.01|0.01|0.02|100|2|1|0|0|1|1|0|0"
+	  MaskTabNameString	  ",,,,,,,,,,,,,,,,,,,,,"
 	  System {
 	    Name		    "Atomic Walkgen"
-	    Location		    [764, 74, 1512, 876]
-	    Open		    on
+	    Location		    [850, 74, 1598, 860]
+	    Open		    off
 	    ModelBrowserVisibility  off
 	    ModelBrowserWidth	    200
 	    ScreenColor		    "white"
@@ -926,6 +929,83 @@ Model {
 	      }
 	    }
 	    Block {
+	      BlockType		      BusSelector
+	      Name		      "Bus\nSelector4"
+	      Ports		      [1, 4]
+	      Position		      [715, 415, 720, 535]
+	      ShowName		      off
+	      OutputSignals	      "com,cop,left_foot,right_foot"
+	      Port {
+		PortNumber		1
+		Name			"<com>"
+		RTWStorageClass		"Auto"
+		DataLoggingNameMode	"SignalName"
+	      }
+	      Port {
+		PortNumber		2
+		Name			"<cop>"
+		RTWStorageClass		"Auto"
+		DataLoggingNameMode	"SignalName"
+	      }
+	      Port {
+		PortNumber		3
+		Name			"<left_foot>"
+		RTWStorageClass		"Auto"
+		DataLoggingNameMode	"SignalName"
+	      }
+	      Port {
+		PortNumber		4
+		Name			"<right_foot>"
+		RTWStorageClass		"Auto"
+		DataLoggingNameMode	"SignalName"
+	      }
+	    }
+	    Block {
+	      BlockType		      BusSelector
+	      Name		      "Bus\nSelector5"
+	      Ports		      [1, 1]
+	      Position		      [716, 380, 744, 385]
+	      Orientation	      "up"
+	      ShowName		      off
+	      OutputSignals	      "com"
+	      Port {
+		PortNumber		1
+		Name			"<com>"
+		RTWStorageClass		"Auto"
+		DataLoggingNameMode	"SignalName"
+	      }
+	    }
+	    Block {
+	      BlockType		      BusSelector
+	      Name		      "Bus\nSelector6"
+	      Ports		      [1, 1]
+	      Position		      [756, 380, 784, 385]
+	      Orientation	      "up"
+	      ShowName		      off
+	      OutputSignals	      "p_left"
+	      Port {
+		PortNumber		1
+		Name			"<p_left>"
+		RTWStorageClass		"Auto"
+		DataLoggingNameMode	"SignalName"
+	      }
+	    }
+	    Block {
+	      BlockType		      BusSelector
+	      Name		      "Bus\nSelector7"
+	      Ports		      [1, 1]
+	      Position		      [776, 390, 804, 395]
+	      Orientation	      "up"
+	      ShowName		      off
+	      OutputSignals	      "p_right"
+	      Port {
+		PortNumber		1
+		Name			"<p_right>"
+		RTWStorageClass		"Auto"
+		DataLoggingNameMode	"SignalName"
+	      }
+	    }
+	    Block {
 	      BlockType		      RateTransition
 	      Name		      "Protected RT1"
 	      Position		      [635, 245, 655, 265]
@@ -945,7 +1025,7 @@ Model {
 	      Ports		      [11, 19]
 	      Position		      [285, 148, 375, 712]
 	      FunctionName	      "walkgen_sfun"
-	      Parameters	      "num_samples_horizon, num_samples_step, num_samples_dsss, num_steps_ssds, period_qpsample, period_mpcsample, period_actsample, security_margin, num_wsrec, dynamics_order, is_debug_mode, pos_weight, vel_weight, cop_weight, cp_weight, control_weight, is_pid_mode, is_closed_loop, is_ineq_constraints, formulation, dump_problems"
+	      Parameters	      "num_samples_horizon, num_samples_step, num_samples_dsss, num_steps_ssds, period_qpsample, period_mpcsample, period_actsample, security_margin, num_wsrec, dynamics_order, is_debug_mode, pos_weight, vel_weight, cop_weight, cp_weight, control_weight, is_pid_mode, is_closed_loop, is_ineq_constraints, formulation, dump_problems, is_terminal_constr"
 	      Port {
 		PortNumber		1
 		Name			"com"
@@ -1062,9 +1142,102 @@ Model {
 	      }
 	    }
 	    Block {
+	      BlockType		      Scope
+	      Name		      "Scope1"
+	      Ports		      [1]
+	      Position		      [723, 310, 737, 330]
+	      Orientation	      "up"
+	      NamePlacement	      "alternate"
+	      ShowName		      off
+	      Floating		      off
+	      Location		      [85, 45, 1601, 899]
+	      Open		      off
+	      NumInputPorts	      "1"
+	      ZoomMode		      "yonly"
+	      List {
+		ListType		AxesTitles
+		axes1			"%<SignalLabel>"
+	      }
+	      TimeRange		      "3"
+	      YMin		      "-12"
+	      YMax		      "2"
+	      DataFormat	      "StructureWithTime"
+	      SampleTime	      "0"
+	    }
+	    Block {
+	      BlockType		      Scope
+	      Name		      "Scope2"
+	      Ports		      [1]
+	      Position		      [742, 310, 758, 330]
+	      Orientation	      "up"
+	      NamePlacement	      "alternate"
+	      ShowName		      off
+	      Floating		      off
+	      Location		      [85, 45, 1601, 899]
+	      Open		      off
+	      NumInputPorts	      "1"
+	      ZoomMode		      "yonly"
+	      List {
+		ListType		AxesTitles
+		axes1			"%<SignalLabel>"
+	      }
+	      TimeRange		      "1"
+	      YMin		      "-0.1"
+	      YMax		      "0.25"
+	      SaveName		      "ScopeData1"
+	      DataFormat	      "StructureWithTime"
+	      SampleTime	      "0"
+	    }
+	    Block {
+	      BlockType		      Scope
+	      Name		      "Scope3"
+	      Ports		      [1]
+	      Position		      [762, 310, 778, 330]
+	      Orientation	      "up"
+	      NamePlacement	      "alternate"
+	      ShowName		      off
+	      Floating		      off
+	      Location		      [85, 45, 1601, 899]
+	      Open		      off
+	      NumInputPorts	      "1"
+	      List {
+		ListType		AxesTitles
+		axes1			"%<SignalLabel>"
+	      }
+	      TimeRange		      "0.5010330578512396"
+	      YMin		      "-1e-009"
+	      YMax		      "9e-009"
+	      SaveName		      "ScopeData2"
+	      DataFormat	      "StructureWithTime"
+	      SampleTime	      "0"
+	    }
+	    Block {
+	      BlockType		      Scope
+	      Name		      "Scope4"
+	      Ports		      [1]
+	      Position		      [782, 310, 798, 330]
+	      Orientation	      "up"
+	      NamePlacement	      "alternate"
+	      ShowName		      off
+	      Floating		      off
+	      Location		      [85, 45, 1601, 899]
+	      Open		      off
+	      NumInputPorts	      "1"
+	      List {
+		ListType		AxesTitles
+		axes1			"%<SignalLabel>"
+	      }
+	      TimeRange		      "0.5010330578512396"
+	      YMin		      "-1e-009"
+	      YMax		      "9e-009"
+	      SaveName		      "ScopeData3"
+	      DataFormat	      "StructureWithTime"
+	      SampleTime	      "0"
+	    }
+	    Block {
 	      BlockType		      ToWorkspace
 	      Name		      "To Workspace1"
-	      Position		      [525, 600, 600, 620]
+	      Position		      [480, 600, 555, 620]
 	      ShowName		      off
 	      VariableName	      "com_control"
 	      MaxDataPoints	      "inf"
@@ -1074,7 +1247,7 @@ Model {
 	    Block {
 	      BlockType		      ToWorkspace
 	      Name		      "To Workspace10"
-	      Position		      [525, 480, 600, 500]
+	      Position		      [480, 480, 555, 500]
 	      ShowName		      off
 	      VariableName	      "com_prw"
 	      MaxDataPoints	      "inf"
@@ -1084,7 +1257,7 @@ Model {
 	    Block {
 	      BlockType		      ToWorkspace
 	      Name		      "To Workspace11"
-	      Position		      [525, 510, 600, 530]
+	      Position		      [480, 510, 555, 530]
 	      ShowName		      off
 	      VariableName	      "cop_prw"
 	      MaxDataPoints	      "inf"
@@ -1094,7 +1267,7 @@ Model {
 	    Block {
 	      BlockType		      ToWorkspace
 	      Name		      "To Workspace12"
-	      Position		      [525, 540, 600, 560]
+	      Position		      [480, 540, 555, 560]
 	      ShowName		      off
 	      VariableName	      "support"
 	      MaxDataPoints	      "inf"
@@ -1104,7 +1277,7 @@ Model {
 	    Block {
 	      BlockType		      ToWorkspace
 	      Name		      "To Workspace13"
-	      Position		      [525, 570, 600, 590]
+	      Position		      [480, 570, 555, 590]
 	      ShowName		      off
 	      VariableName	      "resolution_data"
 	      MaxDataPoints	      "inf"
@@ -1113,8 +1286,48 @@ Model {
 	    }
 	    Block {
 	      BlockType		      ToWorkspace
+	      Name		      "To Workspace14"
+	      Position		      [810, 420, 860, 440]
+	      ShowName		      off
+	      VariableName	      "com"
+	      MaxDataPoints	      "inf"
+	      SampleTime	      "-1"
+	      SaveFormat	      "Structure With Time"
+	    }
+	    Block {
+	      BlockType		      ToWorkspace
+	      Name		      "To Workspace15"
+	      Position		      [810, 450, 860, 470]
+	      ShowName		      off
+	      VariableName	      "cop"
+	      MaxDataPoints	      "inf"
+	      SampleTime	      "-1"
+	      SaveFormat	      "Structure With Time"
+	    }
+	    Block {
+	      BlockType		      ToWorkspace
+	      Name		      "To Workspace16"
+	      Position		      [810, 480, 860, 500]
+	      ShowName		      off
+	      VariableName	      "left_foot"
+	      MaxDataPoints	      "inf"
+	      SampleTime	      "-1"
+	      SaveFormat	      "Structure With Time"
+	    }
+	    Block {
+	      BlockType		      ToWorkspace
+	      Name		      "To Workspace17"
+	      Position		      [810, 510, 860, 530]
+	      ShowName		      off
+	      VariableName	      "right_foot"
+	      MaxDataPoints	      "inf"
+	      SampleTime	      "-1"
+	      SaveFormat	      "Structure With Time"
+	    }
+	    Block {
+	      BlockType		      ToWorkspace
 	      Name		      "To Workspace2"
-	      Position		      [525, 630, 600, 650]
+	      Position		      [480, 630, 555, 650]
 	      ShowName		      off
 	      VariableName	      "cp_prw"
 	      MaxDataPoints	      "inf"
@@ -1124,7 +1337,7 @@ Model {
 	    Block {
 	      BlockType		      ToWorkspace
 	      Name		      "To Workspace3"
-	      Position		      [525, 660, 600, 680]
+	      Position		      [480, 660, 555, 680]
 	      ShowName		      off
 	      VariableName	      "cur_state"
 	      MaxDataPoints	      "inf"
@@ -1134,7 +1347,7 @@ Model {
 	    Block {
 	      BlockType		      ToWorkspace
 	      Name		      "To Workspace4"
-	      Position		      [525, 690, 600, 710]
+	      Position		      [480, 690, 555, 710]
 	      ShowName		      off
 	      VariableName	      "sim_parameters"
 	      MaxDataPoints	      "inf"
@@ -1144,7 +1357,7 @@ Model {
 	    Block {
 	      BlockType		      ToWorkspace
 	      Name		      "To Workspace9"
-	      Position		      [525, 450, 600, 470]
+	      Position		      [480, 450, 555, 470]
 	      ShowName		      off
 	      VariableName	      "next_foot"
 	      MaxDataPoints	      "inf"
@@ -1154,7 +1367,7 @@ Model {
 	    Block {
 	      BlockType		      Outport
 	      Name		      "command"
-	      Position		      [690, 248, 720, 262]
+	      Position		      [885, 248, 915, 262]
 	      IconDisplay	      "Port number"
 	      OutDataType	      "sfix(16)"
 	      OutScaling	      "2^0"
@@ -1340,8 +1553,16 @@ Model {
 	    Line {
 	      SrcBlock		      "Protected RT1"
 	      SrcPort		      1
-	      DstBlock		      "command"
-	      DstPort		      1
+	      Points		      [30, 0]
+	      Branch {
+		DstBlock		"command"
+		DstPort			1
+	      }
+	      Branch {
+		Points			[0, 220]
+		DstBlock		"Bus\nSelector4"
+		DstPort			1
+	      }
 	    }
 	    Line {
 	      Name		      "p_right"
@@ -1462,6 +1683,90 @@ Model {
 	      DstBlock		      "S-Function"
 	      DstPort		      3
 	    }
+	    Line {
+	      Name		      "<com>"
+	      Labels		      [0, 0]
+	      SrcBlock		      "Bus\nSelector4"
+	      SrcPort		      1
+	      Points		      [5, 0]
+	      Branch {
+		DstBlock		"To Workspace14"
+		DstPort			1
+	      }
+	      Branch {
+		DstBlock		"Bus\nSelector5"
+		DstPort			1
+	      }
+	    }
+	    Line {
+	      Name		      "<cop>"
+	      Labels		      [0, 0]
+	      SrcBlock		      "Bus\nSelector4"
+	      SrcPort		      2
+	      Points		      [25, 0]
+	      Branch {
+		DstBlock		"To Workspace15"
+		DstPort			1
+	      }
+	      Branch {
+		DstBlock		"Scope2"
+		DstPort			1
+	      }
+	    }
+	    Line {
+	      Name		      "<left_foot>"
+	      Labels		      [0, 0]
+	      SrcBlock		      "Bus\nSelector4"
+	      SrcPort		      3
+	      Points		      [45, 0]
+	      Branch {
+		DstBlock		"To Workspace16"
+		DstPort			1
+	      }
+	      Branch {
+		DstBlock		"Bus\nSelector6"
+		DstPort			1
+	      }
+	    }
+	    Line {
+	      Name		      "<right_foot>"
+	      Labels		      [0, 0]
+	      SrcBlock		      "Bus\nSelector4"
+	      SrcPort		      4
+	      Points		      [65, 0]
+	      Branch {
+		DstBlock		"To Workspace17"
+		DstPort			1
+	      }
+	      Branch {
+		DstBlock		"Bus\nSelector7"
+		DstPort			1
+	      }
+	    }
+	    Line {
+	      Name		      "<com>"
+	      Labels		      [1, 0]
+	      SrcBlock		      "Bus\nSelector5"
+	      SrcPort		      1
+	      DstBlock		      "Scope1"
+	      DstPort		      1
+	    }
+	    Line {
+	      Name		      "<p_left>"
+	      Labels		      [0, 0]
+	      SrcBlock		      "Bus\nSelector6"
+	      SrcPort		      1
+	      DstBlock		      "Scope3"
+	      DstPort		      1
+	    }
+	    Line {
+	      Name		      "<p_right>"
+	      Labels		      [0, 0]
+	      SrcBlock		      "Bus\nSelector7"
+	      SrcPort		      1
+	      DstBlock		      "Scope4"
+	      DstPort		      1
+	    }
 	  }
 	}
 	Block {
@@ -1501,83 +1806,6 @@ Model {
 	    PortNumber		    1
 	    Name		    "init"
 	    PropagatedSignals	    "left_initial_ankle, right_initial_ankle, left_initial_yaw, right_initial_yaw, Foot_Geom"
-	    RTWStorageClass	    "Auto"
-	    DataLoggingNameMode	    "SignalName"
-	  }
-	}
-	Block {
-	  BlockType		  BusSelector
-	  Name			  "Bus\nSelector1"
-	  Ports			  [1, 4]
-	  Position		  [580, 365, 585, 485]
-	  ShowName		  off
-	  OutputSignals		  "com,cop,left_foot,right_foot"
-	  Port {
-	    PortNumber		    1
-	    Name		    "<com>"
-	    RTWStorageClass	    "Auto"
-	    DataLoggingNameMode	    "SignalName"
-	  }
-	  Port {
-	    PortNumber		    2
-	    Name		    "<cop>"
-	    RTWStorageClass	    "Auto"
-	    DataLoggingNameMode	    "SignalName"
-	  }
-	  Port {
-	    PortNumber		    3
-	    Name		    "<left_foot>"
-	    RTWStorageClass	    "Auto"
-	    DataLoggingNameMode	    "SignalName"
-	  }
-	  Port {
-	    PortNumber		    4
-	    Name		    "<right_foot>"
-	    RTWStorageClass	    "Auto"
-	    DataLoggingNameMode	    "SignalName"
-	  }
-	}
-	Block {
-	  BlockType		  BusSelector
-	  Name			  "Bus\nSelector2"
-	  Ports			  [1, 1]
-	  Position		  [581, 300, 609, 305]
-	  Orientation		  "up"
-	  ShowName		  off
-	  OutputSignals		  "com"
-	  Port {
-	    PortNumber		    1
-	    Name		    "<com>"
-	    RTWStorageClass	    "Auto"
-	    DataLoggingNameMode	    "SignalName"
-	  }
-	}
-	Block {
-	  BlockType		  BusSelector
-	  Name			  "Bus\nSelector3"
-	  Ports			  [1, 1]
-	  Position		  [621, 300, 649, 305]
-	  Orientation		  "up"
-	  ShowName		  off
-	  OutputSignals		  "p_left"
-	  Port {
-	    PortNumber		    1
-	    Name		    "<p_left>"
-	    RTWStorageClass	    "Auto"
-	    DataLoggingNameMode	    "SignalName"
-	  }
-	}
-	Block {
-	  BlockType		  BusSelector
-	  Name			  "Bus\nSelector4"
-	  Ports			  [1, 1]
-	  Position		  [641, 300, 669, 305]
-	  Orientation		  "up"
-	  ShowName		  off
-	  OutputSignals		  "p_right"
-	  Port {
-	    PortNumber		    1
-	    Name		    "<p_right>"
 	    RTWStorageClass	    "Auto"
 	    DataLoggingNameMode	    "SignalName"
 	  }
@@ -1633,7 +1861,7 @@ Model {
 	      ShowName		      off
 	      FontName		      "Arial"
 	      FontSize		      8
-	      Value		      "[0., 0.]"
+	      Value		      "[0, 0]"
 	      OutDataType	      "sfix(16)"
 	      OutScaling	      "2^0"
 	    }
@@ -2321,138 +2549,9 @@ Model {
 	  Deterministic		  off
 	}
 	Block {
-	  BlockType		  Scope
-	  Name			  "Scope1"
-	  Ports			  [1]
-	  Position		  [588, 230, 602, 250]
-	  Orientation		  "up"
-	  NamePlacement		  "alternate"
-	  ShowName		  off
-	  Floating		  off
-	  Location		  [85, 45, 1601, 899]
-	  Open			  off
-	  NumInputPorts		  "1"
-	  ZoomMode		  "yonly"
-	  List {
-	    ListType		    AxesTitles
-	    axes1		    "%<SignalLabel>"
-	  }
-	  TimeRange		  "1"
-	  YMin			  "-0.05"
-	  YMax			  "0.85"
-	  SaveName		  "ScopeData2"
-	  DataFormat		  "StructureWithTime"
-	  SampleTime		  "0"
-	}
-	Block {
-	  BlockType		  Scope
-	  Name			  "Scope2"
-	  Ports			  [1]
-	  Position		  [607, 230, 623, 250]
-	  Orientation		  "up"
-	  NamePlacement		  "alternate"
-	  ShowName		  off
-	  Floating		  off
-	  Location		  [79, 49, 1595, 903]
-	  Open			  off
-	  NumInputPorts		  "1"
-	  ZoomMode		  "yonly"
-	  List {
-	    ListType		    AxesTitles
-	    axes1		    "%<SignalLabel>"
-	  }
-	  TimeRange		  "1"
-	  YMin			  "-0.1"
-	  YMax			  "0.25"
-	  SaveName		  "ScopeData3"
-	  DataFormat		  "StructureWithTime"
-	  SampleTime		  "0"
-	}
-	Block {
-	  BlockType		  Scope
-	  Name			  "Scope3"
-	  Ports			  [1]
-	  Position		  [627, 230, 643, 250]
-	  Orientation		  "up"
-	  NamePlacement		  "alternate"
-	  ShowName		  off
-	  Floating		  off
-	  Location		  [79, 40, 1595, 894]
-	  Open			  off
-	  NumInputPorts		  "1"
-	  List {
-	    ListType		    AxesTitles
-	    axes1		    "%<SignalLabel>"
-	  }
-	  TimeRange		  "0.5010330578512396"
-	  YMin			  "-1e-009"
-	  YMax			  "9e-009"
-	  SaveName		  "ScopeData4"
-	  DataFormat		  "StructureWithTime"
-	  SampleTime		  "0"
-	}
-	Block {
-	  BlockType		  Scope
-	  Name			  "Scope4"
-	  Ports			  [1]
-	  Position		  [647, 230, 663, 250]
-	  Orientation		  "up"
-	  NamePlacement		  "alternate"
-	  ShowName		  off
-	  Floating		  off
-	  Location		  [79, 40, 1595, 894]
-	  Open			  off
-	  NumInputPorts		  "1"
-	  List {
-	    ListType		    AxesTitles
-	    axes1		    "%<SignalLabel>"
-	  }
-	  TimeRange		  "0.5010330578512396"
-	  YMin			  "-1e-009"
-	  YMax			  "9e-009"
-	  SaveName		  "ScopeData8"
-	  DataFormat		  "StructureWithTime"
-	  SampleTime		  "0"
-	}
-	Block {
-	  BlockType		  ToWorkspace
-	  Name			  "To Workspace14"
-	  Position		  [675, 370, 725, 390]
-	  ShowName		  off
-	  VariableName		  "com"
-	  MaxDataPoints		  "inf"
-	  SampleTime		  "-1"
-	  SaveFormat		  "Structure With Time"
-	}
-	Block {
-	  BlockType		  ToWorkspace
-	  Name			  "To Workspace15"
-	  Position		  [675, 400, 725, 420]
-	  ShowName		  off
-	  VariableName		  "cop"
-	  MaxDataPoints		  "inf"
-	  SampleTime		  "-1"
-	  SaveFormat		  "Structure With Time"
-	}
-	Block {
-	  BlockType		  ToWorkspace
-	  Name			  "To Workspace16"
-	  Position		  [675, 430, 725, 450]
-	  ShowName		  off
-	  VariableName		  "left_foot"
-	  MaxDataPoints		  "inf"
-	  SampleTime		  "-1"
-	  SaveFormat		  "Structure With Time"
-	}
-	Block {
-	  BlockType		  ToWorkspace
-	  Name			  "To Workspace17"
-	  Position		  [675, 460, 725, 480]
-	  ShowName		  off
-	  VariableName		  "right_foot"
-	  MaxDataPoints		  "inf"
-	  SampleTime		  "-1"
-	  SaveFormat		  "Structure With Time"
+	  BlockType		  Terminator
+	  Name			  "Terminator"
+	  Position		  [565, 415, 585, 435]
 	}
 	Block {
 	  BlockType		  SubSystem
@@ -2842,80 +2941,6 @@ Model {
 	  DstPort		  2
 	}
 	Line {
-	  Name			  "<com>"
-	  Labels		  [0, 0]
-	  SrcBlock		  "Bus\nSelector1"
-	  SrcPort		  1
-	  Points		  [5, 0]
-	  Branch {
-	    DstBlock		    "To Workspace14"
-	    DstPort		    1
-	  }
-	  Branch {
-	    DstBlock		    "Bus\nSelector2"
-	    DstPort		    1
-	  }
-	}
-	Line {
-	  Name			  "<cop>"
-	  Labels		  [0, 0]
-	  SrcBlock		  "Bus\nSelector1"
-	  SrcPort		  2
-	  Points		  [25, 0]
-	  Branch {
-	    DstBlock		    "To Workspace15"
-	    DstPort		    1
-	  }
-	  Branch {
-	    DstBlock		    "Scope2"
-	    DstPort		    1
-	  }
-	}
-	Line {
-	  Name			  "<left_foot>"
-	  Labels		  [0, 0]
-	  SrcBlock		  "Bus\nSelector1"
-	  SrcPort		  3
-	  Points		  [45, 0]
-	  Branch {
-	    DstBlock		    "To Workspace16"
-	    DstPort		    1
-	  }
-	  Branch {
-	    DstBlock		    "Bus\nSelector3"
-	    DstPort		    1
-	  }
-	}
-	Line {
-	  Name			  "<right_foot>"
-	  Labels		  [0, 0]
-	  SrcBlock		  "Bus\nSelector1"
-	  SrcPort		  4
-	  Points		  [65, 0]
-	  Branch {
-	    DstBlock		    "To Workspace17"
-	    DstPort		    1
-	  }
-	  Branch {
-	    DstBlock		    "Bus\nSelector4"
-	    DstPort		    1
-	  }
-	}
-	Line {
-	  SrcBlock		  "Atomic Walkgen"
-	  SrcPort		  1
-	  DstBlock		  "Bus\nSelector1"
-	  DstPort		  1
-	}
-	Line {
-	  Name			  "<com>"
-	  Labels		  [1, 0]
-	  SrcBlock		  "Bus\nSelector2"
-	  SrcPort		  1
-	  DstBlock		  "Scope1"
-	  DstPort		  1
-	}
-	Line {
 	  SrcBlock		  "Protected RT2"
 	  SrcPort		  1
 	  DstBlock		  "Atomic Walkgen"
@@ -2964,19 +2989,9 @@ Model {
 	  DstPort		  1
 	}
 	Line {
-	  Name			  "<p_left>"
-	  Labels		  [0, 0]
-	  SrcBlock		  "Bus\nSelector3"
+	  SrcBlock		  "Atomic Walkgen"
 	  SrcPort		  1
-	  DstBlock		  "Scope3"
-	  DstPort		  1
-	}
-	Line {
-	  Name			  "<p_right>"
-	  Labels		  [0, 0]
-	  SrcBlock		  "Bus\nSelector4"
-	  SrcPort		  1
-	  DstBlock		  "Scope4"
+	  DstBlock		  "Terminator"
 	  DstPort		  1
 	}
 	Annotation {
@@ -2984,6 +2999,9 @@ Model {
 	}
 	Annotation {
 	  Position		  [449, 300]
+	}
+	Annotation {
+	  Position		  [453, 275]
 	}
       }
     }

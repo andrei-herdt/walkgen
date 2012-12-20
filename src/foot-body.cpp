@@ -19,6 +19,7 @@ void FootBody::Interpolate(MPCSolution &solution, double current_time, const Ref
 	BodyState goal_state;
 	const SupportState &current_support = solution.support_states_vec[0];
 	const SupportState &next_support = solution.support_states_vec[1];
+	int num_unst_modes = 1;
 
 	double time_left_xy = 1; // Duration of the current interpolation phase of the horizontal motion
 	double time_left_z = 1; // Duration of the current interpolation phase of the vertical motion
@@ -51,8 +52,8 @@ void FootBody::Interpolate(MPCSolution &solution, double current_time, const Ref
 			time_left_xy = time_left_flying - raise_period;
 			int nbPreviewedSteps = solution.support_states_vec.back().step_number;
 			if (nbPreviewedSteps > 0) {
-				goal_state.x(0) = solution.qp_solution_vec(2 * mpc_parameters_->num_samples_horizon);
-				goal_state.y(0) = solution.qp_solution_vec(2 * mpc_parameters_->num_samples_horizon + nbStepsPreviewed);
+				goal_state.x(0) = solution.qp_solution_vec(2*(mpc_parameters_->num_samples_horizon + num_unst_modes));
+				goal_state.y(0) = solution.qp_solution_vec(2*(mpc_parameters_->num_samples_horizon + num_unst_modes) + nbStepsPreviewed);
 				goal_state.yaw(0) = solution.support_yaw_vec[0];
 			} else {
 				goal_state.x(0) = state_.x(0);

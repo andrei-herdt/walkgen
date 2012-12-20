@@ -195,24 +195,27 @@ struct SolverData {
 	SolverName name;
 	int num_wsrec;  			//Maximal number of working set recomputations
 	bool analysis;
+	bool dump_problem;
 };
 
 struct MPC_WALKGEN_API MPCParameters {
-	double period_qpsample;				//Sampling period [sec]
-	double period_mpcsample;			//Time between recomputations [sec]
-	double period_actsample;			//Actuator sampling period [sec]
-	double period_ds;					//Length of the (permanent) double support phase (should be a large value)
+	double period_qpsample;				// Sampling period [sec]
+	double period_mpcsample;			// Time between recomputations [sec]
+	double period_actsample;			// Actuator sampling period [sec]
+	double period_ds;					// Length of the (permanent) double support phase (should be a large value)
 
-	int num_samples_horizon;  			//Number of samplings inside horizon
-	int num_samples_step;				//Step period ss_left<->ss_right in qp sample periods
-	int num_samples_dsss;				//Length of initial double support phase [num. samples]
-	int num_steps_ssds;					//Steps before halt
+	int num_samples_horizon;  			// Number of samplings inside horizon
+	int num_samples_step;				// Step period ss_left<->ss_right in qp sample periods
+	int num_samples_dsss;				// Length of initial double support phase [num. samples]
+	int num_steps_ssds;					// Steps before halt
 
 	bool warmstart;
-	bool interpolate_whole_horizon;		//Interpolate not only the control (first element) but for the whole preview period
+	bool interpolate_whole_horizon;		// Interpolate not only the control (first element) but for the whole preview period
 	bool is_closed_loop;
 	bool is_pid_mode;
-	bool is_constraints;				//Turns on all constraints
+	bool is_ineq_constr;				// Turns on all inequality constraints
+	bool is_terminal_constr;				// Turns on terminal constraints
+	bool problem_dumping;				// Optimization program is written to file before being solved
 
 	SystemOrder dynamics_order;
 

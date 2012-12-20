@@ -140,6 +140,9 @@ const MPCSolution &Walkgen::Go(double time){
 		BuildProblem();
 		//clock_.StopCounter(timer_build_problem);
 
+		if (mpc_parameters_.problem_dumping) {
+			solver_->DumpProblem("problem", current_time_, "txt");
+		}
 		//int timer_solve = clock_.StartCounter();
 		solver_->Solve(solution_, mpc_parameters_.warmstart, mpc_parameters_.solver.analysis);
 		//clock_.StopCounter(timer_solve);

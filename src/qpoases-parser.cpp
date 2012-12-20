@@ -95,6 +95,8 @@ void QPOasesParser::Solve(MPCSolution &solution,
 				num_wsr, NULL);
 	}
 
+	assert(!qp_->isInfeasible());
+
 	qp_->getPrimalSolution(solution_arr_);
 	for (int i = 0; i < num_variables_; ++i) {
 		solution.qp_solution_vec(i) = solution_arr_[i];

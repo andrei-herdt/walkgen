@@ -40,7 +40,7 @@ xlabel('Time [s]');
 ylabel('X [m]');
 title('CoM Positions (previewed and realized)');
 subplot(1,2,2);
-legend([lines_prw_com_y, lines_prw_cp_y, lines_com_control_y, lines_real_com_y, lines_real_cop_y, lines_support_y(1)], 'com_{prw}^y','cp_{real}^y','cop_{prw}^y','com_{real}^y','cop_{real}^y','new support');
+legend([lines_prw_com_y, lines_prw_cp_y, lines_com_control_y, lines_real_com_y, lines_real_cop_y, lines_support_y(1)], 'com_{prw}^y','cp_{prw}^y','cop_{prw}^y','com_{real}^y','cop_{real}^y','new support');
 xlabel('Time [s]');
 ylabel('Y [m]');
 title('CoM Positions (previewed and realized)');

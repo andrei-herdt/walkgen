@@ -32,11 +32,13 @@ int main() {
 	mpc_parameters.warmstart                      = false;
 	mpc_parameters.interpolate_whole_horizon      = true;
 	mpc_parameters.solver.analysis                = true;
+	mpc_parameters.problem_dumping			  	  = true;
 	mpc_parameters.solver.name                    = QPOASES;
 	mpc_parameters.solver.num_wsrec               = 200;
 	mpc_parameters.dynamics_order                 = SECOND_ORDER;
 	mpc_parameters.formulation		      = DECOUPLED_MODES;
 	mpc_parameters.is_pid_mode		      = false;
+	mpc_parameters.is_terminal_constr		= false;
 
 	mpc_parameters.weights.pos[0] 		= 0.;
 	mpc_parameters.weights.vel[0]  		= 0.;
@@ -49,7 +51,6 @@ int main() {
 	mpc_parameters.weights.cop[1]  		= 0.;//1.;
 	mpc_parameters.weights.cp[1] 		= 1.;
 	mpc_parameters.weights.control[1] 	= 0.;
-	mpc_parameters.is_constraints 		= true;
 
 	// Robot parameters:
 	// -----------------
@@ -147,19 +148,18 @@ int main() {
 	for (; curr_time < 3.1; curr_time += sample_period_act) {
 		//int online_timer = walk.clock().StartCounter();
 		//std::cout << std::endl;
-		const MPCSolution &solution = walk.Go(curr_time);
 		std::cout << std::endl;
 		std::cout << std::endl;
 		std::cout<< "curr_time: " << curr_time << std::endl;
 		std::cout << "--------------------" << std::endl;
+		const MPCSolution &solution = walk.Go(curr_time);
 		//walk.solver()->DumpMatrices(curr_time, "dat");
-		walk.solver()->DumpProblem("problem", curr_time, "txt");
 		
 		//Debug::Cout("com_prw.pos.x", solution.com_prw.pos.x_vec);
 		//Debug::Cout("com_prw.vel.x", solution.com_prw.vel.x_vec);
 		//std::cout << "com_prw.vel: " << solution.com_prw.vel.x_vec.transpose() << std::endl;
 		
-		std::cout << "com_prw.cp.x: " << solution.com_prw.cp.x_vec.transpose() << std::endl;
+		//std::cout << "com_prw.cp.x: " << solution.com_prw.cp.x_vec.transpose() << std::endl;
 		std::cout << "com_prw.cp.y: " << solution.com_prw.cp.y_vec.transpose() << std::endl;
 	 	
 		//std::cout << std::endl;

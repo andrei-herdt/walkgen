@@ -18,7 +18,7 @@ extern "C" {
 
 static void mdlInitializeSizes(SimStruct *S) {
 	// Expected number of parameters
-	ssSetNumSFcnParams(S, 21);
+	ssSetNumSFcnParams(S, 22);
 
 	// Parameter mismatch?
 	if (ssGetNumSFcnParams(S) != ssGetSFcnParamsCount(S)) {
@@ -96,6 +96,7 @@ static void mdlStart(SimStruct *S) {
 	int is_pid_mode_in = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 16)));
 	int is_constraints_in = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 18)));
 	int formulation_in = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 19)));
+	int is_terminal_constr_in = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 21)));
 
 	MPCParameters mpc_parameters;
 	mpc_parameters.num_samples_horizon  = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 0)));
@@ -134,7 +135,10 @@ static void mdlStart(SimStruct *S) {
 		mpc_parameters.is_pid_mode = true;
 	}
 	if (is_constraints_in == 0) {
-		mpc_parameters.is_constraints = false;
+		mpc_parameters.is_ineq_constr = false;
+	}
+	if (is_terminal_constr_in == 0) {
+		mpc_parameters.is_terminal_constr = false;
 	}
 	if (formulation_in == 0) {
 		mpc_parameters.formulation = STANDARD;
