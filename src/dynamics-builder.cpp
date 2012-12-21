@@ -520,12 +520,16 @@ void DynamicsBuilder::ComputeDiscreteSSDynamics(LinearDynamics &dyn, const std::
 	eigenvec_mat_inv_ = eigenvec_mat_.inverse();
 
 	ComputeDiscreteStateMatDecoupled(dyn.d_state_mat_vec[0], sampling_periods_vec[0]);
+	// Ad_pow(0) = A_0
 	dyn.d_state_mat_pow_vec[0] = dyn.d_state_mat_vec[0];
+	// Ad_pow(0) = I
+	dyn.d_state_mat_pow2_vec[0] = CommonMatrixType::Identity(2, 2);
 	ComputeDiscreteInputMatGeneral(dyn.d_input_mat_vec[0], dyn.d_state_mat_vec[0], dyn.cont_ss);
 	for (int period_num = 1; period_num < sampling_periods_vec.size(); period_num++) {
 		ComputeDiscreteStateMatDecoupled(dyn.d_state_mat_vec[period_num], sampling_periods_vec[period_num]);
 		// A_{i-1}*A_i
 		dyn.d_state_mat_pow_vec[period_num] = dyn.d_state_mat_pow_vec[period_num - 1] * dyn.d_state_mat_vec[period_num];
+		dyn.d_state_mat_pow2_vec[period_num] = dyn.d_state_mat_pow2_vec[period_num - 1] * dyn.d_state_mat_vec[period_num];
 		ComputeDiscreteInputMatGeneral(dyn.d_input_mat_vec[period_num], dyn.d_state_mat_vec[period_num], dyn.cont_ss);
 	}
 }

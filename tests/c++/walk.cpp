@@ -160,7 +160,7 @@ int main() {
 		//std::cout << "com_prw.vel: " << solution.com_prw.vel.x_vec.transpose() << std::endl;
 		
 		//std::cout << "com_prw.cp.x: " << solution.com_prw.cp.x_vec.transpose() << std::endl;
-		std::cout << "com_prw.cp.y: " << solution.com_prw.cp.y_vec.transpose() << std::endl;
+		std::cout << "com_prw.cp.x: " << solution.com_prw.cp.x_vec.transpose() << std::endl;
 	 	
 		//std::cout << std::endl;
 		//std::cout << "com_prw.control.x_vec: " << solution.com_prw.control.x_vec.transpose() << std::endl;

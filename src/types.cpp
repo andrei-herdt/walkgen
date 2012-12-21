@@ -414,6 +414,7 @@ void LinearDynamics::SetZero(int state_dim, int input_dim, int output_dim, int n
 
 	d_state_mat_vec.resize(num_samples, CommonMatrixType::Zero(state_dim, state_dim));
 	d_state_mat_pow_vec.resize(num_samples, CommonMatrixType::Zero(state_dim, state_dim));
+	d_state_mat_pow2_vec.resize(num_samples, CommonMatrixType::Zero(state_dim, state_dim));
 	d_input_mat_vec.resize(num_samples, CommonMatrixType::Zero(state_dim, input_dim));
 }
 

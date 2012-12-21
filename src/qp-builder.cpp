@@ -546,22 +546,32 @@ void QPBuilder::BuildCPConstraints(const MPCSolution &solution) {
 
 	// Forward in time:
 	// ----------------
+
+	double neg_pow_state_mats = pow(dyn.d_state_mat_pow_vec[num_samples - 1](1,1), -1.);
 	for (int col = 0; col < num_samples; col++) {
-		atimesb_vec(col) = dyn.d_state_mat_pow_vec[col](1,1) * dyn.d_input_mat_vec[col](1);
+		atimesb_vec(col) = dyn.d_state_mat_pow2_vec[col](1,1) * dyn.d_input_mat_vec[col](1);
 	}
+	atimesb_vec *= neg_pow_state_mats;
+
 	//X:
 	// xu_0 < Au^{N}*\s_0^x + \sum Au^{(j-1)}*Bu*u_j < xu_0
-	solver_->constr_mat()()(num_constr, num_samples) = 1.;
-	solver_->constr_mat().AddTerm(-atimesb_vec.transpose(), num_constr, 2*(num_samples + num_unst_modes));
+	solver_->constr_mat()()(num_constr, num_samples) = neg_pow_state_mats;	// CP
+
+	solver_->constr_mat().AddTerm(-atimesb_vec.transpose(), num_constr, 0);
 	if (num_steps_previewed > 0) {
 		tmp_mat_ = -atimesb_vec.transpose() * select_mats.sample_step;
+		tmp_mat_ *= neg_pow_state_mats;
 		solver_->constr_mat().AddTerm(tmp_mat_, num_constr, 2*(num_samples + num_unst_modes));
 	}
 
 	double constant_x = dyn.d_state_mat_pow_vec[num_samples - 1](1,1) * state_x(1) + atimesb_vec.transpose() * select_mats.sample_step_cx;
+	constant_x *= neg_pow_state_mats;
 	solver_->lc_bounds_vec()()(num_constr) = constant_x;
 	solver_->uc_bounds_vec()()(num_constr) = constant_x;
 
+	for (int col = 0; col < num_samples; col++) {
+		atimesb_vec(col) = pow(dyn.d_state_mat_pow_vec[col](1,1), -1) * dyn.d_input_mat_vec[col](1);
+	}
 	//Y:
 	// yu_0 < Au^{-N}*\mu_y - \sum Au^{-(j-1)}*Bu*u_j < yu_0
 	solver_->constr_mat()()(num_constr + num_unst_modes, 2*num_samples + num_unst_modes) = pow(dyn.d_state_mat_pow_vec.back()(1,1), -1);
@@ -572,7 +582,7 @@ void QPBuilder::BuildCPConstraints(const MPCSolution &solution) {
 		solver_->constr_mat().AddTerm(tmp_mat_, num_constr + num_unst_modes, 2*(num_samples + num_unst_modes) + num_steps_previewed);
 	}
 
-	vcpc = atimesb_vec.transpose() * select_mats.sample_step_cy;
+	double vcpc = atimesb_vec.transpose() * select_mats.sample_step_cy;
 	solver_->lc_bounds_vec()()(num_constr + num_unst_modes) = state_y(1) + vcpc;
 	solver_->uc_bounds_vec()()(num_constr + num_unst_modes) = state_y(1) + vcpc;
 }

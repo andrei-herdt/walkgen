@@ -390,9 +390,10 @@ struct LinearDynamics {
 
 	LinearDynamicsMatrices cont_ss, discr_ss;	//State space dynamics
 
-	std::vector<CommonMatrixType> d_state_mat_vec;		//Vector of discrete state matrices
-	std::vector<CommonMatrixType> d_state_mat_pow_vec;	//Vector of multiplied discrete state matrices
-	std::vector<CommonMatrixType> d_input_mat_vec;		//Vector of discrete input matrices
+	std::vector<CommonMatrixType> d_state_mat_vec;			//Vector of discrete state matrices
+	std::vector<CommonMatrixType> d_state_mat_pow_vec;		//Vector of multiplied discrete state matrices
+	std::vector<CommonMatrixType> d_state_mat_pow2_vec;	//Vector of multiplied discrete state matrices
+	std::vector<CommonMatrixType> d_input_mat_vec;			//Vector of discrete input matrices
 
 	void SetZero(int state_dim,
 			int input_dim,
