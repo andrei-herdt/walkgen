@@ -693,15 +693,15 @@ void QPBuilder::BuildTerminalConstraints(const MPCSolution &solution) {
 	if (num_steps_previewed > 0) {
 		solver_->constr_mat()()(num_constr, 2*(num_samples + num_unst_modes) + num_steps_previewed - 1) = -1.;	// Last foot x
 	}
-	solver_->lc_bounds_vec()()(num_constr) = /*min_x + */select.sample_step_cx(num_samples - 1);
-	solver_->uc_bounds_vec()()(num_constr) = /*max_x + */select.sample_step_cx(num_samples - 1);
+	solver_->lc_bounds_vec()()(num_constr) = min_x + select.sample_step_cx(num_samples - 1);
+	solver_->uc_bounds_vec()()(num_constr) = max_x + select.sample_step_cx(num_samples - 1);
 	// Y:
 	solver_->constr_mat()()(num_constr + 1, 2*num_samples + num_unst_modes) = 1.; // Capture point y
 	if (num_steps_previewed > 0) {
 		solver_->constr_mat()()(num_constr + 1, 2*(num_samples + num_unst_modes) + 2*num_steps_previewed - 1) = -1.; // Last foot y
 	}
-	solver_->lc_bounds_vec()()(num_constr + 1) = /*min_y + */select.sample_step_cy(num_samples - 1);
-	solver_->uc_bounds_vec()()(num_constr + 1) = /*max_y + */select.sample_step_cy(num_samples - 1);
+	solver_->lc_bounds_vec()()(num_constr + 1) = min_y + select.sample_step_cy(num_samples - 1);
+	solver_->uc_bounds_vec()()(num_constr + 1) = max_y + select.sample_step_cy(num_samples - 1);
 }
 
 void QPBuilder::ComputeWarmStart(MPCSolution &solution) {

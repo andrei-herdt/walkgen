@@ -467,33 +467,38 @@ void DynamicsBuilder::BuildSecondOrderCoPInputDecoupled(LinearDynamicsMatrices &
 	//(Su): U(N - 1,N) = Cu
 	dyn_mat.input_mat(num_samples - 1, num_samples) = dyn_mat.ss_output_mat(0,1);
 	dyn_mat.state_mat(0,0) = dyn_mat.ss_output_mat(0,0) * d_state_mat_vec.at(0)(0,0);
-	CommonMatrixType d_state_mat_temp = Matrix2D::Identity();
 
 	double Ad1s, Ad2s, Ad2u;	//Stable and unstable parts of discretized state matrices
 	Ad1s = d_state_mat_vec.at(0)(0,0);
+	Ad2s = d_state_mat_vec.at(1)(0,0);	// Only first sampling period is varying
+	Ad2u = d_state_mat_vec.at(1)(1,1);
+	CommonMatrixType d_state_mat_pow = Matrix2D::Identity();
 	for (int row = 1; row < num_samples; row++) {
-		Ad2s = d_state_mat_vec.at(1)(0,0);
-		Ad2u = d_state_mat_vec.at(1)(1,1);
 		// Ad2s^row, Ad2u^{-row}
-		d_state_mat_temp(0, 0) = pow(Ad2s, row);
-		d_state_mat_temp(1, 1) = pow(Ad2u, -row);
+		d_state_mat_pow(0, 0) = pow(Ad2s, row);
+		d_state_mat_pow(1, 1) = pow(Ad2u, -row);
 
-		//Ss(row,:) = Cs*Ad2s^row * Ad1s
-		dyn_mat.state_mat(row, 0) = dyn_mat.ss_output_mat(0, 0) * d_state_mat_temp(0, 0) * Ad1s;
-		//U(row, row) = Cs * Bs
+		// Build augmented state matrix:
+		// -----------------------------
+		//Ss(1:N, 0) = Cs * Ad2s^row;
+		dyn_mat.state_mat(row, 0) = dyn_mat.ss_output_mat(0, 0) * d_state_mat_pow(0, 0) * Ad1s;
+
+		// Build augmented input matrix:
+		// -----------------------------
+		//U(row, row) = Cs * B1s
 		dyn_mat.input_mat(row, row) = dyn_mat.ss_output_mat(0, 0) * d_input_mat_vec.at(0)(0, 0);
 		//(Su): U(N - 1 - row, N) = Cu*Ad2u^(-row);
-		dyn_mat.input_mat(num_samples - 1 - row, num_samples) = dyn_mat.ss_output_mat(0, 1) * d_state_mat_temp(1, 1);//new * d_state_mat_vec.at(1)(1, 1);
-		//U(row, 0) = Cs*Ad2s^row * Bd1s
-		dyn_mat.input_mat(row, 0) = dyn_mat.ss_output_mat(0,0) * d_state_mat_temp(0,0) * d_input_mat_vec.at(0)(0);
-		//U(0,row) = -Cu*Ad2u^row * Bd2u
-		dyn_mat.input_mat(0, row) = - dyn_mat.ss_output_mat(0,1) * d_state_mat_temp(1,1) * d_input_mat_vec.at(1)(1);
-		// Fill diagonal starting at (row, 0)
+		dyn_mat.input_mat(num_samples - 1 - row, num_samples) = dyn_mat.ss_output_mat(0, 1) * d_state_mat_pow(1, 1);//new * d_state_mat_vec.at(1)(1, 1);
+		//U(row, 0) = Cs * Ad2s^row * Bd1s
+		dyn_mat.input_mat(row, 0) = dyn_mat.ss_output_mat(0, 0) * d_state_mat_pow(0,0) * d_input_mat_vec.at(0)(0);
+		//U(0, row) = -Cu * Ad2u^row * Bd2u
+		dyn_mat.input_mat(0, row) = - dyn_mat.ss_output_mat(0, 1) * d_state_mat_pow(1,1) * d_input_mat_vec.at(1)(1);
+		// Fill diagonal starting at (row + 1, 1)
 		for (int col = 1; col + row < num_samples; col++) {
-			//U(row+col,col) = Cs * Ad2s^row * Bd2s
-			dyn_mat.input_mat(row + col, col) = dyn_mat.ss_output_mat(0,0) * d_state_mat_temp(0,0) * d_input_mat_vec.at(1)(0);
-			//U(col,col+row) = Cu * Ad2u^row * Bd2u
-			dyn_mat.input_mat(col, col + row) = -dyn_mat.ss_output_mat(0,1) * d_state_mat_temp(1,1) * d_input_mat_vec.at(1)(1);
+			//U(row+col, col) = Cs * Ad2s^row * Bd2s
+			dyn_mat.input_mat(row + col, col) = dyn_mat.ss_output_mat(0,0) * d_state_mat_pow(0,0) * d_input_mat_vec.at(1)(0);
+			//U(col, col+row) = Cu * Ad2u^row * Bd2u
+			dyn_mat.input_mat(col, col + row) = -dyn_mat.ss_output_mat(0,1) * d_state_mat_pow(1,1) * d_input_mat_vec.at(1)(1);
 		}
 
 	}

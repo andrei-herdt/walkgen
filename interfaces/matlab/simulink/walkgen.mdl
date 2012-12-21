@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.845"
+    ComputedModelVersion    "1.847"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Thu Dec 20 11:32:39 2012"
+  LastModifiedDate	  "Fri Dec 21 16:21:17 2012"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:845>"
+  ModelVersionFormat	  "1.%<AutoIncrement:847>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -745,7 +745,7 @@ Model {
 	  MaskIconOpaque	  on
 	  MaskIconRotate	  "none"
 	  MaskIconUnits		  "autoscale"
-	  MaskValueString	  "16|0|0|1|1|0|8|8|2|0.1|0.01|0.01|0.02|100|2|1|0|0|1|1|0|0"
+	  MaskValueString	  "16|0|0|0|1|0|8|8|2|0.1|0.01|0.01|0.02|100|2|1|0|0|1|1|0|0"
 	  MaskTabNameString	  ",,,,,,,,,,,,,,,,,,,,,"
 	  System {
 	    Name		    "Atomic Walkgen"
@@ -1150,7 +1150,7 @@ Model {
 	      NamePlacement	      "alternate"
 	      ShowName		      off
 	      Floating		      off
-	      Location		      [85, 45, 1601, 899]
+	      Location		      [79, 49, 1595, 900]
 	      Open		      off
 	      NumInputPorts	      "1"
 	      ZoomMode		      "yonly"
@@ -1173,7 +1173,7 @@ Model {
 	      NamePlacement	      "alternate"
 	      ShowName		      off
 	      Floating		      off
-	      Location		      [85, 45, 1601, 899]
+	      Location		      [79, 40, 1595, 894]
 	      Open		      off
 	      NumInputPorts	      "1"
 	      ZoomMode		      "yonly"
@@ -2604,7 +2604,7 @@ Model {
 	      ShowName		      off
 	      FontName		      "Arial"
 	      FontSize		      8
-	      Value		      "[0.01, 0.0, 0.0]"
+	      Value		      "[0.0, 0.0, 0.0]"
 	      OutDataType	      "sfix(16)"
 	      OutScaling	      "2^0"
 	    }
