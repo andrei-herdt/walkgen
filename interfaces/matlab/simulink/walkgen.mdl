@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.847"
+    ComputedModelVersion    "1.851"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Fri Dec 21 16:21:17 2012"
+  LastModifiedDate	  "Sat Dec 22 11:06:13 2012"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:847>"
+  ModelVersionFormat	  "1.%<AutoIncrement:851>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -107,7 +107,7 @@ Model {
 	  $ObjectID		  2
 	  Version		  "1.3.0"
 	  StartTime		  "0.0"
-	  StopTime		  "0.5"
+	  StopTime		  "0.1"
 	  AbsTol		  "auto"
 	  FixedStep		  "1e-3"
 	  InitialStep		  "auto"
@@ -704,7 +704,7 @@ Model {
       System {
 	Name			"Simulation"
 	Location		[850, 74, 1594, 876]
-	Open			on
+	Open			off
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
 	ScreenColor		"white"
@@ -745,7 +745,7 @@ Model {
 	  MaskIconOpaque	  on
 	  MaskIconRotate	  "none"
 	  MaskIconUnits		  "autoscale"
-	  MaskValueString	  "16|0|0|0|1|0|8|8|2|0.1|0.01|0.01|0.02|100|2|1|0|0|1|1|0|0"
+	  MaskValueString	  "16|0|1|0|1|0|8|8|2|0.1|0.01|0.01|0.02|100|2|1|0|0|1|1|1|0"
 	  MaskTabNameString	  ",,,,,,,,,,,,,,,,,,,,,"
 	  System {
 	    Name		    "Atomic Walkgen"
@@ -1150,7 +1150,7 @@ Model {
 	      NamePlacement	      "alternate"
 	      ShowName		      off
 	      Floating		      off
-	      Location		      [79, 49, 1595, 900]
+	      Location		      [79, 43, 1595, 894]
 	      Open		      off
 	      NumInputPorts	      "1"
 	      ZoomMode		      "yonly"
@@ -2136,7 +2136,7 @@ Model {
 	  FontName		  "Arial"
 	  FontSize		  8
 	  FontWeight		  "bold"
-	  Value			  "[0.01, 0.01, 0.814, 0.0, 0.0, 0.0] %[-0.0144, 0.105, 0.814, 0.0, 0.0, 0.0]"
+	  Value			  "[0.01, 0.0, 0.814, 0.0, 0.0, 0.0] %[-0.0144, 0.105, 0.814, 0.0, 0.0, 0.0]"
 	  OutDataType		  "sfix(16)"
 	  OutScaling		  "2^0"
 	  Port {
@@ -2571,7 +2571,7 @@ Model {
 	  System {
 	    Name		    "Vel. Reference"
 	    Location		    [850, 74, 1170, 267]
-	    Open		    off
+	    Open		    on
 	    ModelBrowserVisibility  off
 	    ModelBrowserWidth	    200
 	    ScreenColor		    "white"
@@ -2604,7 +2604,7 @@ Model {
 	      ShowName		      off
 	      FontName		      "Arial"
 	      FontSize		      8
-	      Value		      "[0.0, 0.0, 0.0]"
+	      Value		      "[0.01, 0.0, 0.0]"
 	      OutDataType	      "sfix(16)"
 	      OutScaling	      "2^0"
 	    }
@@ -2858,7 +2858,7 @@ Model {
 	  Name			  "cop_real1"
 	  Position		  [30, 660, 180, 680]
 	  ShowName		  off
-	  Value			  "[0.01 0.01] %[-0.0144 0.105]"
+	  Value			  "[0.01 0.0] %[-0.0144 0.105]"
 	  OutDataType		  "sfix(16)"
 	  OutScaling		  "2^0"
 	  Port {
