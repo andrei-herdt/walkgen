@@ -76,7 +76,8 @@ private:
 	void BuildSecondOrderCoPInputDecoupled(
 			LinearDynamicsMatrices &dyn_mat,
 			const std::vector<CommonMatrixType> &d_state_mat_vec,
-			const std::vector<CommonMatrixType> &d_input_mat_vec
+			const std::vector<CommonMatrixType> &d_input_mat_vec,
+			const std::vector<CommonMatrixType> &d_state_mat_pow_vec	// Vector of recursively multiplied discrete state matrices
 	);
 
 	void BuildThirdOrder(LinearDynamicsMatrices &dyn,
@@ -120,7 +121,12 @@ private:
 			double sample_period
 	);
 
-
+	// \brief Build products of state matrices
+	void BuildStateMatrixProducts(
+			std::vector<CommonMatrixType> &d_state_mat_pow_vec,		// Forward order products
+			std::vector<CommonMatrixType> &rev_prod_dsmatrices_vec,	// Backward order products
+			const std::vector<CommonMatrixType> &d_state_mat_vec		// State matrices
+	);
 
 	//
 	// Private data members:

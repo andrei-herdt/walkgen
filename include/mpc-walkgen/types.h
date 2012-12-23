@@ -392,7 +392,8 @@ struct LinearDynamics {
 
 	std::vector<CommonMatrixType> d_state_mat_vec;			//Vector of discrete state matrices
 	std::vector<CommonMatrixType> d_state_mat_pow_vec;		//Vector of multiplied discrete state matrices
-	std::vector<CommonMatrixType> d_state_mat_pow2_vec;	//Vector of multiplied discrete state matrices
+	std::vector<CommonMatrixType> rev_prod_dsmatrices_vec;	//Products of state matrices starting from last sample
+	std::vector<CommonMatrixType> d_state_mat_pow2_vec;		//Vector of multiplied discrete state matrices
 	std::vector<CommonMatrixType> d_input_mat_vec;			//Vector of discrete input matrices
 
 	void SetZero(int state_dim,
