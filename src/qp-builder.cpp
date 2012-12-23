@@ -549,7 +549,7 @@ void QPBuilder::BuildCPConstraints(const MPCSolution &solution) {
 
 	double neg_pow_state_mats = pow(dyn.d_state_mat_pow_vec[num_samples - 1](1,1), -1.);
 	for (int col = 0; col < num_samples - 1; col++) {
-		atimesb_vec(col) = dyn.rev_prod_dsmatrices_vec.at(num_samples - 1 - col)(1,1) * dyn.d_input_mat_vec[col](1);
+		atimesb_vec(col) = dyn.rev_prod_dsmatrices_vec.at(num_samples - 2 - col)(1,1) * dyn.d_input_mat_vec[col](1);
 	}
 	atimesb_vec(num_samples - 1) = dyn.d_input_mat_vec.at(num_samples - 1)(1);
 

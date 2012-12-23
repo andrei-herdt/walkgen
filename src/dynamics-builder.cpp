@@ -95,19 +95,16 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, doubl
 		dyn.pos.c_state_mat_inv = dyn.cont_ss.c_state_mat_inv;
 		dyn.pos.c_input_mat 	= dyn.cont_ss.c_input_mat;
 		BuildSecondOrderCoPInputGeneral(dyn.pos, height, sample_period_first, sample_period_rest, num_samples);
-		Debug::Cout("act: dyn.pos.input_mat", dyn.pos.input_mat);
 
 		dyn.vel.c_state_mat 	= dyn.cont_ss.c_state_mat;
 		dyn.vel.c_state_mat_inv = dyn.cont_ss.c_state_mat_inv;
 		dyn.vel.c_input_mat 	= dyn.cont_ss.c_input_mat;
 		BuildSecondOrderCoPInputGeneral(dyn.vel, height, sample_period_first, sample_period_rest, num_samples);
-		Debug::Cout("act: dyn.vel.input_mat", dyn.vel.input_mat);
 
 		dyn.cp.c_state_mat 		= dyn.cont_ss.c_state_mat;
 		dyn.cp.c_state_mat_inv 	= dyn.cont_ss.c_state_mat_inv;
 		dyn.cp.c_input_mat 		= dyn.cont_ss.c_input_mat;
 		BuildSecondOrderCoPInputGeneral(dyn.cp, height, sample_period_first, sample_period_rest, num_samples);
-		Debug::Cout("act: dyn.cp.input_mat", dyn.cp.input_mat);
 
 		dyn.cop.input_mat.setIdentity();
 		dyn.cop.input_mat_tr.setIdentity();
@@ -153,11 +150,8 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, doubl
 		// Build prediction matrices (S, U, UT, Uinv, UTinv):
 		// --------------------------------------------------
 		BuildSecondOrderCoPInputDecoupled(dyn.pos, dyn.d_state_mat_vec, dyn.d_input_mat_vec, dyn.d_state_mat_pow_vec, dyn.rev_prod_dsmatrices_vec);
-		Debug::Cout("pred: dyn.pos.input_mat", dyn.pos.input_mat);
 		BuildSecondOrderCoPInputDecoupled(dyn.vel, dyn.d_state_mat_vec, dyn.d_input_mat_vec, dyn.d_state_mat_pow_vec, dyn.rev_prod_dsmatrices_vec);
-		Debug::Cout("pred: dyn.vel.input_mat", dyn.vel.input_mat);
 		BuildSecondOrderCoPInputDecoupled(dyn.cp, dyn.d_state_mat_vec, dyn.d_input_mat_vec, dyn.d_state_mat_pow_vec, dyn.rev_prod_dsmatrices_vec);
-		Debug::Cout("pred: dyn.cp.input_mat", dyn.cp.input_mat);
 
 		dyn.cop.input_mat.block(0, 0, num_samples, num_samples).setIdentity();
 		dyn.cop.input_mat_tr.block(0, 0, num_samples, num_samples).setIdentity();
@@ -513,8 +507,8 @@ void DynamicsBuilder::BuildSecondOrderCoPInputDecoupled(LinearDynamicsMatrices &
 			dyn_mat.input_mat(col, col + row) = -dyn_mat.ss_output_mat(0,1) * d_state_mat_pow(1,1) * d_input_mat_vec.at(1)(1);
 		}
 	}
-	//Debug::Cout("dyn_mat.input_matold", dyn_mat.input_mat);
-	//Debug::Cout("dyn_mat.state_matold", dyn_mat.state_mat);
+	Debug::Cout("dyn_mat.input_matold", dyn_mat.input_mat);
+	Debug::Cout("dyn_mat.state_matold", dyn_mat.state_mat);
 
 	// Build augmented (stable) state matrix:
 	// --------------------------------------
@@ -539,7 +533,7 @@ void DynamicsBuilder::BuildSecondOrderCoPInputDecoupled(LinearDynamicsMatrices &
 	// Build augmented unstable state matrix and put in the last colum of the augmented input matrix:
 	// ----------------------------------------------------------------------------------------------
 	for (int row = 0; row < num_samples - 1; row++) {
-		dyn_mat.input_mat(row, num_samples) = dyn_mat.ss_output_mat(0, 1) * pow(rev_prod_dsmatrices_vec.at(row + 1)(1, 1), -1.);
+		dyn_mat.input_mat(row, num_samples) = dyn_mat.ss_output_mat(0, 1) * pow(rev_prod_dsmatrices_vec.at(row)(1, 1), -1.);
 	}
 	dyn_mat.input_mat(num_samples - 1, num_samples) = dyn_mat.ss_output_mat(0, 1);
 
@@ -555,8 +549,8 @@ void DynamicsBuilder::BuildSecondOrderCoPInputDecoupled(LinearDynamicsMatrices &
 		}
 	}
 
-	//Debug::Cout("dyn_mat.input_matnew", dyn_mat.input_mat);
-	//Debug::Cout("dyn_mat.state_matnew", dyn_mat.state_mat);
+	Debug::Cout("dyn_mat.input_matnew", dyn_mat.input_mat);
+	Debug::Cout("dyn_mat.state_matnew", dyn_mat.state_mat);
 
 	/*
 	//U(row, row) = Cs * B1s

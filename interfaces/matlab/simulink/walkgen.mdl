@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.859"
+    ComputedModelVersion    "1.863"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Sun Dec 23 19:53:28 2012"
+  LastModifiedDate	  "Sun Dec 23 21:49:19 2012"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:859>"
+  ModelVersionFormat	  "1.%<AutoIncrement:863>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -729,7 +729,7 @@ Model {
 	  Position		  [385, 75, 490, 775]
 	  TreatAsAtomicUnit	  on
 	  MinAlgLoopOccurrences	  off
-	  SystemSampleTime	  "0.1"
+	  SystemSampleTime	  "0.01"
 	  RTWSystemCode		  "Auto"
 	  FunctionWithSeparateData off
 	  MaskPromptString	  "Length of horizon [num. samples]|Position weight|Velocity weight|CoP weight|CP weight|Control weight|Step period [num. samples]|Length of initial double support phase [num. samples]|Steps before halt|Sampling period [s]|Time between recomputations [s]|Actuator sampling period [s]|Security margin [m]|Max number of working set recomputations|Dynamics order|Debug mode|PID mode|Closed loop|Inequality constraints|Formulation|Dump problmes|Terminal constraints"
@@ -745,7 +745,7 @@ Model {
 	  MaskIconOpaque	  on
 	  MaskIconRotate	  "none"
 	  MaskIconUnits		  "autoscale"
-	  MaskValueString	  "16|0|0|0|1|0|8|8|2|0.1|0.1|0.1|0.02|100|2|1|0|0|1|1|0|0"
+	  MaskValueString	  "16|1|0|0|0|0|8|8|2|0.1|0.01|0.01|0.02|100|2|1|0|0|1|1|0|0"
 	  MaskTabNameString	  ",,,,,,,,,,,,,,,,,,,,,"
 	  System {
 	    Name		    "Atomic Walkgen"
@@ -2112,24 +2112,6 @@ Model {
 	}
 	Block {
 	  BlockType		  Constant
-	  Name			  "Constant1"
-	  Position		  [30, 365, 140, 385]
-	  ShowName		  off
-	  FontName		  "Arial"
-	  FontSize		  8
-	  FontWeight		  "bold"
-	  Value			  "[-0.0, 0., 0.0]"
-	  OutDataType		  "sfix(16)"
-	  OutScaling		  "2^0"
-	  Port {
-	    PortNumber		    1
-	    Name		    "left_initial_ankle"
-	    RTWStorageClass	    "Auto"
-	    DataLoggingNameMode	    "SignalName"
-	  }
-	}
-	Block {
-	  BlockType		  Constant
 	  Name			  "Constant11"
 	  Position		  [30, 640, 180, 660]
 	  ShowName		  off
@@ -2215,7 +2197,7 @@ Model {
 	Block {
 	  BlockType		  Constant
 	  Name			  "Constant3"
-	  Position		  [25, 280, 135, 300]
+	  Position		  [30, 365, 140, 385]
 	  ShowName		  off
 	  FontName		  "Arial"
 	  FontSize		  8
@@ -2223,28 +2205,22 @@ Model {
 	  Value			  "[-0.035, 0.22, 0.0]"
 	  OutDataType		  "sfix(16)"
 	  OutScaling		  "2^0"
+	  Port {
+	    PortNumber		    1
+	    Name		    "left_initial_ankle"
+	    RTWStorageClass	    "Auto"
+	    DataLoggingNameMode	    "SignalName"
+	  }
 	}
 	Block {
 	  BlockType		  Constant
 	  Name			  "Constant4"
-	  Position		  [25, 305, 135, 325]
-	  ShowName		  off
-	  FontName		  "Arial"
-	  FontSize		  8
-	  FontWeight		  "bold"
-	  Value			  "[-0.035, -0.0059, 0.0]"
-	  OutDataType		  "sfix(16)"
-	  OutScaling		  "2^0"
-	}
-	Block {
-	  BlockType		  Constant
-	  Name			  "Constant5"
 	  Position		  [30, 390, 140, 410]
 	  ShowName		  off
 	  FontName		  "Arial"
 	  FontSize		  8
 	  FontWeight		  "bold"
-	  Value			  "[-0.0, 0., 0.0]"
+	  Value			  "[-0.035, -0.0059, 0.0]"
 	  OutDataType		  "sfix(16)"
 	  OutScaling		  "2^0"
 	  Port {
@@ -2911,7 +2887,7 @@ Model {
 	Line {
 	  Name			  "left_initial_ankle"
 	  Labels		  [0, 0]
-	  SrcBlock		  "Constant1"
+	  SrcBlock		  "Constant3"
 	  SrcPort		  1
 	  DstBlock		  "Bus\nCreator4"
 	  DstPort		  1
@@ -2919,7 +2895,7 @@ Model {
 	Line {
 	  Name			  "right_initial_ankle"
 	  Labels		  [0, 0]
-	  SrcBlock		  "Constant5"
+	  SrcBlock		  "Constant4"
 	  SrcPort		  1
 	  DstBlock		  "Bus\nCreator4"
 	  DstPort		  2
