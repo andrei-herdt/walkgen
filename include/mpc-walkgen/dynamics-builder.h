@@ -77,7 +77,8 @@ private:
 			LinearDynamicsMatrices &dyn_mat,
 			const std::vector<CommonMatrixType> &d_state_mat_vec,
 			const std::vector<CommonMatrixType> &d_input_mat_vec,
-			const std::vector<CommonMatrixType> &d_state_mat_pow_vec	// Vector of recursively multiplied discrete state matrices
+			const std::vector<CommonMatrixType> &d_state_mat_pow_vec,		// Recursively multiplied discrete state matrices
+			const std::vector<CommonMatrixType> &rev_prod_dsmatrices_vec	// Recursively multiplied discrete state matrices
 	);
 
 	void BuildThirdOrder(LinearDynamicsMatrices &dyn,

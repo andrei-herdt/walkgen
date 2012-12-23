@@ -548,9 +548,11 @@ void QPBuilder::BuildCPConstraints(const MPCSolution &solution) {
 	// ----------------
 
 	double neg_pow_state_mats = pow(dyn.d_state_mat_pow_vec[num_samples - 1](1,1), -1.);
-	for (int col = 0; col < num_samples; col++) {
-		atimesb_vec(col) = dyn.d_state_mat_pow2_vec[num_samples - 1 - col](1,1) * dyn.d_input_mat_vec[col](1);
+	for (int col = 0; col < num_samples - 1; col++) {
+		atimesb_vec(col) = dyn.rev_prod_dsmatrices_vec.at(num_samples - 1 - col)(1,1) * dyn.d_input_mat_vec[col](1);
 	}
+	atimesb_vec(num_samples - 1) = dyn.d_input_mat_vec.at(num_samples - 1)(1);
+
 	atimesb_vec *= neg_pow_state_mats;
 
 	//X:
@@ -563,7 +565,7 @@ void QPBuilder::BuildCPConstraints(const MPCSolution &solution) {
 		solver_->constr_mat().AddTerm(tmp_mat_, num_constr, 2*(num_samples + num_unst_modes));
 	}
 
-	double constant_x = neg_pow_state_mats * dyn.d_state_mat_pow_vec[num_samples - 1](1,1) * state_x(1) + atimesb_vec.transpose() * select_mats.sample_step_cx;
+	double constant_x = state_x(1) + atimesb_vec.transpose() * select_mats.sample_step_cx;
 	solver_->lc_bounds_vec()()(num_constr) = constant_x;
 	solver_->uc_bounds_vec()()(num_constr) = constant_x;
 
@@ -577,7 +579,7 @@ void QPBuilder::BuildCPConstraints(const MPCSolution &solution) {
 		solver_->constr_mat().AddTerm(tmp_mat_, num_constr + num_unst_modes, 2*(num_samples + num_unst_modes) + num_steps_previewed);
 	}
 
-	double constant_y = neg_pow_state_mats*dyn.d_state_mat_pow_vec[num_samples - 1](1,1)*state_y(1) + atimesb_vec.transpose()*select_mats.sample_step_cy;
+	double constant_y = state_y(1) + atimesb_vec.transpose()*select_mats.sample_step_cy;
 	solver_->lc_bounds_vec()()(num_constr + num_unst_modes) = constant_y;
 	solver_->uc_bounds_vec()()(num_constr + num_unst_modes) = constant_y;
 }
