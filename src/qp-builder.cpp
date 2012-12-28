@@ -190,6 +190,10 @@ void QPBuilder::BuildProblem(MPCSolution &solution) {
 		BuildInequalityConstraints(solution);
 	}
 
+	if (mpc_parameters_->is_terminal_constr) {
+		BuildTerminalConstraints(solution);
+	}
+
 	if (mpc_parameters_->warmstart) {
 		ComputeWarmStart(solution);//TODO: Modify the solution or the problem?
 	}
@@ -477,10 +481,6 @@ void QPBuilder::BuildInequalityConstraints(const MPCSolution &solution) {
 		BuildFootPosConstraints(solution);
 		//BuildFootVelConstraints(solution);
 	}
-
-	if (mpc_parameters_->is_terminal_constr) {
-		BuildTerminalConstraints(solution);
-	}
 }
 
 void QPBuilder::BuildCPConstraints(const MPCSolution &solution) {
@@ -548,16 +548,17 @@ void QPBuilder::BuildCPConstraints(const MPCSolution &solution) {
 	// ----------------
 
 	double neg_pow_state_mats = pow(dyn.d_state_mat_pow_vec[num_samples - 1](1,1), -1.);
+	double pos_pow_state_mats = dyn.d_state_mat_pow_vec.at(num_samples - 1)(1,1);
 	for (int col = 0; col < num_samples - 1; col++) {
 		atimesb_vec(col) = dyn.rev_prod_dsmatrices_vec.at(num_samples - 2 - col)(1,1) * dyn.d_input_mat_vec[col](1);
 	}
 	atimesb_vec(num_samples - 1) = dyn.d_input_mat_vec.at(num_samples - 1)(1);
 
-	atimesb_vec *= neg_pow_state_mats;
+	//atimesb_vec *= neg_pow_state_mats;
 
 	//X:
 	// xu_0 < Au^{N}*\s_0^x + \sum Au^{(j-1)}*Bu*u_j < xu_0
-	solver_->constr_mat()()(num_constr, num_samples) = neg_pow_state_mats;	// CP
+	solver_->constr_mat()()(num_constr, num_samples) = 1.;//neg_pow_state_mats;	// CP
 
 	solver_->constr_mat().AddTerm(-atimesb_vec.transpose(), num_constr, 0);
 	if (num_steps_previewed > 0) {
@@ -565,13 +566,13 @@ void QPBuilder::BuildCPConstraints(const MPCSolution &solution) {
 		solver_->constr_mat().AddTerm(tmp_mat_, num_constr, 2*(num_samples + num_unst_modes));
 	}
 
-	double constant_x = state_x(1) + atimesb_vec.transpose() * select_mats.sample_step_cx;
+	double constant_x = pos_pow_state_mats * state_x(1) + atimesb_vec.transpose() * select_mats.sample_step_cx;
 	solver_->lc_bounds_vec()()(num_constr) = constant_x;
 	solver_->uc_bounds_vec()()(num_constr) = constant_x;
 
 	//Y:
 	// yu_0 < Au^{-N}*\mu_y - \sum Au^{-(j-1)}*Bu*u_j < yu_0
-	solver_->constr_mat()()(num_constr + num_unst_modes, 2*num_samples + num_unst_modes) = neg_pow_state_mats;
+	solver_->constr_mat()()(num_constr + num_unst_modes, 2*num_samples + num_unst_modes) = 1.;//neg_pow_state_mats;
 
 	solver_->constr_mat().AddTerm(-atimesb_vec.transpose(), num_constr + num_unst_modes, num_samples + num_unst_modes);
 	if (num_steps_previewed > 0) {
@@ -579,7 +580,7 @@ void QPBuilder::BuildCPConstraints(const MPCSolution &solution) {
 		solver_->constr_mat().AddTerm(tmp_mat_, num_constr + num_unst_modes, 2*(num_samples + num_unst_modes) + num_steps_previewed);
 	}
 
-	double constant_y = state_y(1) + atimesb_vec.transpose()*select_mats.sample_step_cy;
+	double constant_y = pos_pow_state_mats * state_y(1) + atimesb_vec.transpose()*select_mats.sample_step_cy;
 	solver_->lc_bounds_vec()()(num_constr + num_unst_modes) = constant_y;
 	solver_->uc_bounds_vec()()(num_constr + num_unst_modes) = constant_y;
 }
@@ -719,11 +720,11 @@ void QPBuilder::BuildTerminalConstraints(const MPCSolution &solution) {
 
 	// Terminal equality constraint on \mu
 	// X:
-	//solver_->lv_bounds_vec()()(num_samples) = 0.;
-	//solver_->uv_bounds_vec()()(num_samples) = 0.;
+	solver_->lv_bounds_vec()()(num_samples) = 0.;
+	solver_->uv_bounds_vec()()(num_samples) = 0.;
 	// Y:
-	//solver_->lv_bounds_vec()()(2*num_samples + num_unst_modes) = 0.;
-	//solver_->uv_bounds_vec()()(2*num_samples + num_unst_modes) = 0.;
+	solver_->lv_bounds_vec()()(2*num_samples + num_unst_modes) = 0.;
+	solver_->uv_bounds_vec()()(2*num_samples + num_unst_modes) = 0.;
 
 	// Terminal inequality constraint on \mu
 	// cop_min < cp - Vp - Vcpc < cop_max

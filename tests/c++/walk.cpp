@@ -15,7 +15,7 @@ int main() {
 	int num_samples_dsss 			= 8;
 	int num_steps_ssds 				= 2;
 	double sample_period_qp 		= .1;
-	double sample_period_first 		= .05;
+	double sample_period_first 		= .1;
 	double sample_period_act 		= .01;
 	const double kSecurityMargin 		= .02;
 
@@ -38,7 +38,7 @@ int main() {
 	mpc_parameters.dynamics_order                 = SECOND_ORDER;
 	mpc_parameters.formulation		      = DECOUPLED_MODES;
 	mpc_parameters.is_pid_mode		      = false;
-	mpc_parameters.is_terminal_constr		= false;
+	mpc_parameters.is_terminal_constr	      = false;
 
 	mpc_parameters.weights.pos[0] 		= 0.;
 	mpc_parameters.weights.vel[0]  		= 1.;

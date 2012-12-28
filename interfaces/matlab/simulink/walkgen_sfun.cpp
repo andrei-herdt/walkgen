@@ -92,11 +92,13 @@ static void mdlInitializeSampleTimes(SimStruct *S)
 
 #define MDL_START
 static void mdlStart(SimStruct *S) {
-	int is_debug_in = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 10)));
-	int is_pid_mode_in = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 16)));
-	int is_constraints_in = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 18)));
-	int formulation_in = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 19)));
-	int is_terminal_constr_in = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 21)));
+	int is_debug_in 			= static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 10)));
+	int is_pid_mode_in 			= static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 16)));
+	int is_constraints_in 		= static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 18)));
+	int formulation_in 			= static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 19)));
+	int is_terminal_constr_in 	= static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 21)));
+	int dump_problems_in 		= static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 20)));
+
 
 	MPCParameters mpc_parameters;
 	mpc_parameters.num_samples_horizon  = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 0)));
@@ -137,13 +139,17 @@ static void mdlStart(SimStruct *S) {
 	if (is_constraints_in == 0) {
 		mpc_parameters.is_ineq_constr = false;
 	}
-	if (is_terminal_constr_in == 0) {
-		mpc_parameters.is_terminal_constr = false;
+	if (is_terminal_constr_in == 1) {
+		mpc_parameters.is_terminal_constr = true;
 	}
 	if (formulation_in == 0) {
 		mpc_parameters.formulation = STANDARD;
 	} else if (formulation_in == 1) {
 		mpc_parameters.formulation = DECOUPLED_MODES;
+	}
+
+	if (dump_problems_in == 1) {
+		mpc_parameters.problem_dumping = true;
 	}
 
 	Walkgen *walk = new Walkgen;
@@ -159,8 +165,6 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 	const double kMaxFootHeight     = 0.03;
 	const static int kDebug         = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 10)));
 	int is_closed_loop_in           = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 17)));
-	int dump_problems_in 			= static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 20)));
-
 
 	InputRealPtrsType pos_ref         = ssGetInputPortRealSignalPtrs(S, 0);
 	InputRealPtrsType vel_ref         = ssGetInputPortRealSignalPtrs(S, 1);
@@ -291,10 +295,6 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 	//int time_online = walk->clock().StartCounter();
 	const MPCSolution &solution = walk->Go(curr_time);
 	//walk->clock().StopCounter(time_online);
-
-	if (dump_problems_in == 1) {
-		walk->solver()->DumpProblem("problem", curr_time, "dat");
-	}
 
 	// Assign to the output:
 	// ---------------------

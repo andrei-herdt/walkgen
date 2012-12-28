@@ -510,6 +510,7 @@ void DynamicsBuilder::BuildSecondOrderCoPInputDecoupled(LinearDynamicsMatrices &
 			dyn_mat.input_mat(col, col + row) = -dyn_mat.ss_output_mat(0,1) * d_state_mat_pow(1,1) * d_input_mat_vec.at(1)(1);
 		}
 	}
+	Debug::Cout("Uold", dyn_mat.input_mat);
 
 	// Build augmented (stable) state matrix:
 	// --------------------------------------
@@ -534,7 +535,7 @@ void DynamicsBuilder::BuildSecondOrderCoPInputDecoupled(LinearDynamicsMatrices &
 	// Build augmented unstable state matrix and put in the last colum of the augmented input matrix:
 	// ----------------------------------------------------------------------------------------------
 	for (int row = 0; row < num_samples - 1; row++) {
-		dyn_mat.input_mat(row, num_samples) = dyn_mat.ss_output_mat(0, 1) * pow(rev_prod_dsmatrices_vec.at(row)(1, 1), -1.);
+		dyn_mat.input_mat(row, num_samples) = dyn_mat.ss_output_mat(0, 1) * pow(rev_prod_dsmatrices_vec.at(num_samples - 2 - row)(1, 1), -1.);
 	}
 	dyn_mat.input_mat(num_samples - 1, num_samples) = dyn_mat.ss_output_mat(0, 1);
 
@@ -549,6 +550,8 @@ void DynamicsBuilder::BuildSecondOrderCoPInputDecoupled(LinearDynamicsMatrices &
 			dyn_mat.input_mat(row, col) = - dyn_mat.ss_output_mat(0, 1) * mat_product * d_input_mat_vec.at(col)(1, 0);
 		}
 	}
+	Debug::Cout("Unew", dyn_mat.input_mat);
+
 
 
 	dyn_mat.input_mat_tr.noalias() = dyn_mat.input_mat.transpose();
@@ -575,7 +578,6 @@ void DynamicsBuilder::BuildSecondOrderCoPInputDecoupled(LinearDynamicsMatrices &
 			lambda_lu_mat(row, col) = dyn_mat.input_mat(row, num_samples) * lu_val;
 		}
 	}
-	Debug::Cout("lambda_lu_mat", lambda_lu_mat);
 
 	CommonMatrixType lambda_lu_mat_tr = CommonMatrixType::Zero(num_samples, num_samples);
 	lambda_lu_mat_tr = lambda_lu_mat.transpose();
@@ -584,7 +586,6 @@ void DynamicsBuilder::BuildSecondOrderCoPInputDecoupled(LinearDynamicsMatrices &
 	// -------------------------
 	CommonMatrixType hn_mat = CommonMatrixType::Zero(num_samples, num_samples);
 	hn_mat = dyn_mat.input_mat_tr.block(0, 0, num_samples, num_samples) * dyn_mat.input_mat.block(0, 0, num_samples, num_samples);
-	Debug::Cout("hn_mat", hn_mat);
 
 	// Build standard hessian:
 	// -----------------------
@@ -593,7 +594,7 @@ void DynamicsBuilder::BuildSecondOrderCoPInputDecoupled(LinearDynamicsMatrices &
 			+ dyn_mat.input_mat_tr.block(0, 0, num_samples, num_samples) * lambda_lu_mat
 			+ lambda_lu_mat_tr * dyn_mat.input_mat.block(0, 0, num_samples, num_samples)
 			+ lambda_lu_mat_tr * lambda_lu_mat;
-	Debug::Cout("h_mat", h_mat);
+	Debug::Cout("reconstructed_h_mat", h_mat);
 
 	assert(!dyn_mat.input_mat.isZero(kEps));
 }

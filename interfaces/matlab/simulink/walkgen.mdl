@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.863"
+    ComputedModelVersion    "1.866"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Sun Dec 23 21:49:19 2012"
+  LastModifiedDate	  "Fri Dec 28 16:25:01 2012"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:863>"
+  ModelVersionFormat	  "1.%<AutoIncrement:866>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -670,7 +670,7 @@ Model {
   }
   System {
     Name		    "walkgen"
-    Location		    [850, 74, 1125, 375]
+    Location		    [764, 74, 1039, 375]
     Open		    off
     ModelBrowserVisibility  off
     ModelBrowserWidth	    200
@@ -745,7 +745,7 @@ Model {
 	  MaskIconOpaque	  on
 	  MaskIconRotate	  "none"
 	  MaskIconUnits		  "autoscale"
-	  MaskValueString	  "16|1|0|0|0|0|8|8|2|0.1|0.01|0.01|0.02|100|2|1|0|0|1|1|0|0"
+	  MaskValueString	  "16|0|1|0|0|0|8|8|2|0.1|0.1|0.01|0.02|100|2|1|0|0|1|1|0|0"
 	  MaskTabNameString	  ",,,,,,,,,,,,,,,,,,,,,"
 	  System {
 	    Name		    "Atomic Walkgen"
@@ -1861,7 +1861,7 @@ Model {
 	      ShowName		      off
 	      FontName		      "Arial"
 	      FontSize		      8
-	      Value		      "[0, 0]"
+	      Value		      "[0.0, 0]"
 	      OutDataType	      "sfix(16)"
 	      OutScaling	      "2^0"
 	    }
@@ -2112,6 +2112,18 @@ Model {
 	}
 	Block {
 	  BlockType		  Constant
+	  Name			  "Constant1"
+	  Position		  [30, 285, 140, 305]
+	  ShowName		  off
+	  FontName		  "Arial"
+	  FontSize		  8
+	  FontWeight		  "bold"
+	  Value			  "[-0.035, 0.22, 0.0]"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
+	}
+	Block {
+	  BlockType		  Constant
 	  Name			  "Constant11"
 	  Position		  [30, 640, 180, 660]
 	  ShowName		  off
@@ -2229,6 +2241,18 @@ Model {
 	    RTWStorageClass	    "Auto"
 	    DataLoggingNameMode	    "SignalName"
 	  }
+	}
+	Block {
+	  BlockType		  Constant
+	  Name			  "Constant5"
+	  Position		  [30, 310, 140, 330]
+	  ShowName		  off
+	  FontName		  "Arial"
+	  FontSize		  8
+	  FontWeight		  "bold"
+	  Value			  "[-0.035, -0.0059, 0.0]"
+	  OutDataType		  "sfix(16)"
+	  OutScaling		  "2^0"
 	}
 	Block {
 	  BlockType		  SubSystem
@@ -2604,7 +2628,7 @@ Model {
 	      ShowName		      off
 	      FontName		      "Arial"
 	      FontSize		      8
-	      Value		      "[0.0, 0.0, 0.0]"
+	      Value		      "[0.01, 0.0, 0.0]"
 	      OutDataType	      "sfix(16)"
 	      OutScaling	      "2^0"
 	    }
