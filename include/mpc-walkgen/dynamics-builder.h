@@ -129,6 +129,16 @@ private:
 			const std::vector<CommonMatrixType> &d_state_mat_vec		// State matrices
 	);
 
+	// Tests:
+	// ------
+	void RecoverStandardInputMat(
+			CommonMatrixType &h_mat,
+			const CommonMatrixType &input_mat,
+			const std::vector<CommonMatrixType> &rev_prod_dsmatrices_vec,
+			const std::vector<CommonMatrixType> &d_input_mat_vec
+	);
+
+
 	//
 	// Private data members:
 	//

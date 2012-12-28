@@ -149,11 +149,8 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, doubl
 
 		// Build prediction matrices (S, U, UT, Uinv, UTinv):
 		// --------------------------------------------------
-		std::cout << "position: " << std::endl;
 		BuildSecondOrderCoPInputDecoupled(dyn.pos, dyn.d_state_mat_vec, dyn.d_input_mat_vec, dyn.d_state_mat_pow_vec, dyn.rev_prod_dsmatrices_vec);
-		std::cout << "velocity: " << std::endl;
 		BuildSecondOrderCoPInputDecoupled(dyn.vel, dyn.d_state_mat_vec, dyn.d_input_mat_vec, dyn.d_state_mat_pow_vec, dyn.rev_prod_dsmatrices_vec);
-		std::cout << "cp: " << std::endl;
 		BuildSecondOrderCoPInputDecoupled(dyn.cp, dyn.d_state_mat_vec, dyn.d_input_mat_vec, dyn.d_state_mat_pow_vec, dyn.rev_prod_dsmatrices_vec);
 
 		dyn.cop.input_mat.block(0, 0, num_samples, num_samples).setIdentity();
@@ -510,7 +507,6 @@ void DynamicsBuilder::BuildSecondOrderCoPInputDecoupled(LinearDynamicsMatrices &
 			dyn_mat.input_mat(col, col + row) = -dyn_mat.ss_output_mat(0,1) * d_state_mat_pow(1,1) * d_input_mat_vec.at(1)(1);
 		}
 	}
-	Debug::Cout("Uold", dyn_mat.input_mat);
 
 	// Build augmented (stable) state matrix:
 	// --------------------------------------
@@ -550,51 +546,12 @@ void DynamicsBuilder::BuildSecondOrderCoPInputDecoupled(LinearDynamicsMatrices &
 			dyn_mat.input_mat(row, col) = - dyn_mat.ss_output_mat(0, 1) * mat_product * d_input_mat_vec.at(col)(1, 0);
 		}
 	}
-	Debug::Cout("Unew", dyn_mat.input_mat);
-
 
 
 	dyn_mat.input_mat_tr.noalias() = dyn_mat.input_mat.transpose();
 	//dyn_mat.input_mat_inv = dyn_mat.input_mat.inverse();
 	//dyn_mat.input_mat_inv_tr = dyn_mat.input_mat_inv.transpose();
 
-
-	// Test augmented input matrix:
-	// ----------------------------
-
-	// Build lu_vec:
-	CommonVectorType lu_vec = CommonVectorType::Zero(num_samples);
-	for (int i = 0; i < num_samples - 1; i++) {
-		lu_vec(i) = rev_prod_dsmatrices_vec.at(num_samples - 2 - i)(1, 1) * d_input_mat_vec.at(i)(1);
-	}
-	lu_vec(num_samples - 1) = d_input_mat_vec.at(num_samples - 1)(1);
-
-	// Build lambdau_lu_mat:
-	CommonMatrixType lambda_lu_mat = CommonMatrixType::Zero(num_samples, num_samples);
-	double lu_val = 0;
-	for (int col = 0; col < num_samples; col++) {
-		lu_val = lu_vec(col);
-		for (int row = 0; row < num_samples; row++) {
-			lambda_lu_mat(row, col) = dyn_mat.input_mat(row, num_samples) * lu_val;
-		}
-	}
-
-	CommonMatrixType lambda_lu_mat_tr = CommonMatrixType::Zero(num_samples, num_samples);
-	lambda_lu_mat_tr = lambda_lu_mat.transpose();
-
-	// Build normalized hessian:
-	// -------------------------
-	CommonMatrixType hn_mat = CommonMatrixType::Zero(num_samples, num_samples);
-	hn_mat = dyn_mat.input_mat_tr.block(0, 0, num_samples, num_samples) * dyn_mat.input_mat.block(0, 0, num_samples, num_samples);
-
-	// Build standard hessian:
-	// -----------------------
-	CommonMatrixType h_mat = CommonMatrixType::Zero(num_samples, num_samples);
-	h_mat = hn_mat
-			+ dyn_mat.input_mat_tr.block(0, 0, num_samples, num_samples) * lambda_lu_mat
-			+ lambda_lu_mat_tr * dyn_mat.input_mat.block(0, 0, num_samples, num_samples)
-			+ lambda_lu_mat_tr * lambda_lu_mat;
-	Debug::Cout("reconstructed_h_mat", h_mat);
 
 	assert(!dyn_mat.input_mat.isZero(kEps));
 }
@@ -687,3 +644,43 @@ void DynamicsBuilder::ComputeDiscreteInputVec(LinearDynamics &dyn) {
 	dyn.discr_ss.c_input_mat_tr = dyn.discr_ss.c_input_mat.transpose();
 }
 
+
+// Tests:
+// ------
+void DynamicsBuilder::RecoverStandardInputMat(CommonMatrixType &h_mat, const CommonMatrixType &input_mat,
+		const std::vector<CommonMatrixType> &rev_prod_dsmatrices_vec, const std::vector<CommonMatrixType> &d_input_mat_vec) {
+
+	int num_samples = d_input_mat_vec.size();
+
+	// Build lu_vec:
+	CommonVectorType lu_vec = CommonVectorType::Zero(num_samples);
+	for (int i = 0; i < num_samples - 1; i++) {
+		lu_vec(i) = rev_prod_dsmatrices_vec.at(num_samples - 2 - i)(1, 1) * d_input_mat_vec.at(i)(1);
+	}
+	lu_vec(num_samples - 1) = d_input_mat_vec.at(num_samples - 1)(1);
+
+	// Build lambdau_lu_mat:
+	CommonMatrixType lambda_lu_mat = CommonMatrixType::Zero(num_samples, num_samples);
+	double lu_val = 0;
+	for (int col = 0; col < num_samples; col++) {
+		lu_val = lu_vec(col);
+		for (int row = 0; row < num_samples; row++) {
+			lambda_lu_mat(row, col) = input_mat(row, num_samples) * lu_val;
+		}
+	}
+
+	CommonMatrixType lambda_lu_mat_tr = lambda_lu_mat.transpose();
+	CommonMatrixType input_mat_tr = input_mat.transpose();
+
+	// Build normalized hessian:
+	// -------------------------
+	CommonMatrixType hn_mat = input_mat_tr.block(0, 0, num_samples, num_samples) * input_mat.block(0, 0, num_samples, num_samples);
+
+	// Build standard hessian:
+	// -----------------------
+	h_mat = hn_mat
+			+ input_mat_tr.block(0, 0, num_samples, num_samples) * lambda_lu_mat
+			+ lambda_lu_mat_tr * input_mat.block(0, 0, num_samples, num_samples)
+			+ lambda_lu_mat_tr * lambda_lu_mat;
+
+}
