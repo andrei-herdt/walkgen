@@ -13,10 +13,10 @@ int main() {
 	int num_samples_horizon 		= 16;
 	int num_samples_step 			= 8;
 	int num_samples_dsss 			= 8;
-	int num_steps_ssds 			= 2;
+	int num_steps_ssds 				= 2;
 	double sample_period_qp 		= .1;
-	double sample_period_first 		= .1;
-	double sample_period_act 		= .1;
+	double sample_period_first 		= .05;
+	double sample_period_act 		= .01;
 	const double kSecurityMargin 		= .02;
 
 	// Simulation parameters:
@@ -41,15 +41,15 @@ int main() {
 	mpc_parameters.is_terminal_constr		= false;
 
 	mpc_parameters.weights.pos[0] 		= 0.;
-	mpc_parameters.weights.vel[0]  		= 0.;
+	mpc_parameters.weights.vel[0]  		= 1.;
 	mpc_parameters.weights.cop[0]  		= 0.;//0.00001;
-	mpc_parameters.weights.cp[0] 		= 1.;//1.;
+	mpc_parameters.weights.cp[0] 		= 0.;//1.;
 	mpc_parameters.weights.control[0] 	= 0.;
 
 	mpc_parameters.weights.pos[1] 		= 0.;
-	mpc_parameters.weights.vel[1]  		= 0.;
+	mpc_parameters.weights.vel[1]  		= 1.;
 	mpc_parameters.weights.cop[1]  		= 0.;//1.;
-	mpc_parameters.weights.cp[1] 		= 1.;
+	mpc_parameters.weights.cp[1] 		= 0.;
 	mpc_parameters.weights.control[1] 	= 0.;
 
 	// Robot parameters:
@@ -160,7 +160,7 @@ int main() {
 		//std::cout << "com_prw.vel: " << solution.com_prw.vel.x_vec.transpose() << std::endl;
 		
 		//std::cout << "com_prw.cp.x: " << solution.com_prw.cp.x_vec.transpose() << std::endl;
-		std::cout << "com_prw.cp.x: " << solution.com_prw.cp.x_vec.transpose() << std::endl;
+		//std::cout << "com_prw.cp.x: " << solution.com_prw.cp.x_vec.transpose() << std::endl;
 	 	
 		//std::cout << std::endl;
 		//std::cout << "com_prw.control.x_vec: " << solution.com_prw.control.x_vec.transpose() << std::endl;
