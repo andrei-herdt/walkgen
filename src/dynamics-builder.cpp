@@ -145,13 +145,13 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, doubl
 
 		// Build products of state matrices:
 		// ---------------------------------
-		BuildStateMatrixProducts(dyn.d_state_mat_pow_vec, dyn.rev_prod_dsmatrices_vec, dyn.d_state_mat_vec);
+		BuildStateMatrixProducts(dyn.d_state_mat_pow_vec, dyn.rev_matrix_prod_vec, dyn.d_state_mat_vec);
 
 		// Build prediction matrices (S, U, UT, Uinv, UTinv):
 		// --------------------------------------------------
-		BuildSecondOrderCoPInputDecoupled(dyn.pos, dyn.d_state_mat_vec, dyn.d_input_mat_vec, dyn.d_state_mat_pow_vec, dyn.rev_prod_dsmatrices_vec);
-		BuildSecondOrderCoPInputDecoupled(dyn.vel, dyn.d_state_mat_vec, dyn.d_input_mat_vec, dyn.d_state_mat_pow_vec, dyn.rev_prod_dsmatrices_vec);
-		BuildSecondOrderCoPInputDecoupled(dyn.cp, dyn.d_state_mat_vec, dyn.d_input_mat_vec, dyn.d_state_mat_pow_vec, dyn.rev_prod_dsmatrices_vec);
+		BuildSecondOrderCoPInputDecoupled(dyn.pos, dyn.d_state_mat_vec, dyn.d_input_mat_vec, dyn.d_state_mat_pow_vec, dyn.rev_matrix_prod_vec);
+		BuildSecondOrderCoPInputDecoupled(dyn.vel, dyn.d_state_mat_vec, dyn.d_input_mat_vec, dyn.d_state_mat_pow_vec, dyn.rev_matrix_prod_vec);
+		BuildSecondOrderCoPInputDecoupled(dyn.cp, dyn.d_state_mat_vec, dyn.d_input_mat_vec, dyn.d_state_mat_pow_vec, dyn.rev_matrix_prod_vec);
 
 		dyn.cop.input_mat.block(0, 0, num_samples, num_samples).setIdentity();
 		dyn.cop.input_mat_tr.block(0, 0, num_samples, num_samples).setIdentity();

@@ -32,6 +32,8 @@ QPMatrix::QPMatrix(const int num_rows_max, const int num_cols_max)
 
 QPMatrix::~QPMatrix(){}
 
+
+// Row major -> Row major
 void QPMatrix::AddTerm(const MatrixRowMaj &mat,
 		const int first_row, const int first_col) {
 	// The following is optimized for row major matrices.
@@ -61,6 +63,39 @@ void QPMatrix::AddTerm(const MatrixRowMaj &mat,
 	cholesky_old_mat_ = true;
 
 }
+
+/*
+// Colum major goal:
+void QPMatrix::AddTerm(const MatrixRowMaj &mat,
+		const int first_row, const int first_col) {
+	// The following is optimized for row major source matrices.
+	// It has to be adapted if colum major ones are used.
+	// --------------------------------------------------
+	int newcol = 0;
+	int newrow = 0;
+	const double *mat_p = mat.data();
+	double *goal_mat_p = NULL;
+	int const *first_col_p = col_indices_vec_.data() + first_col;
+	int const *first_row_p = row_indices_vec_.data() + first_row;
+	const int *col_p = first_col_p;
+	const int *row_p = NULL;
+
+	for (int col = 0; col < mat.cols(); col++) {
+		goal_mat_p = matrix_.data() + *col_p * num_rows_max_;
+		row_p = first_row_p;
+		for (int row = 0; row < mat.rows(); ++row) {
+			// row major source!
+			*(goal_mat_p + *row_p) += *mat_p;
+			mat_p += mat.rows();
+			++row_p;
+		}
+		++col_p;
+	}
+
+	cholesky_old_mat_ = true;
+
+}
+*/
 
 void QPMatrix::SetConstantPart(const CommonMatrixType &mat) {
 	int num_rows = mat.rows();

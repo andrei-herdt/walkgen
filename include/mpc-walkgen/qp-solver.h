@@ -57,19 +57,20 @@ protected:
 
 protected:
 	QPMatrix hessian_mat_;
-	double *hessian_arr_;
-	QPVector gradient_vec_;
+	double *hessian_mat_arr_;
+	QPVector objective_vec_;
 
-	QPMatrix cstr_mat_;
-	double *cstr_arr_;
+	QPMatrix constr_mat_;
+	double *constr_mat_arr_;
 	QPVector uc_bounds_vec_;
 	QPVector lc_bounds_vec_;
 
 	QPVector uv_bounds_vec_;
 	QPVector lv_bounds_vec_;
 
-	int num_variables_, num_variables_max_;
+	int num_var_, num_var_max_;
 	int num_constr_, num_constr_max_;
+	int num_eq_constr_;
 
 	Eigen::VectorXi var_indices_vec_;
 	Eigen::VectorXi constr_indices_vec_;

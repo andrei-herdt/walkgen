@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.869"
+    ComputedModelVersion    "1.872"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Fri Dec 28 18:57:19 2012"
+  LastModifiedDate	  "Sat Dec 29 19:11:35 2012"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:869>"
+  ModelVersionFormat	  "1.%<AutoIncrement:872>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -107,7 +107,7 @@ Model {
 	  $ObjectID		  2
 	  Version		  "1.3.0"
 	  StartTime		  "0.0"
-	  StopTime		  "0.1"
+	  StopTime		  "0.3"
 	  AbsTol		  "auto"
 	  FixedStep		  "1e-3"
 	  InitialStep		  "auto"
@@ -670,8 +670,8 @@ Model {
   }
   System {
     Name		    "walkgen"
-    Location		    [764, 74, 1039, 375]
-    Open		    on
+    Location		    [850, 74, 1125, 375]
+    Open		    off
     ModelBrowserVisibility  off
     ModelBrowserWidth	    200
     ScreenColor		    "white"
@@ -745,7 +745,7 @@ Model {
 	  MaskIconOpaque	  on
 	  MaskIconRotate	  "none"
 	  MaskIconUnits		  "autoscale"
-	  MaskValueString	  "16|0|0|1|1|0|8|8|2|0.1|0.01|0.001|0.02|100|2|1|0|0|0|1|1|0"
+	  MaskValueString	  "16|0|1|0|0|1|8|8|2|0.1|0.01|0.001|0.02|100|2|1|0|0|1|1|0|0"
 	  MaskTabNameString	  ",,,,,,,,,,,,,,,,,,,,,"
 	  System {
 	    Name		    "Atomic Walkgen"
@@ -2628,7 +2628,7 @@ Model {
 	      ShowName		      off
 	      FontName		      "Arial"
 	      FontSize		      8
-	      Value		      "[0.0, 0.0, 0.0]"
+	      Value		      "[0.01, 0.0, 0.0]"
 	      OutDataType	      "sfix(16)"
 	      OutScaling	      "2^0"
 	    }

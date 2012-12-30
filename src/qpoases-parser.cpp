@@ -36,7 +36,7 @@ QPOasesParser::~QPOasesParser() {
 void QPOasesParser::Init() {
 	int max_iterations = 100;
 
-	qp_->init(hessian_mat_().data(), gradient_vec_().data(), cstr_mat_().data(),
+	qp_->init(hessian_mat_().data(), objective_vec_().data(), constr_mat_().data(),
 			lv_bounds_vec_().data(), uv_bounds_vec_().data(),
 			lc_bounds_vec_().data(), uc_bounds_vec_().data(),
 			max_iterations, NULL);
@@ -51,7 +51,7 @@ void QPOasesParser::Solve(MPCSolution &solution,
 		reorderInitialSolution(solution.initial_solution, solution.init_active_set);
 		solution.qp_solution_vec = solution.initial_solution;
 		solution.constraints = solution.init_active_set;
-		for (int i = 0; i < num_variables_; ++i) {
+		for (int i = 0; i < num_var_; ++i) {
 			if (solution.constraints(i) == 0) {//TODO: replace 0,1,-1 by ST_INACTIVE/ST_LOWER/ST_UPPER
 				bounds_init_vec_->setupBound(i, qpOASES::ST_INACTIVE);
 			} else if (solution.constraints(i) == 1) {
@@ -60,7 +60,7 @@ void QPOasesParser::Solve(MPCSolution &solution,
 				bounds_init_vec_->setupBound(i, qpOASES::ST_UPPER);
 			}
 		}
-		for (int i = num_variables_; i < num_variables_ + num_constr_; ++i) {
+		for (int i = num_var_; i < num_var_ + num_constr_; ++i) {
 			if (solution.constraints(i) == 0) {
 				cstr_init_vec_->setupConstraint(i, qpOASES::ST_INACTIVE);
 			} else if (solution.constraints(i) == 1) {
@@ -70,13 +70,13 @@ void QPOasesParser::Solve(MPCSolution &solution,
 			}
 		}
 	} else {
-		if (solution.qp_solution_vec.rows() != num_variables_) {
-			solution.qp_solution_vec.setZero(num_variables_);
+		if (solution.qp_solution_vec.rows() != num_var_) {
+			solution.qp_solution_vec.setZero(num_var_);
 		} else {
 			solution.qp_solution_vec.fill(0);
 		}
-		if (solution.constraints.rows() != num_variables_ + num_constr_) {
-			solution.constraints.setZero(num_variables_ + num_constr_);
+		if (solution.constraints.rows() != num_var_ + num_constr_) {
+			solution.constraints.setZero(num_var_ + num_constr_);
 		} else {
 			solution.constraints.fill(0);
 		}
@@ -84,12 +84,12 @@ void QPOasesParser::Solve(MPCSolution &solution,
 
 	int num_wsr = parameters_->num_wsrec;
 	if (warmstart) {
-		qp_->hotstart(hessian_mat_().data(), gradient_vec_().data(), cstr_mat_().data(),
+		qp_->hotstart(hessian_mat_().data(), objective_vec_().data(), constr_mat_().data(),
 				lv_bounds_vec_().data(), uv_bounds_vec_().data(),
 				lc_bounds_vec_().data(), uc_bounds_vec_().data(),
 				num_wsr, NULL);
 	} else {
-		qp_->hotstart(hessian_mat_().data(), gradient_vec_().data(), cstr_mat_().data(),
+		qp_->hotstart(hessian_mat_().data(), objective_vec_().data(), constr_mat_().data(),
 				lv_bounds_vec_().data(), uv_bounds_vec_().data(),
 				lc_bounds_vec_().data(), uc_bounds_vec_().data(),
 				num_wsr, NULL);
@@ -98,7 +98,7 @@ void QPOasesParser::Solve(MPCSolution &solution,
 	assert(!qp_->isInfeasible());
 
 	qp_->getPrimalSolution(solution_arr_);
-	for (int i = 0; i < num_variables_; ++i) {
+	for (int i = 0; i < num_var_; ++i) {
 		solution.qp_solution_vec(i) = solution_arr_[i];
 	}
 
@@ -112,7 +112,7 @@ void QPOasesParser::Solve(MPCSolution &solution,
 	qpOASES::Bounds bounds;
 	qp_->getConstraints(constr);
 	qp_->getBounds(bounds);
-	for (int i=0; i < num_variables_; ++i) {
+	for (int i=0; i < num_var_; ++i) {
 		if (bounds.getStatus(i) == qpOASES::ST_LOWER) {
 			solution.constraints(i) = 1;
 		} else if (bounds.getStatus(i) == qpOASES::ST_UPPER) {
@@ -123,11 +123,11 @@ void QPOasesParser::Solve(MPCSolution &solution,
 	}
 	for (int i = 0; i < num_constr_; ++i) {
 		if (constr.getStatus(i) == qpOASES::ST_LOWER) {
-			solution.constraints(i + num_variables_) = 1;
+			solution.constraints(i + num_var_) = 1;
 		} else if (constr.getStatus(i) == qpOASES::ST_UPPER) {
-			solution.constraints(i + num_variables_) = 2;
+			solution.constraints(i + num_var_) = 2;
 		} else {
-			solution.constraints(i + num_variables_) = 0;
+			solution.constraints(i + num_var_) = 0;
 		}
 	}
 

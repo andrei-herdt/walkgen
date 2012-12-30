@@ -1,4 +1,3 @@
-##
 ##	Filename:  SRC/make_linux
 ##	Author:    Andrei herdt
 ##

@@ -15,7 +15,8 @@ include make_dependencies.mk
 IFLAGS      =  -I. \
                -I${IDIR} \
 			   -I${DIR_EIGEN} \
-			   -I${QPOASES_IDIR}
+			   -I${QPOASES_IDIR} \
+			   -I${QLD_IDIR}
 
 MPC_WALKGEN_OBJECTS = \
 	walkgen.${OBJEXT} \
@@ -28,6 +29,7 @@ MPC_WALKGEN_OBJECTS = \
 	qp-solver.${OBJEXT} \
 	heuristic-preview.${OBJEXT} \
 	qpoases-parser.${OBJEXT} \
+	qld-parser.${OBJEXT} \
 	qp-matrix.${OBJEXT} \
 	qp-builder.${OBJEXT} \
 	orientations-preview.${OBJEXT} \
@@ -168,6 +170,18 @@ qpoases-parser.${OBJEXT}: qpoases-parser.cpp \
 	${QPOASES_IDIR}/qpOASES/MessageHandling.hpp
 	@echo "Creating"  $@
 	${CPP} ${DEF_TARGET} -c ${IFLAGS} ${CPPFLAGS} qpoases-parser.cpp	
+	
+qld-parser.${OBJEXT}: qld-parser.cpp \
+	${IDIR}/mpc-walkgen/qld-parser.h \
+	${IDIR}/mpc-walkgen/qp-solver.h \
+	${IDIR}/mpc-walkgen/qp-wrapper-inl.h \
+	${IDIR}/mpc-walkgen/qp-matrix.h \
+	${IDIR}/mpc-walkgen/qp-vector.h \
+	${IDIR}/mpc-walkgen/types.h \
+	${IDIR}/mpc-walkgen/api.h \
+	${QLD_IDIR}/qld.h
+	@echo "Creating"  $@
+	${CPP} ${DEF_TARGET} -c ${IFLAGS} ${CPPFLAGS} qld-parser.cpp	
 	
 qp-matrix.${OBJEXT}: qp-matrix.cpp \
 	${IDIR}/mpc-walkgen/qp-matrix.h \

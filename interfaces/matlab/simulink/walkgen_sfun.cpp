@@ -118,7 +118,7 @@ static void mdlStart(SimStruct *S) {
 		mpc_parameters.interpolate_whole_horizon	= true;
 		mpc_parameters.solver.analysis			    = true;
 	}
-	mpc_parameters.solver.name                  	= QPOASES;
+	mpc_parameters.solver.name                  	= QLD;
 
 	mpc_parameters.dynamics_order               	= static_cast<SystemOrder>(static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 9))));
 
@@ -129,10 +129,10 @@ static void mdlStart(SimStruct *S) {
 	mpc_parameters.weights.control[0] 	= *mxGetPr(ssGetSFcnParam(S, 15));//0.00001;
 
 	mpc_parameters.weights.pos[1] 		= 0.;
-	mpc_parameters.weights.vel[1]  		= 1.;
-	mpc_parameters.weights.cop[1]  		= 1.;
+	mpc_parameters.weights.vel[1]  		= 0.;
+	mpc_parameters.weights.cop[1]  		= 0.;
 	mpc_parameters.weights.cp[1] 		= 0.;
-	mpc_parameters.weights.control[1] 	= 0.000001;
+	mpc_parameters.weights.control[1] 	= 0.;
 	if (is_pid_mode_in == 1) {
 		mpc_parameters.is_pid_mode = true;
 	}

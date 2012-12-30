@@ -359,10 +359,10 @@ WeightCoefficients::WeightCoefficients(int num_modes)
 	control[0] 	= 0.0001;
 
 	pos[1] 		= 0.;
-	vel[1]  	= 1.;
-	cop[1]  	= 1.;
-	cp[1] 		= 1.;
-	control[1] 	= 0.000001;
+	vel[1]  	= 0.;
+	cop[1]  	= 0.;
+	cp[1] 		= 0.;
+	control[1] 	= 0.;
 
 
 	active_mode  = 0;
@@ -414,7 +414,7 @@ void LinearDynamics::SetZero(int state_dim, int input_dim, int output_dim, int n
 
 	d_state_mat_vec.resize(num_samples, CommonMatrixType::Zero(state_dim, state_dim));
 	d_state_mat_pow_vec.resize(num_samples, CommonMatrixType::Zero(state_dim, state_dim));
-	rev_prod_dsmatrices_vec.resize(num_samples, CommonMatrixType::Zero(state_dim, state_dim));
+	rev_matrix_prod_vec.resize(num_samples, CommonMatrixType::Zero(state_dim, state_dim));
 	d_state_mat_pow2_vec.resize(num_samples, CommonMatrixType::Zero(state_dim, state_dim));
 	d_input_mat_vec.resize(num_samples, CommonMatrixType::Zero(state_dim, input_dim));
 }

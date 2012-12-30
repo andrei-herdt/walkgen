@@ -58,8 +58,8 @@ void QPVector::Add(const CommonVectorType &vec, const int first_row) {
   }*/
 
   // Non-optimized equivalent code
-  for (int i = 0; i < num_rows; ++i){
-    vector_(index_order_(first_row+i)) += vec(i);
+  for (int row = 0; row < num_rows; ++row){
+    vector_(index_order_(first_row + row)) += vec(row);
   }
 }
 

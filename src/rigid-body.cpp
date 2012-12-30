@@ -17,8 +17,8 @@ RigidBody::~RigidBody() {}
 void RigidBody::Init(const MPCParameters *mpc_parameters_p) {
 	mpc_parameters_ = mpc_parameters_p;
 
-	int nbdynamics = mpc_parameters_->GetNumRecomputations();
-	dynamics_qp_vec_.resize(nbdynamics);
+	int num_dynamics = mpc_parameters_->GetNumRecomputations();
+	dynamics_qp_vec_.resize(num_dynamics);
 
 	int num_samples = mpc_parameters_->num_samples_act();
 	int num_unst_modes = 1;//TODO: unstable modes
