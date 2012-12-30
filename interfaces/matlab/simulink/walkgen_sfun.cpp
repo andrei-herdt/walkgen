@@ -2,23 +2,23 @@
 
 #ifdef __cplusplus
 extern "C" {
-    #endif
-    
-    #define S_FUNCTION_LEVEL 2
-    #define S_FUNCTION_NAME  walkgen_sfun
-    
-    #include "simstruc.h"
-    
-    using namespace Eigen;
-    using namespace MPCWalkgen;
-    using namespace std;
-    
-    #define IS_PARAM_DOUBLE(pVal) (mxIsNumeric(pVal) && !mxIsLogical(pVal) &&\
+#endif
+
+#define S_FUNCTION_LEVEL 2
+#define S_FUNCTION_NAME  walkgen_sfun
+
+#include "simstruc.h"
+
+using namespace Eigen;
+using namespace MPCWalkgen;
+using namespace std;
+
+#define IS_PARAM_DOUBLE(pVal) (mxIsNumeric(pVal) && !mxIsLogical(pVal) &&\
 		!mxIsEmpty(pVal) && !mxIsSparse(pVal) && !mxIsComplex(pVal) && mxIsDouble(pVal))
 
 static void mdlInitializeSizes(SimStruct *S) {
 	// Expected number of parameters
-	ssSetNumSFcnParams(S, 22);
+	ssSetNumSFcnParams(S, 23);
 
 	// Parameter mismatch?
 	if (ssGetNumSFcnParams(S) != ssGetSFcnParamsCount(S)) {
@@ -49,7 +49,7 @@ static void mdlInitializeSizes(SimStruct *S) {
 	ssSetInputPortDirectFeedThrough(S, 7, 1);
 	ssSetInputPortDirectFeedThrough(S, 8, 1);
 	ssSetInputPortDirectFeedThrough(S, 9, 1);
-   	ssSetInputPortDirectFeedThrough(S, 10, 1);
+	ssSetInputPortDirectFeedThrough(S, 10, 1);
 
 	if (!ssSetNumOutputPorts(S,19)) return;
 	// Realized motions
@@ -98,6 +98,7 @@ static void mdlStart(SimStruct *S) {
 	int formulation_in 			= static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 19)));
 	int is_terminal_constr_in 	= static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 21)));
 	int dump_problems_in 		= static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 20)));
+	int solver_in 				= static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 22)));
 
 
 	MPCParameters mpc_parameters;
@@ -118,7 +119,13 @@ static void mdlStart(SimStruct *S) {
 		mpc_parameters.interpolate_whole_horizon	= true;
 		mpc_parameters.solver.analysis			    = true;
 	}
-	mpc_parameters.solver.name                  	= QLD;
+	if (solver_in == 0) {
+		mpc_parameters.solver.name                  	= QLD;
+	} else if (solver_in == 1) {
+		mpc_parameters.solver.name                  	= QPOASES;
+	} else if (solver_in == 2) {
+		mpc_parameters.solver.name                  	= LSSOL;
+	}
 
 	mpc_parameters.dynamics_order               	= static_cast<SystemOrder>(static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 9))));
 
@@ -196,7 +203,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 	real_T *com_control_prw= ssGetOutputPortRealSignal(S, 15);
 	real_T *cp_prw         = ssGetOutputPortRealSignal(S, 16);
 	real_T *cur_state      = ssGetOutputPortRealSignal(S, 17);
-  	real_T *sim_parameters = ssGetOutputPortRealSignal(S, 18);
+	real_T *sim_parameters = ssGetOutputPortRealSignal(S, 18);
 
 	Walkgen *walk = (Walkgen *)ssGetPWorkValue(S, 0);
 
@@ -405,13 +412,13 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 		cur_state[7] = robot->com()->state().z[1];
 		cur_state[8] = robot->com()->state().z[2];
 
-        sim_parameters[0] =	walk->mpc_parameters().num_samples_horizon;
-        sim_parameters[1] = walk->mpc_parameters().num_samples_step;
-        sim_parameters[2] = walk->mpc_parameters().num_samples_dsss;
-        sim_parameters[3] = walk->mpc_parameters().num_steps_ssds;
-        sim_parameters[4] = walk->mpc_parameters().period_qpsample;
-        sim_parameters[5] = walk->mpc_parameters().period_mpcsample;
-        sim_parameters[6] = walk->mpc_parameters().period_actsample;
+		sim_parameters[0] =	walk->mpc_parameters().num_samples_horizon;
+		sim_parameters[1] = walk->mpc_parameters().num_samples_step;
+		sim_parameters[2] = walk->mpc_parameters().num_samples_dsss;
+		sim_parameters[3] = walk->mpc_parameters().num_steps_ssds;
+		sim_parameters[4] = walk->mpc_parameters().period_qpsample;
+		sim_parameters[5] = walk->mpc_parameters().period_mpcsample;
+		sim_parameters[6] = walk->mpc_parameters().period_actsample;
 	}
 }
 
