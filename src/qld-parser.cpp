@@ -39,9 +39,14 @@ void QLDParser::Init() {
 void QLDParser::Solve(MPCSolution &solution,
 		bool warmstart, bool analysis) {
 
+	if (solution.qp_solution_vec.rows() < num_var_) {// TODO: Resize when num_var_max is known
+		solution.qp_solution_vec.setZero(num_var_);
+	} else {
+		solution.qp_solution_vec.fill(0);
+	}
+
 	// Transform matrices and constraints vector:
-	// (1) Column major required:
-	// (2) First row of constraints matrix and vector are zero
+	// Column major required:
 	// -------------------------------------------------------
 	for (int col = 0; col < num_var_; col++) {
 		for (int row = 0; row < num_var_; row++) {
@@ -54,7 +59,7 @@ void QLDParser::Solve(MPCSolution &solution,
 		}
 	}
 	for (int row = 0; row < num_constr_; row++) {
-		constr_vec_arr_[row] = lc_bounds_vec_(row);
+		constr_vec_arr_[row] = -lc_bounds_vec_(row);
 	}
 
 	m_ 			= num_constr_;
@@ -72,18 +77,17 @@ void QLDParser::Solve(MPCSolution &solution,
 			solution_arr_, lagr_mult_arr_, &iout_, &ifail_, &iprint_,
 			war_, &lwar_, iwar_, &liwar_, &eps_);
 
-	if (solution.qp_solution_vec.rows() < num_var_) {// TODO: Resize when num_var_max is known
-		solution.qp_solution_vec.setZero(num_var_);
-	} else {
-		solution.qp_solution_vec.fill(0);
-	}
-
 	for (int i = 0; i < num_var_; ++i) {
 		solution.qp_solution_vec(i) = solution_arr_[i];
 	}
 
+
 	if (parameters_->analysis) {
-		//solution.analysis.objective_value = qp_->getObjVal();
+		CommonMatrixType obj_val_mat =
+				solution.qp_solution_vec.head(num_var_).transpose() * hessian_mat_().block(0, 0, num_var_, num_var_) * solution.qp_solution_vec.head(num_var_)
+				+ objective_vec_().head(num_var_).transpose() * solution.qp_solution_vec.head(num_var_);
+
+		solution.analysis.objective_value = obj_val_mat(0, 0);
 		//solution.analysis.num_iterations = num_wsr;
 	}
 

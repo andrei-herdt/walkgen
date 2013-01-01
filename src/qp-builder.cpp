@@ -328,16 +328,18 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	int num_steps_previewed = solution.support_states_vec.back().step_number;
 	int num_samples = mpc_parameters_->num_samples_horizon;
 
-	CommonVectorType state_x(mpc_parameters_->dynamics_order - num_unst_modes), state_y(mpc_parameters_->dynamics_order - num_unst_modes);
+	CommonMatrixType state_x(mpc_parameters_->dynamics_order - num_unst_modes, 1), state_y(mpc_parameters_->dynamics_order - num_unst_modes, 1);
 	if (mpc_parameters_->formulation == DECOUPLED_MODES) {
-		Matrix2D state_trans_mat;
-		state_trans_mat.setZero();
+		Matrix2D state_trans_mat = Matrix2D::Zero();
 		state_trans_mat(0, 0) = 1.;
 		state_trans_mat(0, 1) = -1. / sqrt(kGravity / com.z[0]);
 		state_trans_mat(1, 0) = 1.;
 		state_trans_mat(1, 1) = 1. / sqrt(kGravity / com.z[0]);
-		state_x = state_trans_mat.block(0, 0, 0, 2) * com.x.head(mpc_parameters_->dynamics_order);
-		state_y = state_trans_mat.block(1, 0, 0, 2) * com.y.head(mpc_parameters_->dynamics_order);
+		state_x = state_trans_mat * com.x.head(mpc_parameters_->dynamics_order);
+		state_y = state_trans_mat * com.y.head(mpc_parameters_->dynamics_order);
+
+		state_x = state_x.block(0, 0, mpc_parameters_->dynamics_order - num_unst_modes, 1);
+		state_y = state_y.block(0, 0, mpc_parameters_->dynamics_order - num_unst_modes, 1);
 	} else {
 		state_x = com.x.head(mpc_parameters_->dynamics_order);
 		state_y = com.y.head(mpc_parameters_->dynamics_order);
@@ -437,7 +439,9 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 		//hessian().block(0, 2 * num_samples, 2 * num_samples, 2 * num_steps_previewed) = upp_triang_mat;
 	}
 
-	CommonVectorType gradient_vec_x(num_samples + num_unst_modes), gradient_vec_y(num_samples + num_unst_modes), gradient_vec(2 * (num_samples + num_unst_modes));//TODO: Make this member
+	CommonVectorType gradient_vec_x(num_samples + num_unst_modes),
+			gradient_vec_y(num_samples + num_unst_modes),
+			gradient_vec(2 * (num_samples + num_unst_modes));//TODO: Make this member
 	gradient_vec_x = state_variant_[matrix_num] * state_x;
 	gradient_vec_y = state_variant_[matrix_num] * state_y;
 
@@ -499,10 +503,9 @@ void QPBuilder::BuildInequalityConstraints(const MPCSolution &solution) {
 void QPBuilder::BuildCPConstraints(const MPCSolution &solution) {
 	int num_steps_previewed = solution.support_states_vec.back().step_number;
 	int num_samples 		= mpc_parameters_->num_samples_horizon;
-	int num_unst_modes = 0;
-	if (mpc_parameters_->formulation == DECOUPLED_MODES) {
-		num_unst_modes = 1;
-	}
+	int num_unst_modes = 1;
+	int num_st_modes = 1;
+
 
 	int num_constr = solver_->num_constr();
 	solver_->num_constr(num_constr + 2);
@@ -510,14 +513,17 @@ void QPBuilder::BuildCPConstraints(const MPCSolution &solution) {
 	solver_->num_eq_constr(num_eq_constr + 2);
 
 	const BodyState &com = robot_->com()->state();
-	CommonVectorType state_x(mpc_parameters_->dynamics_order - num_unst_modes), state_y(mpc_parameters_->dynamics_order - num_unst_modes);
+	CommonMatrixType state_x(mpc_parameters_->dynamics_order - num_unst_modes, 1), state_y(mpc_parameters_->dynamics_order - num_unst_modes, 1);
 	Matrix2D state_trans_mat = Matrix2D::Zero();
-	state_trans_mat(0, 0) = 1.;//TODO: Define transformation only once
+	state_trans_mat(0, 0) = 1.;
 	state_trans_mat(0, 1) = -1. / sqrt(kGravity / com.z[0]);
 	state_trans_mat(1, 0) = 1.;
 	state_trans_mat(1, 1) = 1. / sqrt(kGravity / com.z[0]);
-	state_x = state_trans_mat.block(1, 0, 0, 2) * com.x.head(mpc_parameters_->dynamics_order);
-	state_y = state_trans_mat.block(1, 0, 0, 2) * com.y.head(mpc_parameters_->dynamics_order);
+	state_x = state_trans_mat * com.x.head(mpc_parameters_->dynamics_order);
+	state_y = state_trans_mat * com.y.head(mpc_parameters_->dynamics_order);
+
+	state_x = state_x.block(num_st_modes, 0, num_unst_modes, 1);
+	state_y = state_y.block(num_st_modes, 0, num_unst_modes, 1);
 
 	const SelectionMatrices &select_mats = preview_->selection_matrices();
 
@@ -563,7 +569,6 @@ void QPBuilder::BuildCPConstraints(const MPCSolution &solution) {
 
 	// Forward in time:
 	// ----------------
-
 	double neg_pow_state_mats = pow(dyn.d_state_mat_pow_vec[num_samples - 1](1,1), -1.);
 	double pos_pow_state_mats = dyn.d_state_mat_pow_vec.at(num_samples - 1)(1,1);
 	for (int col = 0; col < num_samples - 1; col++) {

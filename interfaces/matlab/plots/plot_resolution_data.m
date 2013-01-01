@@ -21,7 +21,6 @@ ylabel('Num. iterations ');
 subplot(3,1,3);
 legend(lines_obj_value, {'objective value'});
 xlabel('Time [s]');
-ylabel('Y [m] ');
 
 %% Clean
 clear lines_res_time lines_ws_recomput lines_support_1 lines_support_2 com_lines cop_lines left_foot_lines right_foot_lines

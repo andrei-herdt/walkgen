@@ -22,34 +22,34 @@ int main() {
 	// Simulation parameters:
 	// ----------------------
 	MPCParameters mpc_parameters;
-	mpc_parameters.num_samples_horizon    = num_samples_horizon;
-	mpc_parameters.num_samples_step       = std::min(num_samples_step, num_samples_horizon);
-	mpc_parameters.num_samples_dsss       = std::min(num_samples_dsss, num_samples_horizon);
-	mpc_parameters.num_steps_ssds         = std::min(num_steps_ssds, num_samples_horizon);
-	mpc_parameters.period_qpsample        = sample_period_qp;
-	mpc_parameters.period_mpcsample       = sample_period_first;
-	mpc_parameters.period_actsample       = sample_period_act;
-	mpc_parameters.warmstart                      = false;
-	mpc_parameters.interpolate_whole_horizon      = true;
-	mpc_parameters.solver.analysis                = true;
-	mpc_parameters.problem_dumping		      = false;
-	mpc_parameters.solver.name                    = QLD;
-	mpc_parameters.solver.num_wsrec               = 200;
-	mpc_parameters.dynamics_order                 = SECOND_ORDER;
-	mpc_parameters.formulation		      = STANDARD;
-	mpc_parameters.is_pid_mode		      = false;
-	mpc_parameters.is_terminal_constr	      = false;
-	mpc_parameters.is_ineq_constr				= true;
-	mpc_parameters.problem_dumping			= true;
+	mpc_parameters.num_samples_horizon    		= num_samples_horizon;
+	mpc_parameters.num_samples_step       		= std::min(num_samples_step, num_samples_horizon);
+	mpc_parameters.num_samples_dsss       		= std::min(num_samples_dsss, num_samples_horizon);
+	mpc_parameters.num_steps_ssds         		= std::min(num_steps_ssds, num_samples_horizon);
+	mpc_parameters.period_qpsample        		= sample_period_qp;
+	mpc_parameters.period_mpcsample       		= sample_period_first;
+	mpc_parameters.period_actsample       		= sample_period_act;
+	mpc_parameters.warmstart           			= false;
+	mpc_parameters.interpolate_whole_horizon    = true;
+	mpc_parameters.solver.analysis              = true;
+	mpc_parameters.problem_dumping		      	= false;
+	mpc_parameters.solver.name                  = QLD;
+	mpc_parameters.solver.num_wsrec             = 200;
+	mpc_parameters.dynamics_order               = SECOND_ORDER;
+	mpc_parameters.formulation		      		= DECOUPLED_MODES;
+	mpc_parameters.is_pid_mode		      		= false;
+	mpc_parameters.is_terminal_constr	      	= false;
+	mpc_parameters.is_ineq_constr				= false;
+	mpc_parameters.problem_dumping				= true;
 
 	mpc_parameters.weights.pos[0] 		= 0.;
-	mpc_parameters.weights.vel[0]  		= 1.;
+	mpc_parameters.weights.vel[0]  		= 0.;
 	mpc_parameters.weights.cop[0]  		= 0.;//0.00001;
-	mpc_parameters.weights.cp[0] 		= 0.;
+	mpc_parameters.weights.cp[0] 		= 1.;
 	mpc_parameters.weights.control[0] 	= 0.;
 
 	mpc_parameters.weights.pos[1] 		= 0.;
-	mpc_parameters.weights.vel[1]  		= 1.;
+	mpc_parameters.weights.vel[1]  		= 0.;
 	mpc_parameters.weights.cop[1]  		= 0.;//1.;
 	mpc_parameters.weights.cp[1] 		= 0.;
 	mpc_parameters.weights.control[1] 	= 0.;
@@ -143,7 +143,7 @@ int main() {
 	// Go:
 	// ---
 	double curr_time = 0.;
-	walk.SetVelReference(0.1, 0., 0.);
+	walk.SetVelReference(0., 0., 0.);
 	int num_iterations = 0;
 	//walk.clock().GetFrequency(1000);
 	//walk.clock().ResetLocal();

@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.873"
+    ComputedModelVersion    "1.876"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Sun Dec 30 23:25:46 2012"
+  LastModifiedDate	  "Tue Jan 01 04:41:14 2013"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:873>"
+  ModelVersionFormat	  "1.%<AutoIncrement:876>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -107,7 +107,7 @@ Model {
 	  $ObjectID		  2
 	  Version		  "1.3.0"
 	  StartTime		  "0.0"
-	  StopTime		  "0.3"
+	  StopTime		  "2"
 	  AbsTol		  "auto"
 	  FixedStep		  "1e-3"
 	  InitialStep		  "auto"
@@ -670,7 +670,7 @@ Model {
   }
   System {
     Name		    "walkgen"
-    Location		    [850, 74, 1125, 375]
+    Location		    [751, 74, 1026, 375]
     Open		    off
     ModelBrowserVisibility  off
     ModelBrowserWidth	    200
@@ -732,7 +732,7 @@ Model {
 	  SystemSampleTime	  "0.001"
 	  RTWSystemCode		  "Auto"
 	  FunctionWithSeparateData off
-	  MaskPromptString	  "Length of horizon [num. samples]|Position weight|Velocity weight|CoP weight|CP weight|Control weight|Step period [num. samples]|Length of initial double support phase [num. samples]|Steps before halt|Sampling period [s]|Time between recomputations [s]|Actuator sampling period [s]|Security margin [m]|Max number of working set recomputations|Dynamics order|Debug mode|PID mode|Closed loop|Inequality constraints|Formulation|Dump problmes|Terminal constraints|Solver (0 QL, 1 QPOases, 2 LSSOL)"
+	  MaskPromptString	  "Length of horizon [num. samples]|Position weight|Velocity weight|CoP weight|CP weight|Control weight|Step period [num. samples]|Length of initial double support phase [num. samples]|Steps before halt|Sampling period [s]|Time between recomputations [s]|Actuator sampling period [s]|Security margin [m]|Max number of working set recomputations|Dynamics order|Debug mode|PID mode|Closed loop|Inequality constraints|Formulation (0 standard, 1 decoupled modes)|Dump problems|Terminal constraints|Solver (0 QL, 1 QPOases, 2 LSSOL)"
 	  MaskStyleString	  "edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit"
 	  MaskTunableValueString  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
 	  MaskCallbackString	  "||||||||||||||||||||||"
@@ -745,7 +745,7 @@ Model {
 	  MaskIconOpaque	  on
 	  MaskIconRotate	  "none"
 	  MaskIconUnits		  "autoscale"
-	  MaskValueString	  "16|0|0|0|1|0|8|8|2|0.1|0.1|0.001|0.02|100|2|1|0|0|0|1|0|0|0"
+	  MaskValueString	  "16|0|0|0|1|1|8|8|2|0.1|0.01|0.001|0.02|100|2|1|0|0|0|1|0|0|0"
 	  MaskTabNameString	  ",,,,,,,,,,,,,,,,,,,,,,"
 	  System {
 	    Name		    "Atomic Walkgen"
@@ -2624,11 +2624,11 @@ Model {
 	    Block {
 	      BlockType		      Constant
 	      Name		      "Constant1"
-	      Position		      [210, 187, 320, 203]
+	      Position		      [90, 197, 200, 213]
 	      ShowName		      off
 	      FontName		      "Arial"
 	      FontSize		      8
-	      Value		      "[0.01, 0.0, 0.0]"
+	      Value		      "[0.1, 0.0, 0.0]"
 	      OutDataType	      "sfix(16)"
 	      OutScaling	      "2^0"
 	    }
@@ -2700,6 +2700,17 @@ Model {
 	      OutScaling	      "2^0"
 	    }
 	    Block {
+	      BlockType		      Constant
+	      Name		      "Constant3"
+	      Position		      [90, 222, 200, 238]
+	      ShowName		      off
+	      FontName		      "Arial"
+	      FontSize		      8
+	      Value		      "[0.0, 0.0, 0.0]"
+	      OutDataType	      "sfix(16)"
+	      OutScaling	      "2^0"
+	    }
+	    Block {
 	      BlockType		      Reference
 	      Name		      "Manual Switch"
 	      Ports		      [2, 1]
@@ -2734,6 +2745,25 @@ Model {
 	      RTWMemSecDataInternal   "Inherit from model"
 	      RTWMemSecDataParameters "Inherit from model"
 	      sw		      "0"
+	      action		      "0"
+	      varsize		      off
+	    }
+	    Block {
+	      BlockType		      Reference
+	      Name		      "Manual Switch2"
+	      Ports		      [2, 1]
+	      Position		      [265, 202, 295, 238]
+	      SourceBlock	      "simulink/Signal\nRouting/Manual Switch"
+	      SourceType	      "Manual Switch"
+	      ShowPortLabels	      "FromPortIcon"
+	      SystemSampleTime	      "-1"
+	      FunctionWithSeparateData off
+	      RTWMemSecFuncInitTerm   "Inherit from model"
+	      RTWMemSecFuncExecute    "Inherit from model"
+	      RTWMemSecDataConstants  "Inherit from model"
+	      RTWMemSecDataInternal   "Inherit from model"
+	      RTWMemSecDataParameters "Inherit from model"
+	      sw		      "1"
 	      action		      "0"
 	      varsize		      off
 	    }
@@ -2850,13 +2880,6 @@ Model {
 	      DstPort		      2
 	    }
 	    Line {
-	      SrcBlock		      "Constant1"
-	      SrcPort		      1
-	      Points		      [15, 0; 0, -40]
-	      DstBlock		      "Manual Switch"
-	      DstPort		      2
-	    }
-	    Line {
 	      SrcBlock		      "Switch3"
 	      SrcPort		      1
 	      DstBlock		      "Manual Switch1"
@@ -2874,6 +2897,26 @@ Model {
 	      SrcPort		      1
 	      DstBlock		      "Sum1"
 	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "Constant1"
+	      SrcPort		      1
+	      Points		      [45, 0]
+	      DstBlock		      "Manual Switch2"
+	      DstPort		      1
+	    }
+	    Line {
+	      SrcBlock		      "Constant3"
+	      SrcPort		      1
+	      DstBlock		      "Manual Switch2"
+	      DstPort		      2
+	    }
+	    Line {
+	      SrcBlock		      "Manual Switch2"
+	      SrcPort		      1
+	      Points		      [25, 0; 0, -65]
+	      DstBlock		      "Manual Switch"
+	      DstPort		      2
 	    }
 	  }
 	}
@@ -3026,6 +3069,21 @@ Model {
 	}
 	Annotation {
 	  Position		  [453, 275]
+	}
+	Annotation {
+	  Position		  [425, 290]
+	}
+	Annotation {
+	  Position		  [471, 304]
+	}
+	Annotation {
+	  Position		  [459, 489]
+	}
+	Annotation {
+	  Position		  [485, 614]
+	}
+	Annotation {
+	  Position		  [459, 383]
 	}
       }
     }

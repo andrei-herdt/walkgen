@@ -87,10 +87,10 @@ HipYawData::HipYawData()
 
 HipYawData::~HipYawData() {}
 
-SolutionAnalysis::SolutionAnalysis():num_iterations(-1)
-,objective_value(-1)
-,resolution_time(-1)
-,max_kkt_violation(-1)
+SolutionAnalysis::SolutionAnalysis():num_iterations(0)
+,objective_value(0)
+,resolution_time(0)
+,max_kkt_violation(0)
 {}
 
 MPCSolution::MPCSolution() {}

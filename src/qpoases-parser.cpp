@@ -103,7 +103,11 @@ void QPOasesParser::Solve(MPCSolution &solution,
 	}
 
 	if (parameters_->analysis) {
-		solution.analysis.objective_value = qp_->getObjVal();
+		CommonMatrixType obj_val_mat =
+				solution.qp_solution_vec.head(num_var_).transpose() * hessian_mat_().block(0, 0, num_var_, num_var_) * solution.qp_solution_vec.head(num_var_)
+				+ objective_vec_().head(num_var_).transpose() * solution.qp_solution_vec.head(num_var_);
+
+		solution.analysis.objective_value = obj_val_mat(0, 0);
 		solution.analysis.num_iterations = num_wsr;
 	}
 
