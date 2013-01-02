@@ -80,6 +80,8 @@ private:
 
 	RelativeInequalities foot_inequalities_;
 
+	std::vector<CommonMatrixType> curr_cop_variant_;
+
 	std::vector<CommonMatrixType> const_hessian_mat_;
 	std::vector<CommonMatrixType> const_hessian_n_mat_;
 	std::vector<CommonMatrixType> const_cholesky_;

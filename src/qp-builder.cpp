@@ -55,8 +55,9 @@ void QPBuilder::PrecomputeObjective() {
 	 */
 	QPMatrix chol(2*(num_samples + num_unst_modes), 2 * (num_samples + num_unst_modes));
 
-	int num_modes = mpc_parameters_->weights.control.size();
+	int num_modes = mpc_parameters_->weights.contr_moves.size();
 	int num_recomp = mpc_parameters_->GetNumRecomputations();
+	curr_cop_variant_.resize(num_recomp * num_modes);
 	const_hessian_mat_.resize(num_recomp * num_modes);
 	const_hessian_n_mat_.resize(num_recomp * num_modes);
 	const_cholesky_.resize(num_recomp * num_modes);
@@ -66,23 +67,10 @@ void QPBuilder::PrecomputeObjective() {
 	ref_variant_pos_.resize(num_recomp * num_modes);
 	ref_variant_cp_.resize(num_recomp * num_modes);
 
-	// Set R:
-	// ------
-	CommonMatrixType contr_weighting_mat = CommonMatrixType::Identity(num_samples + num_unst_modes, num_samples + num_unst_modes);
-
-	if (mpc_parameters_->formulation == DECOUPLED_MODES) {
-		contr_weighting_mat(num_samples, num_samples) = 0.;
-	}
-	if (mpc_parameters_->dynamics_order == SECOND_ORDER) {
-		for (int row = 1; row < num_samples; row++) {
-			contr_weighting_mat(row, row - 1) = -1.;
-		}
-	}
-
 	// Set gains for the pid mode:
 	if (mpc_parameters_->is_pid_mode) {
-		mpc_parameters_->weights.control[0] = 1.;
-		mpc_parameters_->weights.control[1] = 1.;
+		mpc_parameters_->weights.contr_moves[0] = 1.;
+		mpc_parameters_->weights.contr_moves[1] = 1.;
 		mpc_parameters_->weights.cp[0] = 1.;
 		mpc_parameters_->weights.cp[1] = 1.;
 	}
@@ -100,14 +88,25 @@ void QPBuilder::PrecomputeObjective() {
 			const LinearDynamicsMatrices &cop_dyn = robot_->com()->dynamics_qp()[samples_left].cop;
 			const LinearDynamicsMatrices &cp_dyn = robot_->com()->dynamics_qp()[samples_left].cp;
 
+			// Set S:
+			// ------
+			CommonMatrixType contr_mov_mat = CommonMatrixType::Identity(num_samples + num_unst_modes, num_samples + num_unst_modes);
+			if (mpc_parameters_->formulation == DECOUPLED_MODES) {
+				contr_mov_mat(num_samples, num_samples) = 0.;
+			}
+			for (int row = 1; row < num_samples; row++) {
+				contr_mov_mat(row, row - 1) = -1.;
+			}
+			CommonMatrixType contr_mov_mat_tr = contr_mov_mat.transpose();
+
 			// Q = beta*Uz^(-T)*Uv^T*Uv*Uz^(-1)
 			//tmp_mat_.noalias() = cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * vel_dyn.input_mat * cop_dyn.input_mat_inv;
 			tmp_mat_.noalias() = vel_dyn.input_mat_tr * vel_dyn.input_mat;
 			hessian_mat = mpc_parameters_->weights.vel[mode_num] * tmp_mat_;
 			// Q += alpha*Uz^(-T)*Uz^(-1)
 			//tmp_mat_.noalias() = cop_dyn.input_mat_inv_tr * contr_weighting_mat * cop_dyn.input_mat_inv;
-			tmp_mat_.noalias() = contr_weighting_mat.transpose() * contr_weighting_mat;
-			hessian_mat += mpc_parameters_->weights.control[mode_num] * tmp_mat_;
+			tmp_mat_.noalias() = contr_mov_mat_tr * contr_mov_mat;
+			hessian_mat += mpc_parameters_->weights.contr_moves[mode_num] * tmp_mat_;
 			// Q += delta*Uz^(-T)*Up^T*Up*Uz^(-1)
 			//tmp_mat_.noalias() = cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * pos_dyn.input_mat * cop_dyn.input_mat_inv;
 			tmp_mat_.noalias() = pos_dyn.input_mat_tr * pos_dyn.input_mat;
@@ -163,6 +162,8 @@ void QPBuilder::PrecomputeObjective() {
 			// epsilon*Uz^(-T)*Uxi^T*Uxi*Uz^(-1)
 			//select_variant_[mat_num] += cop_dyn.input_mat_inv_tr * cp_dyn.input_mat_tr * mpc_parameters_->weights.cp[mode_num] * cp_dyn.input_mat * cop_dyn.input_mat_inv;
 			select_variant_[mat_num] += cp_dyn.input_mat_tr * mpc_parameters_->weights.cp[mode_num] * cp_dyn.input_mat.block(0, 0, num_samples, num_samples);
+			// + r*theta^(T)*theta^T
+			select_variant_[mat_num] += contr_mov_mat_tr.block(0, 0, num_samples + num_unst_modes, num_samples) * mpc_parameters_->weights.contr_moves[mode_num] * contr_mov_mat.block(0, 0, num_samples, num_samples);
 			// - beta*Uz^(-T)*Uv^T
 			//ref_variant_vel_[mat_num] = -cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * mpc_parameters_->weights.vel[mode_num];
 			ref_variant_vel_[mat_num] = -vel_dyn.input_mat_tr * mpc_parameters_->weights.vel[mode_num];
@@ -172,6 +173,10 @@ void QPBuilder::PrecomputeObjective() {
 			// - epsilon*Uz^(-T)*Uxi^T
 			//ref_variant_cp_[mat_num] = -cop_dyn.input_mat_inv_tr * cp_dyn.input_mat_tr * mpc_parameters_->weights.cp[mode_num];
 			ref_variant_cp_[mat_num] = - cp_dyn.input_mat_tr * mpc_parameters_->weights.cp[mode_num];
+
+			CommonVectorType e_vec = CommonVectorType::Zero(num_samples);
+			e_vec(0) = 1.;
+			curr_cop_variant_[mat_num] = - contr_mov_mat_tr.block(0, 0, num_samples + num_unst_modes, num_samples) * mpc_parameters_->weights.contr_moves[mode_num] * e_vec;
 		}
 	}
 }
@@ -445,14 +450,6 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	gradient_vec_x = state_variant_[matrix_num] * state_x;
 	gradient_vec_y = state_variant_[matrix_num] * state_y;
 
-	// Formulation in Krause2012S
-	if (mpc_parameters_->dynamics_order == SECOND_ORDER) {
-		double zx_cur = com.x(0) - com.z(0)/kGravity*com.x(2);
-		double zy_cur = com.y(0) - com.z(0)/kGravity*com.y(2);
-		gradient_vec_x[0] -= mpc_parameters_->weights.control[0] * zx_cur;
-		gradient_vec_y[0] -= mpc_parameters_->weights.control[0] * zy_cur;
-	}
-
 	gradient_vec_x += select_variant_[matrix_num] * select_mats.sample_step_cx;
 	gradient_vec_y += select_variant_[matrix_num] * select_mats.sample_step_cy;
 
@@ -465,6 +462,11 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	gradient_vec_x += ref_variant_cp_[matrix_num] * cp_ref_->global.x;
 	gradient_vec_y += ref_variant_cp_[matrix_num] * cp_ref_->global.y;
 
+	double zx_cur = com.x(0) - com.z(0)/kGravity*com.x(2);
+	double zy_cur = com.y(0) - com.z(0)/kGravity*com.y(2);
+	gradient_vec_x += curr_cop_variant_[matrix_num] * zx_cur;
+	gradient_vec_y += curr_cop_variant_[matrix_num] * zy_cur;
+
 	if (num_steps_previewed > 0) {
 		tmp_vec_.noalias() = select_mats.sample_step_trans * gradient_vec_x.head(num_samples);
 		solver_->objective_vec().Add(tmp_vec_, 2*(num_samples + num_unst_modes));
@@ -476,6 +478,7 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 		gradient_vec_x *= qx_d;
 		gradient_vec_y *= qy_d;
 	}
+
 	gradient_vec << gradient_vec_x, gradient_vec_y; //TODO: Unnecessary if rot_mat half the size
 	//gradient_vec = rot_mat * gradient_vec;//TODO: Use RTimesV
 

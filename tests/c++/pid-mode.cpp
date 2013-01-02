@@ -43,13 +43,13 @@ int main() {
 	mpc_parameters.weights.vel[0]  		= 0.;
 	mpc_parameters.weights.cop[0]  		= 0.;//0.00001;
 	mpc_parameters.weights.cp[0] 		= 1.;//1.;
-	mpc_parameters.weights.control[0] 	= 1.;
+	mpc_parameters.weights.contr_moves[0] 	= 1.;
 
 	mpc_parameters.weights.pos[1] 		= 0.;
 	mpc_parameters.weights.vel[1]  		= 0.;
 	mpc_parameters.weights.cop[1]  		= 0.;//1.;
 	mpc_parameters.weights.cp[1] 		= 1.;
-	mpc_parameters.weights.control[1] 	= 1.;
+	mpc_parameters.weights.contr_moves[1] 	= 1.;
 
 	// Robot parameters:
 	// -----------------

@@ -24,7 +24,7 @@ lines_real_cop_x = plot(cop.time(2:di:length(com.time),1), cop.signals.values(1:
 subplot(1,2,2);
 lines_real_com_y = plot(com.time(2:di:length(com.time),1), com.signals.values(1:di:length(com.time)-1, 2),'green');
 lines_real_cop_y = plot(cop.time(2:di:length(com.time),1), cop.signals.values(1:di:length(com.time)-1, 2),'blue');
-
+ 
 %% Plot support state changes
 subplot(1,2,1);
 ylim=get(gca,'ylim');

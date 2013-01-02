@@ -350,19 +350,19 @@ WeightCoefficients::WeightCoefficients(int num_modes)
 ,jerk(num_modes)
 ,cop(num_modes)
 ,cp(num_modes)
-,control(num_modes)
+,contr_moves(num_modes)
 {
 	pos[0] 		= 0.;
 	vel[0]  	= 0.;//1.;
 	cop[0]  	= 0.00001;
 	cp[0] 		= 0.;//1.;
-	control[0] 	= 0.0001;
+	contr_moves[0] 	= 0.0001;
 
 	pos[1] 		= 0.;
 	vel[1]  	= 0.;
 	cop[1]  	= 0.;
 	cp[1] 		= 0.;
-	control[1] 	= 0.;
+	contr_moves[1] 	= 0.;
 
 
 	active_mode  = 0;

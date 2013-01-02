@@ -133,13 +133,13 @@ static void mdlStart(SimStruct *S) {
 	mpc_parameters.weights.vel[0]  		= *mxGetPr(ssGetSFcnParam(S, 12));//0.;
 	mpc_parameters.weights.cop[0]  		= *mxGetPr(ssGetSFcnParam(S, 13));//0.00001;
 	mpc_parameters.weights.cp[0] 		= *mxGetPr(ssGetSFcnParam(S, 14));//0.;//1.;
-	mpc_parameters.weights.control[0] 	= *mxGetPr(ssGetSFcnParam(S, 15));//0.00001;
+	mpc_parameters.weights.contr_moves[0] 	= *mxGetPr(ssGetSFcnParam(S, 15));//0.00001;
 
 	mpc_parameters.weights.pos[1] 		= 0.;
 	mpc_parameters.weights.vel[1]  		= 0.;
 	mpc_parameters.weights.cop[1]  		= 0.;
 	mpc_parameters.weights.cp[1] 		= 0.;
-	mpc_parameters.weights.control[1] 	= 0.;
+	mpc_parameters.weights.contr_moves[1] 	= 0.;
 	if (is_pid_mode_in == 1) {
 		mpc_parameters.is_pid_mode = true;
 	}
@@ -369,10 +369,16 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 			cp_prw[2 * num_samples + sample]    = solution.com_prw.cp.y_vec[sample];
 		}
 
-		int nbsteps_prw = solution.support_states_vec.back().step_number;
-		if (nbsteps_prw > 0) {
-			first_foot_prw[0] = solution.qp_solution_vec[2 * num_samples];
-			first_foot_prw[1] = solution.qp_solution_vec[2 * num_samples + nbsteps_prw];
+		int num_steps_prw = solution.support_states_vec.back().step_number;
+		int num_var_ff_x = 2 * num_samples;
+		int num_var_ff_y = 2 * num_samples + num_steps_prw;
+		if (walk->mpc_parameters().formulation == DECOUPLED_MODES) {
+			num_var_ff_x += 2;
+			num_var_ff_y += 2;
+		}
+		if (num_steps_prw > 0) {
+			first_foot_prw[0] = solution.qp_solution_vec[num_var_ff_x];
+			first_foot_prw[1] = solution.qp_solution_vec[num_var_ff_y];
 		} else {
 			first_foot_prw[0] = solution.support_states_vec.front().x;
 			first_foot_prw[1] = solution.support_states_vec.front().y;

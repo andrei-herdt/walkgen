@@ -136,7 +136,7 @@ struct MPC_WALKGEN_API WeightCoefficients{
 
 	std::vector<double> cop;		//CoP
 	std::vector<double> cp;			//Capture point
-	std::vector<double> control;
+	std::vector<double> contr_moves;
 
 	//std::map<Mode, int> mode;
 
