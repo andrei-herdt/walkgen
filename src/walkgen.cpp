@@ -85,7 +85,7 @@ void Walkgen::Init(MPCParameters &mpc_parameters) {
 		order(i) = i;
 	}
 	solver_->SetVarIndices(order);
-	*/
+	 */
 
 	// Resize:
 	// -------
@@ -150,6 +150,13 @@ const MPCSolution &Walkgen::Go(double time){
 		//int timer_generate_traj = clock_.StartCounter();
 		GenerateTrajectories();
 		//clock_.StopCounter(timer_generate_traj);
+
+		// Store parts of the solution:
+		// ----------------------------
+		// TODO: Create new method
+		StoreResult();
+
+
 	}
 
 	if (time > next_act_sample_ - kEps) {
@@ -328,6 +335,24 @@ void Walkgen::SetVelReference(const CommonVectorType &x_vec, const CommonVectorT
 void Walkgen::SetCPReference(double x, double y){
 	cp_ref_.global.x.fill(x);
 	cp_ref_.global.y.fill(y);
+}
+
+void Walkgen::StoreResult() {
+	int num_steps_previewed = solution_.support_states_vec.back().step_number;
+	int num_samples = mpc_parameters_.num_samples_horizon;
+	int num_unst_modes = 0;
+	if (mpc_parameters_.formulation == DECOUPLED_MODES) {
+		num_unst_modes = 1;
+	}
+	if (num_steps_previewed > 0) {
+		solution_.prev_first_foot_x = solution_.qp_solution_vec(2*(num_samples + num_unst_modes));
+		solution_.prev_first_foot_y = solution_.qp_solution_vec(2*(num_samples + num_unst_modes) + num_steps_previewed);
+	}
+
+	solution_.prev_cop_x = solution_.qp_solution_vec(0);
+	solution_.prev_cop_y = solution_.qp_solution_vec(num_samples + num_unst_modes);
+
+	solution_.is_prev_sol_exist = true;
 }
 
 

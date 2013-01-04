@@ -93,7 +93,13 @@ SolutionAnalysis::SolutionAnalysis():num_iterations(0)
 ,max_kkt_violation(0)
 {}
 
-MPCSolution::MPCSolution() {}
+MPCSolution::MPCSolution()
+:is_prev_sol_exist(false)
+,prev_first_foot_x(0.)
+,prev_first_foot_y(0.)
+,prev_cop_x(0.)
+,prev_cop_y(0.)
+{}
 
 MPCSolution::~MPCSolution() {}
 
@@ -125,6 +131,14 @@ MPCSolution& MPCSolution::operator = (MPCSolution const &rhs) {
 	analysis = rhs.analysis;
 
 	pos_ref = rhs.pos_ref;
+
+	is_prev_sol_exist = rhs.is_prev_sol_exist;
+
+	prev_first_foot_x = rhs.prev_first_foot_x;
+	prev_first_foot_y = rhs.prev_first_foot_y;
+	prev_cop_x = rhs.prev_cop_x;
+	prev_cop_y = rhs.prev_cop_y;
+
 
 	return(*this);
 }
@@ -351,6 +365,7 @@ WeightCoefficients::WeightCoefficients(int num_modes)
 ,cop(num_modes)
 ,cp(num_modes)
 ,contr_moves(num_modes)
+,first_contr_move(0.)
 {
 	pos[0] 		= 0.;
 	vel[0]  	= 0.;//1.;

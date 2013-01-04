@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.882"
+    ComputedModelVersion    "1.886"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Wed Jan 02 04:12:59 2013"
+  LastModifiedDate	  "Fri Jan 04 11:56:39 2013"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:882>"
+  ModelVersionFormat	  "1.%<AutoIncrement:886>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -107,7 +107,7 @@ Model {
 	  $ObjectID		  2
 	  Version		  "1.3.0"
 	  StartTime		  "0.0"
-	  StopTime		  "2"
+	  StopTime		  "0.2"
 	  AbsTol		  "auto"
 	  FixedStep		  "1e-3"
 	  InitialStep		  "auto"
@@ -732,21 +732,21 @@ Model {
 	  SystemSampleTime	  "0.001"
 	  RTWSystemCode		  "Auto"
 	  FunctionWithSeparateData off
-	  MaskPromptString	  "Length of horizon [num. samples]|Position penalty|Velocity penalty|CoP penalty|CP penalty|Control moves penalty|Step period [num. samples]|Length of initial double support phase [num. samples]|Steps before halt|Sampling period [s]|Time between recomputations [s]|Actuator sampling period [s]|Security margin [m]|Max number of working set recomputations|Dynamics order|Debug mode|PID mode|Closed loop|Inequality constraints|Formulation (0 standard, 1 decoupled modes)|Dump problems|Terminal constraints|Solver (0 QL, 1 QPOases, 2 LSSOL)"
-	  MaskStyleString	  "edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit"
-	  MaskTunableValueString  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
-	  MaskCallbackString	  "||||||||||||||||||||||"
-	  MaskEnableString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
-	  MaskVisibilityString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
-	  MaskToolTipString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
-	  MaskVarAliasString	  ",,,,,,,,,,,,,,,,,,,,,,"
-	  MaskVariables		  "num_samples_horizon=@1;pos_weight=@2;vel_weight=@3;cop_weight=@4;cp_weight=@5;contr_moves_pen=@6;num_samples_step=@7;num_samples_dsss=@8;num_steps_ssds=@9;period_qpsample=@10;period_mpcsample=@11;period_actsample=@12;security_margin=@13;num_wsrec=@14;dynamics_order=@15;is_debug_mode=@16;is_pid_mode=@17;is_closed_loop=@18;is_ineq_constraints=@19;formulation=@20;dump_problems=@21;is_terminal_constr=@22;solver=@23;"
+	  MaskPromptString	  "Length of horizon [num. samples]|Position penalty|Velocity penalty|CoP penalty|CP penalty|Control moves penalty|First control move penalty|Step period [num. samples]|Length of initial double support phase [num. samples]|Steps before halt|Sampling period [s]|Time between recomputations [s]|Actuator sampling period [s]|Security margin [m]|Max number of working set recomputations|Dynamics order|Debug mode|PID mode|Closed loop|Inequality constraints|Formulation (0 standard, 1 decoupled modes)|Dump problems|Terminal constraints|Solver (0 QL, 1 QPOases, 2 LSSOL)"
+	  MaskStyleString	  "edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit"
+	  MaskTunableValueString  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	  MaskCallbackString	  "|||||||||||||||||||||||"
+	  MaskEnableString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	  MaskVisibilityString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	  MaskToolTipString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	  MaskVarAliasString	  ",,,,,,,,,,,,,,,,,,,,,,,"
+	  MaskVariables		  "num_samples_horizon=@1;pos_weight=@2;vel_weight=@3;cop_weight=@4;cp_weight=@5;contr_moves_pen=@6;first_contr_move_pen=@7;num_samples_step=@8;num_samples_dsss=@9;num_steps_ssds=@10;period_qpsample=@11;period_mpcsample=@12;period_actsample=@13;security_margin=@14;num_wsrec=@15;dynamics_order=@16;is_debug_mode=@17;is_pid_mode=@18;is_closed_loop=@19;is_ineq_constraints=@20;formulation=@21;dump_problems=@22;is_terminal_constr=@23;solver=@24;"
 	  MaskIconFrame		  on
 	  MaskIconOpaque	  on
 	  MaskIconRotate	  "none"
 	  MaskIconUnits		  "autoscale"
-	  MaskValueString	  "16|0|0|0|1|0|8|8|2|0.1|0.01|0.001|0.02|100|2|1|0|0|0|1|0|0|0"
-	  MaskTabNameString	  ",,,,,,,,,,,,,,,,,,,,,,"
+	  MaskValueString	  "16|0|0|0|1|1|1000000|8|8|2|0.1|0.001|0.001|0.02|100|2|1|0|0|0|1|1|0|0"
+	  MaskTabNameString	  ",,,,,,,,,,,,,,,,,,,,,,,"
 	  System {
 	    Name		    "Atomic Walkgen"
 	    Location		    [850, 74, 1598, 860]
@@ -1025,7 +1025,7 @@ Model {
 	      Ports		      [11, 19]
 	      Position		      [285, 148, 375, 712]
 	      FunctionName	      "walkgen_sfun"
-	      Parameters	      "num_samples_horizon, num_samples_step, num_samples_dsss, num_steps_ssds, period_qpsample, period_mpcsample, period_actsample, security_margin, num_wsrec, dynamics_order, is_debug_mode, pos_weight, vel_weight, cop_weight, cp_weight, contr_moves_pen, is_pid_mode, is_closed_loop, is_ineq_constraints, formulation, dump_problems, is_terminal_constr, solver"
+	      Parameters	      "num_samples_horizon, num_samples_step, num_samples_dsss, num_steps_ssds, period_qpsample, period_mpcsample, period_actsample, security_margin, num_wsrec, dynamics_order, is_debug_mode, pos_weight, vel_weight, cop_weight, cp_weight, contr_moves_pen, is_pid_mode, is_closed_loop, is_ineq_constraints, formulation, dump_problems, is_terminal_constr, solver, first_contr_move_pen"
 	      Port {
 		PortNumber		1
 		Name			"com"
@@ -2763,7 +2763,7 @@ Model {
 	      RTWMemSecDataConstants  "Inherit from model"
 	      RTWMemSecDataInternal   "Inherit from model"
 	      RTWMemSecDataParameters "Inherit from model"
-	      sw		      "0"
+	      sw		      "1"
 	      action		      "0"
 	      varsize		      off
 	    }

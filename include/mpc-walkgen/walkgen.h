@@ -63,6 +63,8 @@ private:
 	void ResetCounters(double time);
 	void SetCounters(double time);
 
+	void StoreResult();
+
 	//
 	// Private data members:
 	//

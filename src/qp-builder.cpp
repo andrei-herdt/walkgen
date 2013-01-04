@@ -53,6 +53,18 @@ void QPBuilder::PrecomputeObjective() {
 	chol.row_indices(order);
 	chol.column_indices(order);
 	 */
+
+	// Set Theta:
+	// ----------
+	CommonMatrixType contr_mov_mat = CommonMatrixType::Identity(num_samples + num_unst_modes, num_samples + num_unst_modes);
+	if (mpc_parameters_->formulation == DECOUPLED_MODES) {
+		contr_mov_mat(num_samples, num_samples) = 0.;
+	}
+	for (int row = 1; row < num_samples; row++) {
+		contr_mov_mat(row, row - 1) = -1.;
+	}
+	CommonMatrixType contr_mov_mat_tr = contr_mov_mat.transpose();
+
 	QPMatrix chol(2*(num_samples + num_unst_modes), 2 * (num_samples + num_unst_modes));
 
 	int num_modes = mpc_parameters_->weights.contr_moves.size();
@@ -79,25 +91,21 @@ void QPBuilder::PrecomputeObjective() {
 	// -----------
 	CommonMatrixType hessian_mat(num_samples + num_unst_modes, num_samples + num_unst_modes);
 	for (int mode_num = 0; mode_num < num_modes; ++mode_num) {
+		CommonMatrixType contr_mov_pen_mat = CommonMatrixType::Identity(num_samples + num_unst_modes, num_samples + num_unst_modes)
+		* mpc_parameters_->weights.contr_moves[mode_num];
+		contr_mov_pen_mat(num_samples + num_unst_modes - 1, num_samples + num_unst_modes - 1) = 0.;
+
 		for (double first_period = mpc_parameters_->period_qpsample; first_period > kEps; first_period -= mpc_parameters_->period_mpcsample) {
 			int samples_left = mpc_parameters_->GetMPCSamplesLeft(first_period);
-			int mat_num = samples_left + mode_num * num_recomp;
+			int mat_num = samples_left + mode_num*num_recomp;
 
+			if (first_period < mpc_parameters_->period_qpsample - kEps) {
+				contr_mov_pen_mat(0, 0) = mpc_parameters_->weights.first_contr_move;
+			}
 			const LinearDynamicsMatrices &pos_dyn = robot_->com()->dynamics_qp()[samples_left].pos;
 			const LinearDynamicsMatrices &vel_dyn = robot_->com()->dynamics_qp()[samples_left].vel;
 			const LinearDynamicsMatrices &cop_dyn = robot_->com()->dynamics_qp()[samples_left].cop;
 			const LinearDynamicsMatrices &cp_dyn = robot_->com()->dynamics_qp()[samples_left].cp;
-
-			// Set S:
-			// ------
-			CommonMatrixType contr_mov_mat = CommonMatrixType::Identity(num_samples + num_unst_modes, num_samples + num_unst_modes);
-			if (mpc_parameters_->formulation == DECOUPLED_MODES) {
-				contr_mov_mat(num_samples, num_samples) = 0.;
-			}
-			for (int row = 1; row < num_samples; row++) {
-				contr_mov_mat(row, row - 1) = -1.;
-			}
-			CommonMatrixType contr_mov_mat_tr = contr_mov_mat.transpose();
 
 			// Q = beta*Uz^(-T)*Uv^T*Uv*Uz^(-1)
 			//tmp_mat_.noalias() = cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * vel_dyn.input_mat * cop_dyn.input_mat_inv;
@@ -105,8 +113,7 @@ void QPBuilder::PrecomputeObjective() {
 			hessian_mat = mpc_parameters_->weights.vel[mode_num] * tmp_mat_;
 			// Q += alpha*Uz^(-T)*Uz^(-1)
 			//tmp_mat_.noalias() = cop_dyn.input_mat_inv_tr * contr_weighting_mat * cop_dyn.input_mat_inv;
-			tmp_mat_.noalias() = contr_mov_mat_tr * contr_mov_mat;
-			hessian_mat += mpc_parameters_->weights.contr_moves[mode_num] * tmp_mat_;
+			hessian_mat += contr_mov_mat_tr * contr_mov_pen_mat * contr_mov_mat;
 			// Q += delta*Uz^(-T)*Up^T*Up*Uz^(-1)
 			//tmp_mat_.noalias() = cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * pos_dyn.input_mat * cop_dyn.input_mat_inv;
 			tmp_mat_.noalias() = pos_dyn.input_mat_tr * pos_dyn.input_mat;
@@ -163,7 +170,7 @@ void QPBuilder::PrecomputeObjective() {
 			//select_variant_[mat_num] += cop_dyn.input_mat_inv_tr * cp_dyn.input_mat_tr * mpc_parameters_->weights.cp[mode_num] * cp_dyn.input_mat * cop_dyn.input_mat_inv;
 			select_variant_[mat_num] += cp_dyn.input_mat_tr * mpc_parameters_->weights.cp[mode_num] * cp_dyn.input_mat.block(0, 0, num_samples, num_samples);
 			// + r*theta^(T)*theta^T
-			select_variant_[mat_num] += contr_mov_mat_tr.block(0, 0, num_samples + num_unst_modes, num_samples) * mpc_parameters_->weights.contr_moves[mode_num] * contr_mov_mat.block(0, 0, num_samples, num_samples);
+			select_variant_[mat_num] += contr_mov_mat_tr.block(0, 0, num_samples + num_unst_modes, num_samples) * contr_mov_pen_mat.block(0, 0, num_samples, num_samples) * contr_mov_mat.block(0, 0, num_samples, num_samples);
 			// - beta*Uz^(-T)*Uv^T
 			//ref_variant_vel_[mat_num] = -cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * mpc_parameters_->weights.vel[mode_num];
 			ref_variant_vel_[mat_num] = -vel_dyn.input_mat_tr * mpc_parameters_->weights.vel[mode_num];
@@ -176,7 +183,7 @@ void QPBuilder::PrecomputeObjective() {
 
 			CommonVectorType e_vec = CommonVectorType::Zero(num_samples);
 			e_vec(0) = 1.;
-			curr_cop_variant_[mat_num] = - contr_mov_mat_tr.block(0, 0, num_samples + num_unst_modes, num_samples) * mpc_parameters_->weights.contr_moves[mode_num] * e_vec;
+			curr_cop_variant_[mat_num] = - contr_mov_mat_tr.block(0, 0, num_samples + num_unst_modes, num_samples) * contr_mov_pen_mat.block(0, 0, num_samples, num_samples) * e_vec;
 		}
 	}
 }
@@ -199,6 +206,9 @@ void QPBuilder::BuildProblem(MPCSolution &solution) {
 	solver_->num_var(num_variables);
 
 	BuildObjective(solution);
+
+	BuildEqualityConstraints(solution);
+
 	if (mpc_parameters_->is_ineq_constr) {
 		BuildInequalityConstraints(solution);
 	}
@@ -485,29 +495,44 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 
 	solver_->objective_vec().Add(gradient_vec, 0);
 
+}
+
+void QPBuilder::BuildEqualityConstraints(const MPCSolution &solution) {
+
 	if (mpc_parameters_->formulation == DECOUPLED_MODES) {
-		BuildCPConstraints(solution);
+		BuildCPEqConstraints(solution);
 	}
+
+	const SupportState &curr_sup = solution.support_states_vec.front();
+	if (curr_sup.phase == SS && curr_sup.time_limit - current_time_ < .4
+			&& curr_sup.time_limit - current_time_ > mpc_parameters_->period_qpsample + kEps) {
+		BuildFootPosEqConstraints(solution);
+	}
+
+	//if (solution.is_prev_sol_exist == true &&
+	//		mpc_parameters_->period_qpsample > (solution.sampling_times_vec[1] - solution.sampling_times_vec[0]) + kEps) {
+	//	BuildCoPEqConstraints(solution);
+	//}
 }
 
 void QPBuilder::BuildInequalityConstraints(const MPCSolution &solution) {
-	//TODO: Create Index class
+	//TODO: Create class for variable indices
 
 	int num_steps_previewed = solution.support_states_vec.back().step_number;
 
-	BuildCoPConstraints(solution);
+	BuildCoPIneqConstraints(solution);
 	if (num_steps_previewed > 0) {
 		BuildFootPosInequalities(solution);
-		BuildFootPosConstraints(solution);
+		BuildFootPosIneqConstraints(solution);
 		//BuildFootVelConstraints(solution);
 	}
 }
 
-void QPBuilder::BuildCPConstraints(const MPCSolution &solution) {
+void QPBuilder::BuildCPEqConstraints(const MPCSolution &solution) {
 	int num_steps_previewed = solution.support_states_vec.back().step_number;
 	int num_samples 		= mpc_parameters_->num_samples_horizon;
-	int num_unst_modes = 1;
-	int num_st_modes = 1;
+	int num_unst_modes 		= 1;
+	int num_st_modes		= 1;
 
 
 	int num_constr = solver_->num_constr();
@@ -609,6 +634,58 @@ void QPBuilder::BuildCPConstraints(const MPCSolution &solution) {
 	solver_->uc_bounds_vec().Add(constant_y, num_constr + num_unst_modes);
 }
 
+void QPBuilder::BuildFootPosEqConstraints(const MPCSolution &solution) {
+	assert(solver_->num_constr() == solver_->num_eq_constr());
+
+	int num_steps_previewed = solution.support_states_vec.back().step_number;
+	int num_samples 		= mpc_parameters_->num_samples_horizon;
+	int num_unst_modes 		= 0;
+	if (mpc_parameters_->formulation == DECOUPLED_MODES) {
+		num_unst_modes = 1;
+	}
+
+	int num_constr = solver_->num_constr();
+	solver_->num_constr(num_constr + 2);
+	int num_eq_constr = solver_->num_eq_constr();
+	solver_->num_eq_constr(num_eq_constr + 2);
+
+	//X:
+	solver_->constr_mat()()(num_constr, 2*(num_samples + num_unst_modes)) = 1.;
+	solver_->lc_bounds_vec().Add(solution.prev_first_foot_x, num_constr);
+	solver_->uc_bounds_vec().Add(solution.prev_first_foot_x, num_constr);
+
+	//Y:
+	solver_->constr_mat()()(num_constr + 1, 2*(num_samples + num_unst_modes) + num_steps_previewed) = 1.;
+	solver_->lc_bounds_vec().Add(solution.prev_first_foot_y, num_constr + 1);
+	solver_->uc_bounds_vec().Add(solution.prev_first_foot_y, num_constr + 1);
+}
+
+void QPBuilder::BuildCoPEqConstraints(const MPCSolution &solution) {
+	assert(solver_->num_constr() == solver_->num_eq_constr());
+
+	int num_steps_previewed = solution.support_states_vec.back().step_number;
+	int num_samples 		= mpc_parameters_->num_samples_horizon;
+	int num_unst_modes 		= 0;
+	if (mpc_parameters_->formulation == DECOUPLED_MODES) {
+		num_unst_modes = 1;
+	}
+
+	int num_constr = solver_->num_constr();
+	solver_->num_constr(num_constr + 2);
+	int num_eq_constr = solver_->num_eq_constr();
+	solver_->num_eq_constr(num_eq_constr + 2);
+
+	//X:
+	solver_->constr_mat()()(num_constr, 0) = 1.;
+	solver_->lc_bounds_vec().Add(solution.prev_cop_x, num_constr);
+	solver_->uc_bounds_vec().Add(solution.prev_cop_x, num_constr);
+
+	//Y:
+	solver_->constr_mat()()(num_constr + 1, num_samples + num_unst_modes) = 1.;
+	solver_->lc_bounds_vec().Add(solution.prev_cop_y, num_constr + 1);
+	solver_->uc_bounds_vec().Add(solution.prev_cop_y, num_constr + 1);
+}
+
 void QPBuilder::BuildFootPosInequalities(const MPCSolution &solution) {
 	int num_ineqs = 5;
 	int num_steps = solution.support_states_vec.back().step_number;
@@ -637,7 +714,7 @@ void QPBuilder::BuildFootPosInequalities(const MPCSolution &solution) {
 	}
 }
 
-void QPBuilder::BuildFootPosConstraints(const MPCSolution &solution) {
+void QPBuilder::BuildFootPosIneqConstraints(const MPCSolution &solution) {
 	int num_steps_previewed = solution.support_states_vec.back().step_number;
 	const SelectionMatrices &select = preview_->selection_matrices();
 	int num_samples = mpc_parameters_->num_samples_horizon;
@@ -664,7 +741,7 @@ void QPBuilder::BuildFootPosConstraints(const MPCSolution &solution) {
 	solver_->uc_bounds_vec()().segment(num_constr, tmp_vec_.size()).fill(kInf);
 }
 
-void QPBuilder::BuildFootVelConstraints(const MPCSolution &solution) {
+void QPBuilder::BuildFootVelIneqConstraints(const MPCSolution &solution) {
 	assert(robot_->robot_data().max_foot_vel > kEps);
 
 	double raise_time = 0.05;//TODO: Hard coded value has to come from robot_
@@ -693,7 +770,7 @@ void QPBuilder::BuildFootVelConstraints(const MPCSolution &solution) {
 	solver_->lv_bounds_vec().Add(lower_limit_y, y_var_pos);
 }
 
-void QPBuilder::BuildCoPConstraints(const MPCSolution &solution) {
+void QPBuilder::BuildCoPIneqConstraints(const MPCSolution &solution) {
 	int num_samples = mpc_parameters_->num_samples_horizon;
 	int num_modes = 1;//TODO: Define outside
 	std::vector<SupportState>::const_iterator prev_ss_it = solution.support_states_vec.begin();

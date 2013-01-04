@@ -44,15 +44,21 @@ private:
 
 	void BuildObjective(const MPCSolution &solution);
 
+	void BuildEqualityConstraints(const MPCSolution &solution);
+
 	void BuildInequalityConstraints(const MPCSolution &solution);
 
-	void BuildCPConstraints(const MPCSolution &solution);
+	void BuildCPEqConstraints(const MPCSolution &solution);
 
-	void BuildFootPosConstraints(const MPCSolution &solution);
+	void BuildFootPosEqConstraints(const MPCSolution &solution);
 
-	void BuildFootVelConstraints(const MPCSolution &solution);
+	void BuildCoPEqConstraints(const MPCSolution &solution);
 
-	void BuildCoPConstraints(const MPCSolution &solution);
+	void BuildFootPosIneqConstraints(const MPCSolution &solution);
+
+	void BuildFootVelIneqConstraints(const MPCSolution &solution);
+
+	void BuildCoPIneqConstraints(const MPCSolution &solution);
 
 	void BuildTerminalConstraints(const MPCSolution &solution);
 

@@ -18,7 +18,7 @@ using namespace std;
 
 static void mdlInitializeSizes(SimStruct *S) {
 	// Expected number of parameters
-	ssSetNumSFcnParams(S, 23);
+	ssSetNumSFcnParams(S, 24);
 
 	// Parameter mismatch?
 	if (ssGetNumSFcnParams(S) != ssGetSFcnParamsCount(S)) {
@@ -120,26 +120,28 @@ static void mdlStart(SimStruct *S) {
 		mpc_parameters.solver.analysis			    = true;
 	}
 	if (solver_in == 0) {
-		mpc_parameters.solver.name                  	= QLD;
+		mpc_parameters.solver.name	= QLD;
 	} else if (solver_in == 1) {
-		mpc_parameters.solver.name                  	= QPOASES;
+		mpc_parameters.solver.name  = QPOASES;
 	} else if (solver_in == 2) {
-		mpc_parameters.solver.name                  	= LSSOL;
+		mpc_parameters.solver.name  = LSSOL;
 	}
 
 	mpc_parameters.dynamics_order               	= static_cast<SystemOrder>(static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 9))));
 
-	mpc_parameters.weights.pos[0] 		= *mxGetPr(ssGetSFcnParam(S, 11));//1.;
-	mpc_parameters.weights.vel[0]  		= *mxGetPr(ssGetSFcnParam(S, 12));//0.;
-	mpc_parameters.weights.cop[0]  		= *mxGetPr(ssGetSFcnParam(S, 13));//0.00001;
-	mpc_parameters.weights.cp[0] 		= *mxGetPr(ssGetSFcnParam(S, 14));//0.;//1.;
-	mpc_parameters.weights.contr_moves[0] 	= *mxGetPr(ssGetSFcnParam(S, 15));//0.00001;
+	mpc_parameters.weights.pos[0] 			= *mxGetPr(ssGetSFcnParam(S, 11));
+	mpc_parameters.weights.vel[0]  			= *mxGetPr(ssGetSFcnParam(S, 12));
+	mpc_parameters.weights.cop[0]  			= *mxGetPr(ssGetSFcnParam(S, 13));
+	mpc_parameters.weights.cp[0] 			= *mxGetPr(ssGetSFcnParam(S, 14));
+	mpc_parameters.weights.contr_moves[0] 	= *mxGetPr(ssGetSFcnParam(S, 15));
+	mpc_parameters.weights.first_contr_move	= *mxGetPr(ssGetSFcnParam(S, 23));
 
-	mpc_parameters.weights.pos[1] 		= 0.;
-	mpc_parameters.weights.vel[1]  		= 0.;
-	mpc_parameters.weights.cop[1]  		= 0.;
-	mpc_parameters.weights.cp[1] 		= 0.;
+	mpc_parameters.weights.pos[1] 			= 0.;
+	mpc_parameters.weights.vel[1]  			= 0.;
+	mpc_parameters.weights.cop[1]  			= 0.;
+	mpc_parameters.weights.cp[1] 			= 0.;
 	mpc_parameters.weights.contr_moves[1] 	= 0.;
+
 	if (is_pid_mode_in == 1) {
 		mpc_parameters.is_pid_mode = true;
 	}
@@ -222,24 +224,24 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 		right_foot.SetEdges(*foot_geometry[0], *foot_geometry[1], *foot_geometry[2], *foot_geometry[3], kSecurityMargin);
 
 		HipYawData left_hip_yaw;
-		left_hip_yaw.lower_pos_bound       = -0.523599;
-		left_hip_yaw.upper_pos_bound       = 0.785398;
-		left_hip_yaw.lower_vel_bound       = -3.54108;
-		left_hip_yaw.upper_vel_bound       = 3.54108;
-		left_hip_yaw.lower_acc_bound       = -0.1;
-		left_hip_yaw.upper_acc_bound       = 0.1;
-		HipYawData right_hip_yaw           = left_hip_yaw;
+		left_hip_yaw.lower_pos_bound 	= -0.523599;
+		left_hip_yaw.upper_pos_bound    = 0.785398;
+		left_hip_yaw.lower_vel_bound    = -3.54108;
+		left_hip_yaw.upper_vel_bound    = 3.54108;
+		left_hip_yaw.lower_acc_bound    = -0.1;
+		left_hip_yaw.upper_acc_bound    = 0.1;
+		HipYawData right_hip_yaw        = left_hip_yaw;
 
 		RobotData robot_data(left_foot, right_foot, left_hip_yaw, right_hip_yaw, 0.0);
 		robot_data.com(0) = *com_in[0];		// TODO: This initialization did not work
 		robot_data.com(1) = *com_in[1];
 		robot_data.com(2) = *com_in[2];
-		robot_data.left_foot.position[0] = *left_ankle_in[0];
-		robot_data.left_foot.position[1] = *left_ankle_in[1];
-		robot_data.left_foot.position[2] = *left_ankle_in[2];
-		robot_data.right_foot.position[0]  = *right_ankle_in[0];
-		robot_data.right_foot.position[1]  = *right_ankle_in[1];
-		robot_data.right_foot.position[2]  = *right_ankle_in[2];
+		robot_data.left_foot.position[0] 	= *left_ankle_in[0];
+		robot_data.left_foot.position[1] 	= *left_ankle_in[1];
+		robot_data.left_foot.position[2] 	= *left_ankle_in[2];
+		robot_data.right_foot.position[0]  	= *right_ankle_in[0];
+		robot_data.right_foot.position[1]  	= *right_ankle_in[1];
+		robot_data.right_foot.position[2]  	= *right_ankle_in[2];
 		robot_data.max_foot_vel = 1.;
 		robot_data.security_margin = kSecurityMargin;
 

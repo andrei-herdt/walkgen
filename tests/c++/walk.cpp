@@ -15,7 +15,7 @@ int main() {
 	int num_samples_dsss 			= 8;
 	int num_steps_ssds 				= 2;
 	double sample_period_qp 		= .1;
-	double sample_period_first 		= .01;
+	double sample_period_first 		= .1;
 	double sample_period_act 		= .01;
 	const double kSecurityMargin 		= .02;
 
@@ -39,7 +39,7 @@ int main() {
 	mpc_parameters.formulation		      		= DECOUPLED_MODES;
 	mpc_parameters.is_pid_mode		      		= false;
 	mpc_parameters.is_terminal_constr	      	= false;
-	mpc_parameters.is_ineq_constr				= false;
+	mpc_parameters.is_ineq_constr				= true;
 	mpc_parameters.problem_dumping				= true;
 
 	mpc_parameters.weights.pos[0] 		= 0.;
@@ -143,11 +143,11 @@ int main() {
 	// Go:
 	// ---
 	double curr_time = 0.;
-	walk.SetVelReference(0., 0., 0.);
+	walk.SetVelReference(0.1, 0., 0.);
 	int num_iterations = 0;
 	//walk.clock().GetFrequency(1000);
 	//walk.clock().ResetLocal();
-	for (; curr_time < .1; curr_time += sample_period_act) {
+	for (; curr_time < 2.; curr_time += sample_period_act) {
 		//int online_timer = walk.clock().StartCounter();
 		//std::cout << std::endl;
 		std::cout << std::endl;
@@ -164,11 +164,11 @@ int main() {
 		//std::cout << "com_prw.cp.x: " << solution.com_prw.cp.x_vec.transpose() << std::endl;
 		//std::cout << "com_prw.cp.x: " << solution.com_prw.cp.x_vec.transpose() << std::endl;
 	 	
-		std::cout << std::endl;
-		std::cout << "com_prw.control.x_vec: " << solution.com_prw.control.x_vec.transpose() << std::endl;
-	 	std::cout << std::endl;
-		Debug::Cout("com_prw.control.y_vec", solution.com_prw.control.y_vec);
-	 	std::cout << std::endl;
+		//std::cout << std::endl;
+		//std::cout << "com_prw.control.x_vec: " << solution.com_prw.control.x_vec.transpose() << std::endl;
+	 	//std::cout << std::endl;
+		//Debug::Cout("com_prw.control.y_vec", solution.com_prw.control.y_vec);
+	 	//std::cout << std::endl;
 		//std::cout << "com_act.pos.x: " << walk.output().com.x << "  com_act.vel.x: " << walk.output().com.dx << std::endl;
 		
 		//Debug::Cout("sampling_times_vec", solution.sampling_times_vec);

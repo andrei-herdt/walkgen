@@ -7,6 +7,11 @@
 #include <Eigen/Dense>
 #include <vector>
 
+#ifdef MATLAB_MEX_FILE
+#include "mex.h"
+#define printf mexPrintf
+#endif
+
 namespace MPCWalkgen{
 
 inline double round( double d )
@@ -137,6 +142,7 @@ struct MPC_WALKGEN_API WeightCoefficients{
 	std::vector<double> cop;		//CoP
 	std::vector<double> cp;			//Capture point
 	std::vector<double> contr_moves;
+	double first_contr_move;
 
 	//std::map<Mode, int> mode;
 
@@ -320,6 +326,12 @@ struct MPC_WALKGEN_API MPCSolution {
 	SolutionAnalysis analysis;
 
 	Reference pos_ref;
+
+	bool is_prev_sol_exist;
+
+	double prev_first_foot_x, prev_first_foot_y;
+	double prev_cop_x, prev_cop_y;
+
 
 	MPCSolution& operator = (MPCSolution const &);	//This operator helps to avoid alignment errors
 
