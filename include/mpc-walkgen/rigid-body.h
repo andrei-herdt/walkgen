@@ -27,8 +27,11 @@ public:
 
 	/// \name Accessors and mutators
 	/// \{
-	inline const BodyState &state() const{return state_;}
+	inline const BodyState &state() const {return state_;}
 	inline BodyState &state(){return state_;}
+
+	inline const Wrench &force_sensor() const {return wrench_;};
+	inline Wrench &force_sensor() {return wrench_;};
 
 	inline void state(const BodyState &s){state_ = s;}
 
@@ -37,6 +40,7 @@ public:
 
 	inline Motion &motion_act() {return motion_act_;};
 	inline Motion &motion_prw() {return motion_prw_;};
+
 	/// \}
 
 protected:
@@ -47,6 +51,8 @@ protected:
 	Interpolation interpolation_;
 
 	BodyState state_;
+
+	Wrench wrench_;
 
 	std::vector<LinearDynamics> dynamics_qp_vec_; // \brief Dynamics sampled with the QP sampling rate
 

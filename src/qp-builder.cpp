@@ -778,7 +778,7 @@ void QPBuilder::BuildCoPIneqConstraints(const MPCSolution &solution) {
 	robot_->GetConvexHull(hull_, COP_HULL, *prev_ss_it);
 
 	int num_steps_previewed = solution.support_states_vec.back().step_number;
-	int size = 2*num_samples;
+	int size = 2 * num_samples;
 	tmp_vec_.resize(size);
 	tmp_vec2_.resize(size);
 

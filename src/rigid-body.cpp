@@ -23,6 +23,7 @@ void RigidBody::Init(const MPCParameters *mpc_parameters_p) {
 	int num_samples = mpc_parameters_->num_samples_act();
 	int num_unst_modes = 1;//TODO: unstable modes
 	motion_act_.SetZero(num_samples, num_unst_modes);
+	wrench_.SetZero();
 }
 
 void RigidBody::Init(const RobotData *robot_data_p) {

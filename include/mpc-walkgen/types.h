@@ -95,7 +95,14 @@ struct MPC_WALKGEN_API BodyState{
 
 	BodyState();
 
-	void reset();
+	void Reset();
+};
+
+struct Wrench {
+	double force_x, force_y, force_z;
+	double torque_x, torque_y, torque_z;
+
+	void SetZero();
 };
 
 struct MPC_WALKGEN_API FootData{
@@ -288,7 +295,6 @@ struct Motion {
 
 	void SetZero(int num_samples, int num_unst_modes);
 };
-
 
 struct SolutionAnalysis {
 	int num_iterations;

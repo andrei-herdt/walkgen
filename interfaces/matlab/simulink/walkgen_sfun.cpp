@@ -26,7 +26,7 @@ static void mdlInitializeSizes(SimStruct *S) {
 	}
 
 	// Specify I/O
-	if (!ssSetNumInputPorts(S, 11)) return;
+	if (!ssSetNumInputPorts(S, 13)) return;
 	ssSetInputPortWidth(S, 0, 2);     //pos_ref
 	ssSetInputPortWidth(S, 1, 3);     //vel_ref
 	ssSetInputPortWidth(S, 2, 2);     //cp_ref
@@ -37,7 +37,9 @@ static void mdlInitializeSizes(SimStruct *S) {
 	ssSetInputPortWidth(S, 7, 4);     //foot_geometry
 	ssSetInputPortWidth(S, 8, 6);     //com_in
 	ssSetInputPortWidth(S, 9, 2);     //cop
-	ssSetInputPortWidth(S, 10, 1);    //reset_in
+	ssSetInputPortWidth(S, 10, 3);    //reset_in
+	ssSetInputPortWidth(S, 11, 3);    //reset_in
+	ssSetInputPortWidth(S, 12, 1);    //reset_in
 
 	ssSetInputPortDirectFeedThrough(S, 0, 1);
 	ssSetInputPortDirectFeedThrough(S, 1, 1);
@@ -50,6 +52,8 @@ static void mdlInitializeSizes(SimStruct *S) {
 	ssSetInputPortDirectFeedThrough(S, 8, 1);
 	ssSetInputPortDirectFeedThrough(S, 9, 1);
 	ssSetInputPortDirectFeedThrough(S, 10, 1);
+	ssSetInputPortDirectFeedThrough(S, 11, 1);
+	ssSetInputPortDirectFeedThrough(S, 12, 1);
 
 	if (!ssSetNumOutputPorts(S,19)) return;
 	// Realized motions
@@ -185,7 +189,9 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 	InputRealPtrsType foot_geometry   = ssGetInputPortRealSignalPtrs(S, 7);
 	InputRealPtrsType com_in          = ssGetInputPortRealSignalPtrs(S, 8);
 	InputRealPtrsType cop_in          = ssGetInputPortRealSignalPtrs(S, 9);
-	InputRealPtrsType reset_in        = ssGetInputPortRealSignalPtrs(S, 10);
+	InputRealPtrsType lfoot_wrench_in = ssGetInputPortRealSignalPtrs(S, 10);
+	InputRealPtrsType rfoot_wrench_in = ssGetInputPortRealSignalPtrs(S, 11);
+	InputRealPtrsType reset_in        = ssGetInputPortRealSignalPtrs(S, 12);
 
 	real_T *com            = ssGetOutputPortRealSignal(S, 0);
 	real_T *dcom           = ssGetOutputPortRealSignal(S, 1);
@@ -249,7 +255,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 		// ------------------
 		const int num_vert_foot_pos = 5;
 		double DefaultFPosEdgesX[num_vert_foot_pos] = {-0.2, -0.2, 0.0, 0.2, 0.2};
-		double DefaultFPosEdgesY[num_vert_foot_pos] = {-0.2, -0.3, -0.4, -0.3, -0.2};
+		double DefaultFPosEdgesY[num_vert_foot_pos] = {-0.2, -0.3, -0.4, -0.3, -0.225};
 
 		robot_data.left_foot_pos_hull.Resize(num_vert_foot_pos);
 		robot_data.right_foot_pos_hull.Resize(num_vert_foot_pos);
@@ -295,6 +301,9 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 		robot->com()->state().y[1] = *com_in[4];
 		robot->com()->state().x[2] = kGravity / *com_in[2] * (*com_in[0] - *cop_in[0]);
 		robot->com()->state().y[2] = kGravity / *com_in[2] * (*com_in[1] - *cop_in[1]);
+
+		robot->left_foot()->force_sensor().force_z = *lfoot_wrench_in[2];
+		robot->right_foot()->force_sensor().force_z = *rfoot_wrench_in[2];
 	}
 
 	// Run simulation:

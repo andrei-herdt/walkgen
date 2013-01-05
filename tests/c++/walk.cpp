@@ -15,7 +15,7 @@ int main() {
 	int num_samples_dsss 			= 8;
 	int num_steps_ssds 				= 2;
 	double sample_period_qp 		= .1;
-	double sample_period_first 		= .1;
+	double sample_period_first 		= .01;
 	double sample_period_act 		= .01;
 	const double kSecurityMargin 		= .02;
 
@@ -148,13 +148,13 @@ int main() {
 	int num_iterations = 0;
 	//walk.clock().GetFrequency(1000);
 	//walk.clock().ResetLocal();
-	for (; curr_time < 2.; curr_time += sample_period_act) {
+	for (; curr_time < .2; curr_time += sample_period_act) {
 		//int online_timer = walk.clock().StartCounter();
 		//std::cout << std::endl;
 		//std::cout << std::endl;
-		//std::cout << std::endl;
-		//std::cout<< "curr_time: " << curr_time << std::endl;
-		//std::cout << "--------------------" << std::endl;
+		std::cout << std::endl;
+		std::cout<< "curr_time: " << curr_time << std::endl;
+		std::cout << "--------------------" << std::endl;
 		const MPCSolution &solution = walk.Go(curr_time);
 		//walk.solver()->DumpMatrices(curr_time, "dat");
 		
@@ -166,8 +166,9 @@ int main() {
 		//std::cout << "com_prw.cp.x: " << solution.com_prw.cp.x_vec.transpose() << std::endl;
 	 	
 		//std::cout << std::endl;
-		//std::cout << "com_prw.control.x_vec: " << solution.com_prw.control.x_vec.transpose() << std::endl;
-	 	//std::cout << std::endl;
+		std::cout << "com_prw.control.x_vec: " << solution.com_prw.control.x_vec.transpose() << std::endl;
+	 	std::cout << std::endl;
+		Debug::Cout("solution.qp_solution_vec: ", solution.qp_solution_vec);
 		//Debug::Cout("com_prw.control.y_vec", solution.com_prw.control.y_vec);
 	 	//std::cout << std::endl;
 		//std::cout << "com_act.pos.x: " << walk.output().com.x << "  com_act.vel.x: " << walk.output().com.dx << std::endl;

@@ -26,17 +26,26 @@ void Reference::SetZero(int size){
 	local.SetZero(size);
 }
 
-BodyState::BodyState(){
-	reset();
+BodyState::BodyState() {
+	Reset();
 }
 
-void BodyState::reset(){
+void BodyState::Reset() {
 	x.fill(0);
 	y.fill(0);
 	z.fill(0);
 	yaw.fill(0);
 	pitch.fill(0);
 	roll.fill(0);
+}
+
+void Wrench::SetZero() {
+	force_x = 0.;
+	force_y = 0.;
+	force_z = 0.;
+	torque_x = 0.;
+	torque_y = 0.;
+	torque_z = 0.;
 }
 
 FootData::FootData()
@@ -166,7 +175,6 @@ void Motion::SetZero(int num_samples, int num_unst_modes) {
 	cop.SetZero(num_samples);
 	cp.SetZero(num_samples);
 }
-
 
 MPCParameters::MPCParameters()
 :period_qpsample(0.)
