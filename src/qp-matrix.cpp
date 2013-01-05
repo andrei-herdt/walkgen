@@ -1,5 +1,7 @@
 #include <mpc-walkgen/qp-matrix.h>
+
 #include <mpc-walkgen/tools.h>
+#include <mpc-walkgen/debug.h>
 
 #include <Eigen/Cholesky>
 #include <cmath>

@@ -27,13 +27,13 @@ void DynamicsBuilder::Init(const MPCParameters *mpc_parameters) {
 	precomp_input_mat_.setZero();  // \f[ -A^{-1}\mathbb{I}B \f]
 }
 
-void DynamicsBuilder::Build(SystemOrder dynamics_order, LinearDynamics &dyn, double height, double sample_period_first, double sample_period_rest, int num_samples, bool actuation) {
+void DynamicsBuilder::Build(SystemOrder dynamics_order, LinearDynamics &dyn, double height, const std::vector<double> &sampling_periods_vec, int num_samples, bool actuation) {
 	switch (dynamics_order) {
 	case SECOND_ORDER:
-		BuildSecondOrder(dyn, height, sample_period_first, sample_period_rest, num_samples, actuation);
+		BuildSecondOrder(dyn, height, sampling_periods_vec, num_samples, actuation);
 		break;
 	case THIRD_ORDER:
-		BuildThirdOrder(dyn, height, sample_period_first, sample_period_rest, num_samples);
+		BuildThirdOrder(dyn, height, sampling_periods_vec, num_samples);
 		break;
 	}
 }
@@ -41,8 +41,8 @@ void DynamicsBuilder::Build(SystemOrder dynamics_order, LinearDynamics &dyn, dou
 //
 // Private methods:
 //
-void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, double sample_period_first, double sample_period_rest, int num_samples, bool actuation) {
-	assert(sample_period_first > 0. && sample_period_rest > 0.);
+void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, const std::vector<double> &sampling_periods_vec, int num_samples, bool actuation) {
+	assert(sampling_periods_vec.at(0) > 0.);
 
 	/*
 	BuildSecondOrderCoPOutput(dyn.pos, height, sample_period_first, sample_period_rest, num_samples, POSITION);
@@ -50,6 +50,9 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, doubl
 	BuildSecondOrderCoPOutput(dyn.acc, height, sample_period_first, sample_period_rest, num_samples, ACCELERATION);
 	BuildSecondOrderCoPOutput(dyn.cop, height, sample_period_first, sample_period_rest, num_samples, COP);
 	 */
+
+	double sample_period_first = sampling_periods_vec.at(0);
+	double sample_period_rest = sampling_periods_vec.at(1);
 
 	double omega = sqrt(kGravity/height);
 	double omega_square = kGravity/height;
@@ -139,8 +142,6 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, doubl
 
 		// Build discrete state space dynamics:
 		// ------------------------------------
-		std::vector<double> sampling_periods_vec(num_samples, sample_period_rest);
-		sampling_periods_vec[0] = sample_period_first;
 		ComputeDiscreteSSDynamics(dyn, sampling_periods_vec);
 
 		// Build products of state matrices:
@@ -162,8 +163,11 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, doubl
 
 }
 
-void DynamicsBuilder::BuildThirdOrder(LinearDynamics &dyn, double height, double sample_period_first, double sample_period_rest, int num_samples) {
+void DynamicsBuilder::BuildThirdOrder(LinearDynamics &dyn, double height, const std::vector<double> &sampling_periods_vec, int num_samples) {
 	dyn.SetZero(3, 1, 1, num_samples, 0, 0);
+
+	double sample_period_first = sampling_periods_vec.at(0);
+	double sample_period_rest = sampling_periods_vec.at(1);
 
 	BuildThirdOrder(dyn.pos, height, sample_period_first, sample_period_rest, num_samples, POSITION);
 	BuildThirdOrder(dyn.vel, height, sample_period_first, sample_period_rest, num_samples, VELOCITY);

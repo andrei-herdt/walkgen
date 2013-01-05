@@ -32,21 +32,22 @@ int main() {
 	mpc_parameters.warmstart           			= false;
 	mpc_parameters.interpolate_whole_horizon    = true;
 	mpc_parameters.solver.analysis              = true;
-	mpc_parameters.problem_dumping		      	= false;
-	mpc_parameters.solver.name                  = QLD;
+	mpc_parameters.problem_dumping		      	= true;
+	mpc_parameters.solver.name                  = QPOASES;
 	mpc_parameters.solver.num_wsrec             = 200;
 	mpc_parameters.dynamics_order               = SECOND_ORDER;
-	mpc_parameters.formulation		      		= DECOUPLED_MODES;
+	mpc_parameters.formulation		      		= STANDARD;
 	mpc_parameters.is_pid_mode		      		= false;
 	mpc_parameters.is_terminal_constr	      	= false;
-	mpc_parameters.is_ineq_constr				= true;
+	mpc_parameters.is_ineq_constr				= false;
 	mpc_parameters.problem_dumping				= true;
 
-	mpc_parameters.weights.pos[0] 		= 0.;
-	mpc_parameters.weights.vel[0]  		= 0.;
-	mpc_parameters.weights.cop[0]  		= 0.;//0.00001;
-	mpc_parameters.weights.cp[0] 		= 1.;
+	mpc_parameters.weights.pos[0] 			= 0.;
+	mpc_parameters.weights.vel[0]  			= 0.;
+	mpc_parameters.weights.cop[0]  			= 0.;//0.00001;
+	mpc_parameters.weights.cp[0] 			= 1.;
 	mpc_parameters.weights.contr_moves[0] 	= 0.;
+	mpc_parameters.weights.first_contr_move = 0.;
 
 	mpc_parameters.weights.pos[1] 		= 0.;
 	mpc_parameters.weights.vel[1]  		= 0.;
@@ -143,17 +144,17 @@ int main() {
 	// Go:
 	// ---
 	double curr_time = 0.;
-	walk.SetVelReference(0.1, 0., 0.);
+	walk.SetVelReference(0., 0., 0.);
 	int num_iterations = 0;
 	//walk.clock().GetFrequency(1000);
 	//walk.clock().ResetLocal();
 	for (; curr_time < 2.; curr_time += sample_period_act) {
 		//int online_timer = walk.clock().StartCounter();
 		//std::cout << std::endl;
-		std::cout << std::endl;
-		std::cout << std::endl;
-		std::cout<< "curr_time: " << curr_time << std::endl;
-		std::cout << "--------------------" << std::endl;
+		//std::cout << std::endl;
+		//std::cout << std::endl;
+		//std::cout<< "curr_time: " << curr_time << std::endl;
+		//std::cout << "--------------------" << std::endl;
 		const MPCSolution &solution = walk.Go(curr_time);
 		//walk.solver()->DumpMatrices(curr_time, "dat");
 		

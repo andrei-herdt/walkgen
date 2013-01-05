@@ -9,6 +9,7 @@
 namespace MPCWalkgen{
 
 class QPMatrix{
+
 	//
 	// Public methods:
 	//

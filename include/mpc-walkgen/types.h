@@ -7,11 +7,6 @@
 #include <Eigen/Dense>
 #include <vector>
 
-#ifdef MATLAB_MEX_FILE
-#include "mex.h"
-#define printf mexPrintf
-#endif
-
 namespace MPCWalkgen{
 
 inline double round( double d )

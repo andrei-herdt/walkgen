@@ -21,8 +21,7 @@ public:
 	void Build(SystemOrder dynamics_order,
 			LinearDynamics &dyn,
 			double height,
-			double sample_period_first,
-			double sample_period_rest,
+			const std::vector<double> &sampling_periods_vec,
 			int num_samples,
 			bool actuation
 	);
@@ -35,16 +34,14 @@ private:
 	void BuildSecondOrder(
 			LinearDynamics &dyn,
 			double height,
-			double sample_period_first,
-			double sample_period_rest,
+			const std::vector<double> &sampling_periods_vec,
 			int num_samples,
 			bool actuation
 	);
 	void BuildThirdOrder(
 			LinearDynamics &dyn,
 			double height,
-			double sample_period_first,
-			double sample_period_rest,
+			const std::vector<double> &sampling_periods_vec,
 			int num_samples
 	);
 

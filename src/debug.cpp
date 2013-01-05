@@ -2,6 +2,11 @@
 
 using namespace std;
 
+void Debug::Cout(const char *name, double val) {
+		printf(name, ": \n");
+		printf("%f \n", val);
+}
+
 void Debug::Cout(const char *name, const vector<double> &vec) {
 		cout << name << endl;
 		for (int i=0; i < vec.size(); i++) {
