@@ -2,8 +2,13 @@
 
 using namespace std;
 
-void Debug::Cout(const char *name, double val) {
-		printf(name, ": \n");
+void Debug::Disp(const char *name, bool val) {
+		printf(name, ": ");
+		val ? printf("true \n") : printf("false \n");
+}
+
+void Debug::Disp(const char *name, double val) {
+		printf(name, ": ");
 		printf("%f \n", val);
 }
 

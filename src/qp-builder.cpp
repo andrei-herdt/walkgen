@@ -773,28 +773,60 @@ void QPBuilder::BuildFootVelIneqConstraints(const MPCSolution &solution) {
 void QPBuilder::BuildCoPIneqConstraints(const MPCSolution &solution) {
 	int num_samples = mpc_parameters_->num_samples_horizon;
 	int num_modes = 1;//TODO: Define outside
-	std::vector<SupportState>::const_iterator prev_ss_it = solution.support_states_vec.begin();
+	std::vector<SupportState>::const_iterator ss_it = solution.support_states_vec.begin();
 
-	robot_->GetConvexHull(hull_, COP_HULL, *prev_ss_it);
+	robot_->GetConvexHull(hull_, COP_HULL, *ss_it);
 
 	int num_steps_previewed = solution.support_states_vec.back().step_number;
 	int size = 2 * num_samples;
 	tmp_vec_.resize(size);
 	tmp_vec2_.resize(size);
 
-	++prev_ss_it;//Points at the first previewed instant
-	for (int i = 0; i < num_samples; ++i) {
-		if (prev_ss_it->state_changed) {
-			robot_->GetConvexHull(hull_, COP_HULL, *prev_ss_it);
-		}
-		tmp_vec_(i)  = min(hull_.x_vec(0), hull_.x_vec(3));
-		tmp_vec2_(i) = max(hull_.x_vec(0), hull_.x_vec(3));
+	// Verify if flying foot entered contact:
+	// --------------------------------------
+	const Wrench *ff_wrench;
+	if (ss_it->foot == RIGHT) {
+		ff_wrench = &robot_->left_foot()->force_sensor();
+	} else {
+		ff_wrench = &robot_->right_foot()->force_sensor();
+	}
+	bool is_ff_incontact = false;
+	if (ss_it->phase == SS && ff_wrench->force_z > mpc_parameters_->ds_force_thresh) {
+		is_ff_incontact = true;
+	}
+	double cur_sup_time_limit = ss_it->time_limit;
 
-		tmp_vec_(num_samples + i) = min(hull_.y_vec(0), hull_.y_vec(1));
-		tmp_vec2_(num_samples + i)= max(hull_.y_vec(0), hull_.y_vec(1));
-		++prev_ss_it;
+
+	// Compose bounds vector:
+	// ----------------------
+	std::vector<double>::const_iterator st_it = solution.sampling_times_vec.begin();
+	++st_it;//Points at the first previewed instant
+	++ss_it;//Points at the first previewed instant
+	for (int i = 0; i < num_samples; ++i) {
+		if (cur_sup_time_limit - kEps > *st_it && is_ff_incontact) {
+			Debug::Disp("is_ff_incontact", is_ff_incontact);
+			tmp_vec_(i)  = -kInf;
+			tmp_vec2_(i) = kInf;
+
+			tmp_vec_(num_samples + i) = -kInf;
+			tmp_vec2_(num_samples + i)= kInf;
+			++ss_it;
+			++st_it;
+		} else {
+			if (ss_it->state_changed) {
+				robot_->GetConvexHull(hull_, COP_HULL, *ss_it);
+			}
+			tmp_vec_(i)  = min(hull_.x_vec(0), hull_.x_vec(3));
+			tmp_vec2_(i) = max(hull_.x_vec(0), hull_.x_vec(3));
+
+			tmp_vec_(num_samples + i) = min(hull_.y_vec(0), hull_.y_vec(1));
+			tmp_vec2_(num_samples + i)= max(hull_.y_vec(0), hull_.y_vec(1));
+			++ss_it;
+		}
 	}
 
+	// Fill QP:
+	// --------
 	// X:
 	int first_row = 0;
 	solver_->lv_bounds_vec().Set(tmp_vec_.head(num_samples), first_row);

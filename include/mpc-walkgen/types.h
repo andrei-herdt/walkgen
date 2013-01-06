@@ -200,6 +200,8 @@ struct MPC_WALKGEN_API MPCParameters {
 	double period_actsample;			// Actuator sampling period [sec]
 	double period_ds;					// Length of the (permanent) double support phase (should be a large value)
 
+	double ds_force_thresh;
+
 	int num_samples_horizon;  			// Number of samplings inside horizon
 	int num_samples_step;				// Step period ss_left<->ss_right in qp sample periods
 	int num_samples_dsss;				// Length of initial double support phase [num. samples]

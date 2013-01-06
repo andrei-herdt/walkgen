@@ -18,7 +18,7 @@ using namespace std;
 
 static void mdlInitializeSizes(SimStruct *S) {
 	// Expected number of parameters
-	ssSetNumSFcnParams(S, 24);
+	ssSetNumSFcnParams(S, 25);
 
 	// Parameter mismatch?
 	if (ssGetNumSFcnParams(S) != ssGetSFcnParamsCount(S)) {
@@ -145,6 +145,8 @@ static void mdlStart(SimStruct *S) {
 	mpc_parameters.weights.cop[1]  			= 0.;
 	mpc_parameters.weights.cp[1] 			= 0.;
 	mpc_parameters.weights.contr_moves[1] 	= 0.;
+
+	mpc_parameters.ds_force_thresh	= *mxGetPr(ssGetSFcnParam(S, 24));
 
 	if (is_pid_mode_in == 1) {
 		mpc_parameters.is_pid_mode = true;
