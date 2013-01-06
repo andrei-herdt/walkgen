@@ -86,12 +86,8 @@ struct Reference{
 };
 
 struct MPC_WALKGEN_API BodyState{
-	Eigen::Vector3d x;
-	Eigen::Vector3d y;
-	Eigen::Vector3d z;
-	Eigen::Vector3d yaw;
-	Eigen::Vector3d pitch;
-	Eigen::Vector3d roll;
+	Eigen::Vector3d x, y, z;
+	Eigen::Vector3d yaw, pitch, roll;
 
 	BodyState();
 
@@ -124,29 +120,21 @@ struct MPC_WALKGEN_API FootData{
 };
 
 struct MPC_WALKGEN_API HipYawData {
-	double lower_pos_bound;
-	double upper_pos_bound;
-	double lower_vel_bound;
-	double upper_vel_bound;
-	double lower_acc_bound;
-	double upper_acc_bound;
+	double lower_pos_bound, upper_pos_bound;
+	double lower_vel_bound, upper_vel_bound;
+	double lower_acc_bound, upper_acc_bound;
 
 	HipYawData();
 	~HipYawData();
 };
 
-struct MPC_WALKGEN_API WeightCoefficients{
-	std::vector<double> pos;
-	std::vector<double> vel;
-	std::vector<double> acc;
-	std::vector<double> jerk;
+struct MPC_WALKGEN_API Penalties{
+	std::vector<double> pos, vel, acc, jerk;
 
-	std::vector<double> cop;		//CoP
+	std::vector<double> cop;
 	std::vector<double> cp;			//Capture point
 	std::vector<double> contr_moves;
 	double first_contr_move;
-
-	//std::map<Mode, int> mode;
 
 	/// \brief Define the element of weight_coefficients std::vector used in this iteration
 	int active_mode;
@@ -154,8 +142,8 @@ struct MPC_WALKGEN_API WeightCoefficients{
 
 	void SetCoefficients(Reference &ref);
 
-	WeightCoefficients(int num_modes = 2);
-	~WeightCoefficients();
+	Penalties(int num_modes = 2);
+	~Penalties();
 };
 
 struct MPC_WALKGEN_API SupportState {
@@ -229,7 +217,7 @@ struct MPC_WALKGEN_API MPCParameters {
 
 	Formulation formulation;
 
-	WeightCoefficients weights;
+	Penalties weights;
 
 	SolverData solver;
 

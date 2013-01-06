@@ -365,7 +365,7 @@ void RobotData::SetCoPHulls(double ds_distance) {
 	right_foot_ds_hull.y_vec(2) += ds_distance;
 }
 
-WeightCoefficients::WeightCoefficients(int num_modes)
+Penalties::Penalties(int num_modes)
 :pos(num_modes)
 ,vel(num_modes)
 ,acc(num_modes)
@@ -392,9 +392,9 @@ WeightCoefficients::WeightCoefficients(int num_modes)
 
 	is_initial_mode = true;
 }
-WeightCoefficients::~WeightCoefficients(){}
+Penalties::~Penalties(){}
 
-void WeightCoefficients::SetCoefficients(Reference &ref) {
+void Penalties::SetCoefficients(Reference &ref) {
 	if (fabs(ref.local.yaw(0)) < kEps && fabs(ref.local.x(0)) < kEps && fabs(ref.local.y(0)) < kEps) {
 		if (is_initial_mode) {
 			active_mode = 0;
