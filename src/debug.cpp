@@ -7,6 +7,11 @@ void Debug::Disp(const char *name, bool val) {
 		val ? printf("true \n") : printf("false \n");
 }
 
+void Debug::Disp(const char *name, int val) {
+		printf(name, ": ");
+		printf("%d \n", val);
+}
+
 void Debug::Disp(const char *name, double val) {
 		printf(name, ": ");
 		printf("%f \n", val);

@@ -1,6 +1,3 @@
-// This test test serves for the analysis of the computation time
-// Author: Andrei Herdt
-
 #include <mpc-walkgen.h>
 
 #include <iostream>
@@ -13,7 +10,7 @@ int main() {
 	int num_samples_horizon 		= 16;
 	int num_samples_step 			= 8;
 	int num_samples_dsss 			= 8;
-	int num_steps_ssds 				= 2;
+	int num_steps_ssds 			= 2;
 	double sample_period_qp 		= .1;
 	double sample_period_first 		= .01;
 	double sample_period_act 		= .01;
