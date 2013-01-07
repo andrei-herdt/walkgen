@@ -3,44 +3,44 @@
 using namespace std;
 
 void Debug::Disp(const char *name, bool val) {
-		printf(name, ": ");
-		val ? printf("true \n") : printf("false \n");
+	printf(name); printf(": ");
+	val ? printf("true \n") : printf("false \n");
 }
 
 void Debug::Disp(const char *name, int val) {
-		printf(name, ": ");
-		printf("%d \n", val);
+	printf(name); printf(": ");
+	printf("%d \n", val);
 }
 
 void Debug::Disp(const char *name, double val) {
-		printf(name, ": ");
-		printf("%f \n", val);
+	printf(name, ": ");
+	printf("%f \n", val);
 }
 
 void Debug::Cout(const char *name, const vector<double> &vec) {
-		cout << name << endl;
-		for (int i=0; i < vec.size(); i++) {
-			cout << vec[i] << " ";
-		}
-		cout << endl;
+	cout << name << endl;
+	for (int i=0; i < vec.size(); i++) {
+		cout << vec[i] << " ";
+	}
+	cout << endl;
 }
 
 void Debug::Cout(const char *name, const vector<MPCWalkgen::CommonMatrixType> &vec) {
-		cout << name << endl;
-		for (int i=0; i < vec.size(); i++) {
-			cout << vec[i] << " " << endl;
-		}
-		cout << endl;
+	cout << name << endl;
+	for (int i=0; i < vec.size(); i++) {
+		cout << vec[i] << " " << endl;
+	}
+	cout << endl;
 }
 
 void Debug::Cout(const char *name, const MPCWalkgen::CommonMatrixType &mat) {
-		cout << name << ": [" << mat.rows() << "," << mat.cols() << "]" << endl;
-		cout << mat << endl;
+	cout << name << ": [" << mat.rows() << "," << mat.cols() << "]" << endl;
+	cout << mat << endl;
 }
 
 void Debug::Cout(const char *name, const MPCWalkgen::CommonVectorType &vec) {
-		cout << name << ": [" << vec.rows() << "]" << endl;
-		cout << vec.transpose() << endl;
+	cout << name << ": [" << vec.rows() << "]" << endl;
+	cout << vec.transpose() << endl;
 }
 
 void Debug::WriteToFile(const char *filename, double value, const char *ending, const MPCWalkgen::CommonMatrixType &mat) {

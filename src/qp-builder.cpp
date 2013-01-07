@@ -793,18 +793,26 @@ void QPBuilder::BuildCoPIneqConstraints(const MPCSolution &solution) {
 	bool is_ff_incontact = false;
 	if (ss_it->phase == SS && ff_wrench->force_z > mpc_parameters_->ds_force_thresh) {
 		is_ff_incontact = true;
+		Debug::Disp("is_ff_incontact", is_ff_incontact);
 	}
-	double cur_sup_time_limit = ss_it->time_limit;
-
+	double next_ds_phase = ss_it->time_limit - mpc_parameters_->period_qpsample;
+	double lift_off_margin = ss_it->start_time + mpc_parameters_->period_qpsample;
 
 	// Compose bounds vector:
 	// ----------------------
 	std::vector<double>::const_iterator st_it = solution.sampling_times_vec.begin();
-	++st_it;//Points at the first previewed instant
-	++ss_it;//Points at the first previewed instant
+	++st_it; // Points at the first previewed instant
+	++ss_it; // Points at the first previewed instant
+	if (is_ff_incontact) {
+		Debug::Disp("*st_it < next_ds_phase - kEps", *st_it < next_ds_phase - kEps);
+		Debug::Disp("*st_it", *st_it);
+		Debug::Disp("lift_off_margin", lift_off_margin);
+		Debug::Disp("*st_it > lift_off_margin", *st_it > lift_off_margin);
+	}
 	for (int i = 0; i < num_samples; ++i) {
-		if (cur_sup_time_limit - kEps > *st_it && is_ff_incontact) {
-			Debug::Disp("is_ff_incontact", is_ff_incontact);
+		if (*st_it < next_ds_phase + kEps && *st_it > lift_off_margin && is_ff_incontact) {
+			Debug::Disp("constraints deactivated", true);
+			Debug::Disp("current_time", current_time_);
 			tmp_vec_(i)  = -kInf;
 			tmp_vec2_(i) = kInf;
 

@@ -37,8 +37,8 @@ static void mdlInitializeSizes(SimStruct *S) {
 	ssSetInputPortWidth(S, 7, 4);     //foot_geometry
 	ssSetInputPortWidth(S, 8, 6);     //com_in
 	ssSetInputPortWidth(S, 9, 2);     //cop
-	ssSetInputPortWidth(S, 10, 3);    //reset_in
-	ssSetInputPortWidth(S, 11, 3);    //reset_in
+	ssSetInputPortWidth(S, 10, 6);    //lfoot_wrench_in
+	ssSetInputPortWidth(S, 11, 6);    //rfoot_wrench_in
 	ssSetInputPortWidth(S, 12, 1);    //reset_in
 
 	ssSetInputPortDirectFeedThrough(S, 0, 1);
