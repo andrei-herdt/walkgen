@@ -1,6 +1,3 @@
-// This test test serves for the analysis of the computation time
-// Author: Andrei Herdt
-
 #include <mpc-walkgen.h>
 
 #include <iostream>

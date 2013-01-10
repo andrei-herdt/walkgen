@@ -41,8 +41,9 @@ void DynamicsBuilder::Build(SystemOrder dynamics_order, LinearDynamics &dyn, dou
 //
 // Private methods:
 //
-void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, const std::vector<double> &sampling_periods_vec, int num_samples, bool actuation) {
+void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, const std::vector<double> &sampling_periods_vec, int num_samples, bool is_actuation) {
 	assert(sampling_periods_vec.at(0) > 0.);
+	assert(sampling_periods_vec.size() > 0);
 
 	/*
 	BuildSecondOrderCoPOutput(dyn.pos, height, sample_period_first, sample_period_rest, num_samples, POSITION);
@@ -51,13 +52,15 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, const
 	BuildSecondOrderCoPOutput(dyn.cop, height, sample_period_first, sample_period_rest, num_samples, COP);
 	 */
 
-	double sample_period_first = sampling_periods_vec.at(0);
-	double sample_period_rest = sampling_periods_vec.at(1);
-
 	double omega = sqrt(kGravity/height);
 	double omega_square = kGravity/height;
+	if (mpc_parameters_->formulation == STANDARD || is_actuation) {
+		double sample_period_first = sampling_periods_vec.at(0); // TODO: Remove dependency on sp_first, sp_rest
+		double sample_period_rest = sample_period_first;
+		if (sampling_periods_vec.size() > 1) {
+			sample_period_rest = sampling_periods_vec.at(1);
+		}
 
-	if (mpc_parameters_->formulation == STANDARD || actuation) {
 		int state_dim = 2;
 		int num_stable_modes = state_dim;
 		int num_unstable_modes = state_dim - num_stable_modes;
@@ -117,7 +120,7 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, const
 		dyn.acc.state_mat = omega_square*(dyn.pos.state_mat - dyn.cop.state_mat);
 		dyn.acc.input_mat = omega_square*(dyn.pos.input_mat - dyn.cop.input_mat);
 
-	} else if (mpc_parameters_->formulation == DECOUPLED_MODES && !actuation) {
+	} else if (mpc_parameters_->formulation == DECOUPLED_MODES && !is_actuation) {
 		int state_dim = 2;
 		int num_stable_modes = 1;
 		int num_unstable_modes = state_dim - num_stable_modes;

@@ -17,7 +17,9 @@ class Debug {
 
 public:
 
-	static void Cout(const char *name, double val);
+	static void Disp(const char *name, bool val);
+	static void Disp(const char *name, int val);
+	static void Disp(const char *name, double val);
 
 	// \brief Print of std::vector
 	static void Cout(const char *name, const std::vector<double> &vec);

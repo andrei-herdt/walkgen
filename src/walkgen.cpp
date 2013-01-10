@@ -63,7 +63,7 @@ void Walkgen::Init(MPCParameters &mpc_parameters) {
 
 	// Solver:
 	// -------
-	int num_constr_step = 5;// TODO: Move this to MPCParameters
+	int num_constr_step = 5; // TODO: Move this to MPCParameters
 	int num_steps_max = mpc_parameters_.num_steps_max();
 	int num_vars_max = 2 * (mpc_parameters_.num_samples_horizon + num_steps_max);
 	int num_constr_max = 0;
@@ -72,7 +72,10 @@ void Walkgen::Init(MPCParameters &mpc_parameters) {
 		num_constr_max += 2;
 	}
 	num_constr_max += num_constr_step * num_steps_max;
-	solver_ = createQPSolver(mpc_parameters_.solver, num_vars_max,  num_constr_max );
+	// Constraints on foot placement
+	num_constr_max += 2;
+
+	solver_ = createQPSolver(mpc_parameters_.solver, num_vars_max,  num_constr_max);
 
 	/*
 	// Set order of optimization variables
@@ -201,7 +204,7 @@ void Walkgen::Init() {
 	state_com.z[0] = robot_data_.com(2);
 	robot_.com()->state(state_com);
 
-	mpc_parameters_.weights.active_mode = 0;
+	mpc_parameters_.penalties.active_mode = 0;
 
 	BuildProblem();
 
@@ -228,7 +231,7 @@ void Walkgen::BuildProblem() {
 		vel_ref_.local.y.fill(0);
 		vel_ref_.local.yaw.fill(0);
 	}
-	mpc_parameters_.weights.SetCoefficients(vel_ref_);
+	mpc_parameters_.penalties.SetCoefficients(vel_ref_);
 
 	double first_sampling_period = first_sample_time_ - current_time_;//TODO:
 

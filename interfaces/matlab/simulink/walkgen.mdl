@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.889"
+    ComputedModelVersion    "1.898"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Sat Jan 05 19:15:15 2013"
+  LastModifiedDate	  "Thu Jan 10 15:21:45 2013"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:889>"
+  ModelVersionFormat	  "1.%<AutoIncrement:898>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -107,7 +107,7 @@ Model {
 	  $ObjectID		  2
 	  Version		  "1.3.0"
 	  StartTime		  "0.0"
-	  StopTime		  "1"
+	  StopTime		  "10"
 	  AbsTol		  "auto"
 	  FixedStep		  "1e-3"
 	  InitialStep		  "auto"
@@ -732,21 +732,21 @@ Model {
 	  SystemSampleTime	  "0.001"
 	  RTWSystemCode		  "Auto"
 	  FunctionWithSeparateData off
-	  MaskPromptString	  "Length of horizon [num. samples]|Position penalty|Velocity penalty|CoP penalty|CP penalty|Control moves penalty|First control move penalty|Step period [num. samples]|Length of initial double support phase [num. samples]|Steps before halt|Sampling period [s]|Time between recomputations [s]|Actuator sampling period [s]|Security margin [m]|Max number of working set recomputations|Dynamics order|Debug mode|PID mode|Closed loop|Inequality constraints|Formulation (0 standard, 1 decoupled modes)|Dump problems|Terminal constraints|Solver (0 QL, 1 QPOases, 2 LSSOL)"
-	  MaskStyleString	  "edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit"
-	  MaskTunableValueString  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
-	  MaskCallbackString	  "|||||||||||||||||||||||"
-	  MaskEnableString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
-	  MaskVisibilityString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
-	  MaskToolTipString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
-	  MaskVarAliasString	  ",,,,,,,,,,,,,,,,,,,,,,,"
-	  MaskVariables		  "num_samples_horizon=@1;pos_weight=@2;vel_weight=@3;cop_weight=@4;cp_weight=@5;contr_moves_pen=@6;first_contr_move_pen=@7;num_samples_step=@8;num_samples_dsss=@9;num_steps_ssds=@10;period_qpsample=@11;period_mpcsample=@12;period_actsample=@13;security_margin=@14;num_wsrec=@15;dynamics_order=@16;is_debug_mode=@17;is_pid_mode=@18;is_closed_loop=@19;is_ineq_constraints=@20;formulation=@21;dump_problems=@22;is_terminal_constr=@23;solver=@24;"
+	  MaskPromptString	  "Length of horizon [num. samples]|Position penalty|Velocity penalty|CoP penalty|CP penalty|Control moves penalty|First control move penalty|Step period [num. samples]|Length of initial double support phase [num. samples]|Steps before halt|Sampling period [s]|Time between recomputations [s]|Actuator sampling period [s]|Security margin [m]|Max number of working set recomputations|Dynamics order|Debug mode|PID mode|Closed loop|Inequality constraints|Formulation (0 standard, 1 decoupled modes)|Dump problems|Terminal constraints|Solver (0 QL, 1 QPOases, 2 LSSOL)|Force threshold for DS phase|Foot placement planning period [s]"
+	  MaskStyleString	  "edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit"
+	  MaskTunableValueString  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	  MaskCallbackString	  "|||||||||||||||||||||||||"
+	  MaskEnableString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	  MaskVisibilityString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	  MaskToolTipString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	  MaskVarAliasString	  ",,,,,,,,,,,,,,,,,,,,,,,,,"
+	  MaskVariables		  "num_samples_horizon=@1;pos_weight=@2;vel_weight=@3;cop_weight=@4;cp_weight=@5;contr_moves_pen=@6;first_contr_move_pen=@7;num_samples_step=@8;num_samples_dsss=@9;num_steps_ssds=@10;period_qpsample=@11;period_mpcsample=@12;period_actsample=@13;security_margin=@14;num_wsrec=@15;dynamics_order=@16;is_debug_mode=@17;is_pid_mode=@18;is_closed_loop=@19;is_ineq_constraints=@20;formulation=@21;dump_problems=@22;is_terminal_constr=@23;solver=@24;ds_force_thresh=@25;ffoot_plan_period=@26;"
 	  MaskIconFrame		  on
 	  MaskIconOpaque	  on
 	  MaskIconRotate	  "none"
 	  MaskIconUnits		  "autoscale"
-	  MaskValueString	  "16|0|0|0|1|1|1|8|8|2|0.1|0.001|0.001|0.03|100|2|1|0|1|1|1|0|0|1"
-	  MaskTabNameString	  ",,,,,,,,,,,,,,,,,,,,,,,"
+	  MaskValueString	  "10|0|0|1|1|0|0|8|8|2|0.1|0.01|0.001|0.02|100|2|1|0|0|1|1|0|0|1|100|0.4"
+	  MaskTabNameString	  ",,,,,,,,,,,,,,,,,,,,,,,,,"
 	  System {
 	    Name		    "Atomic Walkgen"
 	    Location		    [848, 74, 1596, 860]
@@ -1037,7 +1037,7 @@ Model {
 	      Ports		      [13, 19]
 	      Position		      [285, 148, 375, 712]
 	      FunctionName	      "walkgen_sfun"
-	      Parameters	      "num_samples_horizon, num_samples_step, num_samples_dsss, num_steps_ssds, period_qpsample, period_mpcsample, period_actsample, security_margin, num_wsrec, dynamics_order, is_debug_mode, pos_weight, vel_weight, cop_weight, cp_weight, contr_moves_pen, is_pid_mode, is_closed_loop, is_ineq_constraints, formulation, dump_problems, is_terminal_constr, solver, first_contr_move_pen"
+	      Parameters	      "num_samples_horizon, num_samples_step, num_samples_dsss, num_steps_ssds, period_qpsample, period_mpcsample, period_actsample, security_margin, num_wsrec, dynamics_order, is_debug_mode, pos_weight, vel_weight, cop_weight, cp_weight, contr_moves_pen, is_pid_mode, is_closed_loop, is_ineq_constraints, formulation, dump_problems, is_terminal_constr, solver, first_contr_move_pen, ds_force_thresh, ffoot_plan_period"
 	      Port {
 		PortNumber		1
 		Name			"com"
@@ -2239,7 +2239,7 @@ Model {
 	  FontName		  "Arial"
 	  FontSize		  8
 	  FontWeight		  "bold"
-	  Value			  "[-0.0, 0., 0.0]"
+	  Value			  "[-0.035, 0.22, 0.0]"
 	  OutDataType		  "sfix(16)"
 	  OutScaling		  "2^0"
 	  Port {
@@ -2257,7 +2257,7 @@ Model {
 	  FontName		  "Arial"
 	  FontSize		  8
 	  FontWeight		  "bold"
-	  Value			  "[-0.0, 0., 0.0]"
+	  Value			  "[-0.035, -0.0059, 0.0]"
 	  OutDataType		  "sfix(16)"
 	  OutScaling		  "2^0"
 	  Port {
@@ -2603,6 +2603,25 @@ Model {
 	  Position		  [565, 415, 585, 435]
 	}
 	Block {
+	  BlockType		  Terminator
+	  Name			  "Terminator1"
+	  Position		  [205, 285, 225, 305]
+	  ShowName		  off
+	}
+	Block {
+	  BlockType		  Terminator
+	  Name			  "Terminator2"
+	  Position		  [205, 310, 225, 330]
+	  ShowName		  off
+	}
+	Block {
+	  BlockType		  Terminator
+	  Name			  "Terminator3"
+	  Position		  [205, 335, 225, 355]
+	  NamePlacement		  "alternate"
+	  ShowName		  off
+	}
+	Block {
 	  BlockType		  SubSystem
 	  Name			  "Vel. Reference"
 	  Ports			  [0, 1]
@@ -2788,7 +2807,7 @@ Model {
 	      RTWMemSecDataConstants  "Inherit from model"
 	      RTWMemSecDataInternal   "Inherit from model"
 	      RTWMemSecDataParameters "Inherit from model"
-	      sw		      "1"
+	      sw		      "0"
 	      action		      "0"
 	      varsize		      off
 	    }
@@ -2965,7 +2984,7 @@ Model {
 	  Name			  "cop_real2"
 	  Position		  [30, 660, 180, 680]
 	  ShowName		  off
-	  Value			  "[0. 0. 0.]"
+	  Value			  "[0. 0. 0. 0. 0. 0.] "
 	  OutDataType		  "sfix(16)"
 	  OutScaling		  "2^0"
 	  Port {
@@ -2980,7 +2999,7 @@ Model {
 	  Name			  "cop_real3"
 	  Position		  [30, 685, 180, 705]
 	  ShowName		  off
-	  Value			  "[0. 0. 0.]"
+	  Value			  "[0. 0. 0. 0. 0. 0.] "
 	  OutDataType		  "sfix(16)"
 	  OutScaling		  "2^0"
 	  Port {
@@ -3131,6 +3150,24 @@ Model {
 	  SrcPort		  1
 	  DstBlock		  "Bus\nCreator3"
 	  DstPort		  4
+	}
+	Line {
+	  SrcBlock		  "Constant1"
+	  SrcPort		  1
+	  DstBlock		  "Terminator1"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Constant5"
+	  SrcPort		  1
+	  DstBlock		  "Terminator2"
+	  DstPort		  1
+	}
+	Line {
+	  SrcBlock		  "Constant2"
+	  SrcPort		  1
+	  DstBlock		  "Terminator3"
+	  DstPort		  1
 	}
 	Annotation {
 	  Position		  [440, 338]

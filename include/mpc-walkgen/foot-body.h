@@ -2,19 +2,8 @@
 #ifndef MPC_WALKGEN_FOOT_BODY_H
 #define MPC_WALKGEN_FOOT_BODY_H
 
-////////////////////////////////////////////////////////////////////////////////
-///
-///\file	com-body.h
-///\brief	A class to store CoM rigid body
-///\author	Herdt Andrei
-///\author	Lafaye Jory
-///\author      Keith François
-////////////////////////////////////////////////////////////////////////////////
-
 #include <mpc-walkgen/types.h>
 #include <mpc-walkgen/rigid-body.h>
-
-#include <Eigen/Dense>
 
 namespace MPCWalkgen{
 	class FootBody: public RigidBody{
@@ -27,6 +16,10 @@ namespace MPCWalkgen{
 		virtual ~FootBody();
 
 		virtual void Interpolate(MPCSolution &solution, double current_time, const Reference &ref);
+
+		inline const Vector3D &local_ankle_pos() {
+			return robot_data_->left_foot.ankle_pos_local;
+		}
 
 		//
 		// Private methods:

@@ -181,6 +181,8 @@ MPCParameters::MPCParameters()
 ,period_mpcsample(0.)
 ,period_actsample(0.)
 ,period_ds(1000000000.0)
+,ds_force_thresh(1000.)
+,ffoot_plan_period(0.)
 ,num_samples_horizon(0)
 ,num_samples_step(0)
 ,num_samples_dsss(0)
@@ -194,7 +196,7 @@ MPCParameters::MPCParameters()
 ,problem_dumping(false)
 ,dynamics_order(THIRD_ORDER)
 ,formulation(STANDARD)
-,weights(2)
+,penalties(2)
 {}
 
 MPCParameters::~MPCParameters(){}

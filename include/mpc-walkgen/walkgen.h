@@ -4,13 +4,13 @@
 
 #include <mpc-walkgen/types.h>
 #include <mpc-walkgen/realclock.h>
-
 #include <mpc-walkgen/orientations-preview.h>
 #include <mpc-walkgen/qp-solver.h>
 #include <mpc-walkgen/qp-builder.h>
 #include <mpc-walkgen/heuristic-preview.h>
 #include <mpc-walkgen/rigid-body-system.h>
 #include <mpc-walkgen/realclock.h>
+#include <mpc-walkgen/debug.h>
 
 namespace MPCWalkgen{
 
