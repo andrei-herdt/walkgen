@@ -13,10 +13,10 @@ int main() {
 	int num_samples_horizon 		= 16;
 	int num_samples_step 			= 8;
 	int num_samples_dsss 			= 8;
-	int num_steps_ssds 				= 2;
+	int num_steps_ssds 			= 2;
 	double sample_period_qp 		= .1;
-	double sample_period_first 		= .01;
-	double sample_period_act 		= .01;
+	double sample_period_first 		= .001;
+	double sample_period_act 		= .001;
 	const double kSecurityMargin 		= .02;
 
 	// Simulation parameters:
@@ -30,24 +30,24 @@ int main() {
 	mpc_parameters.period_mpcsample       		= sample_period_first;
 	mpc_parameters.period_actsample       		= sample_period_act;
 	mpc_parameters.warmstart           			= false;
-	mpc_parameters.interpolate_whole_horizon    = true;
-	mpc_parameters.solver.analysis              = true;
-	mpc_parameters.problem_dumping		      	= true;
+	mpc_parameters.interpolate_whole_horizon    = false;
+	mpc_parameters.solver.analysis              = false;
+	mpc_parameters.problem_dumping		      	= false;
 	mpc_parameters.solver.name                  = QPOASES;
-	mpc_parameters.solver.num_wsrec             = 200;
+	mpc_parameters.solver.num_wsrec             = 2;
 	mpc_parameters.dynamics_order               = SECOND_ORDER;
-	mpc_parameters.formulation		      		= STANDARD;
+	mpc_parameters.formulation		      		= DECOUPLED_MODES;
 	mpc_parameters.is_pid_mode		      		= false;
 	mpc_parameters.is_terminal_constr	      	= false;
-	mpc_parameters.is_ineq_constr				= false;
-	mpc_parameters.problem_dumping				= true;
+	mpc_parameters.is_ineq_constr				= true;
+	mpc_parameters.problem_dumping				= false;
 
 	mpc_parameters.weights.pos[0] 			= 0.;
 	mpc_parameters.weights.vel[0]  			= 0.;
-	mpc_parameters.weights.cop[0]  			= 0.;//0.00001;
+	mpc_parameters.weights.cop[0]  			= 10.;//0.00001;
 	mpc_parameters.weights.cp[0] 			= 1.;
-	mpc_parameters.weights.contr_moves[0] 	= 0.;
-	mpc_parameters.weights.first_contr_move = 0.;
+	mpc_parameters.weights.contr_moves[0] 	= 0.1;
+	mpc_parameters.weights.first_contr_move = 0.1;
 
 	mpc_parameters.weights.pos[1] 		= 0.;
 	mpc_parameters.weights.vel[1]  		= 0.;
@@ -61,8 +61,8 @@ int main() {
 	left_foot.ankle_pos_local 	<< 0, 0, 0.105;
 	left_foot.sole_height 		= 0.138;
 	left_foot.sole_width 		= 0.2172;
-	left_foot.position[0] 		= 0.;//= 0.01;
-	left_foot.position[1] 		= 0.;//= 0.1;
+	left_foot.position[0] 		= 0.00949035;
+	left_foot.position[1] 		= 0.1;
 	left_foot.position[2] 		= 0.0;
 	left_foot.SetEdges(0.2172, 0.0, 0.138, 0.0, kSecurityMargin);
 
@@ -70,8 +70,8 @@ int main() {
 	right_foot.ankle_pos_local 	<< 0, 0, 0.105;
 	right_foot.sole_height 		= 0.138;
 	right_foot.sole_width 		= 0.2172;
-	right_foot.position[0] 		= 0.;//= 0.00949035;
-	right_foot.position[1] 		= 0.;//= -0.095;
+	right_foot.position[0] 		= 0.00949035;
+	right_foot.position[1] 		= -0.095;
 	right_foot.position[2] 		= 0.0;
 	right_foot.SetEdges(0.2172, 0.0, 0.138, 0.0, kSecurityMargin);
 
@@ -144,11 +144,11 @@ int main() {
 	// Go:
 	// ---
 	double curr_time = 0.;
-	walk.SetVelReference(0., 0., 0.);
+	walk.SetVelReference(0.0001, 0., 0.);
 	int num_iterations = 0;
 	//walk.clock().GetFrequency(1000);
 	//walk.clock().ResetLocal();
-	for (; curr_time < .2; curr_time += sample_period_act) {
+	for (; curr_time < 1.; curr_time += sample_period_act) {
 		//int online_timer = walk.clock().StartCounter();
 		//std::cout << std::endl;
 		//std::cout << std::endl;
