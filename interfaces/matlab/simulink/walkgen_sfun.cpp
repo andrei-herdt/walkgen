@@ -18,7 +18,7 @@ using namespace std;
 
 static void mdlInitializeSizes(SimStruct *S) {
 	// Expected number of parameters
-	ssSetNumSFcnParams(S, 25);
+	ssSetNumSFcnParams(S, 26);
 
 	// Parameter mismatch?
 	if (ssGetNumSFcnParams(S) != ssGetSFcnParamsCount(S)) {
@@ -133,20 +133,21 @@ static void mdlStart(SimStruct *S) {
 
 	mpc_parameters.dynamics_order               	= static_cast<SystemOrder>(static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 9))));
 
-	mpc_parameters.weights.pos[0] 			= *mxGetPr(ssGetSFcnParam(S, 11));
-	mpc_parameters.weights.vel[0]  			= *mxGetPr(ssGetSFcnParam(S, 12));
-	mpc_parameters.weights.cop[0]  			= *mxGetPr(ssGetSFcnParam(S, 13));
-	mpc_parameters.weights.cp[0] 			= *mxGetPr(ssGetSFcnParam(S, 14));
-	mpc_parameters.weights.contr_moves[0] 	= *mxGetPr(ssGetSFcnParam(S, 15));
-	mpc_parameters.weights.first_contr_move	= *mxGetPr(ssGetSFcnParam(S, 23));
+	mpc_parameters.penalties.pos[0] 			= *mxGetPr(ssGetSFcnParam(S, 11));
+	mpc_parameters.penalties.vel[0]  			= *mxGetPr(ssGetSFcnParam(S, 12));
+	mpc_parameters.penalties.cop[0]  			= *mxGetPr(ssGetSFcnParam(S, 13));
+	mpc_parameters.penalties.cp[0] 			= *mxGetPr(ssGetSFcnParam(S, 14));
+	mpc_parameters.penalties.contr_moves[0] 	= *mxGetPr(ssGetSFcnParam(S, 15));
+	mpc_parameters.penalties.first_contr_move	= *mxGetPr(ssGetSFcnParam(S, 23));
 
-	mpc_parameters.weights.pos[1] 			= 0.;
-	mpc_parameters.weights.vel[1]  			= 0.;
-	mpc_parameters.weights.cop[1]  			= 0.;
-	mpc_parameters.weights.cp[1] 			= 0.;
-	mpc_parameters.weights.contr_moves[1] 	= 0.;
+	mpc_parameters.penalties.pos[1] 			= 0.;
+	mpc_parameters.penalties.vel[1]  			= 0.;
+	mpc_parameters.penalties.cop[1]  			= 0.;
+	mpc_parameters.penalties.cp[1] 			= 0.;
+	mpc_parameters.penalties.contr_moves[1] 	= 0.;
 
 	mpc_parameters.ds_force_thresh	= *mxGetPr(ssGetSFcnParam(S, 24));
+	mpc_parameters.ffoot_plan_period = *mxGetPr(ssGetSFcnParam(S, 25));
 
 	if (is_pid_mode_in == 1) {
 		mpc_parameters.is_pid_mode = true;
@@ -221,12 +222,12 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 	// ----------------------------------
 	if (ssGetIWorkValue(S, 0) == 0) {
 		FootData left_foot;
-		left_foot.ankle_pos_local 	<< 0, 0, 0;      //0, 0, 0.105;//TODO:Is not used
+		left_foot.ankle_pos_local 	<< -0.035, 0., 0.;
 		left_foot.sole_height 		= *foot_geometry[2] - *foot_geometry[3];
 		left_foot.sole_width 		= *foot_geometry[0] - *foot_geometry[1];
 		left_foot.SetEdges(*foot_geometry[0], *foot_geometry[1], *foot_geometry[2], *foot_geometry[3], kSecurityMargin);
 		FootData right_foot;
-		right_foot.ankle_pos_local 	<< 0, 0, 0;     //0, 0, 0.105;//TODO:Is not used
+		right_foot.ankle_pos_local 	<< -0.035, 0., 0.;
 		right_foot.sole_height 		= *foot_geometry[2] - *foot_geometry[3];
 		right_foot.sole_width 		= *foot_geometry[0] - *foot_geometry[1];
 		right_foot.SetEdges(*foot_geometry[0], *foot_geometry[1], *foot_geometry[2], *foot_geometry[3], kSecurityMargin);

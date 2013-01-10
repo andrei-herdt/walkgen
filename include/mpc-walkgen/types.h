@@ -62,6 +62,7 @@ typedef Eigen::Matrix2d Matrix2D;
 typedef MatrixRowMaj CommonMatrixType;
 
 typedef Eigen::Vector2d Vector2D;
+typedef Eigen::Vector3d Vector3D;
 typedef Eigen::VectorXd CommonVectorType;
 
 typedef unsigned int uint;
@@ -86,8 +87,8 @@ struct Reference{
 };
 
 struct MPC_WALKGEN_API BodyState{
-	Eigen::Vector3d x, y, z;
-	Eigen::Vector3d yaw, pitch, roll;
+	Vector3D x, y, z;
+	Vector3D yaw, pitch, roll;
 
 	BodyState();
 
@@ -105,7 +106,7 @@ struct MPC_WALKGEN_API FootData{
 	double sole_width;
 	double sole_height;
 
-	Eigen::Vector3d ankle_pos_local;
+	Vector3D ankle_pos_local;
 
 	std::vector<double> edges_x_vec;
 	std::vector<double> edges_y_vec;
@@ -201,6 +202,7 @@ struct MPC_WALKGEN_API MPCParameters {
 	double period_ds;					// Length of the (permanent) double support phase (should be a large value)
 
 	double ds_force_thresh;
+	double ffoot_plan_period;			// Time for planning the foot placement
 
 	int num_samples_horizon;  			// Number of samplings inside horizon
 	int num_samples_step;				// Step period ss_left<->ss_right in qp sample periods
@@ -219,7 +221,7 @@ struct MPC_WALKGEN_API MPCParameters {
 
 	Formulation formulation;
 
-	Penalties weights;
+	Penalties penalties;
 
 	SolverData solver;
 
@@ -246,7 +248,7 @@ struct MPC_WALKGEN_API RobotData {
 	double max_foot_vel;
 	double security_margin;
 
-	Eigen::Vector3d com;
+	Vector3D com;
 
 	FootData left_foot;
 	FootData right_foot;

@@ -45,7 +45,7 @@ public:
 
 protected:
 	const MPCParameters *mpc_parameters_;
-	const RobotData *robot_data_p_;//TODO: Maybe should not be here
+	const RobotData *robot_data_; //TODO: Maybe should not be here
 	DynamicsBuilder *dyn_build_p_;
 
 	Interpolation interpolation_;

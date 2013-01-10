@@ -8,7 +8,7 @@ using namespace MPCWalkgen;
 
 
 RigidBody::RigidBody():mpc_parameters_(NULL)
-,robot_data_p_(NULL)
+,robot_data_(NULL)
 ,dyn_build_p_(NULL)
 {}
 
@@ -27,7 +27,7 @@ void RigidBody::Init(const MPCParameters *mpc_parameters_p) {
 }
 
 void RigidBody::Init(const RobotData *robot_data_p) {
-	robot_data_p_ = robot_data_p;
+	robot_data_ = robot_data_p;
 }
 
 void RigidBody::Init(DynamicsBuilder *dyn_build_p) {

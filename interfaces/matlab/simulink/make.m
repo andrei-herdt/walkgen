@@ -76,7 +76,7 @@ DEBUGFLAGS = ['-D_DEBUG -g',' '];
 
 NAME = 'walkgen_sfun';
 %% Compile
-eval(['mex -output ', NAME, ' ', CPPFLAGS, DEBUGFLAGS, [NAME,'.cpp ', QLD_OBJECTS, MPC_WALKGEN_OBJECTS, QPOASES_OBJECTS]]);
+eval(['mex -v -output ', NAME, ' ', CPPFLAGS, DEBUGFLAGS, [NAME,'.cpp ', QLD_OBJECTS, MPC_WALKGEN_OBJECTS, QPOASES_OBJECTS]]);
 disp([NAME, '.', eval('mexext'), ' successfully created!']);
 
 %% Set path and copy libraries
