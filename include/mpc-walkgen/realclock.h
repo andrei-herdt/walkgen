@@ -64,7 +64,7 @@ namespace MPCWalkgen{
 		inline int GetNumCounters() {return num_counters_;};
 		inline int GetNumTotalCounters() {return static_cast<int>(total_ticks_vec_.size());};
 
-		inline std::vector<IntegerType> &ticks_distr_vec() {return ticks_distr_vec_;};
+		inline const std::vector<IntegerType> &ticks_distr_vec() const {return ticks_distr_vec_;};
 
 		void ResetLocal();
 		void ResetTotal();

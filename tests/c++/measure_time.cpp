@@ -31,7 +31,7 @@ int main() {
 	mpc_parameters.solver.analysis              = false;
 	mpc_parameters.problem_dumping		      	= false;
 	mpc_parameters.solver.name                  = QPOASES;
-	mpc_parameters.solver.num_wsrec             = 100;
+	mpc_parameters.solver.num_wsrec             = 2;
 	mpc_parameters.dynamics_order               = SECOND_ORDER;
 	mpc_parameters.formulation		      		= DECOUPLED_MODES;
 	mpc_parameters.is_pid_mode		      		= false;
