@@ -147,10 +147,10 @@ int main() {
 	walk.clock().ResetLocal();
 	walk.clock().ReserveMemory(20, 3000);
 	for (; curr_time < 10.; curr_time += sample_period_act) {
-		int online_timer = walk.clock().StartCounter();
+		//int online_timer = walk.clock().StartCounter();
 		const MPCSolution &solution = walk.Go(curr_time);
-		walk.clock().StopLastCounter();
-		walk.clock().StopCounter(online_timer);
+		//walk.clock().StopLastCounter();
+		//walk.clock().StopCounter(online_timer);
 		walk.clock().ResetLocal();
 		num_iterations++;
 	}
@@ -186,6 +186,10 @@ int main() {
 
 	std::cout << "Final CoM position: " << walk.output().com.x <<
 			", " << walk.output().com.y <<std::endl;
+
+	// Print distribution of computation times:
+	Debug::Cout("Distribution of ticks: ", walk.clock().ticks_distr_vec());
+
 
 	return 0;
 }

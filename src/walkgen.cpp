@@ -124,7 +124,7 @@ const MPCSolution &Walkgen::Go(double time){
 	current_time_ = time;
 
 	if (time  > next_computation_ - kEps) {
-		int first_timer = clock_.StartCounter();
+		//int first_timer = clock_.StartCounter();
 		next_computation_ += mpc_parameters_.period_mpcsample;
 		if (time > next_computation_ - kEps) {
 			ResetCounters(time);
@@ -137,11 +137,11 @@ const MPCSolution &Walkgen::Go(double time){
 		}
 		ResetOutputIndex();
 		builder_->current_time(current_time_);
-		clock_.StopCounter(first_timer);
+		//clock_.StopCounter(first_timer);
 
-		int timer_build_problem = clock_.StartCounter();
+		//int timer_build_problem = clock_.StartCounter();
 		BuildProblem();
-		clock_.StopCounter(timer_build_problem);
+		//clock_.StopCounter(timer_build_problem);
 
 		if (mpc_parameters_.problem_dumping) {
 			solver_->DumpProblem("problem", current_time_, "txt");
@@ -150,9 +150,9 @@ const MPCSolution &Walkgen::Go(double time){
 		solver_->Solve(solution_, mpc_parameters_.warmstart, mpc_parameters_.solver.analysis);
 		clock_.StopCounter(timer_solve);
 
-		int timer_generate_traj = clock_.StartCounter();
+		//int timer_generate_traj = clock_.StartCounter();
 		GenerateTrajectories();
-		clock_.StopCounter(timer_generate_traj);
+		//clock_.StopCounter(timer_generate_traj);
 
 		// Store parts of the solution:
 		// ----------------------------

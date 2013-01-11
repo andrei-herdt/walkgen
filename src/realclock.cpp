@@ -98,10 +98,11 @@ void RealClock::StopCounter(int index) {
 		if (ticks_diff > max_ticks_vec_.at(index)) {
 			max_ticks_vec_.at(index) = ticks_diff;
 		}
-		if (ticks_diff < ticks_distr_vec_.size() - 1) {
-			ticks_distr_vec_.at(ticks_diff)++;
+		
+		if (static_cast<IntegerType>(GetTime(index)) < ticks_distr_vec_.size() - 1) {
+			ticks_distr_vec_.at(static_cast<IntegerType>(GetTime(index)))++;
 		} else {
-			ticks_distr_vec_.back() = ticks_diff;
+			ticks_distr_vec_.back() = static_cast<IntegerType>(GetTime(index));
 		}
 
 }

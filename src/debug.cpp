@@ -25,6 +25,14 @@ void Debug::Cout(const char *name, const vector<double> &vec) {
 	cout << endl;
 }
 
+void Debug::Cout(const char *name, const vector<unsigned long long> &vec) {
+	cout << name << endl;
+	for (int i=0; i < vec.size(); i++) {
+		cout << vec[i] << " ";
+	}
+	cout << endl;
+}
+
 void Debug::Cout(const char *name, const vector<MPCWalkgen::CommonMatrixType> &vec) {
 	cout << name << endl;
 	for (int i=0; i < vec.size(); i++) {

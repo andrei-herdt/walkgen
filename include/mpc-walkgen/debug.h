@@ -23,6 +23,8 @@ public:
 
 	// \brief Print of std::vector
 	static void Cout(const char *name, const std::vector<double> &vec);
+	static void Cout(const char *name, const std::vector<unsigned long long> &vec);
+
 	static void Cout(const char *name, const std::vector<MPCWalkgen::CommonMatrixType> &vec);
 
 	static void Cout(const char *name, const MPCWalkgen::CommonMatrixType &mat);
