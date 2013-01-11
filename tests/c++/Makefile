@@ -14,7 +14,7 @@ IFLAGS      =  -I. \
 			   -I${EIGEN_DIR}
 
 TEST_EXES = walk${EXE} \
-			pid-mode${EXE}
+			measure_time${EXE}
 
 
 ##
@@ -26,9 +26,10 @@ all: ${TEST_EXES}
 walk${EXE}: walk.${OBJEXT} ${SRC_DIR}libmpc-walkgen.${LIBEXT}
 	${CPP} ${DEF_TARGET} ${CPPFLAGS} $< ${SRC_DIR}libmpc-walkgen.${LIBEXT} ${THREAD_LIB} ${QPOASES_LIB} ${QLD_LIB} ${BLAS_LIB}
 
-pid-mode${EXE}: pid-mode.${OBJEXT} ${SRC_DIR}libmpc-walkgen.${LIBEXT}
+measure_time${EXE}: measure_time.${OBJEXT} ${SRC_DIR}libmpc-walkgen.${LIBEXT}
 	${CPP} ${DEF_TARGET} ${CPPFLAGS} $< ${SRC_DIR}libmpc-walkgen.${LIBEXT} ${THREAD_LIB} ${QPOASES_LIB} ${QLD_LIB} ${BLAS_LIB}
-	
+
+
 clean: 
 	${RM} -f *.${OBJEXT} ${TEST_EXES}
 

@@ -38,7 +38,10 @@ namespace MPCWalkgen{
 		RealClock();
 		~RealClock();
 
-		void ReserveMemory(int num_max_counters);
+		void ReserveMemory(
+			int num_max_counters, 
+			IntegerType max_computation_time	// Estimated boundary on the computation time [mus]
+			);
 
 		void GetFrequency(unsigned long long milliseconds);
 
@@ -60,6 +63,8 @@ namespace MPCWalkgen{
 
 		inline int GetNumCounters() {return num_counters_;};
 		inline int GetNumTotalCounters() {return static_cast<int>(total_ticks_vec_.size());};
+
+		inline std::vector<IntegerType> &ticks_distr_vec() {return ticks_distr_vec_;};
 
 		void ResetLocal();
 		void ResetTotal();
@@ -86,6 +91,8 @@ namespace MPCWalkgen{
 		std::vector<IntegerType> start_tick_vec_;
 		std::vector<IntegerType> total_ticks_vec_;	
 		std::vector<IntegerType> max_ticks_vec_;
+		
+		std::vector<IntegerType> ticks_distr_vec_;
 
 	};
 

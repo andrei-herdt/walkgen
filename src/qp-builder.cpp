@@ -345,18 +345,21 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	int num_steps_previewed = solution.support_states_vec.back().step_number;
 	int num_samples = mpc_parameters_->num_samples_horizon;
 
-	CommonMatrixType state_x(mpc_parameters_->dynamics_order - num_unst_modes, 1), state_y(mpc_parameters_->dynamics_order - num_unst_modes, 1);
+	CommonMatrixType state_x = CommonMatrixType::Zero(mpc_parameters_->dynamics_order - num_unst_modes, 1);
+	CommonMatrixType state_y = CommonMatrixType::Zero(mpc_parameters_->dynamics_order - num_unst_modes, 1);
 	if (mpc_parameters_->formulation == DECOUPLED_MODES) {
 		Matrix2D state_trans_mat = Matrix2D::Zero();
 		state_trans_mat(0, 0) = 1.;
 		state_trans_mat(0, 1) = -1. / sqrt(kGravity / com.z[0]);
 		state_trans_mat(1, 0) = 1.;
 		state_trans_mat(1, 1) = 1. / sqrt(kGravity / com.z[0]);
-		state_x = state_trans_mat * com.x.head(mpc_parameters_->dynamics_order);
-		state_y = state_trans_mat * com.y.head(mpc_parameters_->dynamics_order);
+		tmp_mat_ = state_trans_mat * com.x.head(mpc_parameters_->dynamics_order);
+		tmp_mat2_ = state_trans_mat * com.y.head(mpc_parameters_->dynamics_order);
 
-		state_x = state_x.block(0, 0, mpc_parameters_->dynamics_order - num_unst_modes, 1);
-		state_y = state_y.block(0, 0, mpc_parameters_->dynamics_order - num_unst_modes, 1);
+		for (int i = 0; i < mpc_parameters_->dynamics_order - num_unst_modes; i++) {
+			state_x(i, 0) = tmp_mat_(i, 0);
+			state_y(i, 0) = tmp_mat2_(i, 0);
+		}
 	} else {
 		state_x = com.x.head(mpc_parameters_->dynamics_order);
 		state_y = com.y.head(mpc_parameters_->dynamics_order);
@@ -549,17 +552,20 @@ void QPBuilder::BuildCPEqConstraints(const MPCSolution &solution) {
 	solver_->num_eq_constr(num_eq_constr + 2);
 
 	const BodyState &com = robot_->com()->state();
-	CommonMatrixType state_x(mpc_parameters_->dynamics_order - num_unst_modes, 1), state_y(mpc_parameters_->dynamics_order - num_unst_modes, 1);
-	Matrix2D state_trans_mat = Matrix2D::Zero();
-	state_trans_mat(0, 0) = 1.;
-	state_trans_mat(0, 1) = -1. / sqrt(kGravity / com.z[0]);
-	state_trans_mat(1, 0) = 1.;
-	state_trans_mat(1, 1) = 1. / sqrt(kGravity / com.z[0]);
-	state_x = state_trans_mat * com.x.head(mpc_parameters_->dynamics_order);
-	state_y = state_trans_mat * com.y.head(mpc_parameters_->dynamics_order);
+		CommonMatrixType state_x = CommonMatrixType::Zero(mpc_parameters_->dynamics_order - num_st_modes, 1);
+	CommonMatrixType state_y = CommonMatrixType::Zero(mpc_parameters_->dynamics_order - num_st_modes, 1);
+		Matrix2D state_trans_mat = Matrix2D::Zero();
+		state_trans_mat(0, 0) = 1.;
+		state_trans_mat(0, 1) = -1. / sqrt(kGravity / com.z[0]);
+		state_trans_mat(1, 0) = 1.;
+		state_trans_mat(1, 1) = 1. / sqrt(kGravity / com.z[0]);
+		tmp_mat_ = state_trans_mat * com.x.head(mpc_parameters_->dynamics_order);
+		tmp_mat2_ = state_trans_mat * com.y.head(mpc_parameters_->dynamics_order);
 
-	state_x = state_x.block(num_st_modes, 0, num_unst_modes, 1);
-	state_y = state_y.block(num_st_modes, 0, num_unst_modes, 1);
+		for (int i = num_st_modes; i < num_st_modes + num_unst_modes; i++) {
+			state_x(i - num_st_modes, 0) = tmp_mat_(i, 0);
+			state_y(i - num_st_modes, 0) = tmp_mat2_(i, 0);
+		}
 
 	const SelectionMatrices &select_mats = preview_->selection_matrices();
 

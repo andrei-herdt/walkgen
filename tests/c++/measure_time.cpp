@@ -143,63 +143,17 @@ int main() {
 	double curr_time = 0.;
 	walk.SetVelReference(0.0001, 0., 0.);
 	int num_iterations = 0;
-	//walk.clock().GetFrequency(1000);
-	//walk.clock().ResetLocal();
+	walk.clock().GetFrequency(1000);
+	walk.clock().ResetLocal();
+	walk.clock().ReserveMemory(20, 3000);
 	for (; curr_time < 10.; curr_time += sample_period_act) {
-		//int online_timer = walk.clock().StartCounter();
-		//std::cout << std::endl;
-		//std::cout << std::endl;
-		std::cout << std::endl;
-		std::cout<< "curr_time: " << curr_time << std::endl;
-		std::cout << "--------------------" << std::endl;
-		const MPCSolution &solution = walk.Go(curr_time);
-		//walk.solver()->DumpMatrices(curr_time, "dat");
-		
-		//Debug::Cout("com_prw.pos.x", solution.com_prw.pos.x_vec);
-		//Debug::Cout("com_prw.vel.x", solution.com_prw.vel.x_vec);
-		//std::cout << "com_prw.vel: " << solution.com_prw.vel.x_vec.transpose() << std::endl;
-		
-		//std::cout << "com_prw.cp.x: " << solution.com_prw.cp.x_vec.transpose() << std::endl;
-		//std::cout << "com_prw.cp.x: " << solution.com_prw.cp.x_vec.transpose() << std::endl;
-	 	
-		//std::cout << std::endl;
-		std::cout << "com_prw.control.x_vec: " << solution.com_prw.control.x_vec.transpose() << std::endl;
-	 	std::cout << std::endl;
-		Debug::Cout("solution.qp_solution_vec: ", solution.qp_solution_vec);
-		//Debug::Cout("com_prw.control.y_vec", solution.com_prw.control.y_vec);
-	 	//std::cout << std::endl;
-		//std::cout << "com_act.pos.x: " << walk.output().com.x << "  com_act.vel.x: " << walk.output().com.dx << std::endl;
-		
-		//Debug::Cout("sampling_times_vec", solution.sampling_times_vec);
-		//Debug::WriteToDatFile("hessian", curr_time, walk.solver()->hessian_mat()());
-		//Debug::WriteToDatFile("gradient", curr_time, walk.solver()->gradient_vec()());
-		//walk.clock().StopLastCounter();
-		//walk.clock().StopCounter(online_timer);
-		//walk.clock().ResetLocal();
-		num_iterations++;
-	}
-		//walk.solver()->DumpMatrices(curr_time, "dat");
-	/*
-	walk.SetVelReference(0., 0., 0.);
-	for (; curr_time < 20; curr_time += sample_period_act) {
 		int online_timer = walk.clock().StartCounter();
 		const MPCSolution &solution = walk.Go(curr_time);
-		//walk.clock().StopLastCounter();
+		walk.clock().StopLastCounter();
 		walk.clock().StopCounter(online_timer);
 		walk.clock().ResetLocal();
 		num_iterations++;
 	}
-	walk.SetVelReference(0., 0, 0.);
-	for (; curr_time < 25; curr_time += sample_period_act) {
-		int online_timer = walk.clock().StartCounter();
-		const MPCSolution &solution = walk.Go(curr_time);
-		//walk.clock().StopLastCounter();
-		walk.clock().StopCounter(online_timer);
-		walk.clock().ResetLocal();
-		num_iterations++;
-	}
-	*/
-
 
 	// Print total time:
 	int num_counters = walk.clock().GetNumTotalCounters();

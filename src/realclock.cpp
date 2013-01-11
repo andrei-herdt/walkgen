@@ -31,11 +31,14 @@ frequency_(1)
 
 RealClock::~RealClock(){}
 
-void RealClock::ReserveMemory(int num_max_counters) {
+void RealClock::ReserveMemory(int num_max_counters, IntegerType max_computation_time) {
 	start_tick_vec_.reserve(num_max_counters);
 	stop_tick_vec_.reserve(num_max_counters);
 	total_ticks_vec_.reserve(num_max_counters);
 	max_ticks_vec_.reserve(num_max_counters);
+
+	ticks_distr_vec_.resize(max_computation_time + 1);
+	std::fill(ticks_distr_vec_.begin(), ticks_distr_vec_.end(), 0);
 
 	num_max_counters_ = num_max_counters;
 }
@@ -94,6 +97,11 @@ void RealClock::StopCounter(int index) {
 		total_ticks_vec_.at(index) += ticks_diff;
 		if (ticks_diff > max_ticks_vec_.at(index)) {
 			max_ticks_vec_.at(index) = ticks_diff;
+		}
+		if (ticks_diff < ticks_distr_vec_.size() - 1) {
+			ticks_distr_vec_.at(ticks_diff)++;
+		} else {
+			ticks_distr_vec_.back() = ticks_diff;
 		}
 
 }
@@ -194,6 +202,8 @@ void RealClock::ResetLocal() {
 void RealClock::ResetTotal() {
 	total_ticks_vec_.resize(0);
 	max_ticks_vec_.resize(0);
+
+	std::fill(ticks_distr_vec_.begin(), ticks_distr_vec_.end(), 0);
 }
 
 
