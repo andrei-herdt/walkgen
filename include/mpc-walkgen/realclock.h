@@ -87,6 +87,9 @@ namespace MPCWalkgen{
 		int num_max_counters_;
 
 		IntegerType frequency_;
+
+		bool frequency_set_;
+
 		std::vector<IntegerType> stop_tick_vec_;
 		std::vector<IntegerType> start_tick_vec_;
 		std::vector<IntegerType> total_ticks_vec_;	

@@ -1,5 +1,7 @@
 #include <mpc-walkgen/realclock.h>
 
+#include <mpc-walkgen/debug.h>
+
 #if (defined __WIN32__)
 # include <Windows.h>
 #elif defined __LINUX__
@@ -24,9 +26,10 @@ using namespace MPCWalkgen;
 
 
 RealClock::RealClock():
-num_counters_(0),  
-num_max_counters_(0),
-frequency_(1)
+		num_counters_(0),
+		num_max_counters_(0),
+		frequency_(1),
+		frequency_set_(false)
 {}
 
 RealClock::~RealClock(){}
@@ -45,7 +48,9 @@ void RealClock::ReserveMemory(int num_max_counters, IntegerType max_computation_
 void RealClock::GetFrequency(unsigned long long milliseconds) {
 #ifdef __WIN32__
 	LARGE_INTEGER frequency;
-	QueryPerformanceFrequency(&frequency);
+	if(!QueryPerformanceFrequency(&frequency)) {
+		assert(false);
+	}
 	frequency_ = frequency.QuadPart;
 #elif (defined __LINUX__ || defined __VXWORKS__) 
 	IntegerType start_tick = __rdtsc();
@@ -57,6 +62,8 @@ void RealClock::GetFrequency(unsigned long long milliseconds) {
 #endif
 	frequency_ = (__rdtsc() - start_tick) / (milliseconds * 1000 );
 #endif
+
+	frequency_set_ = true;
 }
 
 int RealClock::StartCounter() {
@@ -86,24 +93,24 @@ void RealClock::StopCounter(int index) {
 	assert(index > -1 && index <= num_counters_);//TODO: Overflow possible?
 
 #ifdef __WIN32__
-		LARGE_INTEGER stop_counter;
-		QueryPerformanceCounter(&stop_counter);
-		stop_tick_vec_.at(index) = stop_counter.QuadPart;
+	LARGE_INTEGER stop_counter;
+	QueryPerformanceCounter(&stop_counter);
+	stop_tick_vec_.at(index) = stop_counter.QuadPart;
 #elif (defined __LINUX__ || defined __VXWORKS__) 
-		stop_tick_vec_.at(index) = __rdtsc();
+	stop_tick_vec_.at(index) = __rdtsc();
 #endif
 
-		IntegerType ticks_diff = stop_tick_vec_.at(index) - start_tick_vec_.at(index);
-		total_ticks_vec_.at(index) += ticks_diff;
-		if (ticks_diff > max_ticks_vec_.at(index)) {
-			max_ticks_vec_.at(index) = ticks_diff;
-		}
-		
-		if (static_cast<IntegerType>(GetTime(index)) < ticks_distr_vec_.size() - 1) {
-			ticks_distr_vec_.at(static_cast<IntegerType>(GetTime(index)))++;
-		} else {
-			ticks_distr_vec_.back() = static_cast<IntegerType>(GetTime(index));
-		}
+	IntegerType ticks_diff = stop_tick_vec_.at(index) - start_tick_vec_.at(index);
+	total_ticks_vec_.at(index) += ticks_diff;
+	if (ticks_diff > max_ticks_vec_.at(index)) {
+		max_ticks_vec_.at(index) = ticks_diff;
+	}
+
+	if (static_cast<IntegerType>(GetTime(index)) < ticks_distr_vec_.size() - 1) {
+		ticks_distr_vec_.at(static_cast<IntegerType>(GetTime(index)))++;
+	} else {
+		ticks_distr_vec_.back() = static_cast<IntegerType>(GetTime(index));
+	}
 
 }
 
@@ -112,12 +119,14 @@ void RealClock::StopLastCounter() {
 }
 
 double RealClock::PopBackTime() {
+	assert(frequency_set_);
+
 	if (!stop_tick_vec_.empty() && !start_tick_vec_.empty()) {
 		double start_time = 0.0;
 		double end_time = 0.0;
 #ifdef __WIN32__
-		start_time = start_tick_vec_.back() * (1000000.0 / frequency_);
-		end_time = stop_tick_vec_.back() * (1000000.0 / frequency_);
+		start_time = start_tick_vec_.back() * (1000000.0 / static_cast<double>(frequency_));
+		end_time = stop_tick_vec_.back() * (1000000.0 / static_cast<double>(frequency_));
 #elif (defined __LINUX__ || defined __VXWORKS__) 
 		start_time = static_cast<double>(start_tick_vec_.back()) / static_cast<double>(frequency_);
 		end_time = static_cast<double>(stop_tick_vec_.back()) / static_cast<double>(frequency_);
@@ -133,12 +142,14 @@ double RealClock::PopBackTime() {
 }
 
 double RealClock::GetTime(int index) {
+	assert(frequency_set_);
+
 	if (!stop_tick_vec_.empty() && !start_tick_vec_.empty()) {
 		double start_time = 0.0;
 		double end_time = 0.0;
 #ifdef __WIN32__
-		start_time = start_tick_vec_.at(index) * (1000000.0 / frequency_);
-		end_time = stop_tick_vec_.at(index) * (1000000.0 / frequency_);
+		start_time = start_tick_vec_.at(index) * (1000000.0 / static_cast<double>(frequency_));
+		end_time = stop_tick_vec_.at(index) * (1000000.0 / static_cast<double>(frequency_));
 #elif (defined __LINUX__ || defined __VXWORKS__) 
 		start_time = static_cast<double>(start_tick_vec_.at(index)) / static_cast<double>(frequency_);
 		end_time = static_cast<double>(stop_tick_vec_.at(index)) / static_cast<double>(frequency_);
@@ -151,10 +162,12 @@ double RealClock::GetTime(int index) {
 }
 
 double RealClock::GetTotalTime(int counter) {
+	assert(frequency_set_);
+
 	if (counter < static_cast<int>(total_ticks_vec_.size()) && counter > -1) {
 		double time = 0.0;
 #ifdef __WIN32__
-		time = total_ticks_vec_.at(counter) * (1000000.0 / frequency_);
+		time = total_ticks_vec_.at(counter) * (1000000.0 / static_cast<double>(frequency_));
 #elif (defined __LINUX__ || defined __VXWORKS__) 
 		time = static_cast<double>(total_ticks_vec_.at(counter)) / static_cast<double>(frequency_);
 #endif
@@ -165,10 +178,12 @@ double RealClock::GetTotalTime(int counter) {
 }
 
 double RealClock::PopBackTotalTime() {
+	assert(frequency_set_);
+
 	if (!total_ticks_vec_.empty()) {
 		double time = 0.0;
 #ifdef __WIN32__
-		time = total_ticks_vec_.back() * (1000000.0 / frequency_);
+		time = total_ticks_vec_.back() * (1000000.0 / static_cast<double>(frequency_));
 #elif (defined __LINUX__ || defined __VXWORKS__) 
 		time = static_cast<double>(total_ticks_vec_.back()) / static_cast<double>(frequency_);
 #endif
@@ -181,10 +196,12 @@ double RealClock::PopBackTotalTime() {
 }
 
 double RealClock::GetMaxTime(int counter) {
+	assert(frequency_set_);
+
 	if (counter < static_cast<int>(max_ticks_vec_.size()) && counter > -1) {
 		double time_period = 0.0;
 #ifdef __WIN32__
-		time_period = max_ticks_vec_.at(counter) * (1000000.0 / frequency_);
+		time_period = max_ticks_vec_.at(counter) * (1000000.0 / static_cast<double>(frequency_));
 #elif (defined __LINUX__ || defined __VXWORKS__) 
 		time_period = static_cast<double>(max_ticks_vec_.at(counter)) / static_cast<double>(frequency_);
 #endif
@@ -221,8 +238,8 @@ RealClock::IntegerType  RealClock::__rdtsc( void ){
 
 #if defined __LINUX__
 RealClock::IntegerType  RealClock::__rdtsc(void) {
-    unsigned a, d;
-    __asm__ __volatile__ ("rdtsc" : "=a"(a), "=d"(d));
-    return ( static_cast<IntegerType>(a)) | ( (static_cast<IntegerType>(d))<<32 );
+	unsigned a, d;
+	__asm__ __volatile__ ("rdtsc" : "=a"(a), "=d"(d));
+	return ( static_cast<IntegerType>(a)) | ( (static_cast<IntegerType>(d))<<32 );
 }
 #endif
