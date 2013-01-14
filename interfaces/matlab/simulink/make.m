@@ -10,19 +10,15 @@ if ( exist( [pwd, '/make.m'],'file' ) == 0 )
     return;
 end
 
-%% Set flags
+%% Set dependencies
 make_dependencies;
 
-IFLAGS  = ['-I. -I', MPC_WALKGEN_PATH, 'include',' -I',EIGEN_PATH,' -I',QPOASES_PATH,'include/',' -I',QLD_PATH,' ' ];
-%IFLAGS  = ['-I. -I',MPC_WALKGEN_PATH,'include',' -I',EIGEN_PATH,'-I',QPOASES_PATH,' -L',MPC_WALKGEN_LIBRARY_PATH,' ' ];
+%% Set compile options
+make_release;
+%make_debug;
 
-if (ispc == 0)
-    CPPFLAGS  = [ IFLAGS, '-lblas -lstdc++ -D__cpluplus -D__MATLAB__ -O -DLINUX', ' ' ]; %% -D__NO_COPYRIGHT__ -D__SUPPRESSANYOUTPUT__
-else
-    CPPFLAGS  = [IFLAGS, '-v', ' -D__WIN32__',' -D__NO_COPYRIGHT__',' -D__SUPPRESSANYOUTPUT__',' -D__STDC__', ' ' ]; %% -D__NO_COPYRIGHT__ -D__SUPPRESSANYOUTPUT__
-    %CPPFLAGS = [IFLAGS, ' -pedantic', ' -Wshadow', ' -O3', ' -finline-functions', ' -DLINUX', ' -D__NO_COPYRIGHT__'];
-    %CPPFLAGS  = [IFLAGS, ' ' ];
-end
+IFLAGS  = ['-I. -I', MPC_WALKGEN_PATH, 'include',' -I',EIGEN_PATH,' -I',QPOASES_PATH,'include/',' -I',QLD_PATH,' ' ];
+CPPFLAGS  = [IFLAGS, CFLAGS];
 
 MPC_WALKGEN_OBJECTS =	[	MPC_WALKGEN_PATH, 'src/com-body.cpp ',...
     MPC_WALKGEN_PATH, 'src/foot-body.cpp ',...
@@ -45,7 +41,6 @@ MPC_WALKGEN_OBJECTS =	[	MPC_WALKGEN_PATH, 'src/com-body.cpp ',...
     MPC_WALKGEN_PATH, 'src/dynamics-builder.cpp ',...
     MPC_WALKGEN_PATH, 'src/debug.cpp ',...
     MPC_WALKGEN_PATH, 'src/walkgen.cpp ', ' ' ];
-%MPC_WALKGEN_OBJECTS = [MPC_WALKGEN_LIBRARY_PATH,'mpc-walkgen.lib ', ' '];
 
 QPOASES_OBJECTS =	[	QPOASES_PATH, 'src/SQProblem.cpp ',...
     QPOASES_PATH, 'src/QProblem.cpp ',...
@@ -58,32 +53,20 @@ QPOASES_OBJECTS =	[	QPOASES_PATH, 'src/SQProblem.cpp ',...
     QPOASES_PATH, 'src/Utils.cpp ',...
     QPOASES_PATH, 'src/Options.cpp ',...
     QPOASES_PATH, 'src/Matrices.cpp ',...
-    QPOASES_PATH, 'src/realtimeclock.cpp ',...
+    QPOASES_PATH, 'src/LAPACKReplacement.cpp ',...
+    QPOASES_PATH, 'src/BLASReplacement.cpp ',...
     QPOASES_PATH, 'src/MessageHandling.cpp ', ' ' ];
-
+    %QPOASES_PATH, 'src/realtimeclock.cpp ',...
+    
 QLD_OBJECTS =	[	QLD_PATH, 'qld.cpp ', ' ' ];
-
-%QPOASES_OBJECTS = [	QPOASES_LIB_PATH, 'BLASReplacement.lib ',...
-%    QPOASES_LIB_PATH, 'LAPACKReplacement.lib ',...
-%    QPOASES_LIB_PATH, 'libqpOASES.lib ',...
-%    QPOASES_LIB_PATH, 'libqpOASESextras.lib ',' ' ];
-
-% BLAS_OBJECTS = [ BLAS_LIB_PATH, 'libgoto2.a' ];
-
-% DEBUGFLAGS = ' ';
-DEBUGFLAGS = ['-D_DEBUG -g',' '];
-%DEBUGFLAGS = ' -g CXXDEBUGFLAGS=''$CXXDEBUGFLAGS -Wall -pedantic -Wshadow'' ';
 
 NAME = 'walkgen_sfun';
 %% Compile
 eval(['mex -v -output ', NAME, ' ', CPPFLAGS, DEBUGFLAGS, [NAME,'.cpp ', QLD_OBJECTS, MPC_WALKGEN_OBJECTS, QPOASES_OBJECTS]]);
 disp([NAME, '.', eval('mexext'), ' successfully created!']);
 
-%% Set path and copy libraries
+%% Set path
 path(path, pwd);
-%path(path, [pwd,'/',MPC_WALKGEN_LIBRARY_PATH]);
-% Copy libraries
-%copyfile([MPC_WALKGEN_LIBRARY_PATH,'\mpc-walkgen.dll'],[pwd,'/mpc-walkgen.dll']);
-%copyfile([MPC_WALKGEN_LIBRARY_PATH,'\mpc-walkgen.lib'],[pwd,'/mpc-walkgen.lib']);
+
 %% Clear
-clear EIGEN_PATH QPOASES_PATH QPOASES_LIB_PATH MPC_WALKGEN_PATH MPC_WALKGEN_LIBRARY_PATH IFLAGS CPPFLAGS MPC_WALKGEN_OBJECTS DEBUGFLAGS NAME QPOASES_OBJECTS QLD_PATH QLD_OBJECTS
+clear EIGEN_PATH QPOASES_PATH QPOASES_LIB_PATH MPC_WALKGEN_PATH MPC_WALKGEN_LIBRARY_PATH IFLAGS CPPFLAGS CFLAGS MPC_WALKGEN_OBJECTS DEBUGFLAGS NAME QPOASES_OBJECTS QLD_PATH QLD_OBJECTS
