@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.898"
+    ComputedModelVersion    "1.900"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Thu Jan 10 15:21:45 2013"
+  LastModifiedDate	  "Sun Jan 13 01:28:06 2013"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:898>"
+  ModelVersionFormat	  "1.%<AutoIncrement:900>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -107,7 +107,7 @@ Model {
 	  $ObjectID		  2
 	  Version		  "1.3.0"
 	  StartTime		  "0.0"
-	  StopTime		  "10"
+	  StopTime		  "1"
 	  AbsTol		  "auto"
 	  FixedStep		  "1e-3"
 	  InitialStep		  "auto"
@@ -671,7 +671,7 @@ Model {
   System {
     Name		    "walkgen"
     Location		    [850, 74, 1125, 375]
-    Open		    on
+    Open		    off
     ModelBrowserVisibility  off
     ModelBrowserWidth	    200
     ScreenColor		    "white"
@@ -745,7 +745,7 @@ Model {
 	  MaskIconOpaque	  on
 	  MaskIconRotate	  "none"
 	  MaskIconUnits		  "autoscale"
-	  MaskValueString	  "10|0|0|1|1|0|0|8|8|2|0.1|0.01|0.001|0.02|100|2|1|0|0|1|1|0|0|1|100|0.4"
+	  MaskValueString	  "16|0|0|1|1|0|0|8|8|2|0.1|0.001|0.001|0.02|2|2|1|0|0|1|0|0|0|1|100|1.6"
 	  MaskTabNameString	  ",,,,,,,,,,,,,,,,,,,,,,,,,"
 	  System {
 	    Name		    "Atomic Walkgen"
@@ -2807,7 +2807,7 @@ Model {
 	      RTWMemSecDataConstants  "Inherit from model"
 	      RTWMemSecDataInternal   "Inherit from model"
 	      RTWMemSecDataParameters "Inherit from model"
-	      sw		      "0"
+	      sw		      "1"
 	      action		      "0"
 	      varsize		      off
 	    }
@@ -3195,6 +3195,15 @@ Model {
 	}
 	Annotation {
 	  Position		  [449, 396]
+	}
+	Annotation {
+	  Position		  [429, 309]
+	}
+	Annotation {
+	  Position		  [431, 360]
+	}
+	Annotation {
+	  Position		  [448, 474]
 	}
       }
     }
