@@ -169,6 +169,11 @@ static void mdlStart(SimStruct *S) {
 	}
 
 	Walkgen *walk = new Walkgen;
+	if (is_debug_in) {
+		walk->clock().ReserveMemory(20, 1000);
+		walk->clock().GetFrequency(100);
+	}
+
 	walk->Init(mpc_parameters);
 
 	ssSetPWorkValue(S, 0, (void*)walk);
@@ -416,9 +421,9 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 		analysis[1] = solution.analysis.num_iterations;
 		analysis[2] = solution.analysis.objective_value;
 		int num_counters = walk->clock().GetNumCounters();
-		//for (int i = num_counters - 1; i >= 0; i--) {
-		//analysis[/*i + */3] = walk->clock().GetTime(time_online);
-		//}
+		for (int counter = num_counters - 1; counter >= 0; counter--) {
+			analysis[counter + 3] = walk->clock().GetTime(counter);
+		}
 
 		cur_state[0] = robot->com()->state().x[0];
 		cur_state[1] = robot->com()->state().x[1];
