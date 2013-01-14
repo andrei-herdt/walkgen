@@ -45,7 +45,16 @@ void QPOasesParser::Init() {
 void QPOasesParser::Solve(MPCSolution &solution,
 		bool warmstart, bool analysis) {
 
-	qp_->setPrintLevel(qpOASES::PL_NONE);
+	//qp_->setPrintLevel(qpOASES::PL_NONE);
+	qpOASES::Options myoptions;
+	//myoptions.setToMPC();
+	myoptions.printLevel = qpOASES::PL_LOW;
+//	myoptions.enableFlippingBounds = qpOASES::BT_FALSE;
+//	myoptions.enableRegularisation = qpOASES::BT_FALSE;
+//	myoptions.enableNZCTests = qpOASES::BT_FALSE;
+//	myoptions.enableEqualities = qpOASES::BT_TRUE;
+//	myoptions.initialStatusBounds = qpOASES::ST_INACTIVE;
+	qp_->setOptions(myoptions);
 
 	if (warmstart) {
 		reorderInitialSolution(solution.initial_solution, solution.init_active_set);
