@@ -12,8 +12,8 @@ int main() {
 	int num_samples_dsss 			= 8;
 	int num_steps_ssds 			= 2;
 	double sample_period_qp 		= .1;
-	double sample_period_first 		= .001;
-	double sample_period_act 		= .001;
+	double sample_period_first 		= .1;
+	double sample_period_act 		= .1;
 	const double kSecurityMargin 		= .02;
 
 	// Simulation parameters:
@@ -30,21 +30,21 @@ int main() {
 	mpc_parameters.interpolate_whole_horizon    = false;
 	mpc_parameters.solver.analysis              = false;
 	mpc_parameters.problem_dumping		      	= false;
-	mpc_parameters.solver.name                  = QPOASES;
+	mpc_parameters.solver.name                  = QLD;
 	mpc_parameters.solver.num_wsrec             = 100;
 	mpc_parameters.dynamics_order               = SECOND_ORDER;
 	mpc_parameters.formulation		      		= DECOUPLED_MODES;
 	mpc_parameters.is_pid_mode		      		= false;
 	mpc_parameters.is_terminal_constr	      	= false;
 	mpc_parameters.is_ineq_constr				= true;
-	mpc_parameters.problem_dumping				= false;
+	mpc_parameters.problem_dumping				= true;
 
 	mpc_parameters.penalties.pos[0] 			= 0.;
 	mpc_parameters.penalties.vel[0]  			= 0.;
-	mpc_parameters.penalties.cop[0]  			= 10.;//0.00001;
+	mpc_parameters.penalties.cop[0]  			= 0.;//0.00001;
 	mpc_parameters.penalties.cp[0] 			= 1.;
-	mpc_parameters.penalties.contr_moves[0] 	= 0.1;
-	mpc_parameters.penalties.first_contr_move = 0.1;
+	mpc_parameters.penalties.contr_moves[0] 	= 0.;
+	mpc_parameters.penalties.first_contr_move = 0.;
 
 	mpc_parameters.penalties.pos[1] 		= 0.;
 	mpc_parameters.penalties.vel[1]  		= 0.;
@@ -55,22 +55,22 @@ int main() {
 	// Robot parameters:
 	// -----------------
 	FootData left_foot;
-	left_foot.ankle_pos_local 	<< 0, 0, 0.105;
-	left_foot.sole_height 		= 0.138;
-	left_foot.sole_width 		= 0.2172;
-	left_foot.position[0] 		= 0.00949035;
-	left_foot.position[1] 		= 0.1;
+	left_foot.ankle_pos_local 	<< -0.035, 0, 0.105;
+	left_foot.sole_height 		= 0.095;
+	left_foot.sole_width 		= 0.136;
+	left_foot.position[0] 		= -0.035;
+	left_foot.position[1] 		= 0.22;
 	left_foot.position[2] 		= 0.0;
-	left_foot.SetEdges(0.2172, 0.0, 0.138, 0.0, kSecurityMargin);
+	left_foot.SetEdges(0.13, -0.06, 0.0475, -0.0475, kSecurityMargin);
 
 	FootData right_foot;
-	right_foot.ankle_pos_local 	<< 0, 0, 0.105;
-	right_foot.sole_height 		= 0.138;
-	right_foot.sole_width 		= 0.2172;
-	right_foot.position[0] 		= 0.00949035;
-	right_foot.position[1] 		= -0.095;
+	right_foot.ankle_pos_local 	<< -0.035, 0, 0.105;
+	right_foot.sole_height 		= 0.095;
+	right_foot.sole_width 		= 0.136;
+	right_foot.position[0] 		= -0.035;
+	right_foot.position[1] 		= -0.0059;
 	right_foot.position[2] 		= 0.0;
-	right_foot.SetEdges(0.2172, 0.0, 0.138, 0.0, kSecurityMargin);
+	right_foot.SetEdges(0.13, -0.06, 0.0475, -0.0475, kSecurityMargin);
 
 
 	HipYawData left_hip_yaw;
@@ -94,8 +94,8 @@ int main() {
 	// ------------------
 	const int num_vertices = 5;
 	// Feasible foot positions
-	double foot_pos_vertices_x[num_vertices] = {-0.28, -0.2, 0.0, 0.2, 0.28};
-	double foot_pos_vertices_y[num_vertices] = {-0.2, -0.3, -0.4, -0.3, -0.2};
+	double foot_pos_vertices_x[num_vertices] = {-0.2, -0.2, 0.0, 0.2, 0.2};
+	double foot_pos_vertices_y[num_vertices] = {-0.2, -0.3, -0.4, -0.3, -0.225};
 
 	robot_data.left_foot_pos_hull.Resize(num_vertices);
 	robot_data.right_foot_pos_hull.Resize(num_vertices);
@@ -106,30 +106,8 @@ int main() {
 		robot_data.right_foot_pos_hull.y_vec(i) = -foot_pos_vertices_y[i];
 	}
 
-
-	// Constraints on the CoP
-	const int num_vertices_cop = 4;
-	double cop_vertices_ss_x[num_vertices_cop] = {0.0686, 0.0686, -0.0686, -0.0686};
-	double cop_vertices_ss_y[num_vertices_cop] = {0.029, -0.029, -0.029, 0.029};
-	double cop_vertices_ds_x[num_vertices_cop] = {0.0686, 0.0686, -0.0686, -0.0686};
-	double cop_vertices_ds_y[num_vertices_cop] = {0.029, -0.229, -0.229, 0.029};
-
-	robot_data.left_foot_ss_hull.Resize(num_vertices_cop);
-	robot_data.right_foot_ss_hull.Resize(num_vertices_cop);
-	robot_data.left_foot_ds_hull.Resize(num_vertices_cop);
-	robot_data.right_foot_ds_hull.Resize(num_vertices_cop);
-	for (int i = 0; i < num_vertices_cop; ++i) {
-		robot_data.left_foot_ss_hull.x_vec(i) = cop_vertices_ss_x[i];
-		robot_data.left_foot_ss_hull.y_vec(i) = cop_vertices_ss_y[i];
-		robot_data.left_foot_ds_hull.x_vec(i) = cop_vertices_ds_x[i];
-		robot_data.left_foot_ds_hull.y_vec(i) = cop_vertices_ds_y[i];
-
-		robot_data.right_foot_ss_hull.x_vec(i) = cop_vertices_ss_x[i];
-		robot_data.right_foot_ss_hull.y_vec(i) =- cop_vertices_ss_y[i];
-		robot_data.right_foot_ds_hull.x_vec(i) = cop_vertices_ds_x[i];
-		robot_data.right_foot_ds_hull.y_vec(i) =- cop_vertices_ds_y[i];
-	}
-
+	double feet_distance_y = left_foot.position[1] - right_foot.position[1];
+	robot_data.SetCoPHulls(feet_distance_y);
 
 	// Create and initialize generator:
 	// -------------------------------
@@ -143,9 +121,11 @@ int main() {
 	double curr_time = 0.;
 	walk.SetVelReference(0.0001, 0., 0.);
 	int num_iterations = 0;
-	//walk.clock().GetFrequency(1000);
-	//walk.clock().ResetLocal();
-	for (; curr_time < 10.; curr_time += sample_period_act) {
+	walk.clock().GetFrequency(1000);
+	walk.clock().ReserveMemory(20, 1000);
+
+	walk.clock().ResetLocal();
+	for (; curr_time < 2.; curr_time += sample_period_act) {
 		//int online_timer = walk.clock().StartCounter();
 		//std::cout << std::endl;
 		//std::cout << std::endl;
@@ -165,7 +145,7 @@ int main() {
 		//std::cout << std::endl;
 		std::cout << "com_prw.control.x_vec: " << solution.com_prw.control.x_vec.transpose() << std::endl;
 	 	std::cout << std::endl;
-		Debug::Cout("solution.qp_solution_vec: ", solution.qp_solution_vec);
+		//Debug::Cout("solution.qp_solution_vec: ", solution.qp_solution_vec);
 		//Debug::Cout("com_prw.control.y_vec", solution.com_prw.control.y_vec);
 	 	//std::cout << std::endl;
 		//std::cout << "com_act.pos.x: " << walk.output().com.x << "  com_act.vel.x: " << walk.output().com.dx << std::endl;
@@ -175,7 +155,7 @@ int main() {
 		//Debug::WriteToDatFile("gradient", curr_time, walk.solver()->gradient_vec()());
 		//walk.clock().StopLastCounter();
 		//walk.clock().StopCounter(online_timer);
-		//walk.clock().ResetLocal();
+		walk.clock().ResetLocal();
 		num_iterations++;
 	}
 		//walk.solver()->DumpMatrices(curr_time, "dat");
