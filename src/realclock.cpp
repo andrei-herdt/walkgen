@@ -73,7 +73,7 @@ int RealClock::StartCounter() {
 	LARGE_INTEGER start_counter;
 	QueryPerformanceCounter(&start_counter);
 	start_tick_vec_.push_back(start_counter.QuadPart);
-#elif (defined __LINUX__ || defined __VXWORKS__)
+#elif (defined __LINUX__ || defined LINUX || defined __VXWORKS__)
 	start_tick_vec_.push_back(__rdtsc());
 #endif
 

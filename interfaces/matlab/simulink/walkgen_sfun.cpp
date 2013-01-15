@@ -273,6 +273,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 			robot_data.right_foot_pos_hull.x_vec(i) = DefaultFPosEdgesX[i];
 			robot_data.right_foot_pos_hull.y_vec(i) = -DefaultFPosEdgesY[i];
 		}
+
 		double feet_distance_y = *left_ankle_in[1] - *right_ankle_in[1];
 		robot_data.SetCoPHulls(feet_distance_y);
 

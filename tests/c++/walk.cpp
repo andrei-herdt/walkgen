@@ -58,7 +58,7 @@ int main() {
 	left_foot.ankle_pos_local 	<< -0.035, 0, 0.105;
 	left_foot.sole_height 		= 0.095;
 	left_foot.sole_width 		= 0.136;
-	left_foot.position[0] 		= -0.035;
+	left_foot.position[0] 		= 0.;//-0.035;
 	left_foot.position[1] 		= 0.22;
 	left_foot.position[2] 		= 0.0;
 	left_foot.SetEdges(0.13, -0.06, 0.0475, -0.0475, kSecurityMargin);
@@ -67,7 +67,7 @@ int main() {
 	right_foot.ankle_pos_local 	<< -0.035, 0, 0.105;
 	right_foot.sole_height 		= 0.095;
 	right_foot.sole_width 		= 0.136;
-	right_foot.position[0] 		= -0.035;
+	right_foot.position[0] 		= 0.;//-0.035;
 	right_foot.position[1] 		= -0.0059;
 	right_foot.position[2] 		= 0.0;
 	right_foot.SetEdges(0.13, -0.06, 0.0475, -0.0475, kSecurityMargin);

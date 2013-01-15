@@ -129,7 +129,7 @@ void QPBuilder::PrecomputeObjective() {
 			if (mpc_parameters_->formulation == DECOUPLED_MODES) {
 				contr_val_pen_mat_vec_[mat_num](num_samples, num_samples) = 0.;	// CP variable
 			}
-			contr_val_pen_mat_vec_[mat_num](0, 0) = /*mpc_parameters_->penalties.cop[mode_num] * */first_period / mpc_parameters_->period_qpsample;
+			contr_val_pen_mat_vec_[mat_num](0, 0) = mpc_parameters_->penalties.cop[mode_num] * first_period / mpc_parameters_->period_qpsample;
 			const_hessian_n_mat_[mat_num] = hessian_mat + contr_val_pen_mat_vec_[mat_num];
 
 			chol.Reset(0.);
@@ -204,7 +204,6 @@ void QPBuilder::BuildProblem(MPCSolution &solution) {
 
 	solver_->uv_bounds_vec().Reset(kInf);
 	solver_->lv_bounds_vec().Reset(-kInf);
-
 	solver_->num_var(num_variables);
 
 	BuildObjective(solution);
