@@ -10,26 +10,30 @@ using namespace Eigen;
 
 QLDParser::QLDParser(SolverData* const parameters, int num_var_max, int num_constr_max)
 :QPSolver(parameters, num_var_max, num_constr_max) {
-	solution_arr_ = new double[num_var_max];
+	solution_vec_.resize(num_var_max);
+	std::fill(solution_vec_.begin(), solution_vec_.end(), 0.);
 	nmax_ = num_var_max;
-	hessian_mat_arr_ = new double[nmax_ * nmax_];
+	hessian_mat_vec_.resize(nmax_ * nmax_);
+	std::fill(hessian_mat_vec_.begin(), hessian_mat_vec_.end(), 0.);
 	mmax_ = num_constr_max + 1;
-	constr_mat_arr_ = new double[nmax_ * mmax_];
-	constr_vec_arr_ = new double[mmax_];
-	lagr_mult_arr_ = new double[num_constr_max + 2*num_var_max];
+	constr_mat_vec_.resize(nmax_ * mmax_);
+	std::fill(constr_mat_vec_.begin(), constr_mat_vec_.end(), 0.);
+	constr_vec_.resize(mmax_);
+	std::fill(constr_vec_.begin(), constr_vec_.end(), 0.);
+	lagr_mult_vec_.resize(num_constr_max + 2*num_var_max);
+	std::fill(lagr_mult_vec_.begin(), lagr_mult_vec_.end(), 0.);
 
 	lwar_ = 2*(3*nmax_*nmax_/2 + 10*nmax_ + 2*mmax_ + 20000);
-	war_ = new double[lwar_];
+	war_.resize(lwar_);
+	std::fill(war_.begin(), war_.end(), 0.);
 	liwar_ = num_var_max;
-	iwar_ = new int[liwar_];
-	eps_ = 1e-6;
+	iwar_.resize(liwar_);
+	std::fill(iwar_.begin(), iwar_.end(), 0);
+	eps_ = 1e-10;
 }
 
 QLDParser::~QLDParser() {
-	if (solution_arr_ != 0x0) {
-		delete [] solution_arr_;
-		solution_arr_ = NULL;
-	}
+
 }
 
 void QLDParser::Init() {
@@ -50,16 +54,16 @@ void QLDParser::Solve(MPCSolution &solution,
 	// -------------------------------------------------------
 	for (int col = 0; col < num_var_; col++) {
 		for (int row = 0; row < num_var_; row++) {
-			hessian_mat_arr_[row + nmax_*col] = hessian_mat_(row, col);
+			hessian_mat_vec_[row + nmax_*col] = hessian_mat_(row, col);
 		}
 	}
 	for (int col = 0; col < num_var_; col++) {
 		for (int row = 0; row < num_constr_; row++) {
-			constr_mat_arr_[row + mmax_*col] = constr_mat_(row, col);
+			constr_mat_vec_[row + mmax_*col] = constr_mat_(row, col);
 		}
 	}
 	for (int row = 0; row < num_constr_; row++) {
-		constr_vec_arr_[row] = -lc_bounds_vec_(row);
+		constr_vec_[row] = -lc_bounds_vec_(row);
 	}
 
 	m_ 			= num_constr_;
@@ -71,14 +75,14 @@ void QLDParser::Solve(MPCSolution &solution,
 	iwar_[0] 	= 1;
 
 	ql0001_(&m_, &me_, &mmax_, &n_, &nmax_, &mnn_,
-			hessian_mat_arr_, objective_vec_().data(),
-			constr_mat_arr_, constr_vec_arr_,
+			&hessian_mat_vec_[0], objective_vec_().data(),
+			&constr_mat_vec_[0], &constr_vec_[0],
 			lv_bounds_vec_().data(), uv_bounds_vec_().data(),
-			solution_arr_, lagr_mult_arr_, &iout_, &ifail_, &iprint_,
-			war_, &lwar_, iwar_, &liwar_, &eps_);
+			&solution_vec_[0], &lagr_mult_vec_[0], &iout_, &ifail_, &iprint_,
+			&war_[0], &lwar_, &iwar_[0], &liwar_, &eps_);
 
 	for (int i = 0; i < num_var_; ++i) {
-		solution.qp_solution_vec(i) = solution_arr_[i];
+		solution.qp_solution_vec(i) = solution_vec_[i];
 	}
 
 

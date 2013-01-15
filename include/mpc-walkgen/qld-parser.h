@@ -29,15 +29,19 @@ public:
 
 protected:
 
-	double *constr_vec_arr_;
-	double *lagr_mult_arr_;
-	double *war_;
-	int *iwar_;
+	std::vector<double> solution_vec_;
+	std::vector<double> hessian_mat_vec_;
+	std::vector<double> constr_mat_vec_;
+	std::vector<double> constr_vec_;
+	std::vector<double> lagr_mult_vec_;
+
+	std::vector<double> war_;
+	std::vector<int> iwar_;
+
     int m_, me_, mmax_, n_, nmax_, mnn_;
     int iout_, ifail_, iprint_, lwar_, liwar_;
     double eps_;
 
-	double *solution_arr_;
 
 };
 
