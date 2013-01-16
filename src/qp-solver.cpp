@@ -127,7 +127,7 @@ void QPSolver::DumpProblem(const char *filename, double value, const char *endin
 	std::ofstream file(name);
 	if (file.is_open()) {
 		file << "Hessian" << num_var_ <<","<< num_var_ <<":" << "\n" << hessian_mat_() << '\n';
-		file << "Gradient" << num_var_ <<":" << "\n" << objective_vec_() << '\n';
+		file << "Objective vector" << num_var_ <<":" << "\n" << objective_vec_() << '\n';
 		file << "Constraints matrix" << num_constr_ <<","<< num_var_ <<":" << "\n" << constr_mat_() << '\n';
 		file << "Constraints upper bounds" << num_constr_ <<":" << "\n" << uc_bounds_vec_() << '\n';
 		file << "Constraints lower bounds" << num_constr_ <<":" << "\n" << lc_bounds_vec_() << '\n';
