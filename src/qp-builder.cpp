@@ -481,12 +481,6 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	gradient_vec_x += curr_cop_variant_[matrix_num] * zx_cur;
 	gradient_vec_y += curr_cop_variant_[matrix_num] * zy_cur;
 
-	// Offset from the ankle to the foot center for CoP centering:
-	// -----------------------------------------------------------
-	tmp_vec_ = CommonVectorType::Ones(num_samples + num_unst_modes);
-	gradient_vec_x += robot_->robot_data().left_foot.ankle_pos_local(0) * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
-	gradient_vec_y += robot_->robot_data().left_foot.ankle_pos_local(1) * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
-
 	if (num_steps_previewed > 0) {
 		tmp_vec_.noalias() = select_mats.sample_step_trans * gradient_vec_x.head(num_samples);
 		solver_->objective_vec().Add(tmp_vec_, 2*(num_samples + num_unst_modes));
@@ -534,6 +528,7 @@ void QPBuilder::BuildInequalityConstraints(const MPCSolution &solution) {
 	if (num_steps_previewed > 0) {
 		BuildFootPosInequalities(solution);
 		BuildFootPosIneqConstraints(solution);
+
 		//BuildFootVelConstraints(solution);
 	}
 }
