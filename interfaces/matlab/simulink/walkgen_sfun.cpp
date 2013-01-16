@@ -262,8 +262,8 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 		// Feasibility hulls:
 		// ------------------
 		const int num_vert_foot_pos = 5;
-		double DefaultFPosEdgesX[num_vert_foot_pos] = {-0.2, -0.2, 0.0, 0.2, 0.2};
-		double DefaultFPosEdgesY[num_vert_foot_pos] = {-0.2, -0.3, -0.4, -0.3, -0.225};
+		double DefaultFPosEdgesX[num_vert_foot_pos] = {-0.3, -0.2, 0.0, 0.2, 0.3};
+		double DefaultFPosEdgesY[num_vert_foot_pos] = {-0.2, -0.3, -0.4, -0.3, -0.2};
 
 		robot_data.left_foot_pos_hull.Resize(num_vert_foot_pos);
 		robot_data.right_foot_pos_hull.Resize(num_vert_foot_pos);
