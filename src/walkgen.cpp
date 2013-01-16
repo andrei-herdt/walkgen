@@ -121,12 +121,12 @@ const MPCSolution &Walkgen::Go(){
 const MPCSolution &Walkgen::Go(double time){
 	current_time_ = time;
 
-	if (time  > next_computation_ - kEps) {
+	if (time > next_computation_ - kEps) {
 		next_computation_ += mpc_parameters_.period_mpcsample;
 		if (time > next_computation_ - kEps) {
 			ResetCounters(time);
 		}
-		if(time  > first_sample_time_ - kEps){
+		if(time > first_sample_time_ - kEps){
 			first_sample_time_ += mpc_parameters_.period_qpsample;
 			if (time > first_sample_time_ - kEps) {
 				ResetCounters(time);
