@@ -49,6 +49,7 @@ void QPOasesParser::Solve(MPCSolution &solution,
 	qpOASES::Options myoptions;
 	//myoptions.setToMPC();
 	myoptions.printLevel = qpOASES::PL_LOW;
+	myoptions.setToReliable( );
 //	myoptions.enableFlippingBounds = qpOASES::BT_FALSE;
 //	myoptions.enableRegularisation = qpOASES::BT_FALSE;
 //	myoptions.enableNZCTests = qpOASES::BT_FALSE;
