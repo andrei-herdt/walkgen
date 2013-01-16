@@ -36,21 +36,21 @@ int main() {
 	mpc_parameters.formulation		      		= DECOUPLED_MODES;
 	mpc_parameters.is_pid_mode		      		= false;
 	mpc_parameters.is_terminal_constr	      	= false;
-	mpc_parameters.is_ineq_constr				= true;
+	mpc_parameters.is_ineq_constr				= false;
 	mpc_parameters.problem_dumping				= true;
 
 	mpc_parameters.penalties.pos[0] 			= 0.;
-	mpc_parameters.penalties.vel[0]  			= 0.;
+	mpc_parameters.penalties.vel[0]  			= 1.;
 	mpc_parameters.penalties.cop[0]  			= 0.;//0.00001;
-	mpc_parameters.penalties.cp[0] 			= 1.;
+	mpc_parameters.penalties.cp[0] 			= 0.;
 	mpc_parameters.penalties.contr_moves[0] 	= 0.;
 	mpc_parameters.penalties.first_contr_move = 0.;
 
 	mpc_parameters.penalties.pos[1] 		= 0.;
 	mpc_parameters.penalties.vel[1]  		= 0.;
 	mpc_parameters.penalties.cop[1]  		= 0.;//1.;
-	mpc_parameters.penalties.cp[1] 		= 0.;
-	mpc_parameters.penalties.contr_moves[1] 	= 0.;
+	mpc_parameters.penalties.cp[1] 			= 0.;
+	mpc_parameters.penalties.contr_moves[1] = 0.;
 
 	// Robot parameters:
 	// -----------------
@@ -119,7 +119,7 @@ int main() {
 	// Go:
 	// ---
 	double curr_time = 0.;
-	walk.SetVelReference(0.0001, 0., 0.);
+	walk.SetVelReference(0.1, 0., 0.);
 	int num_iterations = 0;
 	walk.clock().GetFrequency(1000);
 	walk.clock().ReserveMemory(20, 1000);
