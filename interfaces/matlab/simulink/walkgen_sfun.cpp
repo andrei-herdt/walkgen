@@ -136,15 +136,15 @@ static void mdlStart(SimStruct *S) {
 	mpc_parameters.penalties.pos[0] 			= *mxGetPr(ssGetSFcnParam(S, 11));
 	mpc_parameters.penalties.vel[0]  			= *mxGetPr(ssGetSFcnParam(S, 12));
 	mpc_parameters.penalties.cop[0]  			= *mxGetPr(ssGetSFcnParam(S, 13));
-	mpc_parameters.penalties.cp[0] 			= *mxGetPr(ssGetSFcnParam(S, 14));
+	mpc_parameters.penalties.cp[0] 				= *mxGetPr(ssGetSFcnParam(S, 14));
 	mpc_parameters.penalties.contr_moves[0] 	= *mxGetPr(ssGetSFcnParam(S, 15));
 	mpc_parameters.penalties.first_contr_move	= *mxGetPr(ssGetSFcnParam(S, 23));
 
-	mpc_parameters.penalties.pos[1] 			= 0.;
-	mpc_parameters.penalties.vel[1]  			= 0.;
-	mpc_parameters.penalties.cop[1]  			= 0.;
-	mpc_parameters.penalties.cp[1] 			= 0.;
-	mpc_parameters.penalties.contr_moves[1] 	= 0.;
+	mpc_parameters.penalties.pos[1] 			= mxGetPr(ssGetSFcnParam(S, 11))[1];
+	mpc_parameters.penalties.vel[1]  			= mxGetPr(ssGetSFcnParam(S, 12))[1];
+	mpc_parameters.penalties.cop[1]  			= mxGetPr(ssGetSFcnParam(S, 13))[1];
+	mpc_parameters.penalties.cp[1] 				= mxGetPr(ssGetSFcnParam(S, 14))[1];
+	mpc_parameters.penalties.contr_moves[1] 	= mxGetPr(ssGetSFcnParam(S, 15))[1];
 
 	mpc_parameters.ds_force_thresh	= *mxGetPr(ssGetSFcnParam(S, 24));
 	mpc_parameters.ffoot_plan_period = *mxGetPr(ssGetSFcnParam(S, 25));

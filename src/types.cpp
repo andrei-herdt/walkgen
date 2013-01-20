@@ -1,5 +1,7 @@
 #include <mpc-walkgen/types.h>
 
+#include <mpc-walkgen/debug.h>
+
 using namespace MPCWalkgen;
 
 Frame::Frame()

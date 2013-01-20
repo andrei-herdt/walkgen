@@ -481,6 +481,21 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	gradient_vec_x += curr_cop_variant_[matrix_num] * zx_cur;
 	gradient_vec_y += curr_cop_variant_[matrix_num] * zy_cur;
 
+	if (solution.support_states_vec.front().phase == DS && mpc_parameters_->penalties.is_initial_mode == false) {
+		// Offset from the ankle to the foot center for CoP centering:
+		// -----------------------------------------------------------
+		double pos_diff_x = fabs(robot_->left_foot()->state().x(0) - robot_->right_foot()->state().x(0)) / 2.;
+		double pos_diff_y = fabs(robot_->left_foot()->state().y(0) - robot_->right_foot()->state().y(0)) / 2.;
+		tmp_vec_ = CommonVectorType::Ones(num_samples + num_unst_modes);
+		if (solution.support_states_vec.front().foot == LEFT) {//TODO: Guess what... B.H. ...
+			gradient_vec_x += pos_diff_x * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
+			gradient_vec_y += pos_diff_y * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
+		} else {
+			gradient_vec_x += pos_diff_x * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
+			gradient_vec_y -= pos_diff_y * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
+		}
+	}
+
 	if (num_steps_previewed > 0) {
 		tmp_vec_.noalias() = select_mats.sample_step_trans * gradient_vec_x.head(num_samples);
 		solver_->objective_vec().Add(tmp_vec_, 2*(num_samples + num_unst_modes));
