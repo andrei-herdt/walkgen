@@ -401,7 +401,7 @@ Penalties::~Penalties(){}
 void Penalties::SetCoefficients(Reference &ref) {
 	if (fabs(ref.local.yaw(0)) < kEps && fabs(ref.local.x(0)) < kEps && fabs(ref.local.y(0)) < kEps) {
 		if (is_initial_mode) {
-			active_mode = 0;
+			active_mode = 1;
 		} else {
 			active_mode = 1;
 		}

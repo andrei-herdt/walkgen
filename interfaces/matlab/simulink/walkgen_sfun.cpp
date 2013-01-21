@@ -131,7 +131,7 @@ static void mdlStart(SimStruct *S) {
 		mpc_parameters.solver.name  = LSSOL;
 	}
 
-	mpc_parameters.dynamics_order               	= static_cast<SystemOrder>(static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 9))));
+	mpc_parameters.dynamics_order               = static_cast<SystemOrder>(static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 9))));
 
 	mpc_parameters.penalties.pos[0] 			= *mxGetPr(ssGetSFcnParam(S, 11));
 	mpc_parameters.penalties.vel[0]  			= *mxGetPr(ssGetSFcnParam(S, 12));
@@ -146,26 +146,26 @@ static void mdlStart(SimStruct *S) {
 	mpc_parameters.penalties.cp[1] 				= mxGetPr(ssGetSFcnParam(S, 14))[1];
 	mpc_parameters.penalties.contr_moves[1] 	= mxGetPr(ssGetSFcnParam(S, 15))[1];
 
-	mpc_parameters.ds_force_thresh	= *mxGetPr(ssGetSFcnParam(S, 24));
-	mpc_parameters.ffoot_plan_period = *mxGetPr(ssGetSFcnParam(S, 25));
+	mpc_parameters.ds_force_thresh				= *mxGetPr(ssGetSFcnParam(S, 24));
+	mpc_parameters.ffoot_plan_period 			= *mxGetPr(ssGetSFcnParam(S, 25));
 
 	if (is_pid_mode_in == 1) {
-		mpc_parameters.is_pid_mode = true;
+		mpc_parameters.is_pid_mode 			= true;
 	}
 	if (is_constraints_in == 0) {
-		mpc_parameters.is_ineq_constr = false;
+		mpc_parameters.is_ineq_constr 		= false;
 	}
 	if (is_terminal_constr_in == 1) {
-		mpc_parameters.is_terminal_constr = true;
+		mpc_parameters.is_terminal_constr 	= true;
 	}
 	if (formulation_in == 0) {
-		mpc_parameters.formulation = STANDARD;
+		mpc_parameters.formulation 			= STANDARD;
 	} else if (formulation_in == 1) {
-		mpc_parameters.formulation = DECOUPLED_MODES;
+		mpc_parameters.formulation 			= DECOUPLED_MODES;
 	}
 
 	if (dump_problems_in == 1) {
-		mpc_parameters.problem_dumping = true;
+		mpc_parameters.problem_dumping 		= true;
 	}
 
 	Walkgen *walk = new Walkgen;
@@ -229,13 +229,13 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 		FootData left_foot;
 		left_foot.ankle_pos_local 	<< -0.035, 0., 0.;
 		left_foot.sole_height 		= *foot_geometry[2] - *foot_geometry[3];
-		left_foot.sole_width 		= *foot_geometry[0] - *foot_geometry[1];
-		left_foot.SetEdges(*foot_geometry[0], *foot_geometry[1], *foot_geometry[2], *foot_geometry[3], kSecurityMargin);
+		left_foot.sole_width 		= *foot_geometry[0]  - *foot_geometry[1];
+		left_foot.SetEdges(*foot_geometry[0] + left_foot.ankle_pos_local(0), *foot_geometry[1] + left_foot.ankle_pos_local(0), *foot_geometry[2], *foot_geometry[3], kSecurityMargin);
 		FootData right_foot;
 		right_foot.ankle_pos_local 	<< -0.035, 0., 0.;
 		right_foot.sole_height 		= *foot_geometry[2] - *foot_geometry[3];
 		right_foot.sole_width 		= *foot_geometry[0] - *foot_geometry[1];
-		right_foot.SetEdges(*foot_geometry[0], *foot_geometry[1], *foot_geometry[2], *foot_geometry[3], kSecurityMargin);
+		right_foot.SetEdges(*foot_geometry[0] + right_foot.ankle_pos_local(0), *foot_geometry[1] + right_foot.ankle_pos_local(0), *foot_geometry[2], *foot_geometry[3], kSecurityMargin);
 
 		HipYawData left_hip_yaw;
 		left_hip_yaw.lower_pos_bound 	= -0.523599;
@@ -250,10 +250,10 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 		robot_data.com(0) = *com_in[0];		// TODO: This initialization did not work
 		robot_data.com(1) = *com_in[1];
 		robot_data.com(2) = *com_in[2];
-		robot_data.left_foot.position[0] 	= *left_ankle_in[0];
+		robot_data.left_foot.position[0] 	= *left_ankle_in[0] - left_foot.ankle_pos_local(0);
 		robot_data.left_foot.position[1] 	= *left_ankle_in[1];
 		robot_data.left_foot.position[2] 	= *left_ankle_in[2];
-		robot_data.right_foot.position[0]  	= *right_ankle_in[0];
+		robot_data.right_foot.position[0]  	= *right_ankle_in[0] - right_foot.ankle_pos_local(0);
 		robot_data.right_foot.position[1]  	= *right_ankle_in[1];
 		robot_data.right_foot.position[2]  	= *right_ankle_in[2];
 		robot_data.max_foot_vel = 1.;
@@ -339,7 +339,8 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 	cop[1] = walk->output().cop.y;
 
 	// Left foot:
-	p_left[0]   = walk->output().left_foot.x;
+	double ankle_pos_loc_x = -0.035;
+	p_left[0]   = walk->output().left_foot.x + ankle_pos_loc_x;
 	p_left[1]   = walk->output().left_foot.y;
 	p_left[2]   = walk->output().left_foot.z;
 	p_left[3]   = walk->output().left_foot.yaw;
@@ -352,7 +353,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 	ddp_left[2] = walk->output().left_foot.ddz;
 	ddp_left[3] = walk->output().left_foot.ddyaw;
 	// Right foot:
-	p_right[0]      = walk->output().right_foot.x;
+	p_right[0]      = walk->output().right_foot.x + ankle_pos_loc_x;
 	p_right[1]      = walk->output().right_foot.y;
 	p_right[2]      = walk->output().right_foot.z;
 	p_right[3]      = walk->output().right_foot.yaw;

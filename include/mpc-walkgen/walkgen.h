@@ -64,6 +64,7 @@ private:
 	void SetCounters(double time);
 
 	void StoreResult();
+	void SetWalkingMode();
 
 	//
 	// Private data members:

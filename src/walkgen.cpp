@@ -213,13 +213,6 @@ void Walkgen::BuildProblem() {
 	solution_.Reset();
 	vel_ref_ = new_vel_ref_;
 
-	if (robot_.current_support().phase == SS && robot_.current_support().num_steps_left == 0) {
-		vel_ref_.local.x.fill(0);
-		vel_ref_.local.y.fill(0);
-		vel_ref_.local.yaw.fill(0);
-	}
-	mpc_parameters_.penalties.SetCoefficients(vel_ref_);
-
 	double first_sampling_period = first_sample_time_ - current_time_;//TODO:
 
 	// PREVIEW:
@@ -232,6 +225,8 @@ void Walkgen::BuildProblem() {
 			mpc_parameters_.num_samples_step * mpc_parameters_.period_qpsample, robot_.left_foot()->state(),
 			robot_.right_foot()->state(), solution_ );
 	preview_->BuildRotationMatrix(solution_);
+
+	SetWalkingMode();
 
 	// BUILD:
 	// ------
@@ -343,6 +338,47 @@ void Walkgen::StoreResult() {
 	solution_.prev_cop_y = solution_.qp_solution_vec(num_samples + num_unst_modes);
 
 	solution_.is_prev_sol_exist = true;
+}
+
+void Walkgen::SetWalkingMode() {
+
+	// Set vel reference:
+	// ------------------
+	if (robot_.current_support().phase == SS && robot_.current_support().num_steps_left == 0) {
+		vel_ref_.local.x.fill(0);
+		vel_ref_.local.y.fill(0);
+		vel_ref_.local.yaw.fill(0);
+	}
+
+
+	// Set active walking mode:
+	// ------------------------
+	if (fabs(vel_ref_.local.yaw(0)) < kEps && fabs(vel_ref_.local.x(0)) < kEps && fabs(vel_ref_.local.y(0)) < kEps) {
+		if (mpc_parameters_.penalties.is_initial_mode) {
+			mpc_parameters_.penalties.active_mode = 1;
+		} else {
+			mpc_parameters_.penalties.active_mode = 1;
+		}
+	} else {
+		mpc_parameters_.penalties.active_mode = 0;
+		mpc_parameters_.penalties.is_initial_mode = false;
+	}
+
+	if (solution_.support_states_vec.front().phase == DS) {
+		double mid_feet_x = (robot_.left_foot()->state().x[0] + robot_.right_foot()->state().x[0]) / 2.;
+		double mid_feet_y = (robot_.left_foot()->state().y[0] + robot_.right_foot()->state().y[0]) / 2.;
+		pos_ref_.global.x.fill(mid_feet_x);
+		pos_ref_.global.y.fill(mid_feet_y);
+		cp_ref_.global.x.fill(mid_feet_x);
+		cp_ref_.global.y.fill(mid_feet_y);
+		vel_ref_.global.x.fill(0.);
+		vel_ref_.global.y.fill(0.);
+
+		mpc_parameters_.penalties.cop[1] = mpc_parameters_.penalties.cop[0];
+		mpc_parameters_.penalties.contr_moves[1] = mpc_parameters_.penalties.contr_moves[0];
+	}
+
+
 }
 
 
