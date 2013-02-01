@@ -18,7 +18,7 @@ using namespace std;
 
 static void mdlInitializeSizes(SimStruct *S) {
 	// Expected number of parameters
-	ssSetNumSFcnParams(S, 26);
+	ssSetNumSFcnParams(S, 27);
 
 	// Parameter mismatch?
 	if (ssGetNumSFcnParams(S) != ssGetSFcnParamsCount(S)) {
@@ -104,7 +104,6 @@ static void mdlStart(SimStruct *S) {
 	int dump_problems_in 		= static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 20)));
 	int solver_in 				= static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 22)));
 
-
 	MPCParameters mpc_parameters;
 	mpc_parameters.num_samples_horizon  = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 0)));
 	mpc_parameters.num_samples_step     = min(static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 1))), mpc_parameters.num_samples_horizon);
@@ -131,6 +130,7 @@ static void mdlStart(SimStruct *S) {
 		mpc_parameters.solver.name  = LSSOL;
 	}
 
+
 	mpc_parameters.dynamics_order               = static_cast<SystemOrder>(static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 9))));
 
 	mpc_parameters.penalties.pos[0] 			= *mxGetPr(ssGetSFcnParam(S, 11));
@@ -148,6 +148,8 @@ static void mdlStart(SimStruct *S) {
 
 	mpc_parameters.ds_force_thresh				= *mxGetPr(ssGetSFcnParam(S, 24));
 	mpc_parameters.ffoot_plan_period 			= *mxGetPr(ssGetSFcnParam(S, 25));
+
+	mpc_parameters.init_com_height				= *mxGetPr(ssGetSFcnParam(S, 26));
 
 	if (is_pid_mode_in == 1) {
 		mpc_parameters.is_pid_mode 			= true;

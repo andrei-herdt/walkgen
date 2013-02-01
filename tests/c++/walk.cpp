@@ -44,13 +44,15 @@ int main() {
 	mpc_parameters.penalties.cop[0]  			= 0.;//0.00001;
 	mpc_parameters.penalties.cp[0] 			= 0.;
 	mpc_parameters.penalties.contr_moves[0] 	= 0.;
-	mpc_parameters.penalties.first_contr_move = 0.;
+	mpc_parameters.penalties.first_contr_move 	= 0.;
 
 	mpc_parameters.penalties.pos[1] 		= 0.;
 	mpc_parameters.penalties.vel[1]  		= 0.;
 	mpc_parameters.penalties.cop[1]  		= 0.;//1.;
 	mpc_parameters.penalties.cp[1] 			= 0.;
-	mpc_parameters.penalties.contr_moves[1] = 0.;
+	mpc_parameters.penalties.contr_moves[1] 	= 0.;
+
+	mpc_parameters.init_com_height 			= 0.9;
 
 	// Robot parameters:
 	// -----------------

@@ -204,6 +204,8 @@ struct MPC_WALKGEN_API MPCParameters {
 	double ds_force_thresh;				// Force that defines the double support phase
 	double ffoot_plan_period;			// Time for planning the foot placement
 
+	double init_com_height;				// Initial CoM height is given
+
 	int num_samples_horizon;  			// Number of samplings inside horizon
 	int num_samples_step;				// Step period ss_left<->ss_right in qp sample periods
 	int num_samples_dsss;				// Length of initial double support phase [num. samples]
@@ -214,7 +216,7 @@ struct MPC_WALKGEN_API MPCParameters {
 	bool is_closed_loop;
 	bool is_pid_mode;
 	bool is_ineq_constr;				// Turns on all inequality constraints
-	bool is_terminal_constr;				// Turns on terminal constraints
+	bool is_terminal_constr;			// Turns on terminal constraints
 	bool problem_dumping;				// Optimization program is written to file before being solved
 
 	SystemOrder dynamics_order;

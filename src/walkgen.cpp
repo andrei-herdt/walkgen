@@ -101,6 +101,18 @@ void Walkgen::Init(MPCParameters &mpc_parameters) {
 	cp_ref_.SetZero(mpc_parameters_.num_samples_horizon);
 	new_vel_ref_.SetZero(mpc_parameters_.num_samples_horizon);
 
+	preview_ = new HeuristicPreview(&vel_ref_, &robot_, &mpc_parameters_, &clock_);
+
+	builder_= new QPBuilder(preview_, solver_, &pos_ref_, &vel_ref_, &cp_ref_, &robot_, &mpc_parameters_, &clock_);
+
+	if (mpc_parameters_.init_com_height > kEps) {
+		robot_.com()->state().z[0] = mpc_parameters_.init_com_height;
+		robot_.ComputeDynamics();
+
+		builder_->PrecomputeObjective();
+	}
+
+
 	// Reset:
 	// ------
 	ResetCounters(0.0);
@@ -140,9 +152,9 @@ const MPCSolution &Walkgen::Go(double time){
 		if (mpc_parameters_.problem_dumping) {
 			solver_->DumpProblem("problem", current_time_, "txt");
 		}
-		int timer_solve = clock_.StartCounter();
+		//int timer_solve = clock_.StartCounter();
 		solver_->Solve(solution_, mpc_parameters_.warmstart, mpc_parameters_.solver.analysis);
-		clock_.StopCounter(timer_solve);
+		//clock_.StopCounter(timer_solve);
 
 		GenerateTrajectories();
 
@@ -165,15 +177,13 @@ const MPCSolution &Walkgen::Go(double time){
 // Private methods:
 //
 void Walkgen::Init() {
-	robot_.ComputeDynamics();
+	if (mpc_parameters_.init_com_height < 2 * kEps) {
+		robot_.ComputeDynamics();
 
-	preview_ = new HeuristicPreview(&vel_ref_, &robot_, &mpc_parameters_, &clock_);
-
-	builder_= new QPBuilder(preview_, solver_, &pos_ref_, &vel_ref_, &cp_ref_, &robot_, &mpc_parameters_, &clock_);
+		builder_->PrecomputeObjective();
+	}
 
 	orient_preview_->Init(mpc_parameters_, robot_data_);
-
-	builder_->PrecomputeObjective();
 
 	BodyState left_foot_state;
 	left_foot_state.x[0] = robot_data_.left_foot.position[0];
