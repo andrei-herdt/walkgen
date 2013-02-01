@@ -37,7 +37,7 @@ int main() {
 	mpc_parameters.is_pid_mode		      		= false;
 	mpc_parameters.is_terminal_constr	      	= false;
 	mpc_parameters.is_ineq_constr				= false;
-	mpc_parameters.problem_dumping				= true;
+	mpc_parameters.problem_dumping				= false;
 
 	mpc_parameters.penalties.pos[0] 			= 0.;
 	mpc_parameters.penalties.vel[0]  			= 1.;

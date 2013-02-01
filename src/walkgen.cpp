@@ -193,9 +193,11 @@ void Walkgen::Init() {
 
 	mpc_parameters_.penalties.active_mode = 0;
 
-	BuildProblem();
+	if (mpc_parameters_.solver.name == QPOASES) {
+		BuildProblem();
 
-	solver_->Init();
+		solver_->Init();
+	}
 }
 
 void Walkgen::SetCounters(double time) {}
