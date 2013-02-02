@@ -1,9 +1,6 @@
 #include <mpc-walkgen/rigid-body.h>
 #include <mpc-walkgen/debug.h>
 
-#include <iostream>
-#include <stdio.h>
-
 using namespace MPCWalkgen;
 
 

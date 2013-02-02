@@ -106,16 +106,19 @@ void Walkgen::Init(MPCParameters &mpc_parameters) {
 	builder_= new QPBuilder(preview_, solver_, &pos_ref_, &vel_ref_, &cp_ref_, &robot_, &mpc_parameters_, &clock_);
 
 	if (mpc_parameters_.init_com_height > kEps) {
+		Debug::Disp("here");
 		robot_.com()->state().z[0] = mpc_parameters_.init_com_height;
+		Debug::Disp("here");
 		robot_.ComputeDynamics();
-
+		Debug::Disp("here");
 		builder_->PrecomputeObjective();
+		Debug::Disp("here");
 	}
 
 
 	// Reset:
 	// ------
-	ResetCounters(0.0);
+	ResetCounters(0.);
 }
 
 void Walkgen::Init(const RobotData &robot_data) {
@@ -152,9 +155,7 @@ const MPCSolution &Walkgen::Go(double time){
 		if (mpc_parameters_.problem_dumping) {
 			solver_->DumpProblem("problem", current_time_, "txt");
 		}
-		//int timer_solve = clock_.StartCounter();
 		solver_->Solve(solution_, mpc_parameters_.warmstart, mpc_parameters_.solver.analysis);
-		//clock_.StopCounter(timer_solve);
 
 		GenerateTrajectories();
 

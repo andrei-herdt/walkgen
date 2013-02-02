@@ -17,6 +17,7 @@ class Debug {
 
 public:
 
+	static void Disp(const char *string);
 	static void Disp(const char *name, bool val);
 	static void Disp(const char *name, int val);
 	static void Disp(const char *name, double val);

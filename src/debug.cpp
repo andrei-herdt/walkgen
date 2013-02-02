@@ -2,6 +2,10 @@
 
 using namespace std;
 
+void Debug::Disp(const char *string) {
+	cout << string << std::endl;
+}
+
 void Debug::Disp(const char *name, bool val) {
 	printf(name); printf(": ");
 	val ? printf("true \n") : printf("false \n");
