@@ -106,13 +106,9 @@ void Walkgen::Init(MPCParameters &mpc_parameters) {
 	builder_= new QPBuilder(preview_, solver_, &pos_ref_, &vel_ref_, &cp_ref_, &robot_, &mpc_parameters_, &clock_);
 
 	if (mpc_parameters_.init_com_height > kEps) {
-		Debug::Disp("here");
 		robot_.com()->state().z[0] = mpc_parameters_.init_com_height;
-		Debug::Disp("here");
 		robot_.ComputeDynamics();
-		Debug::Disp("here");
 		builder_->PrecomputeObjective();
-		Debug::Disp("here");
 	}
 
 
@@ -125,7 +121,6 @@ void Walkgen::Init(const RobotData &robot_data) {
 	robot_data_ = robot_data;
 	robot_.Init(robot_data_);
 	Init();
-
 }
 
 const MPCSolution &Walkgen::Go(){
@@ -136,14 +131,14 @@ const MPCSolution &Walkgen::Go(){
 const MPCSolution &Walkgen::Go(double time){
 	current_time_ = time;
 
-	if (time > next_computation_ - kEps) {
+	if (time > next_computation_ - mpc_parameters_.period_mpcsample/2.) {
 		next_computation_ += mpc_parameters_.period_mpcsample;
-		if (time > next_computation_ - kEps) {
+		if (time > next_computation_ - mpc_parameters_.period_mpcsample/2.) {
 			ResetCounters(time);
 		}
-		if(time > first_sample_time_ - kEps){
+		if(time > first_sample_time_ - mpc_parameters_.period_mpcsample/2.){
 			first_sample_time_ += mpc_parameters_.period_qpsample;
-			if (time > first_sample_time_ - kEps) {
+			if (time > first_sample_time_ - mpc_parameters_.period_mpcsample/2.) {
 				ResetCounters(time);
 			}
 		}
@@ -155,7 +150,9 @@ const MPCSolution &Walkgen::Go(double time){
 		if (mpc_parameters_.problem_dumping) {
 			solver_->DumpProblem("problem", current_time_, "txt");
 		}
+		//int solver_counter = clock_.StartCounter();
 		solver_->Solve(solution_, mpc_parameters_.warmstart, mpc_parameters_.solver.analysis);
+		//clock_.StopCounter(solver_counter);
 
 		GenerateTrajectories();
 
@@ -380,10 +377,10 @@ void Walkgen::SetWalkingMode() {
 	if (solution_.support_states_vec.front().phase == DS) {
 		double mid_feet_x = (robot_.left_foot()->state().x[0] + robot_.right_foot()->state().x[0]) / 2.;
 		double mid_feet_y = (robot_.left_foot()->state().y[0] + robot_.right_foot()->state().y[0]) / 2.;
-		pos_ref_.global.x.fill(mid_feet_x);
-		pos_ref_.global.y.fill(mid_feet_y);
-		cp_ref_.global.x.fill(mid_feet_x);
-		cp_ref_.global.y.fill(mid_feet_y);
+		//pos_ref_.global.x.fill(mid_feet_x);
+		//pos_ref_.global.y.fill(mid_feet_y);
+		//cp_ref_.global.x.fill(mid_feet_x);
+		//cp_ref_.global.y.fill(mid_feet_y);
 		vel_ref_.global.x.fill(0.);
 		vel_ref_.global.y.fill(0.);
 
