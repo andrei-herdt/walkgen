@@ -46,7 +46,7 @@ enum Axis { X, Y, Z, Yaw };
 
 enum SystemOrder { FIRST_ORDER = 1, SECOND_ORDER = 2, THIRD_ORDER = 3 };
 
-enum Mode { INITIAL = 0, STANDING = 1, WALK = 2 };
+enum Mode { INITIAL, WALK, STOP};
 
 enum Formulation {
 	STANDARD = 0,			//State is directly the state of the particle
@@ -218,6 +218,8 @@ struct MPC_WALKGEN_API MPCParameters {
 	bool is_ineq_constr;				// Turns on all inequality constraints
 	bool is_terminal_constr;			// Turns on terminal constraints
 	bool problem_dumping;				// Optimization program is written to file before being solved
+
+	Mode walking_mode;	//TODO: Replace this.
 
 	SystemOrder dynamics_order;
 

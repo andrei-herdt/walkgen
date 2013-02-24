@@ -360,21 +360,23 @@ void Walkgen::SetWalkingMode() {
 		vel_ref_.local.yaw.fill(0);
 	}
 
-
 	// Set active walking mode:
 	// ------------------------
 	if (fabs(vel_ref_.local.yaw(0)) < kEps && fabs(vel_ref_.local.x(0)) < kEps && fabs(vel_ref_.local.y(0)) < kEps) {
 		if (mpc_parameters_.penalties.is_initial_mode) {
-			mpc_parameters_.penalties.active_mode = 1;
+			mpc_parameters_.penalties.active_mode 	= 1;
+			mpc_parameters_.walking_mode 			= INITIAL;
 		} else {
-			mpc_parameters_.penalties.active_mode = 1;
+			mpc_parameters_.penalties.active_mode 	= 0;
+			mpc_parameters_.walking_mode 			= STOP;
 		}
 	} else {
-		mpc_parameters_.penalties.active_mode = 0;
-		mpc_parameters_.penalties.is_initial_mode = false;
+		mpc_parameters_.penalties.active_mode 		= 0;
+		mpc_parameters_.penalties.is_initial_mode 	= false;
+		mpc_parameters_.walking_mode 				= WALK;
 	}
 
-	if (solution_.support_states_vec.front().phase == DS) {
+	if (solution_.support_states_vec.front().phase == DS && mpc_parameters_.walking_mode == STOP) {
 		double mid_feet_x = (robot_.left_foot()->state().x[0] + robot_.right_foot()->state().x[0]) / 2.;
 		double mid_feet_y = (robot_.left_foot()->state().y[0] + robot_.right_foot()->state().y[0]) / 2.;
 		//pos_ref_.global.x.fill(mid_feet_x);

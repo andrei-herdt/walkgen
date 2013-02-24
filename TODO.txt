@@ -1,3 +1,0 @@
-The first solution is zero, which can cause problems.
-
-Uninitialized values exist that cause warnings in valgrid.

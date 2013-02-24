@@ -481,18 +481,25 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	gradient_vec_x += curr_cop_variant_[matrix_num] * zx_cur;
 	gradient_vec_y += curr_cop_variant_[matrix_num] * zy_cur;
 
+	// Offset from the ankle to the support center for CoP centering:
+	// --------------------------------------------------------------
 	if (solution.support_states_vec.front().phase == DS) {
-		// Offset from the ankle to the foot center for CoP centering:
-		// -----------------------------------------------------------
-		double pos_diff_x = fabs(robot_->left_foot()->state().x(0) - robot_->right_foot()->state().x(0)) / 2.;
-		double pos_diff_y = fabs(robot_->left_foot()->state().y(0) - robot_->right_foot()->state().y(0)) / 2.;
 		tmp_vec_ = CommonVectorType::Ones(num_samples + num_unst_modes);
-		if (solution.support_states_vec.front().foot == LEFT) {//TODO: Guess what...
-			gradient_vec_x += pos_diff_x * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
-			gradient_vec_y += pos_diff_y * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
-		} else {
-			gradient_vec_x += pos_diff_x * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
-			gradient_vec_y -= pos_diff_y * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
+		if (mpc_parameters_->walking_mode == INITIAL) {
+			//double pos_diff_x = pos_ref_->local.x[0] - solution.support_states_vec.front().x;//TODO: pos_ref_->local not updated
+			//double pos_diff_y = pos_ref_->local.y[0] - solution.support_states_vec.front().y;//TODO: support_states_vec.front().x/y not updated
+			//gradient_vec_x += pos_diff_x * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
+			//gradient_vec_y += pos_diff_y * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
+		} else if (mpc_parameters_->walking_mode == STOP) {
+			double pos_diff_x = fabs(robot_->left_foot()->state().x(0) - robot_->right_foot()->state().x(0)) / 2.;
+			double pos_diff_y = fabs(robot_->left_foot()->state().y(0) - robot_->right_foot()->state().y(0)) / 2.;
+			if (solution.support_states_vec.front().foot == LEFT) {//TODO: Guess what...
+				gradient_vec_x += pos_diff_x * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
+				gradient_vec_y += pos_diff_y * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
+			} else {
+				gradient_vec_x += pos_diff_x * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
+				gradient_vec_y -= pos_diff_y * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
+			}
 		}
 	}
 
@@ -561,20 +568,20 @@ void QPBuilder::BuildCPEqConstraints(const MPCSolution &solution) {
 	solver_->num_eq_constr(num_eq_constr + 2);
 
 	const BodyState &com = robot_->com()->state();
-		CommonMatrixType state_x = CommonMatrixType::Zero(mpc_parameters_->dynamics_order - num_st_modes, 1);
+	CommonMatrixType state_x = CommonMatrixType::Zero(mpc_parameters_->dynamics_order - num_st_modes, 1);
 	CommonMatrixType state_y = CommonMatrixType::Zero(mpc_parameters_->dynamics_order - num_st_modes, 1);
-		Matrix2D state_trans_mat = Matrix2D::Zero();
-		state_trans_mat(0, 0) = 1.;
-		state_trans_mat(0, 1) = -1. / sqrt(kGravity / com.z[0]);
-		state_trans_mat(1, 0) = 1.;
-		state_trans_mat(1, 1) = 1. / sqrt(kGravity / com.z[0]);
-		tmp_mat_ = state_trans_mat * com.x.head(mpc_parameters_->dynamics_order);
-		tmp_mat2_ = state_trans_mat * com.y.head(mpc_parameters_->dynamics_order);
+	Matrix2D state_trans_mat = Matrix2D::Zero();
+	state_trans_mat(0, 0) = 1.;
+	state_trans_mat(0, 1) = -1. / sqrt(kGravity / com.z[0]);
+	state_trans_mat(1, 0) = 1.;
+	state_trans_mat(1, 1) = 1. / sqrt(kGravity / com.z[0]);
+	tmp_mat_ = state_trans_mat * com.x.head(mpc_parameters_->dynamics_order);
+	tmp_mat2_ = state_trans_mat * com.y.head(mpc_parameters_->dynamics_order);
 
-		for (int i = num_st_modes; i < num_st_modes + num_unst_modes; i++) {
-			state_x(i - num_st_modes, 0) = tmp_mat_(i, 0);
-			state_y(i - num_st_modes, 0) = tmp_mat2_(i, 0);
-		}
+	for (int i = num_st_modes; i < num_st_modes + num_unst_modes; i++) {
+		state_x(i - num_st_modes, 0) = tmp_mat_(i, 0);
+		state_y(i - num_st_modes, 0) = tmp_mat2_(i, 0);
+	}
 
 	const SelectionMatrices &select_mats = preview_->selection_matrices();
 
