@@ -581,7 +581,10 @@ void QPBuilder::BuildCPEqConstraints(const MPCSolution &solution) {
 	// Build equality constraints for the unstable modes at end of horizon:
 	// --------------------------------------------------------------------
 	// Choose the precomputed element depending on the period until next sample
-	int samples_left = mpc_parameters_->GetMPCSamplesLeft(solution.sampling_times_vec[1] - solution.sampling_times_vec[0]);
+	double first_sampling_time = solution.sampling_times_vec[1];
+	double curr_sampling_time = solution.sampling_times_vec[0];
+	int samples_left = mpc_parameters_->GetMPCSamplesLeft(first_sampling_time - curr_sampling_time);
+
 	const LinearDynamics &dyn = robot_->com()->dynamics_qp()[samples_left];
 
 	CommonVectorType atimesb_vec(num_samples);
