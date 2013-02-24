@@ -172,9 +172,11 @@ static void mdlStart(SimStruct *S) {
 
 	Walkgen *walk = new Walkgen;
 	if (is_debug_in) {
-		walk->clock().ReserveMemory(20, 1000);
+		walk->clock().ReserveMemory(20, 2000);
 		walk->clock().GetFrequency(100);
 	}
+	walk->clock().ReserveMemory(20, 3000);
+	walk->clock().GetFrequency(100);
 
 	walk->Init(mpc_parameters);
 
@@ -321,9 +323,9 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 	// ---------------
 	double curr_time = ssGetT(S);
 	walk->clock().ResetLocal();
-	//int time_online = walk->clock().StartCounter();
+	int time_online = walk->clock().StartCounter();
 	const MPCSolution &solution = walk->Go(curr_time);
-	//walk->clock().StopCounter(time_online);
+	walk->clock().StopCounter(time_online);
 
 	// Assign to the output:
 	// ---------------------
@@ -453,6 +455,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 
 static void mdlTerminate(SimStruct *S) {
 	Walkgen *walk = static_cast<Walkgen *>(ssGetPWork(S)[0]);
+	Debug::Cout("Distribution of ticks", walk->clock().ticks_distr_vec());
 	delete walk;
 }
 
