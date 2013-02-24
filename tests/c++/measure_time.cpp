@@ -30,7 +30,7 @@ int main() {
 	mpc_parameters.interpolate_whole_horizon    = false;
 	mpc_parameters.solver.analysis              = false;
 	mpc_parameters.problem_dumping		      	= false;
-	mpc_parameters.solver.name                  = QPOASES;
+	mpc_parameters.solver.name                  = QLD;
 	mpc_parameters.solver.num_wsrec             = 2;
 	mpc_parameters.dynamics_order               = SECOND_ORDER;
 	mpc_parameters.formulation		      		= DECOUPLED_MODES;
@@ -147,10 +147,9 @@ int main() {
 	walk.clock().ResetLocal();
 	walk.clock().ReserveMemory(20, 3000);
 	for (; curr_time < 10.; curr_time += sample_period_act) {
-		//int online_timer = walk.clock().StartCounter();
+		int online_timer = walk.clock().StartCounter();
 		const MPCSolution &solution = walk.Go(curr_time);
-		//walk.clock().StopLastCounter();
-		//walk.clock().StopCounter(online_timer);
+		walk.clock().StopCounter(online_timer);
 		walk.clock().ResetLocal();
 		num_iterations++;
 	}
