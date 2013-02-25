@@ -12,7 +12,7 @@ using namespace std;
 
 QPBuilder::QPBuilder(HeuristicPreview *preview, QPSolver *solver,
 		Reference *pos_ref, Reference *vel_ref, Reference *cp_ref, RigidBodySystem *robot, MPCParameters *mpc_parameters,
-		RealClock *clock)
+		RealClock *clock, double *last_des_cop_x, double *last_des_cop_y)
 :preview_(preview)
 ,solver_(solver)
 ,robot_(robot)
@@ -26,6 +26,8 @@ QPBuilder::QPBuilder(HeuristicPreview *preview, QPSolver *solver,
 ,tmp_mat2_(1,1)
 ,current_time_(0.)
 ,clock_(clock)
+,last_des_cop_x_(last_des_cop_x)
+,last_des_cop_y_(last_des_cop_y)
 {}
 
 QPBuilder::~QPBuilder() {}
@@ -364,55 +366,9 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 		state_y = com.y.head(mpc_parameters_->dynamics_order);
 	}
 
-	// PID mode:
-	// ---------
-	double qx_d;
-	double qy_d;
-	if (mpc_parameters_->is_pid_mode) {
-		const LinearDynamics &dyn = robot_->com()->dynamics_qp()[samples_left];
-
-		double omega = sqrt(kGravity / com.z[0]);
-		double kd = 1. / (1. - exp(omega * 0.06));
-
-		// qx = - r*K*x / (BT*CT*C*A*x - BTCTCB*K*x)
-		CommonMatrixType qx = -dyn.discr_ss.ss_output_mat * state_x;	//Capture point
-		qx *= (1. - kd);
-		qx_d = qx(0);
-		CommonMatrixType bccax = dyn.discr_ss.c_input_mat_tr * dyn.discr_ss.ss_output_mat_tr *
-				dyn.discr_ss.ss_output_mat * dyn.discr_ss.c_state_mat * state_x;
-		CommonMatrixType bccbkx = dyn.discr_ss.c_input_mat_tr * dyn.discr_ss.ss_output_mat_tr *
-				dyn.discr_ss.ss_output_mat * dyn.discr_ss.c_input_mat * (1. - kd) * dyn.discr_ss.ss_output_mat * state_x;
-		qx_d /= (bccax(0) + bccbkx(0));
-
-		// qy = - r*(1-kd)*C*y / (BT*CT*C*A*y - BTCTCB*K*y)
-		CommonMatrixType qy = -(1. - kd) * dyn.discr_ss.ss_output_mat * state_y;
-		qy_d = qy(0);
-		CommonMatrixType bccay = dyn.discr_ss.c_input_mat_tr * dyn.discr_ss.ss_output_mat_tr *
-				dyn.discr_ss.ss_output_mat * dyn.discr_ss.c_state_mat * state_y;
-		CommonMatrixType bccbky = dyn.discr_ss.c_input_mat_tr * dyn.discr_ss.ss_output_mat_tr *
-				dyn.discr_ss.ss_output_mat * dyn.discr_ss.c_input_mat * (1. - kd) * dyn.discr_ss.ss_output_mat * state_y;
-		qy_d /= (bccay(0) + bccbky(0));
-	}
-
 	if (!solver_->do_build_cholesky()) {//TODO: This part is the most costly >50%
-		if (mpc_parameters_->is_pid_mode) {
-			// H = H - (1-q)*B^TC^TCB
-			CommonMatrixType identity_mat = CommonMatrixType::Identity(num_samples, num_samples);
-
-			CommonMatrixType hessian_x = const_hessian_n_mat_[matrix_num];
-			hessian_x -= identity_mat;
-			hessian_x *= qx_d;
-			hessian_x += identity_mat;
-			CommonMatrixType hessian_y = const_hessian_n_mat_[matrix_num];
-			hessian_y -= identity_mat;
-			hessian_y *= qy_d;
-			hessian_y += identity_mat;
-			hessian.AddTerm(hessian_x, 0, 0);
-			hessian.AddTerm(hessian_y, num_samples, num_samples);
-		} else {
-			hessian.AddTerm(const_hessian_n_mat_[matrix_num], 0, 0);
-			hessian.AddTerm(const_hessian_n_mat_[matrix_num], num_samples + num_unst_modes, num_samples + num_unst_modes);
-		}
+		hessian.AddTerm(const_hessian_n_mat_[matrix_num], 0, 0);
+		hessian.AddTerm(const_hessian_n_mat_[matrix_num], num_samples + num_unst_modes, num_samples + num_unst_modes);
 
 		//TODO: Unstable modes - adapt rotation
 		//CommonMatrixType hessian_mat = hessian().block(0, 0, 2 * num_samples, 2 * num_samples);
@@ -476,10 +432,10 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	gradient_vec_x += ref_variant_cp_[matrix_num] * cp_ref_->global.x;
 	gradient_vec_y += ref_variant_cp_[matrix_num] * cp_ref_->global.y;
 
-	double zx_cur = com.x(0) - com.z(0)/kGravity*com.x(2);
-	double zy_cur = com.y(0) - com.z(0)/kGravity*com.y(2);
-	gradient_vec_x += curr_cop_variant_[matrix_num] * zx_cur;
-	gradient_vec_y += curr_cop_variant_[matrix_num] * zy_cur;
+	//double zx_cur = com.x(0) - com.z(0)/kGravity*com.x(2);
+	//double zy_cur = com.y(0) - com.z(0)/kGravity*com.y(2);
+	gradient_vec_x += curr_cop_variant_[matrix_num] * *last_des_cop_x_;
+	gradient_vec_y += curr_cop_variant_[matrix_num] * *last_des_cop_y_;
 
 	// Offset from the ankle to the support center for CoP centering:
 	// --------------------------------------------------------------
@@ -508,11 +464,6 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 		solver_->objective_vec().Add(tmp_vec_, 2*(num_samples + num_unst_modes));
 		tmp_vec_.noalias() = select_mats.sample_step_trans * gradient_vec_y.head(num_samples);
 		solver_->objective_vec().Add(tmp_vec_, 2*(num_samples + num_unst_modes) + num_steps_previewed);
-	}
-
-	if (mpc_parameters_->is_pid_mode) {
-		gradient_vec_x *= qx_d;
-		gradient_vec_y *= qy_d;
 	}
 
 	gradient_vec << gradient_vec_x, gradient_vec_y; //TODO: Unnecessary if rot_mat half the size

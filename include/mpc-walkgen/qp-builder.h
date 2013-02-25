@@ -21,7 +21,9 @@ public:
 			Reference *cp_ref,
 			RigidBodySystem *robot,
 			MPCParameters *mpc_parameters,
-			RealClock *clock
+			RealClock *clock,
+			double *last_des_cop_x,
+			double *last_des_cop_y
 			);
 	~QPBuilder();
 
@@ -83,6 +85,8 @@ private:
 	double current_time_;
 
 	RealClock *clock_;
+
+	double *last_des_cop_x_, *last_des_cop_y_;
 
 	RelativeInequalities foot_inequalities_;
 

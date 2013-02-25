@@ -20,7 +20,9 @@ Walkgen::Walkgen()
 ,first_sample_time_(0)
 ,next_computation_(0)
 ,next_act_sample_(0)
-,current_time_(0) {
+,current_time_(0)
+,last_des_cop_x_(0)
+,last_des_cop_y_(0) {
 	orient_preview_ = new OrientationsPreview();
 }
 
@@ -103,7 +105,8 @@ void Walkgen::Init(MPCParameters &mpc_parameters) {
 
 	preview_ = new HeuristicPreview(&vel_ref_, &robot_, &mpc_parameters_, &clock_);
 
-	builder_= new QPBuilder(preview_, solver_, &pos_ref_, &vel_ref_, &cp_ref_, &robot_, &mpc_parameters_, &clock_);
+	builder_= new QPBuilder(preview_, solver_, &pos_ref_, &vel_ref_, &cp_ref_,
+			&robot_, &mpc_parameters_, &clock_, &last_des_cop_x_, &last_des_cop_y_);
 
 	if (mpc_parameters_.init_com_height > kEps) {
 		robot_.com()->state().z[0] = mpc_parameters_.init_com_height;
@@ -120,6 +123,10 @@ void Walkgen::Init(MPCParameters &mpc_parameters) {
 void Walkgen::Init(const RobotData &robot_data) {
 	robot_data_ = robot_data;
 	robot_.Init(robot_data_);
+
+	last_des_cop_x_ = robot_data_.com[0];
+	last_des_cop_y_ = robot_data_.com[1];
+
 	Init();
 }
 
@@ -282,6 +289,8 @@ void Walkgen::UpdateOutput() {
 
 	output_.cop.x = solution_.com_act.cop.x_vec[output_index_];
 	output_.cop.y = solution_.com_act.cop.y_vec[output_index_];
+	last_des_cop_x_ = output_.cop.x;
+	last_des_cop_y_ = output_.cop.y;
 
 	output_.left_foot.x 	= robot_.left_foot()->motion_act().pos.x_vec[output_index_];
 	output_.left_foot.y 	= robot_.left_foot()->motion_act().pos.y_vec[output_index_];

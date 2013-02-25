@@ -99,6 +99,8 @@ private:
 
 	/// \brief Synchronised time with QP sampling
 	double current_time_;
+
+	double last_des_cop_x_, last_des_cop_y_;
 };
 }
 
