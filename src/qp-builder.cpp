@@ -446,7 +446,7 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 			//double pos_diff_y = pos_ref_->local.y[0] - solution.support_states_vec.front().y;//TODO: support_states_vec.front().x/y not updated
 			//gradient_vec_x += pos_diff_x * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
 			//gradient_vec_y += pos_diff_y * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
-		} else if (mpc_parameters_->walking_mode == STOP) {
+		} else if (mpc_parameters_->walking_mode == INITIAL) {
 			double pos_diff_x = fabs(robot_->left_foot()->state().x(0) - robot_->right_foot()->state().x(0)) / 2.;
 			double pos_diff_y = fabs(robot_->left_foot()->state().y(0) - robot_->right_foot()->state().y(0)) / 2.;
 			if (solution.support_states_vec.front().foot == LEFT) {//TODO: Guess what...
