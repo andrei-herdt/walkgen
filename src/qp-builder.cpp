@@ -123,8 +123,15 @@ void QPBuilder::PrecomputeObjective() {
 			hessian_mat +=  mpc_parameters_->penalties.pos[mode_num] * tmp_mat_;
 			// Q += epsilon*Uz^(-T)*Uxi^T*Uxi*Uz^(-1)
 			//tmp_mat_.noalias() = cop_dyn.input_mat_inv_tr * cp_dyn.input_mat_tr * cp_dyn.input_mat * cop_dyn.input_mat_inv;
-			tmp_mat_.noalias() = cp_dyn.input_mat_tr * cp_dyn.input_mat;
-			hessian_mat +=  mpc_parameters_->penalties.cp[mode_num] * tmp_mat_;
+
+			CommonMatrixType cp_pen_mat = CommonMatrixType::Identity(num_samples + num_unst_modes, num_samples + num_unst_modes) * mpc_parameters_->penalties.cp[mode_num];
+			if (mpc_parameters_->formulation == DECOUPLED_MODES) {
+				cp_pen_mat(num_samples, num_samples) = 0.;	// CP variable
+			}
+			cp_pen_mat(0, 0) = mpc_parameters_->penalties.cp[mode_num] * first_period / mpc_parameters_->period_qpsample;
+
+			tmp_mat_.noalias() = cp_dyn.input_mat_tr * cp_pen_mat * cp_dyn.input_mat;
+			hessian_mat +=  tmp_mat_;
 
 			// Q += gamma*I
 			contr_val_pen_mat_vec_[mat_num] = CommonMatrixType::Identity(num_samples + num_unst_modes, num_samples + num_unst_modes) * mpc_parameters_->penalties.cop[mode_num];
@@ -154,7 +161,7 @@ void QPBuilder::PrecomputeObjective() {
 			//tmp_mat_.noalias() = cp_dyn.state_mat - cp_dyn.input_mat * cop_dyn.input_mat_inv * cop_dyn.state_mat;
 			//state_variant_[mat_num] += cop_dyn.input_mat_inv_tr * cp_dyn.input_mat_tr * mpc_parameters_->weights.cp[mode_num] * tmp_mat_;
 			tmp_mat_.noalias() = cp_dyn.state_mat;//New - cp_dyn.input_mat * cop_dyn.state_mat;
-			state_variant_[mat_num] += cp_dyn.input_mat_tr * mpc_parameters_->penalties.cp[mode_num] * tmp_mat_;
+			state_variant_[mat_num] += cp_dyn.input_mat_tr * cp_pen_mat.block(0, 0, num_samples, num_samples) * tmp_mat_;
 
 
 			// - alpha*Uz^(-T)*Uz^(-1)*Sz
@@ -172,7 +179,7 @@ void QPBuilder::PrecomputeObjective() {
 			select_variant_[mat_num] += pos_dyn.input_mat_tr * mpc_parameters_->penalties.pos[mode_num] * pos_dyn.input_mat.block(0, 0, num_samples, num_samples);
 			// epsilon*Uz^(-T)*Uxi^T*Uxi*Uz^(-1)
 			//select_variant_[mat_num] += cop_dyn.input_mat_inv_tr * cp_dyn.input_mat_tr * mpc_parameters_->weights.cp[mode_num] * cp_dyn.input_mat * cop_dyn.input_mat_inv;
-			select_variant_[mat_num] += cp_dyn.input_mat_tr * mpc_parameters_->penalties.cp[mode_num] * cp_dyn.input_mat.block(0, 0, num_samples, num_samples);
+			select_variant_[mat_num] += cp_dyn.input_mat_tr * cp_pen_mat.block(0, 0, num_samples, num_samples) * cp_dyn.input_mat.block(0, 0, num_samples, num_samples);
 			// + r*theta^(T)*theta^T
 			select_variant_[mat_num] += contr_mov_mat_tr.block(0, 0, num_samples + num_unst_modes, num_samples) * contr_mov_pen_mat.block(0, 0, num_samples, num_samples) * contr_mov_mat.block(0, 0, num_samples, num_samples);
 			// - beta*Uz^(-T)*Uv^T
@@ -183,7 +190,7 @@ void QPBuilder::PrecomputeObjective() {
 			ref_variant_pos_[mat_num] = -pos_dyn.input_mat_tr * mpc_parameters_->penalties.pos[mode_num];
 			// - epsilon*Uz^(-T)*Uxi^T
 			//ref_variant_cp_[mat_num] = -cop_dyn.input_mat_inv_tr * cp_dyn.input_mat_tr * mpc_parameters_->weights.cp[mode_num];
-			ref_variant_cp_[mat_num] = - cp_dyn.input_mat_tr * mpc_parameters_->penalties.cp[mode_num];
+			ref_variant_cp_[mat_num] = - cp_dyn.input_mat_tr * cp_pen_mat.block(0, 0, num_samples, num_samples);
 
 			CommonVectorType e_vec = CommonVectorType::Zero(num_samples);
 			e_vec(0) = 1.;
@@ -413,6 +420,11 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 		//RTimesM(upp_triang_mat, rot_mat2);
 		//hessian().block(0, 2 * num_samples, 2 * num_samples, 2 * num_steps_previewed) = upp_triang_mat;
 	}
+
+	//CommonMatrixType inv_hessian = hessian().block(0, 0, num_samples, num_samples).inverse();
+	//CommonMatrixType gains_mat = - inv_hessian * (state_variant_[matrix_num] /* + curr_cop_variant_[matrix_num] * *last_des_cop_x_*/);
+	//double gain_cp = gains_mat(0,0) + gains_mat(0, 1) * 1. / sqrt(kGravity / com.z[0]);
+	//Debug::Disp("gain", gain_cp);
 
 	CommonVectorType gradient_vec_x(num_samples + num_unst_modes),
 			gradient_vec_y(num_samples + num_unst_modes),
@@ -756,7 +768,10 @@ void QPBuilder::BuildFootVelIneqConstraints(const MPCSolution &solution) {
 
 void QPBuilder::BuildCoPIneqConstraints(const MPCSolution &solution) {
 	int num_samples = mpc_parameters_->num_samples_horizon;
-	int num_modes = 1;//TODO: Define outside
+	int num_unst_modes = 0;//TODO: Define outside
+	if (mpc_parameters_->formulation == DECOUPLED_MODES) {
+		num_unst_modes = 1;
+	}
 	std::vector<SupportState>::const_iterator ss_it = solution.support_states_vec.begin();
 
 	robot_->GetConvexHull(hull_, COP_HULL, *ss_it);
@@ -781,18 +796,35 @@ void QPBuilder::BuildCoPIneqConstraints(const MPCSolution &solution) {
 	double next_ds_phase = ss_it->time_limit - mpc_parameters_->period_qpsample;
 	double lift_off_margin = ss_it->start_time + mpc_parameters_->period_qpsample;
 
+	// Has half of ds phase passed?
+	std::vector<double>::const_iterator st_it = solution.sampling_times_vec.begin();
+	bool is_ds_phase = false;
+	if (next_ds_phase <= *st_it) {
+		is_ds_phase = true;
+	}
+	bool is_half_ds_passed = false;
+	if (ss_it->time_limit - *st_it < mpc_parameters_->period_qpsample / 2.) {
+		is_half_ds_passed = true;
+	}
+
 	// Compose bounds vector:
 	// ----------------------
-	std::vector<double>::const_iterator st_it = solution.sampling_times_vec.begin();
 	++st_it; // Points at the first previewed instant
 	++ss_it; // Points at the first previewed instant
 	for (int i = 0; i < num_samples; ++i) {
-		if (*st_it < next_ds_phase + kEps && *st_it > lift_off_margin && is_ff_incontact) {
+		if ((*st_it < next_ds_phase + kEps && *st_it > lift_off_margin && is_ff_incontact) || (!is_half_ds_passed && is_ds_phase && i == 0)) {
+			// X local
 			tmp_vec_(i)  = -kInf;
 			tmp_vec2_(i) = kInf;
 
-			tmp_vec_(num_samples + i) = -kInf;
-			tmp_vec2_(num_samples + i)= kInf;
+			// Y local
+			if (ss_it->foot == LEFT) {
+				tmp_vec_(num_samples + i) = -kInf;
+				tmp_vec2_(num_samples + i)= max(hull_.y_vec(0), hull_.y_vec(1));
+			} else {
+				tmp_vec_(num_samples + i) = min(hull_.y_vec(0), hull_.y_vec(1));
+				tmp_vec2_(num_samples + i)= kInf;
+			}
 			++ss_it;
 			++st_it;
 		} else {
@@ -815,10 +847,9 @@ void QPBuilder::BuildCoPIneqConstraints(const MPCSolution &solution) {
 	solver_->lv_bounds_vec().Set(tmp_vec_.head(num_samples), first_row);
 	solver_->uv_bounds_vec().Set(tmp_vec2_.head(num_samples), first_row);
 	// Y:
-	first_row = num_samples + num_modes;
+	first_row = num_samples + num_unst_modes;
 	solver_->lv_bounds_vec().Set(tmp_vec_.segment(num_samples, num_samples), first_row);
 	solver_->uv_bounds_vec().Set(tmp_vec2_.segment(num_samples, num_samples), first_row);
-
 }
 
 void QPBuilder::BuildTerminalConstraints(const MPCSolution &solution) {

@@ -238,6 +238,22 @@ void Walkgen::BuildProblem() {
 
 	preview_->PreviewSupportStates(first_sampling_period, solution_);
 
+	double cp_offset = 0.05;
+	for (int i = 0; i < mpc_parameters_.num_samples_horizon; i++) {
+		if (solution_.support_states_vec[i + 1].phase == SS) {
+			if (solution_.support_states_vec[i + 1].foot == LEFT) {
+				cp_ref_.global.x[i] = robot_data_.left_foot.position[0];
+				cp_ref_.global.y[i] = robot_data_.left_foot.position[1] - cp_offset;
+			} else if (solution_.support_states_vec[i + 1].foot == RIGHT) {
+				cp_ref_.global.x[i] = robot_data_.right_foot.position[0];
+				cp_ref_.global.y[i] = robot_data_.right_foot.position[1] + cp_offset;
+			}
+		}
+	}
+
+	//Debug::Cout("cp_ref_.gloval.x", cp_ref_.global.x);
+	//Debug::Cout("cp_ref_.gloval.y", cp_ref_.global.y);
+
 	orient_preview_->preview_orientations( current_time_, vel_ref_,
 			mpc_parameters_.num_samples_step * mpc_parameters_.period_qpsample, robot_.left_foot()->state(),
 			robot_.right_foot()->state(), solution_ );

@@ -284,6 +284,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 		robot_data.max_foot_height = kMaxFootHeight;
 
 		walk->SetVelReference(0.0, 0.0, 0.0);
+		walk->SetCPReference(*com_in[0], *com_in[1]);
 		walk->Init(robot_data);
 		RigidBodySystem *robot = walk->robot();
 		robot->com()->state().x[0] = *com_in[0];
@@ -298,7 +299,6 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 
 		ssSetIWorkValue(S, 0, 1);//Is initialized
 
-		walk->SetCPReference(*com_in[0], *com_in[1]);
 	} // End of initialization
 
 	// INPUT:
