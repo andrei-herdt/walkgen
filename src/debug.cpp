@@ -3,7 +3,7 @@
 using namespace std;
 
 void Debug::Disp(const char *string) {
-	cout << string << std::endl;
+	printf(string, "\n");
 }
 
 void Debug::Disp(const char *name, bool val) {

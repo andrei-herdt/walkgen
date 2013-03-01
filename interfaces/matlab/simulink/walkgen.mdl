@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.921"
+    ComputedModelVersion    "1.923"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Wed Feb 27 13:27:20 2013"
+  LastModifiedDate	  "Fri Mar 01 11:16:28 2013"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:921>"
+  ModelVersionFormat	  "1.%<AutoIncrement:923>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -671,7 +671,7 @@ Model {
   System {
     Name		    "walkgen"
     Location		    [850, 74, 1125, 375]
-    Open		    off
+    Open		    on
     ModelBrowserVisibility  off
     ModelBrowserWidth	    200
     ScreenColor		    "white"
@@ -704,7 +704,7 @@ Model {
       System {
 	Name			"Simulation"
 	Location		[850, 74, 1594, 876]
-	Open			on
+	Open			off
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
 	ScreenColor		"white"
@@ -745,7 +745,7 @@ Model {
 	  MaskIconOpaque	  on
 	  MaskIconRotate	  "none"
 	  MaskIconUnits		  "autoscale"
-	  MaskValueString	  "16|[0, 0]|[0, 0]|[1, 1]|[0.1, 0.1]|[0, 0]|0|8|8|2|0.1|0.005|0.005|0.02|100|2|0|0|0|1|0|0|0|0|100|1.6|0.9"
+	  MaskValueString	  "16|[0, 0]|[0, 0]|[1, 1]|[1, 1]|[1, 1]|1|8|8|2|0.1|0.005|0.005|0.02|100|2|0|0|0|1|0|0|0|0|100|1.6|0.9"
 	  MaskTabNameString	  ",,,,,,,,,,,,,,,,,,,,,,,,,,"
 	  System {
 	    Name		    "Atomic Walkgen"
@@ -1886,7 +1886,7 @@ Model {
 	      ShowName		      off
 	      FontName		      "Arial"
 	      FontSize		      8
-	      Value		      "[0.0, 0]"
+	      Value		      "[0.0, 0.11]"
 	      OutDataType	      "sfix(16)"
 	      OutScaling	      "2^0"
 	    }
@@ -2807,7 +2807,7 @@ Model {
 	      RTWMemSecDataConstants  "Inherit from model"
 	      RTWMemSecDataInternal   "Inherit from model"
 	      RTWMemSecDataParameters "Inherit from model"
-	      sw		      "1"
+	      sw		      "0"
 	      action		      "0"
 	      varsize		      off
 	    }

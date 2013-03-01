@@ -41,16 +41,16 @@ int main() {
 
 	mpc_parameters.penalties.pos[0] 			= 0.;
 	mpc_parameters.penalties.vel[0]  			= 0.;
-	mpc_parameters.penalties.cop[0]  			= 10.;//0.00001;
-	mpc_parameters.penalties.cp[0] 			= 1.;
-	mpc_parameters.penalties.contr_moves[0] 	= 1.;
-	mpc_parameters.penalties.first_contr_move 	= 1.;
+	mpc_parameters.penalties.cop[0]  			= 1.;//0.00001;
+	mpc_parameters.penalties.cp[0] 			= 10.;
+	mpc_parameters.penalties.contr_moves[0] 	= 1;
+	mpc_parameters.penalties.first_contr_move 	= 1;
 
 	mpc_parameters.penalties.pos[1] 		= 0.;
 	mpc_parameters.penalties.vel[1]  		= 0.;
-	mpc_parameters.penalties.cop[1]  		= 10.;//1.;
-	mpc_parameters.penalties.cp[1] 			= 1.;
-	mpc_parameters.penalties.contr_moves[1] 	= 1.;
+	mpc_parameters.penalties.cop[1]  		= 1.;//1.;
+	mpc_parameters.penalties.cp[1] 			= 10.;
+	mpc_parameters.penalties.contr_moves[1] 	= 0.;
 
 	mpc_parameters.init_com_height 			= 0.9;
 
@@ -127,7 +127,7 @@ int main() {
 	walk.clock().ReserveMemory(20, 1000);
 
 	walk.clock().ResetLocal();
-	for (; curr_time < 3.; curr_time += sample_period_act) {
+	for (; curr_time < 2.; curr_time += sample_period_act) {
 		//int online_timer = walk.clock().StartCounter();
 		//std::cout << std::endl;
 		//std::cout << std::endl;

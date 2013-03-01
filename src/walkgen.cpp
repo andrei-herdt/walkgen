@@ -238,24 +238,24 @@ void Walkgen::BuildProblem() {
 
 	preview_->PreviewSupportStates(first_sampling_period, solution_);
 
-	double cp_offset = 0.05;
+	// Modify capture point reference:
+	// -------------------------------
+
+	double cp_offset_y = 0.07;
 	for (int i = 0; i < mpc_parameters_.num_samples_horizon -1 ; i++) {
 		if (solution_.support_states_vec[i + 1].phase == SS) {
 			if ((solution_.support_states_vec[i + 1].foot == LEFT && solution_.support_states_vec[i + 2].foot != RIGHT)
 					|| (solution_.support_states_vec[i+1].foot == RIGHT && solution_.support_states_vec[i+2].foot == LEFT)) {
-				cp_ref_.global.x[i] = robot_data_.left_foot.position[0];
-				cp_ref_.global.y[i] = robot_data_.left_foot.position[1] - cp_offset;
+				//cp_ref_.global.x[i] = robot_data_.left_foot.position[0];
+				cp_ref_.global.y[i] += /*robot_data_.left_foot.position[1] - */ cp_offset_y;
 			} else if ((solution_.support_states_vec[i + 1].foot == RIGHT && solution_.support_states_vec[i + 2].foot != LEFT)
 					|| (solution_.support_states_vec[i+1].foot == LEFT && solution_.support_states_vec[i+2].foot == RIGHT)) {
-				cp_ref_.global.x[i] = robot_data_.right_foot.position[0];
-				cp_ref_.global.y[i] = robot_data_.right_foot.position[1] + cp_offset;
+				//cp_ref_.global.x[i] = robot_data_.right_foot.position[0];
+				cp_ref_.global.y[i] -= /*robot_data_.right_foot.position[1] + */ cp_offset_y;
 			}
 		}
-
-
-
-
 	}
+
 
 	//Debug::Cout("cp_ref_.gloval.x", cp_ref_.global.x);
 	//Debug::Cout("cp_ref_.gloval.y", cp_ref_.global.y);
@@ -410,10 +410,10 @@ void Walkgen::SetWalkingMode() {
 	if (solution_.support_states_vec.front().phase == DS && mpc_parameters_.walking_mode == STOP) {
 		double mid_feet_x = (robot_.left_foot()->state().x[0] + robot_.right_foot()->state().x[0]) / 2.;
 		double mid_feet_y = (robot_.left_foot()->state().y[0] + robot_.right_foot()->state().y[0]) / 2.;
-		//pos_ref_.global.x.fill(mid_feet_x);
-		//pos_ref_.global.y.fill(mid_feet_y);
-		//cp_ref_.global.x.fill(mid_feet_x);
-		//cp_ref_.global.y.fill(mid_feet_y);
+		pos_ref_.global.x.fill(mid_feet_x);
+		pos_ref_.global.y.fill(mid_feet_y);
+		cp_ref_.global.x.fill(mid_feet_x);
+		cp_ref_.global.y.fill(mid_feet_y);
 		vel_ref_.global.x.fill(0.);
 		vel_ref_.global.y.fill(0.);
 

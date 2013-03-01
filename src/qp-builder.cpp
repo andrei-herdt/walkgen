@@ -421,6 +421,8 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 		//hessian().block(0, 2 * num_samples, 2 * num_samples, 2 * num_steps_previewed) = upp_triang_mat;
 	}
 
+	// Compute gains:
+	// --------------
 	//CommonMatrixType inv_hessian = hessian().block(0, 0, num_samples, num_samples).inverse();
 	//CommonMatrixType gains_mat = - inv_hessian * (state_variant_[matrix_num] /* + curr_cop_variant_[matrix_num] * *last_des_cop_x_*/);
 	//double gain_cp = gains_mat(0,0) + gains_mat(0, 1) * 1. / sqrt(kGravity / com.z[0]);
@@ -454,19 +456,24 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	if (solution.support_states_vec.front().phase == DS) {
 		tmp_vec_ = CommonVectorType::Ones(num_samples + num_unst_modes);
 		if (mpc_parameters_->walking_mode == INITIAL) {
-			//double pos_diff_x = pos_ref_->local.x[0] - solution.support_states_vec.front().x;//TODO: pos_ref_->local not updated
-			//double pos_diff_y = pos_ref_->local.y[0] - solution.support_states_vec.front().y;//TODO: support_states_vec.front().x/y not updated
-			//gradient_vec_x += pos_diff_x * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
-			//gradient_vec_y += pos_diff_y * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
-		} else if (mpc_parameters_->walking_mode == INITIAL) {
 			double pos_diff_x = fabs(robot_->left_foot()->state().x(0) - robot_->right_foot()->state().x(0)) / 2.;
 			double pos_diff_y = fabs(robot_->left_foot()->state().y(0) - robot_->right_foot()->state().y(0)) / 2.;
 			if (solution.support_states_vec.front().foot == LEFT) {//TODO: Guess what...
 				gradient_vec_x += pos_diff_x * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
-				gradient_vec_y -= pos_diff_y * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
+				gradient_vec_y += pos_diff_y * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
 			} else {
 				gradient_vec_x += pos_diff_x * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
+				gradient_vec_y -= pos_diff_y * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
+			}
+		} else if (mpc_parameters_->walking_mode == STOP) {
+			double pos_diff_x = fabs(robot_->left_foot()->state().x(0) - robot_->right_foot()->state().x(0)) / 2.;
+			double pos_diff_y = fabs(robot_->left_foot()->state().y(0) - robot_->right_foot()->state().y(0)) / 2.;
+			if (solution.support_states_vec.front().foot == LEFT) {//TODO: Guess what...
+				gradient_vec_x += pos_diff_x * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
 				gradient_vec_y += pos_diff_y * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
+			} else {
+				gradient_vec_x += pos_diff_x * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
+				gradient_vec_y -= pos_diff_y * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
 			}
 		}
 	}
@@ -773,6 +780,7 @@ void QPBuilder::BuildCoPIneqConstraints(const MPCSolution &solution) {
 		num_unst_modes = 1;
 	}
 	std::vector<SupportState>::const_iterator ss_it = solution.support_states_vec.begin();
+	const SupportState &curr_sup = solution.support_states_vec.front();
 
 	robot_->GetConvexHull(hull_, COP_HULL, *ss_it);
 
@@ -793,35 +801,43 @@ void QPBuilder::BuildCoPIneqConstraints(const MPCSolution &solution) {
 	if (ss_it->phase == SS && ff_wrench->force_z > mpc_parameters_->ds_force_thresh) {
 		is_ff_incontact = true;
 	}
-	double next_ds_phase = ss_it->time_limit - mpc_parameters_->period_qpsample;
-	double lift_off_margin = ss_it->start_time + mpc_parameters_->period_qpsample;
+	double this_ds_phase = ss_it->time_limit - mpc_parameters_->period_qpsample;
+	double lift_off_margin = ss_it->start_time + mpc_parameters_->num_samples_step * mpc_parameters_->period_qpsample / 2.;
 
 	// Has half of ds phase passed?
 	std::vector<double>::const_iterator st_it = solution.sampling_times_vec.begin();
-	bool is_ds_phase = false;
-	if (next_ds_phase <= *st_it) {
-		is_ds_phase = true;
+	bool is_transitional_ds_phase = false;
+	if (this_ds_phase <= *st_it + mpc_parameters_->period_mpcsample / 2.) {
+		is_transitional_ds_phase = true;
 	}
 	bool is_half_ds_passed = false;
 	if (ss_it->time_limit - *st_it < mpc_parameters_->period_qpsample / 2.) {
 		is_half_ds_passed = true;
 	}
 
+	//Debug::Disp("cur_time", current_time_);
+	//Debug::Disp("is_ff_incontact", is_ff_incontact);
+	//Debug::Disp("*st_it > lift_off_margin", *st_it > lift_off_margin);
+	//Debug::Disp("!is_transitional_ds_phase", !is_transitional_ds_phase);
 	// Compose bounds vector:
 	// ----------------------
 	++st_it; // Points at the first previewed instant
 	++ss_it; // Points at the first previewed instant
 	for (int i = 0; i < num_samples; ++i) {
-		if ((*st_it < next_ds_phase + kEps && *st_it > lift_off_margin && is_ff_incontact) || (!is_half_ds_passed && is_ds_phase && i == 0)) {
+		if ((((!is_transitional_ds_phase && *st_it > lift_off_margin)) && is_ff_incontact && !ss_it->state_changed) || (!is_half_ds_passed && is_transitional_ds_phase && i == 0)) {
 			// X local
 			tmp_vec_(i)  = -kInf;
 			tmp_vec2_(i) = kInf;
 
 			// Y local
 			if (ss_it->foot == LEFT) {
+				//Debug::Disp("ss_it->foot == LEFT");
+				//Debug::Disp("max(hull_.y_vec(0), hull_.y_vec(1))", max(hull_.y_vec(0), hull_.y_vec(1)));
 				tmp_vec_(num_samples + i) = -kInf;
 				tmp_vec2_(num_samples + i)= max(hull_.y_vec(0), hull_.y_vec(1));
 			} else {
+				//Debug::Disp("ss_it->foot == RIGHT");
+				//Debug::Disp("min(hull_.y_vec(0), hull_.y_vec(1))", min(hull_.y_vec(0), hull_.y_vec(1)));
 				tmp_vec_(num_samples + i) = min(hull_.y_vec(0), hull_.y_vec(1));
 				tmp_vec2_(num_samples + i)= kInf;
 			}
