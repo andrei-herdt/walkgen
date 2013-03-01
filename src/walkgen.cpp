@@ -241,7 +241,7 @@ void Walkgen::BuildProblem() {
 	// Modify capture point reference:
 	// -------------------------------
 
-	double cp_offset_y = 0.07;
+	double cp_offset_y = 0.095;
 	for (int i = 0; i < mpc_parameters_.num_samples_horizon -1 ; i++) {
 		if (solution_.support_states_vec[i + 1].phase == SS) {
 			if ((solution_.support_states_vec[i + 1].foot == LEFT && solution_.support_states_vec[i + 2].foot != RIGHT)
