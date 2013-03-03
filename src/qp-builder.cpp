@@ -348,6 +348,7 @@ void QPBuilder::TransformControlVector(MPCSolution &solution) {
 	global_contr_x_vec.head(num_samples) += select.sample_step * feet_x_vec;
 	global_contr_y_vec.head(num_samples) += select.sample_step * feet_y_vec;
 
+	/*
 	CommonVectorType state_x(mpc_parameters_->dynamics_order), state_y(mpc_parameters_->dynamics_order);
 	if (mpc_parameters_->formulation == DECOUPLED_MODES) {
 		Matrix2D state_trans_mat = Matrix2D::Zero();
@@ -361,11 +362,12 @@ void QPBuilder::TransformControlVector(MPCSolution &solution) {
 		state_x = com.x.head(mpc_parameters_->dynamics_order);
 		state_y = com.y.head(mpc_parameters_->dynamics_order);
 	}
+	*/
 
 	//TODO(performance): Optimize this for first interpolate_whole_horizon == false
 	// Transform to com motion
 	int samples_left = mpc_parameters_->GetMPCSamplesLeft(solution.sampling_times_vec[1] - solution.sampling_times_vec[0]);
-	const LinearDynamicsMatrices &cop_dyn = robot_->com()->dynamics_qp()[samples_left].cop;
+	//const LinearDynamicsMatrices &cop_dyn = robot_->com()->dynamics_qp()[samples_left].cop;
 	solution.com_prw.control.x_vec.noalias() = global_contr_x_vec;//new - cop_dyn.state_mat * state_x(0);
 	//solution.com_prw.control.x_vec.noalias() = copdyn.input_mat_inv * tmp_vec_;
 	solution.com_prw.control.y_vec.noalias() = global_contr_y_vec;//new - cop_dyn.state_mat * state_y(0);

@@ -33,7 +33,7 @@ int main() {
 	mpc_parameters.solver.name                  = QLD;
 	mpc_parameters.solver.num_wsrec             = 100;
 	mpc_parameters.dynamics_order               = SECOND_ORDER;
-	mpc_parameters.formulation		      		= STANDARD;
+	mpc_parameters.formulation		      		= DECOUPLED_MODES;
 	mpc_parameters.is_pid_mode		      		= false;
 	mpc_parameters.is_terminal_constr	      	= false;
 	mpc_parameters.is_ineq_constr				= true;
