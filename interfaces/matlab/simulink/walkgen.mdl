@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.923"
+    ComputedModelVersion    "1.927"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Fri Mar 01 11:16:28 2013"
+  LastModifiedDate	  "Sun Mar 03 15:52:59 2013"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:923>"
+  ModelVersionFormat	  "1.%<AutoIncrement:927>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -670,8 +670,8 @@ Model {
   }
   System {
     Name		    "walkgen"
-    Location		    [850, 74, 1125, 375]
-    Open		    on
+    Location		    [843, 75, 1118, 376]
+    Open		    off
     ModelBrowserVisibility  off
     ModelBrowserWidth	    200
     ScreenColor		    "white"
@@ -704,7 +704,7 @@ Model {
       System {
 	Name			"Simulation"
 	Location		[850, 74, 1594, 876]
-	Open			off
+	Open			on
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
 	ScreenColor		"white"
@@ -732,21 +732,21 @@ Model {
 	  SystemSampleTime	  "0.005"
 	  RTWSystemCode		  "Auto"
 	  FunctionWithSeparateData off
-	  MaskPromptString	  "Length of horizon [num. samples]|Position penalty|Velocity penalty|CoP penalty|CP penalty|Control moves penalty|First control move penalty|Step period [num. samples]|Length of initial double support phase [num. samples]|Steps before halt|Sampling period [s]|Time between recomputations [s]|Actuator sampling period [s]|Security margin [m]|Max number of working set recomputations|Dynamics order|Debug mode|PID mode|Closed loop|Inequality constraints|Formulation (0 standard, 1 decoupled modes)|Dump problems|Terminal constraints|Solver (0 QL, 1 QPOases, 2 LSSOL)|Force threshold for DS phase|Foot placement planning period [s]|Initial CoM height"
-	  MaskStyleString	  "edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit"
-	  MaskTunableValueString  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
-	  MaskCallbackString	  "||||||||||||||||||||||||||"
-	  MaskEnableString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
-	  MaskVisibilityString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
-	  MaskToolTipString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
-	  MaskVarAliasString	  ",,,,,,,,,,,,,,,,,,,,,,,,,,"
-	  MaskVariables		  "num_samples_horizon=@1;pos_weight=@2;vel_weight=@3;cop_weight=@4;cp_weight=@5;contr_moves_pen=@6;first_contr_move_pen=@7;num_samples_step=@8;num_samples_dsss=@9;num_steps_ssds=@10;period_qpsample=@11;period_mpcsample=@12;period_actsample=@13;security_margin=@14;num_wsrec=@15;dynamics_order=@16;is_debug_mode=@17;is_pid_mode=@18;is_closed_loop=@19;is_ineq_constraints=@20;formulation=@21;dump_problems=@22;is_terminal_constr=@23;solver=@24;ds_force_thresh=@25;ffoot_plan_period=@26;init_com_height=@27;"
+	  MaskPromptString	  "Length of horizon [num. samples]|Position penalty|Velocity penalty|CoP penalty|CP penalty|CP centering penalty|Control moves penalty|First control move penalty|Step period [num. samples]|Length of initial double support phase [num. samples]|Steps before halt|Sampling period [s]|Time between recomputations [s]|Actuator sampling period [s]|Security margin [m]|Max number of working set recomputations|Dynamics order|Debug mode|PID mode|Closed loop|Inequality constraints|Formulation (0 standard, 1 decoupled modes)|Dump problems|Terminal constraints|Solver (0 QL, 1 QPOases, 2 LSSOL)|Force threshold for DS phase|Foot placement planning period [s]|Initial CoM height"
+	  MaskStyleString	  "edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit"
+	  MaskTunableValueString  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	  MaskCallbackString	  "|||||||||||||||||||||||||||"
+	  MaskEnableString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	  MaskVisibilityString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	  MaskToolTipString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	  MaskVarAliasString	  ",,,,,,,,,,,,,,,,,,,,,,,,,,,"
+	  MaskVariables		  "num_samples_horizon=@1;pos_weight=@2;vel_weight=@3;cop_weight=@4;cp_weight=@5;cp_centering_pen=@6;contr_moves_pen=@7;first_contr_move_pen=@8;num_samples_step=@9;num_samples_dsss=@10;num_steps_ssds=@11;period_qpsample=@12;period_mpcsample=@13;period_actsample=@14;security_margin=@15;num_wsrec=@16;dynamics_order=@17;is_debug_mode=@18;is_pid_mode=@19;is_closed_loop=@20;is_ineq_constraints=@21;formulation=@22;dump_problems=@23;is_terminal_constr=@24;solver=@25;ds_force_thresh=@26;ffoot_plan_period=@27;init_com_height=@28;"
 	  MaskIconFrame		  on
 	  MaskIconOpaque	  on
 	  MaskIconRotate	  "none"
 	  MaskIconUnits		  "autoscale"
-	  MaskValueString	  "16|[0, 0]|[0, 0]|[1, 1]|[1, 1]|[1, 1]|1|8|8|2|0.1|0.005|0.005|0.02|100|2|0|0|0|1|0|0|0|0|100|1.6|0.9"
-	  MaskTabNameString	  ",,,,,,,,,,,,,,,,,,,,,,,,,,"
+	  MaskValueString	  "16|[0, 0]|[0, 0]|[1, 1]|[1, 1]|0.00001|[1, 1]|1|8|8|2|0.1|0.005|0.005|0.02|100|2|0|0|0|1|0|0|0|0|100|1.6|0.9"
+	  MaskTabNameString	  ",,,,,,,,,,,,,,,,,,,,,,,,,,,"
 	  System {
 	    Name		    "Atomic Walkgen"
 	    Location		    [850, 74, 1598, 860]
@@ -1037,7 +1037,7 @@ Model {
 	      Ports		      [13, 19]
 	      Position		      [285, 148, 375, 712]
 	      FunctionName	      "walkgen_sfun"
-	      Parameters	      "num_samples_horizon, num_samples_step, num_samples_dsss, num_steps_ssds, period_qpsample, period_mpcsample, period_actsample, security_margin, num_wsrec, dynamics_order, is_debug_mode, pos_weight, vel_weight, cop_weight, cp_weight, contr_moves_pen, is_pid_mode, is_closed_loop, is_ineq_constraints, formulation, dump_problems, is_terminal_constr, solver, first_contr_move_pen, ds_force_thresh, ffoot_plan_period, init_com_height"
+	      Parameters	      "num_samples_horizon, num_samples_step, num_samples_dsss, num_steps_ssds, period_qpsample, period_mpcsample, period_actsample, security_margin, num_wsrec, dynamics_order, is_debug_mode, pos_weight, vel_weight, cop_weight, cp_weight, contr_moves_pen, is_pid_mode, is_closed_loop, is_ineq_constraints, formulation, dump_problems, is_terminal_constr, solver, first_contr_move_pen, ds_force_thresh, ffoot_plan_period, init_com_height, cp_centering_pen"
 	      Port {
 		PortNumber		1
 		Name			"com"
@@ -1185,8 +1185,8 @@ Model {
 	      NamePlacement	      "alternate"
 	      ShowName		      off
 	      Floating		      off
-	      Location		      [79, 40, 1595, 894]
-	      Open		      off
+	      Location		      [1, 45, 1601, 899]
+	      Open		      on
 	      NumInputPorts	      "1"
 	      ZoomMode		      "yonly"
 	      List {
@@ -2807,7 +2807,7 @@ Model {
 	      RTWMemSecDataConstants  "Inherit from model"
 	      RTWMemSecDataInternal   "Inherit from model"
 	      RTWMemSecDataParameters "Inherit from model"
-	      sw		      "0"
+	      sw		      "1"
 	      action		      "0"
 	      varsize		      off
 	    }

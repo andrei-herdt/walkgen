@@ -18,7 +18,7 @@ using namespace std;
 
 static void mdlInitializeSizes(SimStruct *S) {
 	// Expected number of parameters
-	ssSetNumSFcnParams(S, 27);
+	ssSetNumSFcnParams(S, 28);
 
 	// Parameter mismatch?
 	if (ssGetNumSFcnParams(S) != ssGetSFcnParamsCount(S)) {
@@ -137,6 +137,7 @@ static void mdlStart(SimStruct *S) {
 	mpc_parameters.penalties.vel[0]  			= *mxGetPr(ssGetSFcnParam(S, 12));
 	mpc_parameters.penalties.cop[0]  			= *mxGetPr(ssGetSFcnParam(S, 13));
 	mpc_parameters.penalties.cp[0] 				= *mxGetPr(ssGetSFcnParam(S, 14));
+	mpc_parameters.penalties.cp_fp[0]			= *mxGetPr(ssGetSFcnParam(S, 27));
 	mpc_parameters.penalties.contr_moves[0] 	= *mxGetPr(ssGetSFcnParam(S, 15));
 	mpc_parameters.penalties.first_contr_move	= *mxGetPr(ssGetSFcnParam(S, 23));
 
@@ -144,6 +145,7 @@ static void mdlStart(SimStruct *S) {
 	mpc_parameters.penalties.vel[1]  			= mxGetPr(ssGetSFcnParam(S, 12))[1];
 	mpc_parameters.penalties.cop[1]  			= mxGetPr(ssGetSFcnParam(S, 13))[1];
 	mpc_parameters.penalties.cp[1] 				= mxGetPr(ssGetSFcnParam(S, 14))[1];
+	mpc_parameters.penalties.cp_fp[1]			= mxGetPr(ssGetSFcnParam(S, 27))[1];
 	mpc_parameters.penalties.contr_moves[1] 	= mxGetPr(ssGetSFcnParam(S, 15))[1];
 
 	mpc_parameters.ds_force_thresh				= *mxGetPr(ssGetSFcnParam(S, 24));

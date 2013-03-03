@@ -134,6 +134,7 @@ struct MPC_WALKGEN_API Penalties{
 
 	std::vector<double> cop;
 	std::vector<double> cp;			//Capture point
+	std::vector<double> cp_fp;
 	std::vector<double> contr_moves;
 	double first_contr_move;
 

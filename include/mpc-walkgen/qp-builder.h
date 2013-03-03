@@ -103,6 +103,13 @@ private:
 	std::vector<CommonMatrixType> ref_variant_pos_;
 	std::vector<CommonMatrixType> ref_variant_cp_;
 
+	std::vector<CommonMatrixType> u_trans_v_mat_vec_;
+	std::vector<CommonMatrixType> v_trans_v_mat_vec_;
+	std::vector<CommonMatrixType> v_trans_vc_mat_vec_;
+	std::vector<CommonMatrixType> v_trans_s_mat_vec_;
+	std::vector<CommonMatrixType> u_trans_vc_mat_vec_;
+	std::vector<CommonMatrixType> u_trans_s_mat_vec_;
+
 	std::vector<CommonMatrixType> contr_val_pen_mat_vec_;
 
 	ConvexHull foot_hull_edges_;

@@ -378,19 +378,22 @@ Penalties::Penalties(int num_modes)
 ,jerk(num_modes)
 ,cop(num_modes)
 ,cp(num_modes)
+,cp_fp(num_modes)
 ,contr_moves(num_modes)
 ,first_contr_move(0.)
 {
-	pos[0] 		= 0.;
-	vel[0]  	= 0.;//1.;
-	cop[0]  	= 0.00001;
-	cp[0] 		= 0.;//1.;
+	pos[0] 			= 0.;
+	vel[0]  		= 0.;//1.;
+	cop[0]  		= 0.00001;
+	cp[0] 			= 0.;//1.;
+	cp_fp[0]		= 0.;
 	contr_moves[0] 	= 0.0001;
 
-	pos[1] 		= 0.;
-	vel[1]  	= 0.;
-	cop[1]  	= 0.;
-	cp[1] 		= 0.;
+	pos[1] 			= 0.;
+	vel[1]  		= 0.;
+	cop[1]		  	= 0.;
+	cp[1] 			= 0.;
+	cp_fp[1]		= 0.;
 	contr_moves[1] 	= 0.;
 
 
