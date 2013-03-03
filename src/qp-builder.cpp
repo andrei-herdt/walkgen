@@ -475,11 +475,11 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 			gradient_vec_y(num_samples + num_unst_modes),
 			gradient_vec(2 * (num_samples + num_unst_modes));//TODO: Make this member
 
-	tmp_mat2_ = state_variant_[matrix_num] + v_trans_s_mat_vec_[matrix_num];
+	tmp_mat2_ = state_variant_[matrix_num];
 	gradient_vec_x = tmp_mat2_ * state_x;
 	gradient_vec_y = tmp_mat2_ * state_y;
 
-	tmp_mat2_ = select_variant_[matrix_num] + v_trans_vc_mat_vec_[matrix_num];
+	tmp_mat2_ = select_variant_[matrix_num];
 	gradient_vec_x += tmp_mat2_ * select_mats.sample_step_cx;
 	gradient_vec_y += tmp_mat2_ * select_mats.sample_step_cy;
 
@@ -531,6 +531,17 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 		solver_->objective_vec().Add(tmp_vec_, 2*(num_samples + num_unst_modes));
 		tmp_vec_.noalias() = select_mats.sample_step_trans * gradient_vec_y.head(num_samples);
 		solver_->objective_vec().Add(tmp_vec_, 2*(num_samples + num_unst_modes) + num_steps_previewed);
+
+		tmp_vec_.noalias() = select_mats.sample_step_trans * v_trans_s_mat_vec_[matrix_num] * state_x;
+		solver_->objective_vec().Add(tmp_vec_, 2*(num_samples + num_unst_modes));
+		tmp_vec_.noalias() = select_mats.sample_step_trans * v_trans_s_mat_vec_[matrix_num] * state_y;
+		solver_->objective_vec().Add(tmp_vec_, 2*(num_samples + num_unst_modes) + num_steps_previewed);
+
+		tmp_vec_.noalias() = select_mats.sample_step_trans * v_trans_vc_mat_vec_[matrix_num] * select_mats.sample_step_cx;
+		solver_->objective_vec().Add(tmp_vec_, 2*(num_samples + num_unst_modes));
+		tmp_vec_.noalias() = select_mats.sample_step_trans * v_trans_vc_mat_vec_[matrix_num] * select_mats.sample_step_cy;
+		solver_->objective_vec().Add(tmp_vec_, 2*(num_samples + num_unst_modes) + num_steps_previewed);
+
 	}
 
 	gradient_vec_x += u_trans_vc_mat_vec_[matrix_num] * select_mats.sample_step_cx;

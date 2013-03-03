@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.931"
+    ComputedModelVersion    "1.932"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Sun Mar 03 17:07:12 2013"
+  LastModifiedDate	  "Sun Mar 03 17:47:49 2013"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:931>"
+  ModelVersionFormat	  "1.%<AutoIncrement:932>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -670,7 +670,7 @@ Model {
   }
   System {
     Name		    "walkgen"
-    Location		    [2450, 74, 2725, 375]
+    Location		    [850, 74, 1125, 375]
     Open		    off
     ModelBrowserVisibility  off
     ModelBrowserWidth	    200
@@ -745,7 +745,7 @@ Model {
 	  MaskIconOpaque	  on
 	  MaskIconRotate	  "none"
 	  MaskIconUnits		  "autoscale"
-	  MaskValueString	  "16|[0, 0]|[0, 0]|[1, 1]|[1, 1]|[.0, .0]|[1, 1]|1|8|8|2|0.1|0.005|0.005|0.02|100|2|0|0|0|1|0|0|0|0|100|1.6|0.9"
+	  MaskValueString	  "16|[0, 0]|[0, 0]|[1, 1]|[1, 1]|[.0, .0]|[1, 1]|1|8|8|2|0.1|0.005|0.005|0.02|100|2|0|0|0|1|1|0|0|0|100|1.6|0.9"
 	  MaskTabNameString	  ",,,,,,,,,,,,,,,,,,,,,,,,,,,"
 	  System {
 	    Name		    "Atomic Walkgen"
@@ -1185,7 +1185,7 @@ Model {
 	      NamePlacement	      "alternate"
 	      ShowName		      off
 	      Floating		      off
-	      Location		      [1, 45, 1601, 899]
+	      Location		      [5, 40, 1605, 894]
 	      Open		      on
 	      NumInputPorts	      "1"
 	      ZoomMode		      "yonly"
