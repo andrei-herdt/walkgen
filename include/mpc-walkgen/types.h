@@ -252,6 +252,7 @@ struct MPC_WALKGEN_API RobotData {
 	double max_foot_height;
 	double max_foot_vel;
 	double security_margin;
+	double lateral_ds_feet_dist;
 
 	Vector3D com;
 

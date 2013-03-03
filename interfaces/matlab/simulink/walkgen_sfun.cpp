@@ -29,7 +29,7 @@ static void mdlInitializeSizes(SimStruct *S) {
 	if (!ssSetNumInputPorts(S, 13)) return;
 	ssSetInputPortWidth(S, 0, 2);     //pos_ref
 	ssSetInputPortWidth(S, 1, 3);     //vel_ref
-	ssSetInputPortWidth(S, 2, 2);     //cp_ref
+	ssSetInputPortWidth(S, 2, 4);     //cp_ref (Global reference and local offset)
 	ssSetInputPortWidth(S, 3, 3);     //left_ankle_in
 	ssSetInputPortWidth(S, 4, 3);     //right_ankle_in
 	ssSetInputPortWidth(S, 5, 1);     //left_yaw
@@ -286,7 +286,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 		robot_data.max_foot_height = kMaxFootHeight;
 
 		walk->SetVelReference(0.0, 0.0, 0.0);
-		walk->SetCPReference(*com_in[0], *com_in[1]);
+		walk->SetCPReference(*com_in[0], *com_in[1], *com_in[2], *com_in[3]);
 		walk->Init(robot_data);
 		RigidBodySystem *robot = walk->robot();
 		robot->com()->state().x[0] = *com_in[0];
@@ -307,7 +307,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 	// ------
 	walk->SetVelReference(*vel_ref[0], *vel_ref[1], *vel_ref[2]);
 	walk->SetPosReference(*pos_ref[0], *pos_ref[1]);
-	walk->SetCPReference(*cp_ref[0], *cp_ref[1]);
+	walk->SetCPReference(*cp_ref[0], *cp_ref[1], *cp_ref[2], *cp_ref[3]);
 	RigidBodySystem *robot = walk->robot();
 	if (is_closed_loop_in > 0.5) {
 		robot->com()->state().x[0] = *com_in[0];

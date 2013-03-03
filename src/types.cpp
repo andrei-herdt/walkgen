@@ -324,6 +324,7 @@ RobotData::RobotData(const FootData &leftFoot, const FootData &rightFoot,
 ,max_foot_height(0.03)
 ,max_foot_vel(0.)
 ,security_margin(-1.)
+,lateral_ds_feet_dist(-1.)
 ,com()
 ,left_foot(leftFoot)
 ,right_foot(rightFoot)
@@ -344,7 +345,8 @@ RobotData::RobotData(const FootData &leftFoot, const FootData &rightFoot,
 RobotData::RobotData():mass(0.)
 ,max_foot_height(0.)
 ,max_foot_vel(0.)
-,security_margin(-1.) {
+,security_margin(-1.)
+,lateral_ds_feet_dist(-1.) {
 	left_foot_ss_hull.Resize(4);
 	right_foot_ss_hull.Resize(4);
 	left_foot_ds_hull.Resize(4);
@@ -369,6 +371,9 @@ void RobotData::SetCoPHulls(double ds_distance) {
 	left_foot_ds_hull.y_vec(2)  -= ds_distance;
 	right_foot_ds_hull.y_vec(1) += ds_distance;
 	right_foot_ds_hull.y_vec(2) += ds_distance;
+
+	lateral_ds_feet_dist = ds_distance;
+
 }
 
 Penalties::Penalties(int num_modes)

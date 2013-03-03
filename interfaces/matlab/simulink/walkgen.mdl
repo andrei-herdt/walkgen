@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.932"
+    ComputedModelVersion    "1.947"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Sun Mar 03 17:47:49 2013"
+  LastModifiedDate	  "Sun Mar 03 20:14:45 2013"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:932>"
+  ModelVersionFormat	  "1.%<AutoIncrement:947>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -726,7 +726,7 @@ Model {
 	  BlockType		  SubSystem
 	  Name			  "Atomic Walkgen"
 	  Ports			  [3, 1]
-	  Position		  [385, 75, 490, 775]
+	  Position		  [370, 75, 475, 775]
 	  TreatAsAtomicUnit	  on
 	  MinAlgLoopOccurrences	  off
 	  SystemSampleTime	  "0.005"
@@ -745,7 +745,7 @@ Model {
 	  MaskIconOpaque	  on
 	  MaskIconRotate	  "none"
 	  MaskIconUnits		  "autoscale"
-	  MaskValueString	  "16|[0, 0]|[0, 0]|[1, 1]|[1, 1]|[.0, .0]|[1, 1]|1|8|8|2|0.1|0.005|0.005|0.02|100|2|0|0|0|1|1|0|0|0|100|1.6|0.9"
+	  MaskValueString	  "16|[0, 0]|[0, 0]|[0, 0]|[0, 0]|[1, 1]|[1, 1]|1|8|8|2|0.1|0.005|0.005|0.02|100|2|0|0|0|1|1|0|0|0|100|1.6|0.9"
 	  MaskTabNameString	  ",,,,,,,,,,,,,,,,,,,,,,,,,,,"
 	  System {
 	    Name		    "Atomic Walkgen"
@@ -1185,10 +1185,10 @@ Model {
 	      NamePlacement	      "alternate"
 	      ShowName		      off
 	      Floating		      off
-	      Location		      [5, 40, 1605, 894]
+	      Location		      [2449, 49, 3197, 1195]
 	      Open		      on
 	      NumInputPorts	      "1"
-	      ZoomMode		      "yonly"
+	      ZoomMode		      "xonly"
 	      List {
 		ListType		AxesTitles
 		axes1			"%<SignalLabel>"
@@ -1846,7 +1846,7 @@ Model {
 	  Port {
 	    PortNumber		    1
 	    Name		    "cp_ref"
-	    PropagatedSignals	    "reference"
+	    PropagatedSignals	    "global_reference"
 	    RTWStorageClass	    "Auto"
 	    DataLoggingNameMode	    "SignalName"
 	  }
@@ -1886,7 +1886,7 @@ Model {
 	      ShowName		      off
 	      FontName		      "Arial"
 	      FontSize		      8
-	      Value		      "[0.0, 0.11]"
+	      Value		      "[0.0, 0.11, 0., 0.]"
 	      OutDataType	      "sfix(16)"
 	      OutScaling	      "2^0"
 	    }
@@ -1897,7 +1897,7 @@ Model {
 	      ShowName		      off
 	      FontName		      "Arial"
 	      FontSize		      8
-	      Value		      "[-0.0, 0.]"
+	      Value		      "[-0.0, 0., 0., 0.]"
 	      OutDataType	      "sfix(16)"
 	      OutScaling	      "2^0"
 	    }
@@ -1908,7 +1908,7 @@ Model {
 	      ShowName		      off
 	      FontName		      "Arial"
 	      FontSize		      8
-	      Value		      "[0.1, 0.]"
+	      Value		      "[0.1, 0., 0., 0.]"
 	      OutDataType	      "sfix(16)"
 	      OutScaling	      "2^0"
 	      Port {
@@ -1925,7 +1925,7 @@ Model {
 	      ShowName		      off
 	      FontName		      "Arial"
 	      FontSize		      8
-	      Value		      "[0.1, 0.]"
+	      Value		      "[0.1, 0., 0., 0.]"
 	      OutDataType	      "sfix(16)"
 	      OutScaling	      "2^0"
 	    }
@@ -1936,7 +1936,7 @@ Model {
 	      ShowName		      off
 	      FontName		      "Arial"
 	      FontSize		      8
-	      Value		      "[-0.0, 0.]"
+	      Value		      "[-0.0, 0., 0., 0.]"
 	      OutDataType	      "sfix(16)"
 	      OutScaling	      "2^0"
 	      Port {
@@ -1953,7 +1953,7 @@ Model {
 	      ShowName		      off
 	      FontName		      "Arial"
 	      FontSize		      8
-	      Value		      "[0., 0.]"
+	      Value		      "[0., 0., 0., 0.]"
 	      OutDataType	      "sfix(16)"
 	      OutScaling	      "2^0"
 	    }
@@ -2011,7 +2011,7 @@ Model {
 	      SaturateOnIntegerOverflow	off
 	      Port {
 		PortNumber		1
-		Name			"reference"
+		Name			"global_reference"
 		RTWStorageClass		"Auto"
 		DataLoggingNameMode	"SignalName"
 	      }
@@ -2039,7 +2039,7 @@ Model {
 	    Block {
 	      BlockType		      Outport
 	      Name		      "reference"
-	      Position		      [595, 58, 625, 72]
+	      Position		      [610, 58, 640, 72]
 	      IconDisplay	      "Port number"
 	    }
 	    Line {
@@ -2079,14 +2079,6 @@ Model {
 	      SrcBlock		      "Switch2"
 	      SrcPort		      1
 	      DstBlock		      "Manual Switch"
-	      DstPort		      1
-	    }
-	    Line {
-	      Name		      "reference"
-	      Labels		      [0, 0]
-	      SrcBlock		      "Sum1"
-	      SrcPort		      1
-	      DstBlock		      "reference"
 	      DstPort		      1
 	    }
 	    Line {
@@ -2131,6 +2123,14 @@ Model {
 	      SrcPort		      1
 	      Points		      [0, 10]
 	      DstBlock		      "Switch2"
+	      DstPort		      1
+	    }
+	    Line {
+	      Name		      "global_reference"
+	      Labels		      [0, 0]
+	      SrcBlock		      "Sum1"
+	      SrcPort		      1
+	      DstBlock		      "reference"
 	      DstPort		      1
 	    }
 	  }
@@ -3117,7 +3117,7 @@ Model {
 	}
 	Line {
 	  Name			  "cp_ref"
-	  Labels		  [0, 0]
+	  Labels		  [0, 0; 1, 0]
 	  SrcBlock		  "CP Reference"
 	  SrcPort		  1
 	  DstBlock		  "Bus\nCreator1"

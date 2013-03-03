@@ -238,27 +238,36 @@ void Walkgen::BuildProblem() {
 
 	preview_->PreviewSupportStates(first_sampling_period, solution_);
 
-	// Modify capture point reference:
-	// -------------------------------
-
-	double cp_offset_y = 0.095;
-	for (int i = 0; i < mpc_parameters_.num_samples_horizon -1 ; i++) {
+	// Adapt local capture point offset to the previewed foot:
+	// TODO: No rotation considered!!!
+	// ---------------------------------
+	for (int i = 0; i < mpc_parameters_.num_samples_horizon - 1 ; i++) {
 		if (solution_.support_states_vec[i + 1].phase == SS) {
 			if ((solution_.support_states_vec[i + 1].foot == LEFT && solution_.support_states_vec[i + 2].foot != RIGHT)
 					|| (solution_.support_states_vec[i+1].foot == RIGHT && solution_.support_states_vec[i+2].foot == LEFT)) {
-				//cp_ref_.global.x[i] = robot_data_.left_foot.position[0];
-				cp_ref_.global.y[i] += /*robot_data_.left_foot.position[1] - */ cp_offset_y;
+				cp_ref_.local.y[i] *= -1.;
 			} else if ((solution_.support_states_vec[i + 1].foot == RIGHT && solution_.support_states_vec[i + 2].foot != LEFT)
 					|| (solution_.support_states_vec[i+1].foot == LEFT && solution_.support_states_vec[i+2].foot == RIGHT)) {
-				//cp_ref_.global.x[i] = robot_data_.right_foot.position[0];
-				cp_ref_.global.y[i] -= /*robot_data_.right_foot.position[1] + */ cp_offset_y;
+				// Do nothing (sign is correct)
+			}
+		} else { // DS phase
+			if (solution_.support_states_vec[i + 1].foot == LEFT) {
+				cp_ref_.local.y[i] = - robot_data_.lateral_ds_feet_dist;
+			} else {
+				cp_ref_.local.y[i] = robot_data_.lateral_ds_feet_dist;
 			}
 		}
 	}
-
-
-	//Debug::Cout("cp_ref_.gloval.x", cp_ref_.global.x);
-	//Debug::Cout("cp_ref_.gloval.y", cp_ref_.global.y);
+	// Last reference is foot center
+	cp_ref_.local.x[mpc_parameters_.num_samples_horizon - 1] = 0.;
+	cp_ref_.local.y[mpc_parameters_.num_samples_horizon - 1] = 0.;
+	if (solution_.support_states_vec[mpc_parameters_.num_samples_horizon].phase == DS) {
+		if (solution_.support_states_vec[mpc_parameters_.num_samples_horizon].foot == LEFT) {
+			cp_ref_.local.y[mpc_parameters_.num_samples_horizon - 1] = - robot_data_.lateral_ds_feet_dist;
+		} else {
+			cp_ref_.local.y[mpc_parameters_.num_samples_horizon - 1] = robot_data_.lateral_ds_feet_dist;
+		}
+	}
 
 	orient_preview_->preview_orientations( current_time_, vel_ref_,
 			mpc_parameters_.num_samples_step * mpc_parameters_.period_qpsample, robot_.left_foot()->state(),
@@ -358,9 +367,11 @@ void Walkgen::SetVelReference(const CommonVectorType &x_vec, const CommonVectorT
 	new_vel_ref_.local.yaw = yaw_vec;
 }
 
-void Walkgen::SetCPReference(double x, double y){
-	cp_ref_.global.x.fill(x);
-	cp_ref_.global.y.fill(y);
+void Walkgen::SetCPReference(double global_x, double global_y, double local_x, double local_y){
+	cp_ref_.global.x.fill(global_x);
+	cp_ref_.global.y.fill(global_y);
+	cp_ref_.local.x.fill(local_x);
+	cp_ref_.local.y.fill(local_y);
 }
 
 void Walkgen::StoreResult() {

@@ -37,7 +37,7 @@ public:
 	void SetPosReference(double x, double y);
 	void SetVelReference(double dx, double dy, double dyaw);
 	void SetVelReference(const CommonVectorType &x_vec, const CommonVectorType &y_vec, const CommonVectorType &yaw_vec);
-	void SetCPReference(double x, double y);
+	void SetCPReference(double global_x, double global_y, double local_x, double local_y);
 
 	const BodyState &bodyState(BodyType body) const;
 	void bodyState(BodyType body, const BodyState &state);

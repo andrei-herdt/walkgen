@@ -90,7 +90,8 @@ void QPBuilder::PrecomputeObjective() {
 	v_trans_s_mat_vec_.resize(num_recomp * num_modes);
 	u_trans_vc_mat_vec_.resize(num_recomp * num_modes);
 	u_trans_s_mat_vec_.resize(num_recomp * num_modes);
-
+	u_trans_ref_mat_vec_.resize(num_recomp * num_modes);
+	v_trans_ref_mat_vec_.resize(num_recomp * num_modes);
 
 	// Precompute:
 	// -----------
@@ -234,6 +235,10 @@ void QPBuilder::PrecomputeObjective() {
 
 			u_trans_vc_mat_vec_[mat_num] = cp_dyn.input_mat_tr * cp_fp_pen_mat.block(0, 0, num_samples, num_samples) * cp_dyn.input_mat.block(0, 0, num_samples, num_samples);
 			u_trans_vc_mat_vec_[mat_num] -= cp_dyn.input_mat_tr * cp_fp_pen_mat.block(0, 0, num_samples, num_samples);
+
+			u_trans_ref_mat_vec_[mat_num] = - cp_dyn.input_mat_tr * cp_fp_pen_mat.block(0, 0, num_samples, num_samples);
+			v_trans_ref_mat_vec_[mat_num] = - cp_dyn.input_mat_tr.block(0, 0, num_samples, num_samples) * cp_fp_pen_mat.block(0, 0, num_samples, num_samples);
+			v_trans_ref_mat_vec_[mat_num] += cp_fp_pen_mat.block(0, 0, num_samples, num_samples);
 		}
 	}
 }
@@ -542,6 +547,10 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 		tmp_vec_.noalias() = select_mats.sample_step_trans * v_trans_vc_mat_vec_[matrix_num] * select_mats.sample_step_cy;
 		solver_->objective_vec().Add(tmp_vec_, 2*(num_samples + num_unst_modes) + num_steps_previewed);
 
+		tmp_vec_.noalias() = select_mats.sample_step_trans * v_trans_ref_mat_vec_[matrix_num] * cp_ref_->local.x;
+		solver_->objective_vec().Add(tmp_vec_, 2*(num_samples + num_unst_modes));
+		tmp_vec_.noalias() = select_mats.sample_step_trans * v_trans_ref_mat_vec_[matrix_num] * cp_ref_->local.y;
+		solver_->objective_vec().Add(tmp_vec_, 2*(num_samples + num_unst_modes) + num_steps_previewed);
 	}
 
 	gradient_vec_x += u_trans_vc_mat_vec_[matrix_num] * select_mats.sample_step_cx;
@@ -549,6 +558,9 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 
 	gradient_vec_x += u_trans_s_mat_vec_[matrix_num] * state_x;
 	gradient_vec_y += u_trans_s_mat_vec_[matrix_num] * state_y;
+
+	gradient_vec_x += u_trans_ref_mat_vec_[matrix_num] * cp_ref_->local.x;
+	gradient_vec_y += u_trans_ref_mat_vec_[matrix_num] * cp_ref_->local.y;
 
 	gradient_vec << gradient_vec_x, gradient_vec_y; //TODO: Unnecessary if rot_mat half the size
 	//gradient_vec = rot_mat * gradient_vec;//TODO: Use RTimesV
