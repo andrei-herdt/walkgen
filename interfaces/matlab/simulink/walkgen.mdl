@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.953"
+    ComputedModelVersion    "1.955"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Sun Mar 03 21:22:12 2013"
+  LastModifiedDate	  "Sun Mar 03 21:57:50 2013"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:953>"
+  ModelVersionFormat	  "1.%<AutoIncrement:955>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -704,7 +704,7 @@ Model {
       System {
 	Name			"Simulation"
 	Location		[850, 74, 1594, 876]
-	Open			on
+	Open			off
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
 	ScreenColor		"white"
@@ -745,7 +745,7 @@ Model {
 	  MaskIconOpaque	  on
 	  MaskIconRotate	  "none"
 	  MaskIconUnits		  "autoscale"
-	  MaskValueString	  "16|[0, 0]|[0, 0]|[0, 0]|[0, 0]|[1, 1]|[1, 1]|1|8|8|2|0.1|0.005|0.005|0.02|100|2|0|0|0|1|1|0|0|0|100|1.6|0.9"
+	  MaskValueString	  "16|[0, 0]|[0, 0]|[0, 0]|[0, 0]|[1, 1]|[1, 1]|1|8|8|2|0.1|0.005|0.005|0.02|100|2|1|0|0|1|1|0|0|0|100|1.6|0.9"
 	  MaskTabNameString	  ",,,,,,,,,,,,,,,,,,,,,,,,,,,"
 	  System {
 	    Name		    "Atomic Walkgen"
@@ -1853,7 +1853,7 @@ Model {
 	  System {
 	    Name		    "CP Reference"
 	    Location		    [702, 74, 1446, 876]
-	    Open		    off
+	    Open		    on
 	    ModelBrowserVisibility  off
 	    ModelBrowserWidth	    200
 	    ScreenColor		    "white"
@@ -1886,7 +1886,7 @@ Model {
 	      ShowName		      off
 	      FontName		      "Arial"
 	      FontSize		      8
-	      Value		      "[0.0, 0.11, 0., 0.]"
+	      Value		      "[0.0, 0.11, 0., 0.03]"
 	      OutDataType	      "sfix(16)"
 	      OutScaling	      "2^0"
 	    }

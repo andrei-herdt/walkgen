@@ -133,7 +133,7 @@ void QPBuilder::PrecomputeObjective() {
 			}
 			cp_pen_mat(0, 0) = mpc_parameters_->penalties.cp[mode_num] * first_period / mpc_parameters_->period_qpsample;
 
-			tmp_mat_.noalias() = cp_dyn.input_mat_tr * cp_pen_mat * cp_dyn.input_mat;
+			tmp_mat_.noalias() = cp_dyn.input_mat_tr * cp_pen_mat.block(0, 0, num_samples, num_samples) * cp_dyn.input_mat;
 			hessian_mat +=  tmp_mat_;
 
 			// CP centering:
@@ -144,7 +144,7 @@ void QPBuilder::PrecomputeObjective() {
 			}
 			cp_fp_pen_mat(0, 0) = mpc_parameters_->penalties.cp_fp[mode_num] * first_period / mpc_parameters_->period_qpsample;
 
-			tmp_mat_.noalias() = cp_dyn.input_mat_tr * cp_fp_pen_mat * cp_dyn.input_mat;
+			tmp_mat_.noalias() = cp_dyn.input_mat_tr * cp_fp_pen_mat.block(0, 0, num_samples, num_samples) * cp_dyn.input_mat;
 			hessian_mat +=  tmp_mat_;
 
 
