@@ -248,9 +248,9 @@ void Walkgen::BuildProblem() {
 			}
 		} else { // DS phase
 			if (solution_.support_states_vec[i + 1].foot == LEFT) {
-				cp_ref_.local.y[i] = - robot_data_.lateral_ds_feet_dist;
+				cp_ref_.local.y[i] = - robot_data_.lateral_ds_feet_dist / 2.;
 			} else {
-				cp_ref_.local.y[i] = robot_data_.lateral_ds_feet_dist;
+				cp_ref_.local.y[i] = robot_data_.lateral_ds_feet_dist / 2.;
 			}
 		}
 	}
