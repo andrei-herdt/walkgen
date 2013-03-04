@@ -14,8 +14,8 @@ end
 make_dependencies;
 
 %% Set compile options
-make_release;
-%make_debug;
+%make_release;
+make_debug;
 
 IFLAGS  = ['-I. -I', MPC_WALKGEN_PATH, 'include',' -I',EIGEN_PATH,' -I',QPOASES_PATH,'include/',' -I',QLD_PATH,' ' ];
 CPPFLAGS  = [IFLAGS, CFLAGS];

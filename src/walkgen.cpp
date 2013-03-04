@@ -114,10 +114,6 @@ void Walkgen::Init(MPCParameters &mpc_parameters) {
 		builder_->PrecomputeObjective();
 	}
 
-
-	// Reset:
-	// ------
-	ResetCounters(0.);
 }
 
 void Walkgen::Init(const RobotData &robot_data) {
