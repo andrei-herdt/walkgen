@@ -101,11 +101,11 @@ void QPBuilder::PrecomputeObjective() {
 		* mpc_parameters_->penalties.contr_moves[mode_num];
 		contr_mov_pen_mat(num_samples + num_unst_modes - 1, num_samples + num_unst_modes - 1) = 0.;
 
-		for (double first_period = mpc_parameters_->period_qpsample; first_period > kEps; first_period -= mpc_parameters_->period_mpcsample) {
+		for (double first_period = mpc_parameters_->period_inter_samples; first_period > kEps; first_period -= mpc_parameters_->period_recomputation) {
 			int samples_left = mpc_parameters_->GetMPCSamplesLeft(first_period);
 			int mat_num = samples_left + mode_num*num_recomp;
 
-			if (first_period < mpc_parameters_->period_qpsample - kEps) {
+			if (first_period < mpc_parameters_->period_inter_samples - kEps) {
 				contr_mov_pen_mat(0, 0) = mpc_parameters_->penalties.first_contr_move;
 			}
 			const LinearDynamicsMatrices &pos_dyn = robot_->com()->dynamics_qp()[samples_left].pos;
@@ -131,7 +131,7 @@ void QPBuilder::PrecomputeObjective() {
 			if (mpc_parameters_->formulation == DECOUPLED_MODES) {
 				cp_pen_mat(num_samples, num_samples) = 0.;	// CP variable
 			}
-			cp_pen_mat(0, 0) = mpc_parameters_->penalties.cp[mode_num] * first_period / mpc_parameters_->period_qpsample;
+			//cp_pen_mat(0, 0) = mpc_parameters_->penalties.cp[mode_num] * first_period / mpc_parameters_->period_qpsample;
 
 			tmp_mat_.noalias() = cp_dyn.input_mat_tr * cp_pen_mat.block(0, 0, num_samples, num_samples) * cp_dyn.input_mat;
 			hessian_mat +=  tmp_mat_;
@@ -142,7 +142,7 @@ void QPBuilder::PrecomputeObjective() {
 			if (mpc_parameters_->formulation == DECOUPLED_MODES) {
 				cp_fp_pen_mat(num_samples, num_samples) = 0.;	// CP variable
 			}
-			cp_fp_pen_mat(0, 0) = mpc_parameters_->penalties.cp_fp[mode_num] * first_period / mpc_parameters_->period_qpsample;
+			//cp_fp_pen_mat(0, 0) = mpc_parameters_->penalties.cp_fp[mode_num] * first_period / mpc_parameters_->period_qpsample;
 
 			tmp_mat_.noalias() = cp_dyn.input_mat_tr * cp_fp_pen_mat.block(0, 0, num_samples, num_samples) * cp_dyn.input_mat;
 			hessian_mat +=  tmp_mat_;
@@ -154,7 +154,7 @@ void QPBuilder::PrecomputeObjective() {
 			if (mpc_parameters_->formulation == DECOUPLED_MODES) {
 				contr_val_pen_mat_vec_[mat_num](num_samples, num_samples) = 0.;	// CP variable
 			}
-			contr_val_pen_mat_vec_[mat_num](0, 0) = mpc_parameters_->penalties.cop[mode_num] * first_period / mpc_parameters_->period_qpsample;
+			//contr_val_pen_mat_vec_[mat_num](0, 0) = mpc_parameters_->penalties.cop[mode_num] * first_period / mpc_parameters_->period_qpsample;
 			const_hessian_n_mat_[mat_num] = hessian_mat + contr_val_pen_mat_vec_[mat_num];
 
 			chol.Reset(0.);
@@ -863,7 +863,6 @@ void QPBuilder::BuildCoPIneqConstraints(const MPCSolution &solution) {
 
 	robot_->GetConvexHull(hull_, COP_HULL, *ss_it);
 
-	int num_steps_previewed = solution.support_states_vec.back().step_number;
 	int size = 2 * num_samples;
 	tmp_vec_.resize(size);
 	tmp_vec2_.resize(size);
@@ -881,42 +880,38 @@ void QPBuilder::BuildCoPIneqConstraints(const MPCSolution &solution) {
 		is_ff_incontact = true;
 	}
 	double this_ds_phase = ss_it->time_limit - mpc_parameters_->period_qpsample;
-	double lift_off_margin = ss_it->start_time + mpc_parameters_->num_samples_step * mpc_parameters_->period_qpsample / 2.;
+	double lift_off_margin = ss_it->start_time + mpc_parameters_->period_ss / 2.;
 
 	// Has half of ds phase passed?
 	std::vector<double>::const_iterator st_it = solution.sampling_times_vec.begin();
 	bool is_transitional_ds_phase = false;
-	if (this_ds_phase <= *st_it + mpc_parameters_->period_mpcsample / 2.) {
+	if (this_ds_phase <= *st_it + mpc_parameters_->period_recomputation / 2.) {
 		is_transitional_ds_phase = true;
 	}
+	/*
 	bool is_half_ds_passed = false;
 	if (ss_it->time_limit - *st_it < mpc_parameters_->period_qpsample / 2.) {
 		is_half_ds_passed = true;
 	}
+	*/
 
-	//Debug::Disp("cur_time", current_time_);
-	//Debug::Disp("is_ff_incontact", is_ff_incontact);
-	//Debug::Disp("*st_it > lift_off_margin", *st_it > lift_off_margin);
-	//Debug::Disp("!is_transitional_ds_phase", !is_transitional_ds_phase);
 	// Compose bounds vector:
 	// ----------------------
 	++st_it; // Points at the first previewed instant
 	++ss_it; // Points at the first previewed instant
 	for (int i = 0; i < num_samples; ++i) {
-		if ((((!is_transitional_ds_phase && *st_it > lift_off_margin)) && is_ff_incontact && !ss_it->state_changed) || (!is_half_ds_passed && is_transitional_ds_phase && i == 0)) {
+		if ((((!is_transitional_ds_phase && *st_it > lift_off_margin)) && is_ff_incontact && !ss_it->state_changed) /*|| (*//*!is_half_ds_passed && *//*is_transitional_ds_phase && *st_it < ss_it->time_limit + mpc_parameters_->period_trans_ds() / 2. + kEps)*/) {
 			// X local
 			tmp_vec_(i)  = -kInf;
 			tmp_vec2_(i) = kInf;
 
 			// Y local
 			if (ss_it->foot == LEFT) {
-				//Debug::Disp("ss_it->foot == LEFT");
-				//Debug::Disp("max(hull_.y_vec(0), hull_.y_vec(1))", max(hull_.y_vec(0), hull_.y_vec(1)));
+				std::cout << "left foot inner constr. deactivated at: " << *st_it << std::endl;
 				tmp_vec_(num_samples + i) = -kInf;
 				tmp_vec2_(num_samples + i)= max(hull_.y_vec(0), hull_.y_vec(1));
 			} else {
-				//Debug::Disp("ss_it->foot == RIGHT");
-				//Debug::Disp("min(hull_.y_vec(0), hull_.y_vec(1))", min(hull_.y_vec(0), hull_.y_vec(1)));
+				std::cout << "right foot inner constr. deactivated at: " << *st_it << std::endl;
 				tmp_vec_(num_samples + i) = min(hull_.y_vec(0), hull_.y_vec(1));
 				tmp_vec2_(num_samples + i)= kInf;
 			}

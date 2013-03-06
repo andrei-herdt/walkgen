@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.959"
+    ComputedModelVersion    "1.965"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Mon Mar  4 11:03:27 2013"
+  LastModifiedDate	  "Tue Mar  5 19:34:43 2013"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:959>"
+  ModelVersionFormat	  "1.%<AutoIncrement:965>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -107,7 +107,7 @@ Model {
 	  $ObjectID		  2
 	  Version		  "1.3.0"
 	  StartTime		  "0.0"
-	  StopTime		  "5"
+	  StopTime		  "1"
 	  AbsTol		  "auto"
 	  FixedStep		  "1e-3"
 	  InitialStep		  "auto"
@@ -670,7 +670,7 @@ Model {
   }
   System {
     Name		    "walkgen"
-    Location		    [850, 76, 1125, 377]
+    Location		    [1642, 76, 1917, 377]
     Open		    on
     ModelBrowserVisibility  off
     ModelBrowserWidth	    200
@@ -703,7 +703,7 @@ Model {
       FunctionWithSeparateData off
       System {
 	Name			"Simulation"
-	Location		[169, 125, 913, 927]
+	Location		[158, 78, 902, 880]
 	Open			on
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
@@ -732,21 +732,21 @@ Model {
 	  SystemSampleTime	  "0.005"
 	  RTWSystemCode		  "Auto"
 	  FunctionWithSeparateData off
-	  MaskPromptString	  "Length of horizon [num. samples]|Position penalty|Velocity penalty|CoP penalty|CP penalty|CP centering penalty|Control moves penalty|First control move penalty|Step period [num. samples]|Length of initial double support phase [num. samples]|Steps before halt|Sampling period [s]|Time between recomputations [s]|Actuator sampling period [s]|Security margin [m]|Max number of working set recomputations|Dynamics order|Debug mode|PID mode|Closed loop|Inequality constraints|Formulation (0 standard, 1 decoupled modes)|Dump problems|Terminal constraints|Solver (0 QL, 1 QPOases, 2 LSSOL)|Force threshold for DS phase|Foot placement planning period [s]|Initial CoM height"
-	  MaskStyleString	  "edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit"
-	  MaskTunableValueString  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
-	  MaskCallbackString	  "|||||||||||||||||||||||||||"
-	  MaskEnableString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
-	  MaskVisibilityString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
-	  MaskToolTipString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
-	  MaskVarAliasString	  ",,,,,,,,,,,,,,,,,,,,,,,,,,,"
-	  MaskVariables		  "num_samples_horizon=@1;pos_weight=@2;vel_weight=@3;cop_weight=@4;cp_weight=@5;cp_centering_pen=@6;contr_moves_pen=@7;first_contr_move_pen=@8;num_samples_step=@9;num_samples_dsss=@10;num_steps_ssds=@11;period_qpsample=@12;period_mpcsample=@13;period_actsample=@14;security_margin=@15;num_wsrec=@16;dynamics_order=@17;is_debug_mode=@18;is_pid_mode=@19;is_closed_loop=@20;is_ineq_constraints=@21;formulation=@22;dump_problems=@23;is_terminal_constr=@24;solver=@25;ds_force_thresh=@26;ffoot_plan_period=@27;init_com_height=@28;"
+	  MaskPromptString	  "Length of horizon [num. samples]|Num. samples first period|Position penalty|Velocity penalty|CoP penalty|CP penalty|CP centering penalty|Control moves penalty|First control move penalty|Step period [num. samples]|Length of initial double support phase [num. samples]|Steps before halt|Sampling period [s]|Intermediate sampling period [s]|Time between recomputations [s]|Actuator sampling period [s]|Security margin [m]|Max number of working set recomputations|Dynamics order|Debug mode|PID mode|Closed loop|Inequality constraints|Formulation (0 standard, 1 decoupled modes)|Dump problems|Terminal constraints|Solver (0 QL, 1 QPOases, 2 LSSOL)|Force threshold for DS phase|Foot placement planning period [s]|Initial CoM height"
+	  MaskStyleString	  "edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit"
+	  MaskTunableValueString  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	  MaskCallbackString	  "|||||||||||||||||||||||||||||"
+	  MaskEnableString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	  MaskVisibilityString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	  MaskToolTipString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	  MaskVarAliasString	  ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+	  MaskVariables		  "num_samples_horizon=@1;num_samples_first_per=@2;pos_weight=@3;vel_weight=@4;cop_weight=@5;cp_weight=@6;cp_centering_pen=@7;contr_moves_pen=@8;first_contr_move_pen=@9;num_samples_step=@10;num_samples_dsss=@11;num_steps_ssds=@12;period_qpsample=@13;period_intermed_samples=@14;period_mpcsample=@15;period_actsample=@16;security_margin=@17;num_wsrec=@18;dynamics_order=@19;is_debug_mode=@20;is_pid_mode=@21;is_closed_loop=@22;is_ineq_constraints=@23;formulation=@24;dump_problems=@25;is_terminal_constr=@26;solver=@27;ds_force_thresh=@28;ffoot_plan_period=@29;init_com_height=@30;"
 	  MaskIconFrame		  on
 	  MaskIconOpaque	  on
 	  MaskIconRotate	  "none"
 	  MaskIconUnits		  "autoscale"
-	  MaskValueString	  "16|[0, 0]|[0, 0]|[0, 0]|[1, 1]|[0, 0]|[1, 1]|1|8|8|2|0.1|0.005|0.005|0.02|100|2|1|0|0|1|1|0|0|0|100|1.6|0.9"
-	  MaskTabNameString	  ",,,,,,,,,,,,,,,,,,,,,,,,,,,"
+	  MaskValueString	  "21|5|[0, 0]|[0, 0]|[0, 0]|[1, 1]|[0, 0]|[0, 0]|0|0.7|13|2|0.1|0.02|0.005|0.005|0.02|100|2|1|0|0|1|1|0|0|0|100|1.6|0.9"
+	  MaskTabNameString	  ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
 	  System {
 	    Name		    "Atomic Walkgen"
 	    Location		    [850, 74, 1598, 860]
@@ -1037,7 +1037,7 @@ Model {
 	      Ports		      [13, 19]
 	      Position		      [285, 148, 375, 712]
 	      FunctionName	      "walkgen_sfun"
-	      Parameters	      "num_samples_horizon, num_samples_step, num_samples_dsss, num_steps_ssds, period_qpsample, period_mpcsample, period_actsample, security_margin, num_wsrec, dynamics_order, is_debug_mode, pos_weight, vel_weight, cop_weight, cp_weight, contr_moves_pen, is_pid_mode, is_closed_loop, is_ineq_constraints, formulation, dump_problems, is_terminal_constr, solver, first_contr_move_pen, ds_force_thresh, ffoot_plan_period, init_com_height, cp_centering_pen"
+	      Parameters	      "num_samples_horizon, num_samples_step, num_samples_dsss, num_steps_ssds, period_qpsample, period_mpcsample, period_actsample, security_margin, num_wsrec, dynamics_order, is_debug_mode, pos_weight, vel_weight, cop_weight, cp_weight, contr_moves_pen, is_pid_mode, is_closed_loop, is_ineq_constraints, formulation, dump_problems, is_terminal_constr, solver, first_contr_move_pen, ds_force_thresh, ffoot_plan_period, init_com_height, cp_centering_pen, num_samples_first_per, period_intermed_samples"
 	      Port {
 		PortNumber		1
 		Name			"com"
@@ -1162,7 +1162,7 @@ Model {
 	      NamePlacement	      "alternate"
 	      ShowName		      off
 	      Floating		      off
-	      Location		      [79, 43, 1595, 894]
+	      Location		      [79, 53, 1595, 904]
 	      Open		      off
 	      NumInputPorts	      "1"
 	      ZoomMode		      "yonly"
@@ -1186,9 +1186,8 @@ Model {
 	      ShowName		      off
 	      Floating		      off
 	      Location		      [1167, 53, 1915, 1051]
-	      Open		      on
+	      Open		      off
 	      NumInputPorts	      "1"
-	      ZoomMode		      "xonly"
 	      List {
 		ListType		AxesTitles
 		axes1			"%<SignalLabel>"
@@ -1886,7 +1885,7 @@ Model {
 	      ShowName		      off
 	      FontName		      "Arial"
 	      FontSize		      8
-	      Value		      "[0.0, 0.11, 0., 0.0]"
+	      Value		      "[0.0, 0.1, 0., 0.0]"
 	      OutDataType	      "sfix(16)"
 	      OutScaling	      "2^0"
 	    }
@@ -2638,7 +2637,7 @@ Model {
 	  }
 	  System {
 	    Name		    "Vel. Reference"
-	    Location		    [850, 74, 1170, 267]
+	    Location		    [850, 52, 1483, 560]
 	    Open		    off
 	    ModelBrowserVisibility  off
 	    ModelBrowserWidth	    200
@@ -2672,7 +2671,7 @@ Model {
 	      ShowName		      off
 	      FontName		      "Arial"
 	      FontSize		      8
-	      Value		      "[-0.0001, 0.0, 0.0]"
+	      Value		      "[0.1, 0.0, 0.0]"
 	      OutDataType	      "sfix(16)"
 	      OutScaling	      "2^0"
 	    }

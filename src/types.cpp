@@ -180,16 +180,21 @@ void Motion::SetZero(int num_samples, int num_unst_modes) {
 
 MPCParameters::MPCParameters()
 :period_qpsample(0.)
-,period_mpcsample(0.)
+,period_inter_samples(0.)
+,period_recomputation(0.)
 ,period_actsample(0.)
-,period_ds(1000000000.0)
+,period_ds(1000000000.)
+,period_dsss(0.8)
+,period_ss(0.)
 ,ds_force_thresh(1000.)
 ,ffoot_plan_period(kInf)
 ,init_com_height(0.)
 ,num_samples_horizon(0)
+,num_samples_first_period(0)
 ,num_samples_step(0)
 ,num_samples_dsss(0)
 ,num_steps_ssds(0)
+,num_steps_max(0)
 ,warmstart(false)
 ,interpolate_whole_horizon(false)
 ,is_closed_loop(false)
@@ -206,27 +211,15 @@ MPCParameters::MPCParameters()
 MPCParameters::~MPCParameters(){}
 
 int MPCParameters::GetMPCSamplesLeft(double first_sampling_period) const{
-	return static_cast<int> (round(first_sampling_period / period_mpcsample) - 1 );
+	return static_cast<int> (round(first_sampling_period / period_recomputation) - 1 );
 }
 
 int MPCParameters::GetNumRecomputations() const{
-	return static_cast<int> (round(period_qpsample / period_mpcsample) );
+	return static_cast<int> (round(period_qpsample / period_recomputation) );
 }
 
 int MPCParameters::num_samples_act() const{
-	return static_cast<int> (round(period_mpcsample / period_actsample) );
-}
-
-int MPCParameters::num_qpsamples_ss() const {
-	return num_samples_step - 1;
-}
-
-int MPCParameters::num_steps_max() const {
-	return static_cast<int>(num_samples_horizon / num_samples_step) + 1;
-}
-
-double MPCParameters::period_ss() const {
-	return num_samples_step * period_qpsample - period_trans_ds();
+	return static_cast<int> (round(period_recomputation / period_actsample) );
 }
 
 double MPCParameters::period_trans_ds() const {

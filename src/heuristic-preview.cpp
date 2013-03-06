@@ -1,5 +1,6 @@
 #include <mpc-walkgen/heuristic-preview.h>
 
+#include <mpc-walkgen/debug.h>
 #include <cmath>
 
 using namespace MPCWalkgen;
@@ -20,18 +21,40 @@ HeuristicPreview::~HeuristicPreview() {
 }
 
 void HeuristicPreview::PreviewSamplingTimes(double current_time,
-		double first_sampling_period, MPCSolution &solution) {
+		double first_fine_period, double first_coarse_period, MPCSolution &solution) {
 
+	/*
 	solution.sampling_times_vec.resize(mpc_parameters_->num_samples_horizon + 1, 0);
 	std::fill(solution.sampling_times_vec.begin(), solution.sampling_times_vec.end(), 0);
 	// As for now, only the first sampling period varies
 	solution.sampling_times_vec[0] = current_time;
-	solution.sampling_times_vec[1] = solution.sampling_times_vec[0] + first_sampling_period;// mpc_parameters_->QPSamplingPeriod;////// //
+	solution.sampling_times_vec[1] = solution.sampling_times_vec[0] + first_coarse_period;// mpc_parameters_->QPSamplingPeriod;////// //
+
 	for (int sample = 2; sample < mpc_parameters_->num_samples_horizon + 1; sample++) {
 		solution.sampling_times_vec[sample] += solution.sampling_times_vec[sample - 1] +
 				mpc_parameters_->period_qpsample;
 	}
+	 */
 
+	solution.sampling_times_vec.resize(mpc_parameters_->num_samples_horizon + 1, 0.);//TODO
+	std::fill(solution.sampling_times_vec.begin(), solution.sampling_times_vec.end(), 0.);
+	solution.sampling_times_vec.at(0) = current_time;
+
+	int sample = 1;
+	solution.sampling_times_vec.at(sample) = solution.sampling_times_vec.at(sample - 1) + first_fine_period;
+	sample++;
+	// First qp sampling period (fine grid)
+	for (; sample <= mpc_parameters_->num_samples_first_period; sample++) {
+		solution.sampling_times_vec.at(sample) = solution.sampling_times_vec.at(sample - 1) + mpc_parameters_->period_inter_samples;
+	}
+	// Rest (coarse grid)
+	// Works only with sufficient intermediate samples
+	solution.sampling_times_vec.at(sample) = current_time + first_coarse_period + mpc_parameters_->period_qpsample;// mpc_parameters_->QPSamplingPeriod;////// //
+	sample++;
+	for (; sample < mpc_parameters_->num_samples_horizon; sample++) { //TODO: only num_samples_horizon
+		solution.sampling_times_vec.at(sample) = solution.sampling_times_vec.at(sample - 1) + mpc_parameters_->period_qpsample;
+	}
+	solution.sampling_times_vec.at(sample) = solution.sampling_times_vec.at(sample - 1) + mpc_parameters_->period_qpsample - first_coarse_period;
 }
 
 void HeuristicPreview::PreviewSupportStates(double first_sample_period, MPCSolution &solution) {
@@ -40,9 +63,12 @@ void HeuristicPreview::PreviewSupportStates(double first_sample_period, MPCSolut
 
 	// SET CURRENT SUPPORT STATE:
 	// --------------------------
+	double current_time = solution.sampling_times_vec[0];// Quickfix
+	solution.sampling_times_vec[0] += mpc_parameters_->period_recomputation;// Quickfix
 	support_fsm_->SetSupportState(0, solution.sampling_times_vec, current_support);
-	current_support.transitional_ds = false;
+	solution.sampling_times_vec[0] = current_time;// Quickfix
 	if (current_support.state_changed) {
+		std::cout << "current state changed at: " << solution.sampling_times_vec[0] << std::endl;
 		if (current_support.foot == LEFT) {
 			foot = &robot_->left_foot()->state();
 		} else {
@@ -52,6 +78,9 @@ void HeuristicPreview::PreviewSupportStates(double first_sample_period, MPCSolut
 		current_support.y = foot->y(0);
 		current_support.yaw = foot->yaw(0);
 		current_support.start_time = solution.sampling_times_vec[0];
+	}
+	if (solution.sampling_times_vec[0] > current_support.start_time + mpc_parameters_->period_trans_ds() - kEps) {
+		current_support.transitional_ds = false;
 	}
 	solution.support_states_vec.push_back(current_support);
 
@@ -63,32 +92,31 @@ void HeuristicPreview::PreviewSupportStates(double first_sample_period, MPCSolut
 	for (int sample = 1; sample <= mpc_parameters_->num_samples_horizon; sample++) {
 		support_fsm_->SetSupportState(sample, solution.sampling_times_vec, previewed_support);
 		// special treatment for the first instant of transitionalDS
-		previewed_support.transitional_ds = false;
-		if (previewed_support.state_changed) {
-			if (sample == 1) {// robot is already in ds phase
-				if (previewed_support.foot == LEFT) {
-					foot = &robot_->left_foot()->state();
-				} else {
-					foot = &robot_->right_foot()->state();
-				}
-				previewed_support.x = foot->x(0);
-				previewed_support.y = foot->y(0);
-				previewed_support.yaw = foot->yaw(0);
-				previewed_support.start_time = solution.sampling_times_vec[sample];
-				if (current_support.phase == SS && previewed_support.phase == SS) {
-					previewed_support.transitional_ds = true;
-				}
-			}
-			if (previewed_support.step_number > 0) {
-				previewed_support.x = 0.0;
-				previewed_support.y = 0.0;
-			}
+		if (solution.sampling_times_vec[sample] > previewed_support.start_time + mpc_parameters_->period_trans_ds() + kEps) {
+			previewed_support.transitional_ds = false;
 		}
+		if (previewed_support.step_number > 0) {
+			previewed_support.x = 0.0;
+			previewed_support.y = 0.0;
+		}
+		if (previewed_support.transitional_ds) {
+			// robot is already in ds phase
+			if (previewed_support.foot == LEFT) {
+				foot = &robot_->left_foot()->state();
+			} else {
+				foot = &robot_->right_foot()->state();
+			}
+			previewed_support.x = foot->x(0);
+			previewed_support.y = foot->y(0);
+			previewed_support.yaw = foot->yaw(0);
+		}
+		/*
 		if (sample == 1) {
 			previewed_support.previous_sampling_period = first_sample_period;
 		} else {
 			previewed_support.previous_sampling_period = mpc_parameters_->period_qpsample;
 		}
+		*/
 		solution.support_states_vec.push_back(previewed_support);
 	}
 

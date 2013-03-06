@@ -18,7 +18,7 @@ using namespace std;
 
 static void mdlInitializeSizes(SimStruct *S) {
 	// Expected number of parameters
-	ssSetNumSFcnParams(S, 28);
+	ssSetNumSFcnParams(S, 30);
 
 	// Parameter mismatch?
 	if (ssGetNumSFcnParams(S) != ssGetSFcnParamsCount(S)) {
@@ -70,7 +70,7 @@ static void mdlInitializeSizes(SimStruct *S) {
 	// Previewed motions:
 	const int kNumSamplesHorizon      = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 0)));
 	const int kNumSamplesStep         = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 1)));
-	const int num_steps_max           = kNumSamplesHorizon / kNumSamplesStep + 1;
+	const int num_steps_max           = 3;//kNumSamplesHorizon / kNumSamplesStep + 1;
 	ssSetOutputPortWidth(S, 10, num_steps_max);               //first_foot_prw
 	ssSetOutputPortWidth(S, 11, 4 * kNumSamplesHorizon);     //com_prw (sample_instants, x, y, z)
 	ssSetOutputPortWidth(S, 12, 3 * kNumSamplesHorizon);     //cop_prw (sample_instants, x, y)
@@ -105,16 +105,19 @@ static void mdlStart(SimStruct *S) {
 	int solver_in 				= static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 22)));
 
 	MPCParameters mpc_parameters;
-	mpc_parameters.num_samples_horizon  = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 0)));
-	mpc_parameters.num_samples_step     = min(static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 1))), mpc_parameters.num_samples_horizon);
-	mpc_parameters.num_samples_dsss     = min(static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 2))), mpc_parameters.num_samples_horizon);
-	mpc_parameters.num_steps_ssds       = min(static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 3))), mpc_parameters.num_samples_horizon);
-	mpc_parameters.period_qpsample      = *mxGetPr(ssGetSFcnParam(S, 4));
-	mpc_parameters.period_mpcsample     = *mxGetPr(ssGetSFcnParam(S, 5));
-	mpc_parameters.period_actsample     = *mxGetPr(ssGetSFcnParam(S, 6));
+	mpc_parameters.num_samples_horizon  		= static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 0)));
+	mpc_parameters.num_samples_first_period		= static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 28)));
+	mpc_parameters.period_ss     				= *mxGetPr(ssGetSFcnParam(S, 1));
+	mpc_parameters.num_samples_dsss     		= min(static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 2))), mpc_parameters.num_samples_horizon);
+	mpc_parameters.num_steps_ssds       		= min(static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 3))), mpc_parameters.num_samples_horizon);
+	mpc_parameters.num_steps_max				= 3;
+	mpc_parameters.period_qpsample     			= *mxGetPr(ssGetSFcnParam(S, 4));
+	mpc_parameters.period_recomputation     		= *mxGetPr(ssGetSFcnParam(S, 5));
+	mpc_parameters.period_actsample     		= *mxGetPr(ssGetSFcnParam(S, 6));
+	mpc_parameters.period_inter_samples			= *mxGetPr(ssGetSFcnParam(S, 29));
 
-	mpc_parameters.solver.num_wsrec     = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 8)));
-	mpc_parameters.warmstart			= false;
+	mpc_parameters.solver.num_wsrec     		= static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 8)));
+	mpc_parameters.warmstart					= false;
 	if (is_debug_in == 0) {
 		mpc_parameters.interpolate_whole_horizon	= false;
 		mpc_parameters.solver.analysis			    = false;
@@ -415,8 +418,8 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 		const SupportState &next_support = solution.support_states_vec[1];
 		if (current_support.state_changed) {
 			support[0] = current_support.start_time;
-		} else if (next_support.transitional_ds) {
-			support[0] = current_support.time_limit - 0.1;  // TODO: 0.1 is temporary solution
+		} else if (current_support.transitional_ds && !next_support.transitional_ds) {
+			support[0] = current_support.start_time + walk->mpc_parameters().period_trans_ds();  // TODO: 0.1 is temporary solution
 		} else {
 			support[0] = 0.0;
 		}
@@ -450,7 +453,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 		sim_parameters[2] = walk->mpc_parameters().num_samples_dsss;
 		sim_parameters[3] = walk->mpc_parameters().num_steps_ssds;
 		sim_parameters[4] = walk->mpc_parameters().period_qpsample;
-		sim_parameters[5] = walk->mpc_parameters().period_mpcsample;
+		sim_parameters[5] = walk->mpc_parameters().period_recomputation;
 		sim_parameters[6] = walk->mpc_parameters().period_actsample;
 	}
 }

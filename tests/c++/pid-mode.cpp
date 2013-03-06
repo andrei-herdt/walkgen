@@ -29,7 +29,7 @@ int main() {
 	mpc_parameters.num_samples_dsss       = std::min(num_samples_dsss, num_samples_horizon);
 	mpc_parameters.num_steps_ssds         = std::min(num_steps_ssds, num_samples_horizon);
 	mpc_parameters.period_qpsample        = sample_period_qp;
-	mpc_parameters.period_mpcsample       = sample_period_first;
+	mpc_parameters.period_recomputation       = sample_period_first;
 	mpc_parameters.period_actsample       = sample_period_act;
 	mpc_parameters.warmstart                      = false;
 	mpc_parameters.interpolate_whole_horizon      = true;

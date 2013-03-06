@@ -36,22 +36,37 @@ void RigidBody::ComputeDynamics(SystemOrder dynamics_order) {
 	assert(mpc_parameters_->num_samples_horizon > 0.);
 
 	int num_samples = mpc_parameters_->num_samples_horizon;
-	double sp_first = mpc_parameters_->period_mpcsample;
-	double sp_rest = mpc_parameters_->period_qpsample;
-	double num_rec = sp_rest / sp_first;
 	int num_dynamics = mpc_parameters_->GetNumRecomputations();
-	double com_height = state_.z(0);
 
-	std::vector<double> sampling_periods_vec(num_samples, sp_rest);
+	// Build vector of sampling periods:
+	// ---------------------------------
+	std::vector<double> sampling_periods_vec(num_samples, mpc_parameters_->period_qpsample);
+	for(int i = 0; i < mpc_parameters_->num_samples_first_period; i++) {
+		sampling_periods_vec[i] = mpc_parameters_->period_inter_samples;
+	}
+
+
+	int num_cycles_ext = static_cast<int>(mpc_parameters_->period_qpsample / mpc_parameters_->period_inter_samples);
+	int num_cycles_int = static_cast<int>(mpc_parameters_->period_inter_samples / mpc_parameters_->period_recomputation);
+	double first_period = mpc_parameters_->period_recomputation;
+	double last_period = mpc_parameters_->period_qpsample;
+
 	std::vector<LinearDynamics>::iterator dyn_it = dynamics_qp_vec_.begin();
-	for (int k = 0; k < num_dynamics; ++k) {
-		sampling_periods_vec[0] = sp_first * (k+1);
-		dyn_build_p_->Build(dynamics_order, *dyn_it, com_height, sampling_periods_vec, num_samples, false);
-		++dyn_it;
+	for (int k = 0; k < num_cycles_ext; ++k) {
+		first_period = mpc_parameters_->period_recomputation;
+		for (int i = 0; i < num_cycles_int; ++i) {
+			sampling_periods_vec.at(0) = first_period;
+			last_period -= mpc_parameters_->period_recomputation;
+			sampling_periods_vec.back() = last_period;
+			dyn_build_p_->Build(dynamics_order, *dyn_it, state_.z(0), sampling_periods_vec, num_samples, false);
+			++dyn_it;
+			first_period += mpc_parameters_->period_recomputation;
+			Debug::Cout("sampling_periods_vec", sampling_periods_vec);
+		}
 	}
 
 	num_samples = mpc_parameters_->num_samples_act();
 	sampling_periods_vec.resize(num_samples);
 	std::fill(sampling_periods_vec.begin(), sampling_periods_vec.end(), mpc_parameters_->period_actsample);
-	dyn_build_p_->Build(dynamics_order, dynamics_act_, com_height, sampling_periods_vec, num_samples, true);
+	dyn_build_p_->Build(dynamics_order, dynamics_act_, state_.z(0), sampling_periods_vec, num_samples, true);
 }

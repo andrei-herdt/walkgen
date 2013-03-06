@@ -22,7 +22,8 @@ public:
 	~HeuristicPreview();
 
 	void PreviewSamplingTimes(double current_time,
-			double first_period,
+			double first_fine_period,
+			double first_coarse_period,
 			MPCSolution &solution
 	);
 

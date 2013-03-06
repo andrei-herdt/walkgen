@@ -17,7 +17,8 @@ Walkgen::Walkgen()
 ,output_index_(0)
 ,solution_()
 ,vel_ref_()
-,first_sample_time_(0)
+,first_coarse_sample_(0.)
+,first_fine_sample_(0.)
 ,next_computation_(0)
 ,next_act_sample_(0)
 ,current_time_(0)
@@ -52,10 +53,9 @@ Walkgen::~Walkgen() {
 
 void Walkgen::Init(MPCParameters &mpc_parameters) {
 	assert(mpc_parameters.num_samples_horizon > mpc_parameters_.num_samples_dsss);
-	assert(mpc_parameters.num_samples_horizon > mpc_parameters_.num_samples_step);
 	assert(mpc_parameters.num_samples_horizon > mpc_parameters_.num_steps_ssds);
-	assert(mpc_parameters.period_qpsample >= mpc_parameters.period_mpcsample - kEps);
-	assert(mpc_parameters.period_mpcsample >= mpc_parameters.period_actsample - kEps);
+	assert(mpc_parameters.period_qpsample >= mpc_parameters.period_recomputation - kEps);
+	assert(mpc_parameters.period_recomputation >= mpc_parameters.period_actsample - kEps);
 
 	mpc_parameters_ = mpc_parameters;
 
@@ -64,7 +64,7 @@ void Walkgen::Init(MPCParameters &mpc_parameters) {
 	// Solver:
 	// -------
 	int num_constr_step = 5; // TODO: Move this to MPCParameters
-	int num_steps_max = mpc_parameters_.num_steps_max();
+	int num_steps_max = mpc_parameters_.num_steps_max;
 	int num_vars_max = 2 * (mpc_parameters_.num_samples_horizon + num_steps_max);
 	int num_constr_max = 0;
 	if (mpc_parameters_.formulation == DECOUPLED_MODES) {
@@ -127,21 +127,27 @@ void Walkgen::Init(const RobotData &robot_data) {
 }
 
 const MPCSolution &Walkgen::Go(){
-	current_time_ += mpc_parameters_.period_mpcsample;
+	current_time_ += mpc_parameters_.period_recomputation;
 	return Go(current_time_);
 }
 
 const MPCSolution &Walkgen::Go(double time){
 	current_time_ = time;
 
-	if (time > next_computation_ - mpc_parameters_.period_mpcsample/2.) {
-		next_computation_ += mpc_parameters_.period_mpcsample;
-		if (time > next_computation_ - mpc_parameters_.period_mpcsample/2.) {
+	if (time > next_computation_ - mpc_parameters_.period_recomputation/2.) {
+		next_computation_ += mpc_parameters_.period_recomputation;
+		if (time > next_computation_ - mpc_parameters_.period_recomputation/2.) {
 			ResetCounters(time);
 		}
-		if(time > first_sample_time_ - mpc_parameters_.period_mpcsample/2.){
-			first_sample_time_ += mpc_parameters_.period_qpsample;
-			if (time > first_sample_time_ - mpc_parameters_.period_mpcsample/2.) {
+		if(time > first_fine_sample_ - mpc_parameters_.period_recomputation/2.){
+			first_fine_sample_ += mpc_parameters_.period_inter_samples;
+			if (time > first_fine_sample_ - mpc_parameters_.period_recomputation/2.) {
+				ResetCounters(time);
+			}
+		}
+		if(time > first_coarse_sample_ - mpc_parameters_.period_recomputation/2.){
+			first_coarse_sample_ += mpc_parameters_.period_qpsample;
+			if (time > first_coarse_sample_ - mpc_parameters_.period_recomputation/2.) {
 				ResetCounters(time);
 			}
 		}
@@ -214,8 +220,9 @@ void Walkgen::Init() {
 void Walkgen::SetCounters(double time) {}
 
 void Walkgen::ResetCounters(double time) {
-	first_sample_time_ = time + mpc_parameters_.period_qpsample;
-	next_computation_ = time + mpc_parameters_.period_mpcsample;
+	first_coarse_sample_ = time + mpc_parameters_.period_qpsample;
+	first_fine_sample_ = time + mpc_parameters_.period_inter_samples;
+	next_computation_ = time + mpc_parameters_.period_recomputation;
 	next_act_sample_ = time + mpc_parameters_.period_actsample;
 }
 
@@ -226,24 +233,26 @@ void Walkgen::BuildProblem() {
 	solution_.Reset();
 	vel_ref_ = new_vel_ref_;
 
-	double first_sampling_period = first_sample_time_ - current_time_;//TODO:
+	double first_coarse_period = first_coarse_sample_ - current_time_;//TODO:
+	double first_fine_period = first_fine_sample_ - current_time_;//TODO:
 
 	// PREVIEW:
 	// --------
-	preview_->PreviewSamplingTimes(current_time_, first_sampling_period, solution_);
+	preview_->PreviewSamplingTimes(current_time_, first_fine_period, first_coarse_period, solution_);
+	Debug::Cout("solution_.sampling_times_vec", solution_.sampling_times_vec);
 
-	preview_->PreviewSupportStates(first_sampling_period, solution_);
+	preview_->PreviewSupportStates(first_fine_period, solution_);
 
 	// Adapt local capture point offset to the previewed foot:
 	// TODO: No rotation considered!!!
-	// ---------------------------------
+	// -------------------------------
 	for (int i = 0; i < mpc_parameters_.num_samples_horizon - 1 ; i++) {
 		if (solution_.support_states_vec[i + 1].phase == SS) {
 			if ((solution_.support_states_vec[i + 1].foot == LEFT && solution_.support_states_vec[i + 2].foot != RIGHT)
-					|| (solution_.support_states_vec[i+1].foot == RIGHT && solution_.support_states_vec[i+2].foot == LEFT)) {
+					|| (solution_.support_states_vec[i + 1].foot == RIGHT && solution_.support_states_vec[i + 2].foot == LEFT)) {
 				cp_ref_.local.y[i] *= -1.;
 			} else if ((solution_.support_states_vec[i + 1].foot == RIGHT && solution_.support_states_vec[i + 2].foot != LEFT)
-					|| (solution_.support_states_vec[i+1].foot == LEFT && solution_.support_states_vec[i+2].foot == RIGHT)) {
+					|| (solution_.support_states_vec[i + 1].foot == LEFT && solution_.support_states_vec[i + 2].foot == RIGHT)) {
 				// Do nothing (sign is correct)
 			}
 		} else { // DS phase
@@ -266,7 +275,7 @@ void Walkgen::BuildProblem() {
 	}
 
 	orient_preview_->preview_orientations( current_time_, vel_ref_,
-			mpc_parameters_.num_samples_step * mpc_parameters_.period_qpsample, robot_.left_foot()->state(),
+			mpc_parameters_.period_ss, robot_.left_foot()->state(),
 			robot_.right_foot()->state(), solution_ );
 	preview_->BuildRotationMatrix(solution_);
 

@@ -7,27 +7,29 @@ using namespace MPCWalkgen;
 
 int main() {
 
-	int num_samples_horizon 		= 16;
-	int num_samples_step 			= 8;
-	int num_samples_dsss 			= 8;
-	int num_steps_ssds 			= 2;
+	int num_samples_horizon 		= 21;
+	int num_samples_dsss 			= 13;
+	int num_steps_ssds 				= 2;
 	double sample_period_qp 		= .1;
 	double sample_period_first 		= .005;
 	double sample_period_act 		= .005;
-	const double kSecurityMargin 		= .02;
+	const double kSecurityMargin 	= .02;
 
 	// Simulation parameters:
 	// ----------------------
 	MPCParameters mpc_parameters;
 	mpc_parameters.num_samples_horizon    		= num_samples_horizon;
-	mpc_parameters.num_samples_step       		= std::min(num_samples_step, num_samples_horizon);
+	mpc_parameters.num_samples_first_period		= 5;
 	mpc_parameters.num_samples_dsss       		= std::min(num_samples_dsss, num_samples_horizon);
 	mpc_parameters.num_steps_ssds         		= std::min(num_steps_ssds, num_samples_horizon);
+	mpc_parameters.num_steps_max				= 3;
 	mpc_parameters.period_qpsample        		= sample_period_qp;
-	mpc_parameters.period_mpcsample       		= sample_period_first;
+	mpc_parameters.period_inter_samples			= 0.02;
+	mpc_parameters.period_recomputation       		= sample_period_first;
 	mpc_parameters.period_actsample       		= sample_period_act;
+	mpc_parameters.period_ss					= 0.7;
 	mpc_parameters.warmstart           			= false;
-	mpc_parameters.interpolate_whole_horizon    = false;
+	mpc_parameters.interpolate_whole_horizon    = true;
 	mpc_parameters.solver.analysis              = false;
 	mpc_parameters.problem_dumping		      	= false;
 	mpc_parameters.solver.name                  = QLD;
@@ -36,23 +38,23 @@ int main() {
 	mpc_parameters.formulation		      		= DECOUPLED_MODES;
 	mpc_parameters.is_pid_mode		      		= false;
 	mpc_parameters.is_terminal_constr	      	= false;
-	mpc_parameters.is_ineq_constr				= true;
+	mpc_parameters.is_ineq_constr				= false;
 	mpc_parameters.problem_dumping				= false;
 
 	mpc_parameters.penalties.pos[0] 			= 0.;
 	mpc_parameters.penalties.vel[0]  			= 0.;
 	mpc_parameters.penalties.cop[0]  			= 1.;//0.00001;
-	mpc_parameters.penalties.cp[0] 			= 10.;
+	mpc_parameters.penalties.cp[0] 				= 10.;
 	mpc_parameters.penalties.contr_moves[0] 	= 1;
 	mpc_parameters.penalties.first_contr_move 	= 1;
 
-	mpc_parameters.penalties.pos[1] 		= 0.;
-	mpc_parameters.penalties.vel[1]  		= 0.;
-	mpc_parameters.penalties.cop[1]  		= 1.;//1.;
-	mpc_parameters.penalties.cp[1] 			= 10.;
+	mpc_parameters.penalties.pos[1] 			= 0.;
+	mpc_parameters.penalties.vel[1]  			= 0.;
+	mpc_parameters.penalties.cop[1]  			= 1.;//1.;
+	mpc_parameters.penalties.cp[1] 				= 10.;
 	mpc_parameters.penalties.contr_moves[1] 	= 0.;
 
-	mpc_parameters.init_com_height 			= 0.9;
+	mpc_parameters.init_com_height 				= 0.9;
 
 	// Robot parameters:
 	// -----------------

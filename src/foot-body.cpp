@@ -16,6 +16,8 @@ FootBody::FootBody(Foot which) : RigidBody()
 FootBody::~FootBody(){}
 
 void FootBody::Interpolate(MPCSolution &solution, double current_time, const Reference &/*ref*/) {
+	assert(mpc_parameters_->period_ss > kEps);
+
 	BodyState goal_state;
 	const SupportState &current_support = solution.support_states_vec[0];
 	const SupportState &next_support = solution.support_states_vec[1];
@@ -28,10 +30,10 @@ void FootBody::Interpolate(MPCSolution &solution, double current_time, const Ref
 	double time_left_z = 1; // Duration of the current interpolation phase of the vertical motion
 	int num_samples = mpc_parameters_->num_samples_act();
 	double period_ds = mpc_parameters_->period_trans_ds();
-	double raise_period = std::max(0.05, mpc_parameters_->period_mpcsample); // Time during which the horizontal displacement is blocked
+	double raise_period = std::max(0.05, mpc_parameters_->period_recomputation); // Time during which the horizontal displacement is blocked
 	double time_left_flying = 0.0;
 	double time_spent_flying = 0.0;
-	double halftime_rounded = std::ceil(static_cast<double>(mpc_parameters_->num_qpsamples_ss()) / 2.0) * mpc_parameters_->period_qpsample;
+	double halftime_rounded = mpc_parameters_->period_ss / 2.;
 	if (current_support.phase == SS) {
 		time_left_flying = current_support.time_limit - period_ds - current_time;
 		time_spent_flying = current_time - current_support.start_time;

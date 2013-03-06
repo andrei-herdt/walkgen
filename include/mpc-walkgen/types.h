@@ -198,9 +198,12 @@ struct SolverData {
 
 struct MPC_WALKGEN_API MPCParameters {
 	double period_qpsample;				// Sampling period [sec]
-	double period_mpcsample;			// Time between recomputations [sec]
+	double period_inter_samples;		//
+	double period_recomputation;			// Time between recomputations [sec]
 	double period_actsample;			// Actuator sampling period [sec]
 	double period_ds;					// Length of the (permanent) double support phase (should be a large value)
+	double period_dsss;
+	double period_ss;					// Length of single support phase
 
 	double ds_force_thresh;				// Force that defines the double support phase
 	double ffoot_plan_period;			// Time for planning the foot placement
@@ -208,9 +211,11 @@ struct MPC_WALKGEN_API MPCParameters {
 	double init_com_height;				// Initial CoM height is given
 
 	int num_samples_horizon;  			// Number of samplings inside horizon
+	int num_samples_first_period;		// Number of additional samples inside first sampling period
 	int num_samples_step;				// Step period ss_left<->ss_right in qp sample periods
 	int num_samples_dsss;				// Length of initial double support phase [num. samples]
 	int num_steps_ssds;					// Steps before halt
+	int num_steps_max;
 
 	bool warmstart;
 	bool interpolate_whole_horizon;		// Interpolate not only the control (first element) but for the whole preview period
@@ -238,9 +243,7 @@ struct MPC_WALKGEN_API MPCParameters {
 	int GetNumRecomputations() const;			/// \brief Number of feedback iterations between two QP instants
 
 	int num_qpsamples_ss() const;
-	int num_steps_max() const;
 
-	double period_ss() const;
 	double period_trans_ds() const;
 
 	MPCParameters();

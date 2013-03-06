@@ -93,7 +93,8 @@ private:
 	Reference new_vel_ref_;
 
 	/// \brief Time at which the problem should be updated
-	double first_sample_time_;
+	double first_coarse_sample_;
+	double first_fine_sample_;
 	double next_computation_;
 	double next_act_sample_;
 
