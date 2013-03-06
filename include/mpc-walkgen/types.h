@@ -210,6 +210,7 @@ struct MPC_WALKGEN_API MPCParameters {
 
 	double init_com_height;				// Initial CoM height is given
 
+	int num_samples_horizon_max;		// Number max of samples
 	int num_samples_horizon;  			// Number of samplings inside horizon
 	int num_samples_first_period;		// Number of additional samples inside first sampling period
 	int num_samples_step;				// Step period ss_left<->ss_right in qp sample periods
@@ -333,6 +334,8 @@ struct MPC_WALKGEN_API MPCSolution {
 
 	double prev_first_foot_x, prev_first_foot_y;
 	double prev_cop_x, prev_cop_y;
+
+	double first_coarse_period;
 
 
 	MPCSolution& operator = (MPCSolution const &);	//This operator helps to avoid alignment errors

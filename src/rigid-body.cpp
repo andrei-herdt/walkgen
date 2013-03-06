@@ -33,9 +33,9 @@ void RigidBody::Init(DynamicsBuilder *dyn_build_p) {
 
 void RigidBody::ComputeDynamics(SystemOrder dynamics_order) {
 	assert(state_.z(0) > kEps);
-	assert(mpc_parameters_->num_samples_horizon > 0.);
+	assert(mpc_parameters_->num_samples_horizon_max > 0);
 
-	int num_samples = mpc_parameters_->num_samples_horizon;
+	int num_samples = mpc_parameters_->num_samples_horizon_max;
 	int num_dynamics = mpc_parameters_->GetNumRecomputations();
 
 	// Build vector of sampling periods:
@@ -44,7 +44,6 @@ void RigidBody::ComputeDynamics(SystemOrder dynamics_order) {
 	for(int i = 0; i < mpc_parameters_->num_samples_first_period; i++) {
 		sampling_periods_vec[i] = mpc_parameters_->period_inter_samples;
 	}
-
 
 	int num_cycles_ext = static_cast<int>(mpc_parameters_->period_qpsample / mpc_parameters_->period_inter_samples);
 	int num_cycles_int = static_cast<int>(mpc_parameters_->period_inter_samples / mpc_parameters_->period_recomputation);
@@ -58,6 +57,9 @@ void RigidBody::ComputeDynamics(SystemOrder dynamics_order) {
 			sampling_periods_vec.at(0) = first_period;
 			last_period -= mpc_parameters_->period_recomputation;
 			sampling_periods_vec.back() = last_period;
+			if (last_period < kEps) {
+				sampling_periods_vec.pop_back();
+			}
 			dyn_build_p_->Build(dynamics_order, *dyn_it, state_.z(0), sampling_periods_vec, num_samples, false);
 			++dyn_it;
 			first_period += mpc_parameters_->period_recomputation;

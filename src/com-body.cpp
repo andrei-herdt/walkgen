@@ -75,7 +75,7 @@ void CoMBody::Interpolate(MPCSolution &solution, double current_time, const Refe
 			state_x = state_x.block(0, 0, mpc_parameters_->dynamics_order - num_unst_modes, 1);
 			state_y = state_y.block(0, 0, mpc_parameters_->dynamics_order - num_unst_modes, 1);
 			//TODO: Simplify this
-			int samples_left = mpc_parameters_->GetMPCSamplesLeft(solution.sampling_times_vec[1] - solution.sampling_times_vec[0]);
+			int samples_left = mpc_parameters_->GetMPCSamplesLeft(solution.first_coarse_period);
 			interpolation_.Interpolate(solution.com_prw.pos.x_vec, dynamics_qp()[samples_left].pos,
 					state_x, solution.com_prw.control.x_vec);
 			interpolation_.Interpolate(solution.com_prw.pos.y_vec, dynamics_qp()[samples_left].pos,
@@ -106,7 +106,7 @@ void CoMBody::Interpolate(MPCSolution &solution, double current_time, const Refe
 					state_y, solution.com_prw.control.y_vec);
 		} else {
 
-			int samples_left = mpc_parameters_->GetMPCSamplesLeft(solution.sampling_times_vec[1] - solution.sampling_times_vec[0]);
+			int samples_left = mpc_parameters_->GetMPCSamplesLeft(solution.first_coarse_period);
 			interpolation_.Interpolate(solution.com_prw.pos.x_vec, dynamics_qp()[samples_left].pos,
 					state_x, solution.com_prw.control.x_vec);
 			interpolation_.Interpolate(solution.com_prw.pos.y_vec, dynamics_qp()[samples_left].pos,

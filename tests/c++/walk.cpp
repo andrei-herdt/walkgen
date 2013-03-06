@@ -7,7 +7,7 @@ using namespace MPCWalkgen;
 
 int main() {
 
-	int num_samples_horizon 		= 21;
+	int num_samples_horizon_max 		= 21;
 	int num_samples_dsss 			= 13;
 	int num_steps_ssds 				= 2;
 	double sample_period_qp 		= .1;
@@ -18,10 +18,10 @@ int main() {
 	// Simulation parameters:
 	// ----------------------
 	MPCParameters mpc_parameters;
-	mpc_parameters.num_samples_horizon    		= num_samples_horizon;
+	mpc_parameters.num_samples_horizon_max    		= num_samples_horizon_max;
 	mpc_parameters.num_samples_first_period		= 5;
-	mpc_parameters.num_samples_dsss       		= std::min(num_samples_dsss, num_samples_horizon);
-	mpc_parameters.num_steps_ssds         		= std::min(num_steps_ssds, num_samples_horizon);
+	mpc_parameters.num_samples_dsss       		= std::min(num_samples_dsss, num_samples_horizon_max);
+	mpc_parameters.num_steps_ssds         		= std::min(num_steps_ssds, num_samples_horizon_max);
 	mpc_parameters.num_steps_max				= 3;
 	mpc_parameters.period_qpsample        		= sample_period_qp;
 	mpc_parameters.period_inter_samples			= 0.02;

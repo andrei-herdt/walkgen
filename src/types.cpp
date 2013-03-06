@@ -110,6 +110,7 @@ MPCSolution::MPCSolution()
 ,prev_first_foot_y(0.)
 ,prev_cop_x(0.)
 ,prev_cop_y(0.)
+,first_coarse_period(0.)
 {}
 
 MPCSolution::~MPCSolution() {}
@@ -189,6 +190,7 @@ MPCParameters::MPCParameters()
 ,ds_force_thresh(1000.)
 ,ffoot_plan_period(kInf)
 ,init_com_height(0.)
+,num_samples_horizon_max(0)
 ,num_samples_horizon(0)
 ,num_samples_first_period(0)
 ,num_samples_step(0)

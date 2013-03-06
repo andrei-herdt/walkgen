@@ -30,7 +30,7 @@ void DynamicsBuilder::Init(const MPCParameters *mpc_parameters) {
 void DynamicsBuilder::Build(SystemOrder dynamics_order, LinearDynamics &dyn, double height, const std::vector<double> &sampling_periods_vec, int num_samples, bool actuation) {
 	switch (dynamics_order) {
 	case SECOND_ORDER:
-		BuildSecondOrder(dyn, height, sampling_periods_vec, num_samples, actuation);
+		BuildSecondOrder(dyn, height, sampling_periods_vec, actuation);
 		break;
 	case THIRD_ORDER:
 		BuildThirdOrder(dyn, height, sampling_periods_vec, num_samples);
@@ -41,7 +41,7 @@ void DynamicsBuilder::Build(SystemOrder dynamics_order, LinearDynamics &dyn, dou
 //
 // Private methods:
 //
-void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, const std::vector<double> &sampling_periods_vec, int num_samples, bool is_actuation) {
+void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, const std::vector<double> &sampling_periods_vec, bool is_actuation) {
 	assert(sampling_periods_vec.at(0) > 0.);
 	assert(sampling_periods_vec.size() > 0);
 
@@ -52,6 +52,8 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, const
 	BuildSecondOrderCoPOutput(dyn.cop, height, sample_period_first, sample_period_rest, num_samples, COP);
 	 */
 
+	int num_samples = static_cast<int>(sampling_periods_vec.size());
+	std::cout << "num_samples in dynamics_builder" << num_samples << std::endl;
 	double omega = sqrt(kGravity/height);
 	double omega_square = kGravity/height;
 	if (mpc_parameters_->formulation == STANDARD || is_actuation) {

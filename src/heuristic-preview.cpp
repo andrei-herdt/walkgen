@@ -8,10 +8,10 @@ using namespace MPCWalkgen;
 HeuristicPreview::HeuristicPreview(Reference *ref, RigidBodySystem *robot, const MPCParameters *mpc_parameters, RealClock *clock)
 :robot_(robot)
 ,mpc_parameters_(mpc_parameters)
-,select_matrices_(mpc_parameters->num_samples_horizon)//TODO: Unstable mode number fixed to 1 but should be give as parameter
-,rot_mat_ (CommonMatrixType::Zero(2*mpc_parameters_->num_samples_horizon, 2*mpc_parameters_->num_samples_horizon))
-,rot_mat2_(CommonMatrixType::Zero(2*mpc_parameters_->num_samples_horizon, 2*mpc_parameters_->num_samples_horizon))
-,rot_mat2_tr_(CommonMatrixType::Zero(2*mpc_parameters_->num_samples_horizon, 2*mpc_parameters_->num_samples_horizon))
+,select_matrices_(mpc_parameters->num_samples_horizon_max)//TODO: Unstable mode number fixed to 1 but should be give as parameter
+,rot_mat_ (CommonMatrixType::Zero(2*mpc_parameters_->num_samples_horizon_max, 2*mpc_parameters_->num_samples_horizon_max))
+,rot_mat2_(CommonMatrixType::Zero(2*mpc_parameters_->num_samples_horizon_max, 2*mpc_parameters_->num_samples_horizon_max))
+,rot_mat2_tr_(CommonMatrixType::Zero(2*mpc_parameters_->num_samples_horizon_max, 2*mpc_parameters_->num_samples_horizon_max))
 ,clock_(clock) {
 	support_fsm_ = new StateFSM(ref, mpc_parameters);
 }
@@ -36,7 +36,7 @@ void HeuristicPreview::PreviewSamplingTimes(double current_time,
 	}
 	 */
 
-	solution.sampling_times_vec.resize(mpc_parameters_->num_samples_horizon + 1, 0.);//TODO
+	solution.sampling_times_vec.resize(mpc_parameters_->num_samples_horizon_max + 1, 0.);//TODO
 	std::fill(solution.sampling_times_vec.begin(), solution.sampling_times_vec.end(), 0.);
 	solution.sampling_times_vec.at(0) = current_time;
 
@@ -51,10 +51,13 @@ void HeuristicPreview::PreviewSamplingTimes(double current_time,
 	// Works only with sufficient intermediate samples
 	solution.sampling_times_vec.at(sample) = current_time + first_coarse_period + mpc_parameters_->period_qpsample;// mpc_parameters_->QPSamplingPeriod;////// //
 	sample++;
-	for (; sample < mpc_parameters_->num_samples_horizon; sample++) { //TODO: only num_samples_horizon
+	for (; sample < mpc_parameters_->num_samples_horizon_max; sample++) { //TODO: only num_samples_horizon
 		solution.sampling_times_vec.at(sample) = solution.sampling_times_vec.at(sample - 1) + mpc_parameters_->period_qpsample;
 	}
 	solution.sampling_times_vec.at(sample) = solution.sampling_times_vec.at(sample - 1) + mpc_parameters_->period_qpsample - first_coarse_period;
+	if (mpc_parameters_->period_qpsample - first_coarse_period < kEps) {
+		solution.sampling_times_vec.pop_back();
+	}
 }
 
 void HeuristicPreview::PreviewSupportStates(double first_sample_period, MPCSolution &solution) {
@@ -116,7 +119,7 @@ void HeuristicPreview::PreviewSupportStates(double first_sample_period, MPCSolut
 		} else {
 			previewed_support.previous_sampling_period = mpc_parameters_->period_qpsample;
 		}
-		*/
+		 */
 		solution.support_states_vec.push_back(previewed_support);
 	}
 
@@ -159,8 +162,10 @@ void HeuristicPreview::BuildSelectionMatrices(MPCSolution &solution) {//Move to 
 	int num_samples = mpc_parameters_->num_samples_horizon;
 	int num_rows = num_samples;/// + 1;	//TODO: Fixed value for number unstable modes
 
-	if (select_matrices_.sample_step.cols() != num_steps_previewed){
+	if (select_matrices_.sample_step.cols() != num_steps_previewed || select_matrices_.sample_step.rows() != num_samples){
 		select_matrices_.sample_step.		resize(num_rows, num_steps_previewed);
+		select_matrices_.sample_step_cx.	resize(num_rows);
+		select_matrices_.sample_step_cy.	resize(num_rows);
 		select_matrices_.sample_step_trans.	resize(num_steps_previewed, num_rows);
 		select_matrices_.Vf.				resize(num_steps_previewed, num_steps_previewed);
 		select_matrices_.VcfX.				resize(num_steps_previewed);

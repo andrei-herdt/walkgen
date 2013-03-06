@@ -35,7 +35,6 @@ private:
 			LinearDynamics &dyn,
 			double height,
 			const std::vector<double> &sampling_periods_vec,
-			int num_samples,
 			bool actuation
 	);
 	void BuildThirdOrder(

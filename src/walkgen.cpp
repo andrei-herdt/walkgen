@@ -52,8 +52,8 @@ Walkgen::~Walkgen() {
 }
 
 void Walkgen::Init(MPCParameters &mpc_parameters) {
-	assert(mpc_parameters.num_samples_horizon > mpc_parameters_.num_samples_dsss);
-	assert(mpc_parameters.num_samples_horizon > mpc_parameters_.num_steps_ssds);
+	assert(mpc_parameters.num_samples_horizon_max > mpc_parameters_.num_samples_dsss);
+	assert(mpc_parameters.num_samples_horizon_max > mpc_parameters_.num_steps_ssds);
 	assert(mpc_parameters.period_qpsample >= mpc_parameters.period_recomputation - kEps);
 	assert(mpc_parameters.period_recomputation >= mpc_parameters.period_actsample - kEps);
 
@@ -65,7 +65,7 @@ void Walkgen::Init(MPCParameters &mpc_parameters) {
 	// -------
 	int num_constr_step = 5; // TODO: Move this to MPCParameters
 	int num_steps_max = mpc_parameters_.num_steps_max;
-	int num_vars_max = 2 * (mpc_parameters_.num_samples_horizon + num_steps_max);
+	int num_vars_max = 2 * (mpc_parameters_.num_samples_horizon_max + num_steps_max);
 	int num_constr_max = 0;
 	if (mpc_parameters_.formulation == DECOUPLED_MODES) {
 		num_vars_max += 2;
@@ -94,14 +94,14 @@ void Walkgen::Init(MPCParameters &mpc_parameters) {
 	// -------
 	int num_unstable_modes = 1;
 	solution_.com_act.SetZero(mpc_parameters_.num_samples_act(), num_unstable_modes);
-	solution_.com_prw.SetZero(mpc_parameters_.num_samples_horizon, num_unstable_modes);
+	solution_.com_prw.SetZero(mpc_parameters_.num_samples_horizon_max, num_unstable_modes);
 
-	solution_.pos_ref.SetZero(mpc_parameters_.num_samples_horizon);		//DEPRECATED:
+	solution_.pos_ref.SetZero(mpc_parameters_.num_samples_horizon_max);		//DEPRECATED:
 
-	pos_ref_.SetZero(mpc_parameters_.num_samples_horizon);
-	vel_ref_.SetZero(mpc_parameters_.num_samples_horizon);
-	cp_ref_.SetZero(mpc_parameters_.num_samples_horizon);
-	new_vel_ref_.SetZero(mpc_parameters_.num_samples_horizon);
+	pos_ref_.SetZero(mpc_parameters_.num_samples_horizon_max);
+	vel_ref_.SetZero(mpc_parameters_.num_samples_horizon_max);
+	cp_ref_.SetZero(mpc_parameters_.num_samples_horizon_max);
+	new_vel_ref_.SetZero(mpc_parameters_.num_samples_horizon_max);
 
 	preview_ = new HeuristicPreview(&vel_ref_, &robot_, &mpc_parameters_, &clock_);
 
@@ -233,12 +233,13 @@ void Walkgen::BuildProblem() {
 	solution_.Reset();
 	vel_ref_ = new_vel_ref_;
 
-	double first_coarse_period = first_coarse_sample_ - current_time_;//TODO:
+	solution_.first_coarse_period = first_coarse_sample_ - current_time_;//TODO:
 	double first_fine_period = first_fine_sample_ - current_time_;//TODO:
 
 	// PREVIEW:
 	// --------
-	preview_->PreviewSamplingTimes(current_time_, first_fine_period, first_coarse_period, solution_);
+	preview_->PreviewSamplingTimes(current_time_, first_fine_period, solution_.first_coarse_period, solution_);
+	mpc_parameters_.num_samples_horizon = static_cast<int>(solution_.sampling_times_vec.size() - 1);
 	Debug::Cout("solution_.sampling_times_vec", solution_.sampling_times_vec);
 
 	preview_->PreviewSupportStates(first_fine_period, solution_);
