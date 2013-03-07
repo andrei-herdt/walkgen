@@ -491,31 +491,31 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	//double gain_cp = gains_mat(0,0) + gains_mat(0, 1) * 1. / sqrt(kGravity / com.z[0]);
 	//Debug::Disp("gain", gain_cp);
 
-	CommonVectorType gradient_vec_x(num_samples + num_unst_modes),
-			gradient_vec_y(num_samples + num_unst_modes),
-			gradient_vec(2 * (num_samples + num_unst_modes));//TODO: Make this member
+	CommonVectorType objective_vec_x(num_samples + num_unst_modes),
+			objective_vec_y(num_samples + num_unst_modes),
+			objective_vec(2 * (num_samples + num_unst_modes));//TODO: Make this member
 
 	tmp_mat2_ = state_variant_[matrix_num];
-	gradient_vec_x = tmp_mat2_ * state_x;
-	gradient_vec_y = tmp_mat2_ * state_y;
+	objective_vec_x = tmp_mat2_ * state_x;
+	objective_vec_y = tmp_mat2_ * state_y;
 
 	tmp_mat2_ = select_variant_[matrix_num];
-	gradient_vec_x += tmp_mat2_ * select_mats.sample_step_cx.block(0, 0, num_samples, 1);
-	gradient_vec_y += tmp_mat2_ * select_mats.sample_step_cy.block(0, 0, num_samples, 1);
+	objective_vec_x += tmp_mat2_ * select_mats.sample_step_cx.block(0, 0, num_samples, 1);
+	objective_vec_y += tmp_mat2_ * select_mats.sample_step_cy.block(0, 0, num_samples, 1);
 
-	gradient_vec_x += ref_variant_vel_[matrix_num] * vel_ref_->global.x.head(num_samples);//TODO: Why was bigger size necessary?
-	gradient_vec_y += ref_variant_vel_[matrix_num] * vel_ref_->global.y.head(num_samples);
+	objective_vec_x += ref_variant_vel_[matrix_num] * vel_ref_->global.x.head(num_samples);//TODO: Why was bigger size necessary?
+	objective_vec_y += ref_variant_vel_[matrix_num] * vel_ref_->global.y.head(num_samples);
 
-	gradient_vec_x += ref_variant_pos_[matrix_num] * pos_ref_->global.x.head(num_samples);
-	gradient_vec_y += ref_variant_pos_[matrix_num] * pos_ref_->global.y.head(num_samples);
+	objective_vec_x += ref_variant_pos_[matrix_num] * pos_ref_->global.x.head(num_samples);
+	objective_vec_y += ref_variant_pos_[matrix_num] * pos_ref_->global.y.head(num_samples);
 
-	gradient_vec_x += ref_variant_cp_[matrix_num] * cp_ref_->global.x.head(num_samples);
-	gradient_vec_y += ref_variant_cp_[matrix_num] * cp_ref_->global.y.head(num_samples);
+	objective_vec_x += ref_variant_cp_[matrix_num] * cp_ref_->global.x.head(num_samples);
+	objective_vec_y += ref_variant_cp_[matrix_num] * cp_ref_->global.y.head(num_samples);
 
 	//double zx_cur = com.x(0) - com.z(0)/kGravity*com.x(2);
 	//double zy_cur = com.y(0) - com.z(0)/kGravity*com.y(2);
-	gradient_vec_x += curr_cop_variant_[matrix_num] * *last_des_cop_x_;
-	gradient_vec_y += curr_cop_variant_[matrix_num] * *last_des_cop_y_;
+	objective_vec_x += curr_cop_variant_[matrix_num] * *last_des_cop_x_;
+	objective_vec_y += curr_cop_variant_[matrix_num] * *last_des_cop_y_;
 
 	// Offset from the ankle to the support center for CoP centering:
 	// --------------------------------------------------------------
@@ -525,21 +525,21 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 			double pos_diff_x = fabs(robot_->left_foot()->state().x(0) - robot_->right_foot()->state().x(0)) / 2.;
 			double pos_diff_y = fabs(robot_->left_foot()->state().y(0) - robot_->right_foot()->state().y(0)) / 2.;
 			if (solution.support_states_vec.front().foot == LEFT) {//TODO: Guess what...
-				gradient_vec_x += pos_diff_x * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
-				gradient_vec_y += pos_diff_y * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
+				objective_vec_x += pos_diff_x * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
+				objective_vec_y += pos_diff_y * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
 			} else {
-				gradient_vec_x += pos_diff_x * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
-				gradient_vec_y -= pos_diff_y * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
+				objective_vec_x += pos_diff_x * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
+				objective_vec_y -= pos_diff_y * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
 			}
 		} else if (mpc_parameters_->walking_mode == STOP) {
 			double pos_diff_x = fabs(robot_->left_foot()->state().x(0) - robot_->right_foot()->state().x(0)) / 2.;
 			double pos_diff_y = fabs(robot_->left_foot()->state().y(0) - robot_->right_foot()->state().y(0)) / 2.;
 			if (solution.support_states_vec.front().foot == LEFT) {//TODO: Guess what...
-				gradient_vec_x += pos_diff_x * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
-				gradient_vec_y += pos_diff_y * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
+				objective_vec_x += pos_diff_x * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
+				objective_vec_y += pos_diff_y * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
 			} else {
-				gradient_vec_x += pos_diff_x * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
-				gradient_vec_y -= pos_diff_y * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
+				objective_vec_x += pos_diff_x * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
+				objective_vec_y -= pos_diff_y * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
 			}
 		}
 	}
@@ -547,9 +547,9 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	// Rotation independent part:
 	// --------------------------
 	if (num_steps_previewed > 0) {
-		tmp_vec_.noalias() = select_mats.sample_step_trans * gradient_vec_x.head(num_samples);
+		tmp_vec_.noalias() = select_mats.sample_step_trans * objective_vec_x.head(num_samples);
 		solver_->objective_vec().Add(tmp_vec_, 2*(num_samples + num_unst_modes));
-		tmp_vec_.noalias() = select_mats.sample_step_trans * gradient_vec_y.head(num_samples);
+		tmp_vec_.noalias() = select_mats.sample_step_trans * objective_vec_y.head(num_samples);
 		solver_->objective_vec().Add(tmp_vec_, 2*(num_samples + num_unst_modes) + num_steps_previewed);
 
 		tmp_vec_.noalias() = select_mats.sample_step_trans * v_trans_s_mat_vec_[matrix_num] * state_x;
@@ -568,20 +568,20 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 		solver_->objective_vec().Add(tmp_vec_, 2*(num_samples + num_unst_modes) + num_steps_previewed);
 	}
 
-	gradient_vec_x += u_trans_vc_mat_vec_[matrix_num] * select_mats.sample_step_cx.block(0, 0, num_samples, 1);
-	gradient_vec_y += u_trans_vc_mat_vec_[matrix_num] * select_mats.sample_step_cy.block(0, 0, num_samples, 1);
+	objective_vec_x += u_trans_vc_mat_vec_[matrix_num] * select_mats.sample_step_cx.block(0, 0, num_samples, 1);
+	objective_vec_y += u_trans_vc_mat_vec_[matrix_num] * select_mats.sample_step_cy.block(0, 0, num_samples, 1);
 
-	gradient_vec_x += u_trans_s_mat_vec_[matrix_num] * state_x;
-	gradient_vec_y += u_trans_s_mat_vec_[matrix_num] * state_y;
+	objective_vec_x += u_trans_s_mat_vec_[matrix_num] * state_x;
+	objective_vec_y += u_trans_s_mat_vec_[matrix_num] * state_y;
 
-	gradient_vec_x += u_trans_ref_mat_vec_[matrix_num] * cp_ref_->local.x.head(num_samples);
-	gradient_vec_y += u_trans_ref_mat_vec_[matrix_num] * cp_ref_->local.y.head(num_samples);
+	objective_vec_x += u_trans_ref_mat_vec_[matrix_num] * cp_ref_->local.x.head(num_samples);
+	objective_vec_y += u_trans_ref_mat_vec_[matrix_num] * cp_ref_->local.y.head(num_samples);
 
-	gradient_vec << gradient_vec_x, gradient_vec_y; //TODO: Unnecessary if rot_mat half the size
+	objective_vec << objective_vec_x, objective_vec_y; //TODO: Unnecessary if rot_mat half the size
 	//gradient_vec = rot_mat * gradient_vec;//TODO: Use RTimesV
 
 
-	solver_->objective_vec().Add(gradient_vec, 0);
+	solver_->objective_vec().Add(objective_vec, 0);
 
 }
 
@@ -650,9 +650,7 @@ void QPBuilder::BuildCPEqConstraints(const MPCSolution &solution) {
 	// Build equality constraints for the unstable modes at end of horizon:
 	// --------------------------------------------------------------------
 	// Choose the precomputed element depending on the period until next sample
-	double first_sampling_time = solution.sampling_times_vec[1];
-	double curr_sampling_time = solution.sampling_times_vec[0];
-	int samples_left = mpc_parameters_->GetMPCSamplesLeft(first_sampling_time - curr_sampling_time);
+	int samples_left = mpc_parameters_->GetMPCSamplesLeft(solution.first_coarse_period);
 
 	const LinearDynamics &dyn = robot_->com()->dynamics_qp()[samples_left];
 
@@ -698,11 +696,11 @@ void QPBuilder::BuildCPEqConstraints(const MPCSolution &solution) {
 		atimesb_vec(col) = dyn.rev_matrix_prod_vec.at(num_samples - 2 - col)(1,1) * dyn.d_input_mat_vec[col](1);
 	}
 	atimesb_vec(num_samples - 1) = dyn.d_input_mat_vec.at(num_samples - 1)(1);
-	//atimesb_vec *= neg_pow_state_mats;
+	atimesb_vec *= neg_pow_state_mats;
 
 	//X:
 	// xu_0 < Au^{N}*\s_0^x + \sum Au^{(j-1)}*Bu*u_j < xu_0
-	solver_->constr_mat()()(num_constr, num_samples) = 1.;//neg_pow_state_mats;	// CP
+	solver_->constr_mat()()(num_constr, num_samples) = neg_pow_state_mats;	// CP
 
 	solver_->constr_mat().AddTerm(-atimesb_vec.transpose(), num_constr, 0);
 	if (num_steps_previewed > 0) {
@@ -710,13 +708,13 @@ void QPBuilder::BuildCPEqConstraints(const MPCSolution &solution) {
 		solver_->constr_mat().AddTerm(tmp_mat_, num_constr, 2*(num_samples + num_unst_modes));
 	}
 
-	CommonVectorType constant_x = pos_pow_state_mats * state_x + atimesb_vec.transpose() * select_mats.sample_step_cx.block(0, 0, num_samples, 1);
+	CommonVectorType constant_x = state_x + atimesb_vec.transpose() * select_mats.sample_step_cx.block(0, 0, num_samples, 1);
 	solver_->lc_bounds_vec().Add(constant_x, num_constr);
 	solver_->uc_bounds_vec().Add(constant_x, num_constr);
 
 	//Y:
 	// yu_0 < Au^{-N}*\mu_y - \sum Au^{-(j-1)}*Bu*u_j < yu_0
-	solver_->constr_mat()()(num_constr + num_unst_modes, 2*num_samples + num_unst_modes) = 1.;//neg_pow_state_mats;
+	solver_->constr_mat()()(num_constr + num_unst_modes, 2*num_samples + num_unst_modes) = neg_pow_state_mats;
 
 	solver_->constr_mat().AddTerm(-atimesb_vec.transpose(), num_constr + num_unst_modes, num_samples + num_unst_modes);
 	if (num_steps_previewed > 0) {
@@ -724,7 +722,7 @@ void QPBuilder::BuildCPEqConstraints(const MPCSolution &solution) {
 		solver_->constr_mat().AddTerm(tmp_mat_, num_constr + num_unst_modes, 2*(num_samples + num_unst_modes) + num_steps_previewed);
 	}
 
-	CommonVectorType constant_y = pos_pow_state_mats*state_y + atimesb_vec.transpose()*select_mats.sample_step_cy.block(0, 0, num_samples, 1);
+	CommonVectorType constant_y = state_y + atimesb_vec.transpose()*select_mats.sample_step_cy.block(0, 0, num_samples, 1);
 	solver_->lc_bounds_vec().Add(constant_y, num_constr + num_unst_modes);
 	solver_->uc_bounds_vec().Add(constant_y, num_constr + num_unst_modes);
 }

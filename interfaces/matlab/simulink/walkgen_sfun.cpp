@@ -68,16 +68,16 @@ static void mdlInitializeSizes(SimStruct *S) {
 	ssSetOutputPortWidth(S, 8, 4);        //dp_right
 	ssSetOutputPortWidth(S, 9, 4);        //ddp_right
 	// Previewed motions:
-	const int kNumSamplesHorizon      = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 0)));
+	const int num_samples_horizon_max      = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 0)));
 	const int kNumSamplesStep         = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 1)));
 	const int num_steps_max           = 3;//kNumSamplesHorizon / kNumSamplesStep + 1;
 	ssSetOutputPortWidth(S, 10, num_steps_max);               //first_foot_prw
-	ssSetOutputPortWidth(S, 11, 4 * kNumSamplesHorizon);     //com_prw (sample_instants, x, y, z)
-	ssSetOutputPortWidth(S, 12, 3 * kNumSamplesHorizon);     //cop_prw (sample_instants, x, y)
+	ssSetOutputPortWidth(S, 11, 4 * num_samples_horizon_max);     //com_prw (sample_instants, x, y, z)
+	ssSetOutputPortWidth(S, 12, 3 * num_samples_horizon_max);     //cop_prw (sample_instants, x, y)
 	ssSetOutputPortWidth(S, 13, 3);       //support
 	ssSetOutputPortWidth(S, 14, 30);      //analysis
-	ssSetOutputPortWidth(S, 15, 3 * kNumSamplesHorizon);	//com_control_prw
-	ssSetOutputPortWidth(S, 16, 3 * kNumSamplesHorizon);     //cp_prw (sample_instants, x, y)
+	ssSetOutputPortWidth(S, 15, 3 * num_samples_horizon_max);	//com_control_prw
+	ssSetOutputPortWidth(S, 16, 3 * num_samples_horizon_max);     //cp_prw (sample_instants, x, y)
 	ssSetOutputPortWidth(S, 17, 9);     //cp_prw (sample_instants, x, y)
 	ssSetOutputPortWidth(S, 18, 7);     //sim_parameters (sample_instants, x, y)
 

@@ -40,6 +40,7 @@ void CoMBody::Interpolate(MPCSolution &solution, double current_time, const Refe
 			state_x, solution.com_prw.control.x_vec[0]);
 	interpolation_.Interpolate(solution.com_act.pos.y_vec, dynamics_act().pos,
 			state_y, solution.com_prw.control.y_vec[0]);
+	std::cout << "solution.com_act.pos.x_vec[0] : " << solution.com_act.pos.x_vec[0] << std::endl;
 
 	// Velocity:
 	interpolation_.Interpolate(solution.com_act.vel.x_vec, dynamics_act().vel,
@@ -59,6 +60,7 @@ void CoMBody::Interpolate(MPCSolution &solution, double current_time, const Refe
 	interpolation_.Interpolate(solution.com_act.cop.y_vec, dynamics_act().cop,
 			state_y, solution.com_prw.control.y_vec[0]);
 
+
 	// QP sampling rate:
 	// -----------------
 	// Position:
@@ -69,11 +71,11 @@ void CoMBody::Interpolate(MPCSolution &solution, double current_time, const Refe
 			state_trans_mat(0, 1) = -1. / sqrt(kGravity / state_.z[0]);
 			state_trans_mat(1, 0) = 1.;
 			state_trans_mat(1, 1) = 1. / sqrt(kGravity / state_.z[0]);
-			state_x = state_trans_mat * state_.x.head(mpc_parameters_->dynamics_order);
-			state_y = state_trans_mat * state_.y.head(mpc_parameters_->dynamics_order);
+			CommonVectorType new_state_x = state_trans_mat * state_.x.head(mpc_parameters_->dynamics_order);
+			CommonVectorType new_state_y = state_trans_mat * state_.y.head(mpc_parameters_->dynamics_order);
 
-			state_x = state_x.block(0, 0, mpc_parameters_->dynamics_order - num_unst_modes, 1);
-			state_y = state_y.block(0, 0, mpc_parameters_->dynamics_order - num_unst_modes, 1);
+			state_x = new_state_x.block(0, 0, mpc_parameters_->dynamics_order - num_unst_modes, 1);
+			state_y = new_state_y.block(0, 0, mpc_parameters_->dynamics_order - num_unst_modes, 1);
 			//TODO: Simplify this
 			int samples_left = mpc_parameters_->GetMPCSamplesLeft(solution.first_coarse_period);
 			interpolation_.Interpolate(solution.com_prw.pos.x_vec, dynamics_qp()[samples_left].pos,

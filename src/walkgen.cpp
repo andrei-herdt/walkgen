@@ -190,7 +190,7 @@ void Walkgen::Init() {
 		builder_->PrecomputeObjective();
 	}
 
-	orient_preview_->Init(mpc_parameters_, robot_data_);
+	orient_preview_->Init(&mpc_parameters_, robot_data_);
 
 	BodyState left_foot_state;
 	left_foot_state.x[0] = robot_data_.left_foot.position[0];

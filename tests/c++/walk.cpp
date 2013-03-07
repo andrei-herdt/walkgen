@@ -129,7 +129,7 @@ int main() {
 	walk.clock().ReserveMemory(20, 1000);
 
 	walk.clock().ResetLocal();
-	for (; curr_time < 2.; curr_time += sample_period_act) {
+	for (; curr_time < .205; curr_time += sample_period_act) {
 		//int online_timer = walk.clock().StartCounter();
 		//std::cout << std::endl;
 		//std::cout << std::endl;

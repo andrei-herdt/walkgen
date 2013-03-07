@@ -403,6 +403,22 @@ Penalties::Penalties(int num_modes)
 }
 Penalties::~Penalties(){}
 
+SupportState::SupportState()
+:phase(DS)
+,foot(LEFT)
+,num_steps_left(0)
+,step_number(0)
+,num_instants(0)
+,time_limit(0.)
+,start_time(0.)
+,x(0.)
+,y(0.)
+,yaw(0.)
+,state_changed(false)
+,transitional_ds(false)
+,previous_sampling_period(0.)
+{}
+
 void Penalties::SetCoefficients(Reference &ref) {
 	if (fabs(ref.local.yaw(0)) < kEps && fabs(ref.local.x(0)) < kEps && fabs(ref.local.y(0)) < kEps) {
 		if (is_initial_mode) {

@@ -43,7 +43,7 @@ public:
 	OrientationsPreview( );
 	~OrientationsPreview();
 
-	void Init(const MPCParameters &mpc_parameters, const RobotData &robot_data);
+	void Init(const MPCParameters *mpc_parameters, const RobotData &robot_data);
 
 	/// \brief Preview feet and trunk orientations inside the preview window.
 	///
@@ -71,24 +71,6 @@ public:
 	{ return TrunkState_; };
 	inline void CurrentTrunkState(const COMState2 &TrunkState)
 	{ TrunkState_ = TrunkState; };
-	inline double SSLength() const
-	{ return SSPeriod_; };
-	inline void SSLength( double SSPeriod)
-	{ SSPeriod_ = SSPeriod; };
-	inline double SamplingPeriod() const
-	{ return T_; };
-	inline void SamplingPeriod( double SamplingPeriod)
-	{ T_ = SamplingPeriod; };
-	inline double SimuPeriod() const
-	{ return Ti_; };
-	inline void SimuPeriod( double SamplingPeriod)
-	{ Ti_ = SamplingPeriod; };
-
-
-	inline double NbSamplingsPreviewed() const
-	{ return N_; };
-	inline void NbSamplingsPreviewed( double SamplingsPreviewed)
-	{ N_ = SamplingsPreviewed; };
 	/// \}
 
 	//
@@ -143,13 +125,6 @@ private:
 
 	double uvLimitFoot_;	/// \brief Maximal velocity of a foot
 
-	double SSPeriod_;		/// \brief Single-support duration
-
-	double N_;				/// \brief Number of sampling in a preview window
-
-	double T_;				/// \brief Time between two samplings
-	double Ti_;
-
 	double signRotVelTrunk_, signRotAccTrunk_;	/// \brief Rotation sense of the trunks angular velocity and acceleration
 
 	double SupportTimePassed_;
@@ -157,7 +132,7 @@ private:
 	COMState2 TrunkState_;	/// \brief Current trunk state
 	COMState2 TrunkStateT_;	/// \brief State of the trunk at the first previewed sampling
 
-
+	const MPCParameters *mpc_parameters_;
 
 };
 

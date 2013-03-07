@@ -166,6 +166,8 @@ struct MPC_WALKGEN_API SupportState {
 	bool transitional_ds;	/// \brief Define if the support state is in a (transitional) double support phase
 
 	double previous_sampling_period;	/// \brief The length of the previous sampling period (can be different from period_qpsample)
+
+	SupportState();
 };
 
 struct MPC_WALKGEN_API ConvexHull {

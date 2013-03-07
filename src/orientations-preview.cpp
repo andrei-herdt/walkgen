@@ -24,16 +24,14 @@ double df(double /*a*/,double b,double c,double d,double x)
 } // end of anonymous namespace
 
 OrientationsPreview::OrientationsPreview()
+:mpc_parameters_(NULL)
 { }
 
 OrientationsPreview::~OrientationsPreview()
 { }
 
-void OrientationsPreview::Init(const MPCParameters &data, const RobotData &robot_data) {
-	T_ 			= data.period_qpsample;
-	Ti_ 		= data.period_recomputation;
-	N_ 			= data.num_samples_horizon_max;
-	SSPeriod_ 	= data.period_ss;//TODO: Incoherent
+void OrientationsPreview::Init(const MPCParameters *mpc_parameters, const RobotData &robot_data) {
+	mpc_parameters_ = mpc_parameters;
 
 	lLimitLeftHipYaw_ = robot_data.left_hip_yaw.lower_pos_bound;
 	uLimitLeftHipYaw_ = robot_data.left_hip_yaw.upper_pos_bound;
@@ -110,21 +108,21 @@ void OrientationsPreview::preview_orientations(double Time,
 					a = TrunkState_.yaw[0];
 					b = TrunkState_.yaw[1];
 					c = 0.0;
-					d = 3.0*(TrunkStateT_.yaw[1]-TrunkState_.yaw[1]) / (T_*T_);
-					e = -2.0*d/(3.0*T_);
-					TrunkStateT_.yaw[0] = a + b*T_+1.0/2.0*c*T_*T_+1.0/3.0*d*T_*T_*T_+1.0/4.0*e*T_*T_*T_*T_;
+					d = 3.0*(TrunkStateT_.yaw[1]-TrunkState_.yaw[1]) / (mpc_parameters_->period_qpsample*mpc_parameters_->period_qpsample);
+					e = -2.0*d/(3.0*mpc_parameters_->period_qpsample);
+					TrunkStateT_.yaw[0] = a + b*mpc_parameters_->period_qpsample+1.0/2.0*c*mpc_parameters_->period_qpsample*mpc_parameters_->period_qpsample+1.0/3.0*d*mpc_parameters_->period_qpsample*mpc_parameters_->period_qpsample*mpc_parameters_->period_qpsample+1.0/4.0*e*mpc_parameters_->period_qpsample*mpc_parameters_->period_qpsample*mpc_parameters_->period_qpsample*mpc_parameters_->period_qpsample;
 				} else {
-					TrunkStateT_.yaw[0] = TrunkState_.yaw[0] + TrunkState_.yaw[1]*T_;
+					TrunkStateT_.yaw[0] = TrunkState_.yaw[0] + TrunkState_.yaw[1]*mpc_parameters_->period_qpsample;
 				}
 				//Compute the trunk angle at the end of the support phase
 				SupportTimePassed_ = CurrentSupport.time_limit - Time;
-				PreviewedTrunkAngleEnd = TrunkStateT_.yaw[0] + TrunkStateT_.yaw[1]*(SupportTimePassed_-T_);
+				PreviewedTrunkAngleEnd = TrunkStateT_.yaw[0] + TrunkStateT_.yaw[1]*(SupportTimePassed_-mpc_parameters_->period_qpsample);
 
 				//Verify the angle between the support foot and the trunk at the end of the current support period
 				istrunk_angle_ok = verify_angle_hip_joint(CurrentSupport, PreviewedTrunkAngleEnd, TrunkState_, TrunkStateT_, CurrentSupportAngle, step);
 			}
 		} else {//The trunk does not rotate in the DS phase
-			SupportTimePassed_ = CurrentSupport.time_limit+SSPeriod_-Time;
+			SupportTimePassed_ = CurrentSupport.time_limit+mpc_parameters_->period_ss-Time;
 			FirstFootPreviewed = 1;
 			PreviewedSupportAngles_deq.push_back(CurrentSupportAngle);
 			TrunkStateT_.yaw[0] = PreviewedTrunkAngleEnd = TrunkState_.yaw[0];
@@ -146,10 +144,10 @@ void OrientationsPreview::preview_orientations(double Time,
 
 		// Preview of orientations:
 		// ------------------------
-		for(step = (unsigned) FirstFootPreviewed; step <= (unsigned)((int)ceil((N_+1)*T_/StepDuration)); step++) {
+		for(step = (unsigned) FirstFootPreviewed; step <= (unsigned)((int)ceil((mpc_parameters_->num_samples_horizon+1)*mpc_parameters_->period_qpsample/StepDuration)); step++) {
 			PreviewedSupportFoot = -PreviewedSupportFoot;
 			//compute the optimal support orientation
-			double PreviewedSupportAngle = PreviewedTrunkAngleEnd + TrunkStateT_.yaw[1]*SSPeriod_/2.0;
+			double PreviewedSupportAngle = PreviewedTrunkAngleEnd + TrunkStateT_.yaw[1]*mpc_parameters_->period_ss/2.0;
 
 			VerifyVelocityHipYaw(Time,
 					PreviewedSupportFoot, PreviewedSupportAngle,
@@ -160,10 +158,10 @@ void OrientationsPreview::preview_orientations(double Time,
 			//Check the feet angles to avoid self-collision:
 			if ((double)PreviewedSupportFoot*(PreviousSupportAngle-PreviewedSupportAngle)-kEps > uLimitFeet_) {
 				PreviewedSupportAngle = PreviousSupportAngle+(double)signRotVelTrunk_*uLimitFeet_;
-			} else if (fabs(PreviewedSupportAngle-PreviousSupportAngle) > uvLimitFoot_*SSPeriod_) {
+			} else if (fabs(PreviewedSupportAngle-PreviousSupportAngle) > uvLimitFoot_*mpc_parameters_->period_ss) {
 				//not being able to catch-up for a rectangular DS phase
 
-				PreviewedSupportAngle = PreviousSupportAngle+(double)PreviewedSupportFoot * uvLimitFoot_*(SSPeriod_-T_);
+				PreviewedSupportAngle = PreviousSupportAngle+(double)PreviewedSupportFoot * uvLimitFoot_*(mpc_parameters_->period_ss-mpc_parameters_->period_qpsample);
 			}
 
 			// Verify orientation of the hip joint at the end of the support phase
@@ -180,7 +178,7 @@ void OrientationsPreview::preview_orientations(double Time,
 			}
 
 			//Prepare for the next step
-			PreviewedTrunkAngleEnd = PreviewedTrunkAngleEnd + SSPeriod_*TrunkStateT_.yaw[1];
+			PreviewedTrunkAngleEnd = PreviewedTrunkAngleEnd + mpc_parameters_->period_ss*TrunkStateT_.yaw[1];
 			PreviousSupportAngle = PreviewedSupportAngle;
 
 			if(static_cast<int>(PreviewedSupportFoot) == 1)
@@ -198,14 +196,14 @@ void OrientationsPreview::preview_orientations(double Time,
 	PreviewedTrunkOrientations_deq.push_back(TrunkState_.yaw[0]);
 	PreviewedTrunkOrientations_deq.push_back(TrunkStateT_.yaw[0]);
 	unsigned j = 0;
-	for(unsigned i = 1; i<N_; i++ ) {
-		PreviewedTrunkOrientations_deq.push_back(TrunkStateT_.yaw[0]+TrunkStateT_.yaw[1]*T_);
+	for(unsigned i = 1; i<mpc_parameters_->num_samples_horizon; i++ ) {
+		PreviewedTrunkOrientations_deq.push_back(TrunkStateT_.yaw[0]+TrunkStateT_.yaw[1]*mpc_parameters_->period_qpsample);
 	}
 
 	std::vector<SupportState>::iterator prwSS_it = Solution.support_states_vec.begin();
 	double supportAngle = prwSS_it->yaw;
 	prwSS_it++;//Point at the first previewed instant
-	for(unsigned i = 0; i<N_; i++ ) {
+	for(unsigned i = 0; i<mpc_parameters_->num_samples_horizon; i++ ) {
 		if(prwSS_it->state_changed) {
 			supportAngle = Solution.support_yaw_vec[j];
 			j++;
@@ -221,10 +219,10 @@ void OrientationsPreview::VerifyAccelerationHipYaw(const Reference &Ref,
 		const SupportState &CurrentSupport) {
 	if(CurrentSupport.phase != DS)
 		//Verify change in velocity reference against the maximal acceleration of the hip joint
-		if(fabs(Ref.local.yaw(1)-TrunkState_.yaw[1]) > 2.0/3.0*T_*uaLimitHipYaw_)
+		if(fabs(Ref.local.yaw(1)-TrunkState_.yaw[1]) > 2.0/3.0*mpc_parameters_->period_qpsample*uaLimitHipYaw_)
 		{
 			double signRotAccTrunk = (Ref.local.yaw(1)-TrunkState_.yaw[1] < 0.0)?-1.0:1.0;
-			TrunkStateT_.yaw[1] = TrunkState_.yaw[1] + signRotAccTrunk * 2.0/3.0*T_* uaLimitHipYaw_;
+			TrunkStateT_.yaw[1] = TrunkState_.yaw[1] + signRotAccTrunk * 2.0/3.0*mpc_parameters_->period_qpsample* uaLimitHipYaw_;
 		}
 		else
 			TrunkStateT_.yaw[1] = Ref.local.yaw(1);
@@ -251,7 +249,7 @@ bool OrientationsPreview::verify_angle_hip_joint(const SupportState &CurrentSupp
 
 	// Determine a new orientation if limit violated
 	if (fabs(PreviewedTrunkAngleEnd - CurrentSupportFootAngle)>fabs(JointLimit)) {
-		TrunkStateT.yaw[1] = (CurrentSupportFootAngle+0.9*JointLimit-TrunkState.yaw[0]-TrunkState.yaw[1]*T_/2.0)/(SupportTimePassed_+StepNumber*SSPeriod_-T_/2.0);
+		TrunkStateT.yaw[1] = (CurrentSupportFootAngle+0.9*JointLimit-TrunkState.yaw[0]-TrunkState.yaw[1]*mpc_parameters_->period_qpsample/2.0)/(SupportTimePassed_+StepNumber*mpc_parameters_->period_ss-mpc_parameters_->period_qpsample/2.0);
 		return false;
 	} else {
 		return true;
@@ -278,17 +276,17 @@ void OrientationsPreview::VerifyVelocityHipYaw(double Time,
 	//For the
 	if(StepNumber>0 && CurrentSupport.phase == SS) {
 		//verify the necessary, maximal, relative foot velocity
-		double MeanFootVelDifference = (previewed_supp_angle-curr_angle)/(SSPeriod_-T_);
+		double MeanFootVelDifference = (previewed_supp_angle-curr_angle)/(mpc_parameters_->period_ss-mpc_parameters_->period_qpsample);
 		//If necessary reduce the velocity to the maximum
 		if (3.0/2.0*fabs(MeanFootVelDifference) > uvLimitFoot_)
 		{
 			MeanFootVelDifference = 2.0/3.0*(double)signRotVelTrunk_ * uvLimitFoot_;
 			//Compute the resulting angle
-			previewed_supp_angle = curr_angle + MeanFootVelDifference*(SSPeriod_-T_);
+			previewed_supp_angle = curr_angle + MeanFootVelDifference*(mpc_parameters_->period_ss-mpc_parameters_->period_qpsample);
 		}
 	}
 	else if((StepNumber==0 && CurrentSupport.phase == SS) || (StepNumber==1 && CurrentSupport.phase == DS)) {
-		T = CurrentSupport.time_limit-Time-T_;
+		T = CurrentSupport.time_limit-Time-mpc_parameters_->period_qpsample;
 		//Previewed polynome
 		a = curr_angle;
 		if(static_cast<int>(previewed_supp_foot) == 1) {
