@@ -29,7 +29,7 @@ QLDParser::QLDParser(SolverData* const parameters, int num_var_max, int num_cons
 	liwar_ = num_var_max;
 	iwar_.resize(liwar_);
 	std::fill(iwar_.begin(), iwar_.end(), 0);
-	eps_ = 1e-10;
+	eps_ = 1e-6;
 }
 
 QLDParser::~QLDParser() {
@@ -92,6 +92,9 @@ void QLDParser::Solve(MPCSolution &solution,
 				+ objective_vec_().head(num_var_).transpose() * solution.qp_solution_vec.head(num_var_);
 
 		solution.analysis.objective_value = obj_val_mat(0, 0);
+		if (ifail_ != 0) {
+			std::cout << "qld::ifail_: " << ifail_ << std::endl;
+		}
 		//solution.analysis.num_iterations = num_wsr;
 	}
 

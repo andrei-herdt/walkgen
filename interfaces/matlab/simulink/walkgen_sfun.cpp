@@ -18,7 +18,7 @@ using namespace std;
 
 static void mdlInitializeSizes(SimStruct *S) {
 	// Expected number of parameters
-	ssSetNumSFcnParams(S, 30);
+	ssSetNumSFcnParams(S, 31);
 
 	// Parameter mismatch?
 	if (ssGetNumSFcnParams(S) != ssGetSFcnParamsCount(S)) {
@@ -105,19 +105,20 @@ static void mdlStart(SimStruct *S) {
 	int solver_in 				= static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 22)));
 
 	MPCParameters mpc_parameters;
-	mpc_parameters.num_samples_horizon_max  	= static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 0)));
-	mpc_parameters.num_samples_first_period		= static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 28)));
-	mpc_parameters.period_ss     				= *mxGetPr(ssGetSFcnParam(S, 1));
-	mpc_parameters.num_samples_dsss     		= min(static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 2))), mpc_parameters.num_samples_horizon_max);
-	mpc_parameters.num_steps_ssds       		= min(static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 3))), mpc_parameters.num_samples_horizon_max);
-	mpc_parameters.num_steps_max				= 3;
-	mpc_parameters.period_qpsample     			= *mxGetPr(ssGetSFcnParam(S, 4));
-	mpc_parameters.period_recomputation     		= *mxGetPr(ssGetSFcnParam(S, 5));
-	mpc_parameters.period_actsample     		= *mxGetPr(ssGetSFcnParam(S, 6));
-	mpc_parameters.period_inter_samples			= *mxGetPr(ssGetSFcnParam(S, 29));
+	mpc_parameters.num_samples_horizon_max  		= static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 0)));
+	mpc_parameters.num_samples_first_fine_period 	= static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 30)));
+	mpc_parameters.num_samples_first_coarse_period	= static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 28)));
+	mpc_parameters.period_ss     					= *mxGetPr(ssGetSFcnParam(S, 1));
+	mpc_parameters.num_samples_dsss     			= min(static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 2))), mpc_parameters.num_samples_horizon_max);
+	mpc_parameters.num_steps_ssds       			= min(static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 3))), mpc_parameters.num_samples_horizon_max);
+	mpc_parameters.num_steps_max					= 3;
+	mpc_parameters.period_qpsample     				= *mxGetPr(ssGetSFcnParam(S, 4));
+	mpc_parameters.period_recomputation  	   		= *mxGetPr(ssGetSFcnParam(S, 5));
+	mpc_parameters.period_actsample     			= *mxGetPr(ssGetSFcnParam(S, 6));
+	mpc_parameters.period_inter_samples				= *mxGetPr(ssGetSFcnParam(S, 29));
 
-	mpc_parameters.solver.num_wsrec     		= static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 8)));
-	mpc_parameters.warmstart					= false;
+	mpc_parameters.solver.num_wsrec     			= static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 8)));
+	mpc_parameters.warmstart						= false;
 	if (is_debug_in == 0) {
 		mpc_parameters.interpolate_whole_horizon	= false;
 		mpc_parameters.solver.analysis			    = false;

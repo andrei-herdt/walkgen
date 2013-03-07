@@ -41,19 +41,23 @@ void HeuristicPreview::PreviewSamplingTimes(double current_time,
 	solution.sampling_times_vec.at(0) = current_time;
 
 	int sample = 1;
-	solution.sampling_times_vec.at(sample) = solution.sampling_times_vec.at(sample - 1) + first_fine_period;
-	sample++;
-	// First qp sampling period (fine grid)
-	for (; sample <= mpc_parameters_->num_samples_first_period; sample++) {
+
+
+	// First grid
+	for (; sample <= mpc_parameters_->num_samples_first_fine_period; sample++) {
+		solution.sampling_times_vec.at(sample) = solution.sampling_times_vec.at(sample - 1) + mpc_parameters_->period_recomputation;
+	}
+	// Second grid
+	for (; sample <= mpc_parameters_->num_samples_first_coarse_period + mpc_parameters_->num_samples_first_fine_period - 1; sample++) {
 		solution.sampling_times_vec.at(sample) = solution.sampling_times_vec.at(sample - 1) + mpc_parameters_->period_inter_samples;
 	}
-	// Rest (coarse grid)
-	// Works only with sufficient intermediate samples
-	solution.sampling_times_vec.at(sample) = current_time + first_coarse_period + mpc_parameters_->period_qpsample;// mpc_parameters_->QPSamplingPeriod;////// //
+	// Third grid (fixed)
+	solution.sampling_times_vec.at(sample) = solution.sampling_times_vec.at(0) + first_coarse_period + mpc_parameters_->period_qpsample;
 	sample++;
 	for (; sample < mpc_parameters_->num_samples_horizon_max; sample++) { //TODO: only num_samples_horizon
 		solution.sampling_times_vec.at(sample) = solution.sampling_times_vec.at(sample - 1) + mpc_parameters_->period_qpsample;
 	}
+	// Last sample (sliding)
 	solution.sampling_times_vec.at(sample) = solution.sampling_times_vec.at(sample - 1) + mpc_parameters_->period_qpsample - first_coarse_period;
 	if (mpc_parameters_->period_qpsample - first_coarse_period < kEps) {
 		solution.sampling_times_vec.pop_back();

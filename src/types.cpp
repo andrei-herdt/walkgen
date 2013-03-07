@@ -192,7 +192,8 @@ MPCParameters::MPCParameters()
 ,init_com_height(0.)
 ,num_samples_horizon_max(0)
 ,num_samples_horizon(0)
-,num_samples_first_period(0)
+,num_samples_first_coarse_period(0)
+,num_samples_first_fine_period(0)
 ,num_samples_step(0)
 ,num_samples_dsss(0)
 ,num_steps_ssds(0)
@@ -212,15 +213,15 @@ MPCParameters::MPCParameters()
 
 MPCParameters::~MPCParameters(){}
 
-int MPCParameters::GetMPCSamplesLeft(double first_sampling_period) const{
-	return static_cast<int> (round(first_sampling_period / period_recomputation) - 1 );
+int MPCParameters::GetMPCSamplesLeft(double first_sampling_period) const {
+	return static_cast<int> (round((period_qpsample - first_sampling_period) / period_recomputation));
 }
 
-int MPCParameters::GetNumRecomputations() const{
+int MPCParameters::GetNumRecomputations() const {
 	return static_cast<int> (round(period_qpsample / period_recomputation) );
 }
 
-int MPCParameters::num_samples_act() const{
+int MPCParameters::num_samples_act() const {
 	return static_cast<int> (round(period_recomputation / period_actsample) );
 }
 

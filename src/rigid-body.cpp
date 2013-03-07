@@ -41,30 +41,41 @@ void RigidBody::ComputeDynamics(SystemOrder dynamics_order) {
 	// Build vector of sampling periods:
 	// ---------------------------------
 	std::vector<double> sampling_periods_vec(num_samples, mpc_parameters_->period_qpsample);
-	for(int i = 0; i < mpc_parameters_->num_samples_first_period; i++) {
-		sampling_periods_vec[i] = mpc_parameters_->period_inter_samples;
+	int period_num = 0;
+	for(; period_num < mpc_parameters_->num_samples_first_fine_period; period_num++) {
+		sampling_periods_vec[period_num] = mpc_parameters_->period_recomputation;
+	}
+	for(; period_num < mpc_parameters_->num_samples_first_coarse_period + mpc_parameters_->num_samples_first_fine_period - 1; period_num++) {
+		sampling_periods_vec[period_num] = mpc_parameters_->period_inter_samples;
 	}
 
 	int num_cycles_ext = static_cast<int>(mpc_parameters_->period_qpsample / mpc_parameters_->period_inter_samples);
 	int num_cycles_int = static_cast<int>(mpc_parameters_->period_inter_samples / mpc_parameters_->period_recomputation);
 	double first_period = mpc_parameters_->period_recomputation;
-	double last_period = mpc_parameters_->period_qpsample;
 
 	std::vector<LinearDynamics>::iterator dyn_it = dynamics_qp_vec_.begin();
+	double last_period = 0.;
+	double first_coarse_period = mpc_parameters_->period_qpsample;
 	for (int k = 0; k < num_cycles_ext; ++k) {
-		first_period = mpc_parameters_->period_recomputation;
+		double first_fine_period = mpc_parameters_->period_inter_samples;
 		for (int i = 0; i < num_cycles_int; ++i) {
-			sampling_periods_vec.at(0) = first_period;
-			last_period -= mpc_parameters_->period_recomputation;
 			sampling_periods_vec.back() = last_period;
-			if (last_period < kEps) {
+			sampling_periods_vec.at(mpc_parameters_->num_samples_first_fine_period) = first_fine_period;
+			sampling_periods_vec.at(mpc_parameters_->num_samples_first_fine_period + mpc_parameters_->num_samples_first_coarse_period - 1) = first_coarse_period;
+			if (sampling_periods_vec.back() < kEps) {
 				sampling_periods_vec.pop_back();
+				dyn_build_p_->Build(dynamics_order, *dyn_it, state_.z(0), sampling_periods_vec, num_samples, false);
+				Debug::Cout("sampling_periods_vec", sampling_periods_vec);
+				sampling_periods_vec.push_back(0.);
+			} else {
+				dyn_build_p_->Build(dynamics_order, *dyn_it, state_.z(0), sampling_periods_vec, num_samples, false);
+				Debug::Cout("sampling_periods_vec", sampling_periods_vec);
 			}
-			dyn_build_p_->Build(dynamics_order, *dyn_it, state_.z(0), sampling_periods_vec, num_samples, false);
 			++dyn_it;
-			first_period += mpc_parameters_->period_recomputation;
-			Debug::Cout("sampling_periods_vec", sampling_periods_vec);
+			first_fine_period -= mpc_parameters_->period_recomputation;
+			last_period += mpc_parameters_->period_recomputation;
 		}
+		first_coarse_period -= mpc_parameters_->period_inter_samples;
 	}
 
 	num_samples = mpc_parameters_->num_samples_act();

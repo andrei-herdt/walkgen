@@ -241,6 +241,7 @@ void Walkgen::BuildProblem() {
 	preview_->PreviewSamplingTimes(current_time_, first_fine_period, solution_.first_coarse_period, solution_);
 	mpc_parameters_.num_samples_horizon = static_cast<int>(solution_.sampling_times_vec.size() - 1);
 	Debug::Cout("solution_.sampling_times_vec", solution_.sampling_times_vec);
+	std::cout << "first_fine_period: " << first_fine_period << std::endl;
 
 	preview_->PreviewSupportStates(first_fine_period, solution_);
 

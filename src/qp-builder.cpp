@@ -153,6 +153,7 @@ void QPBuilder::PrecomputeObjective() {
 			if (mpc_parameters_->formulation == DECOUPLED_MODES) {
 				cp_fp_pen_mat(num_samples, num_samples) = 0.;	// CP variable
 			}
+			//cp_fp_pen_mat(num_samples - 1 , num_samples - 1) *= 1000;
 			//cp_fp_pen_mat(0, 0) = mpc_parameters_->penalties.cp_fp[mode_num] * first_period / mpc_parameters_->period_qpsample;
 
 			tmp_mat_.noalias() = cp_dyn.input_mat_tr * cp_fp_pen_mat.block(0, 0, num_samples, num_samples) * cp_dyn.input_mat;
@@ -377,7 +378,7 @@ void QPBuilder::TransformControlVector(MPCSolution &solution) {
 
 	//TODO(performance): Optimize this for first interpolate_whole_horizon == false
 	// Transform to com motion
-	int samples_left = mpc_parameters_->GetMPCSamplesLeft(solution.sampling_times_vec[1] - solution.sampling_times_vec[0]);
+	int samples_left = mpc_parameters_->GetMPCSamplesLeft(solution.first_coarse_period);
 	//const LinearDynamicsMatrices &cop_dyn = robot_->com()->dynamics_qp()[samples_left].cop;
 	solution.com_prw.control.x_vec.noalias() = global_contr_x_vec;//new - cop_dyn.state_mat * state_x(0);
 	//solution.com_prw.control.x_vec.noalias() = copdyn.input_mat_inv * tmp_vec_;
@@ -651,6 +652,7 @@ void QPBuilder::BuildCPEqConstraints(const MPCSolution &solution) {
 	// --------------------------------------------------------------------
 	// Choose the precomputed element depending on the period until next sample
 	int samples_left = mpc_parameters_->GetMPCSamplesLeft(solution.first_coarse_period);
+	std::cout << "samples_left in CPEqConstraints: " << samples_left << std::endl;
 
 	const LinearDynamics &dyn = robot_->com()->dynamics_qp()[samples_left];
 
@@ -906,6 +908,7 @@ void QPBuilder::BuildCoPIneqConstraints(const MPCSolution &solution) {
 	}
 	*/
 
+	std::cout << std::endl;
 	// Compose bounds vector:
 	// ----------------------
 	++st_it; // Points at the first previewed instant
@@ -932,6 +935,11 @@ void QPBuilder::BuildCoPIneqConstraints(const MPCSolution &solution) {
 			if (ss_it->state_changed) {
 				robot_->GetConvexHull(hull_, COP_HULL, *ss_it);
 			}
+			if (ss_it->foot == LEFT) {
+				std::cout << i <<": l ";
+			} else {
+				std::cout << i <<": r ";
+			}
 			tmp_vec_(i)  = min(hull_.x_vec(0), hull_.x_vec(3));
 			tmp_vec2_(i) = max(hull_.x_vec(0), hull_.x_vec(3));
 
@@ -940,6 +948,7 @@ void QPBuilder::BuildCoPIneqConstraints(const MPCSolution &solution) {
 			++ss_it;
 		}
 	}
+	std::cout << std::endl;
 
 	// Fill QP:
 	// --------

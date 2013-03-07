@@ -7,7 +7,7 @@ using namespace MPCWalkgen;
 
 int main() {
 
-	int num_samples_horizon_max 		= 21;
+	int num_samples_horizon_max 		= 24;
 	int num_samples_dsss 			= 13;
 	int num_steps_ssds 				= 2;
 	double sample_period_qp 		= .1;
@@ -19,7 +19,8 @@ int main() {
 	// ----------------------
 	MPCParameters mpc_parameters;
 	mpc_parameters.num_samples_horizon_max    		= num_samples_horizon_max;
-	mpc_parameters.num_samples_first_period		= 5;
+	mpc_parameters.num_samples_first_coarse_period	= 5;
+	mpc_parameters.num_samples_first_fine_period	= 4;
 	mpc_parameters.num_samples_dsss       		= std::min(num_samples_dsss, num_samples_horizon_max);
 	mpc_parameters.num_steps_ssds         		= std::min(num_steps_ssds, num_samples_horizon_max);
 	mpc_parameters.num_steps_max				= 3;
@@ -38,7 +39,7 @@ int main() {
 	mpc_parameters.formulation		      		= DECOUPLED_MODES;
 	mpc_parameters.is_pid_mode		      		= false;
 	mpc_parameters.is_terminal_constr	      	= false;
-	mpc_parameters.is_ineq_constr				= false;
+	mpc_parameters.is_ineq_constr				= true;
 	mpc_parameters.problem_dumping				= false;
 
 	mpc_parameters.penalties.pos[0] 			= 0.;
@@ -129,7 +130,7 @@ int main() {
 	walk.clock().ReserveMemory(20, 1000);
 
 	walk.clock().ResetLocal();
-	for (; curr_time < .205; curr_time += sample_period_act) {
+	for (; curr_time < 1.205; curr_time += sample_period_act) {
 		//int online_timer = walk.clock().StartCounter();
 		//std::cout << std::endl;
 		//std::cout << std::endl;
