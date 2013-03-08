@@ -40,7 +40,6 @@ void CoMBody::Interpolate(MPCSolution &solution, double current_time, const Refe
 			state_x, solution.com_prw.control.x_vec[0]);
 	interpolation_.Interpolate(solution.com_act.pos.y_vec, dynamics_act().pos,
 			state_y, solution.com_prw.control.y_vec[0]);
-	std::cout << "solution.com_act.pos.x_vec[0] : " << solution.com_act.pos.x_vec[0] << std::endl;
 
 	// Velocity:
 	interpolation_.Interpolate(solution.com_act.vel.x_vec, dynamics_act().vel,

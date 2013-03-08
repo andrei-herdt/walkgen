@@ -48,7 +48,9 @@ void HeuristicPreview::PreviewSamplingTimes(double current_time,
 		solution.sampling_times_vec.at(sample) = solution.sampling_times_vec.at(sample - 1) + mpc_parameters_->period_recomputation;
 	}
 	// Second grid
-	for (; sample <= mpc_parameters_->num_samples_first_coarse_period + mpc_parameters_->num_samples_first_fine_period - 1; sample++) {
+	solution.sampling_times_vec.at(sample) = solution.sampling_times_vec.at(0) + first_fine_period + mpc_parameters_->period_inter_samples;
+	sample++;
+	for (; sample < mpc_parameters_->num_samples_first_coarse_period + mpc_parameters_->num_samples_first_fine_period; sample++) {
 		solution.sampling_times_vec.at(sample) = solution.sampling_times_vec.at(sample - 1) + mpc_parameters_->period_inter_samples;
 	}
 	// Third grid (fixed)
@@ -75,7 +77,7 @@ void HeuristicPreview::PreviewSupportStates(double first_sample_period, MPCSolut
 	support_fsm_->SetSupportState(0, solution.sampling_times_vec, current_support);
 	solution.sampling_times_vec[0] = current_time;// Quickfix
 	if (current_support.state_changed) {
-		std::cout << "current state changed at: " << solution.sampling_times_vec[0] << std::endl;
+		//std::cout << "current state changed at: " << solution.sampling_times_vec[0] << std::endl;
 		if (current_support.foot == LEFT) {
 			foot = &robot_->left_foot()->state();
 		} else {

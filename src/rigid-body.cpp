@@ -65,11 +65,9 @@ void RigidBody::ComputeDynamics(SystemOrder dynamics_order) {
 			if (sampling_periods_vec.back() < kEps) {
 				sampling_periods_vec.pop_back();
 				dyn_build_p_->Build(dynamics_order, *dyn_it, state_.z(0), sampling_periods_vec, num_samples, false);
-				Debug::Cout("sampling_periods_vec", sampling_periods_vec);
 				sampling_periods_vec.push_back(0.);
 			} else {
 				dyn_build_p_->Build(dynamics_order, *dyn_it, state_.z(0), sampling_periods_vec, num_samples, false);
-				Debug::Cout("sampling_periods_vec", sampling_periods_vec);
 			}
 			++dyn_it;
 			first_fine_period -= mpc_parameters_->period_recomputation;

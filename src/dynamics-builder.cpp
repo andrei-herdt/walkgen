@@ -53,7 +53,6 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, const
 	 */
 
 	int num_samples = static_cast<int>(sampling_periods_vec.size());
-	std::cout << "num_samples in dynamics_builder" << num_samples << std::endl;
 	double omega = sqrt(kGravity/height);
 	double omega_square = kGravity/height;
 	if (mpc_parameters_->formulation == STANDARD || is_actuation) {

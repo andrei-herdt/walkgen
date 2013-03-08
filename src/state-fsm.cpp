@@ -1,5 +1,7 @@
 #include <mpc-walkgen/state-fsm.h>
 
+#include <mpc-walkgen/debug.h>
+
 using namespace MPCWalkgen;
 
 StateFSM::StateFSM(Reference *ref, const MPCParameters *mpc_parameters)
@@ -52,6 +54,10 @@ void StateFSM::SetSupportState(int sample, const std::vector<double> &sampling_t
       } else {
         support.foot = LEFT;
       }
+      //if (sampling_times_vec[sample] < 1.505 && sampling_times_vec[sample - 1] > 1.475) {
+    //	  Debug::Cout("Too early ss switch: ", sampling_times_vec);
+    //	  std::cout << "at: " << sample << std::endl;
+    //  }
       support.state_changed 	= true;
       support.num_instants 		= 0;
 	  support.transitional_ds 	= true;

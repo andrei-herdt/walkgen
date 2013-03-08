@@ -18,7 +18,7 @@ using namespace std;
 
 static void mdlInitializeSizes(SimStruct *S) {
 	// Expected number of parameters
-	ssSetNumSFcnParams(S, 31);
+	ssSetNumSFcnParams(S, 32);
 
 	// Parameter mismatch?
 	if (ssGetNumSFcnParams(S) != ssGetSFcnParamsCount(S)) {
@@ -26,7 +26,7 @@ static void mdlInitializeSizes(SimStruct *S) {
 	}
 
 	// Specify I/O
-	if (!ssSetNumInputPorts(S, 13)) return;
+	if (!ssSetNumInputPorts(S, 14)) return;
 	ssSetInputPortWidth(S, 0, 2);     //pos_ref
 	ssSetInputPortWidth(S, 1, 3);     //vel_ref
 	ssSetInputPortWidth(S, 2, 4);     //cp_ref (Global reference and local offset)
@@ -40,6 +40,7 @@ static void mdlInitializeSizes(SimStruct *S) {
 	ssSetInputPortWidth(S, 10, 6);    //lfoot_wrench_in
 	ssSetInputPortWidth(S, 11, 6);    //rfoot_wrench_in
 	ssSetInputPortWidth(S, 12, 1);    //reset_in
+	ssSetInputPortWidth(S, 13, 3);    //contr_moves_pen_in
 
 	ssSetInputPortDirectFeedThrough(S, 0, 1);
 	ssSetInputPortDirectFeedThrough(S, 1, 1);
@@ -54,6 +55,7 @@ static void mdlInitializeSizes(SimStruct *S) {
 	ssSetInputPortDirectFeedThrough(S, 10, 1);
 	ssSetInputPortDirectFeedThrough(S, 11, 1);
 	ssSetInputPortDirectFeedThrough(S, 12, 1);
+	ssSetInputPortDirectFeedThrough(S, 13, 1);
 
 	if (!ssSetNumOutputPorts(S,19)) return;
 	// Realized motions
@@ -143,7 +145,8 @@ static void mdlStart(SimStruct *S) {
 	mpc_parameters.penalties.cp[0] 				= *mxGetPr(ssGetSFcnParam(S, 14));
 	mpc_parameters.penalties.cp_fp[0]			= *mxGetPr(ssGetSFcnParam(S, 27));
 	mpc_parameters.penalties.contr_moves[0] 	= *mxGetPr(ssGetSFcnParam(S, 15));
-	mpc_parameters.penalties.first_contr_move	= *mxGetPr(ssGetSFcnParam(S, 23));
+	mpc_parameters.penalties.first_contr_moves	= *mxGetPr(ssGetSFcnParam(S, 23));
+	mpc_parameters.penalties.second_contr_moves	= *mxGetPr(ssGetSFcnParam(S, 31));
 
 	mpc_parameters.penalties.pos[1] 			= mxGetPr(ssGetSFcnParam(S, 11))[1];
 	mpc_parameters.penalties.vel[1]  			= mxGetPr(ssGetSFcnParam(S, 12))[1];
@@ -210,6 +213,8 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 	InputRealPtrsType lfoot_wrench_in = ssGetInputPortRealSignalPtrs(S, 10);
 	InputRealPtrsType rfoot_wrench_in = ssGetInputPortRealSignalPtrs(S, 11);
 	InputRealPtrsType reset_in        = ssGetInputPortRealSignalPtrs(S, 12);
+
+	InputRealPtrsType contr_moves_pen_in        = ssGetInputPortRealSignalPtrs(S, 13);
 
 	real_T *com            = ssGetOutputPortRealSignal(S, 0);
 	real_T *dcom           = ssGetOutputPortRealSignal(S, 1);
@@ -312,6 +317,15 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 	walk->SetVelReference(*vel_ref[0], *vel_ref[1], *vel_ref[2]);
 	walk->SetPosReference(*pos_ref[0], *pos_ref[1]);
 	walk->SetCPReference(*cp_ref[0], *cp_ref[1], *cp_ref[2], *cp_ref[3]);
+
+	if (*contr_moves_pen_in[0] > kEps) {
+		walk->mpc_parameters().penalties.online = true;
+		walk->mpc_parameters().penalties.first_contr_moves = *contr_moves_pen_in[1];
+		walk->mpc_parameters().penalties.second_contr_moves = *contr_moves_pen_in[2];
+	} else {
+		walk->mpc_parameters().penalties.online = false;
+	}
+
 	RigidBodySystem *robot = walk->robot();
 	if (is_closed_loop_in > 0.5) {
 		robot->com()->state().x[0] = *com_in[0];
@@ -457,16 +471,16 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 		sim_parameters[5] = walk->mpc_parameters().period_recomputation;
 		sim_parameters[6] = walk->mpc_parameters().period_actsample;
 	}
-}
+	}
 
-static void mdlTerminate(SimStruct *S) {
-	Walkgen *walk = static_cast<Walkgen *>(ssGetPWork(S)[0]);
-	Debug::Cout("Distribution of ticks", walk->clock().ticks_distr_vec());
-	delete walk;
-}
+	static void mdlTerminate(SimStruct *S) {
+		Walkgen *walk = static_cast<Walkgen *>(ssGetPWork(S)[0]);
+		Debug::Cout("Distribution of ticks", walk->clock().ticks_distr_vec());
+		delete walk;
+	}
 
-// Required S-function trailer:
-// ----------------------------
+	// Required S-function trailer:
+	// ----------------------------
 #ifdef  MATLAB_MEX_FILE    // Is this file being compiled as a MEX-file?
 #include "simulink.c"      // MEX-file interface mechanism
 #else

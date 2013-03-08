@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.968"
+    ComputedModelVersion    "1.970"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "herd_an"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Thu Mar  7 20:37:00 2013"
+  LastModifiedDate	  "Fri Mar  8 15:44:52 2013"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:968>"
+  ModelVersionFormat	  "1.%<AutoIncrement:970>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -107,7 +107,7 @@ Model {
 	  $ObjectID		  2
 	  Version		  "1.3.0"
 	  StartTime		  "0.0"
-	  StopTime		  "2.205"
+	  StopTime		  "5"
 	  AbsTol		  "auto"
 	  FixedStep		  "1e-3"
 	  InitialStep		  "auto"
@@ -703,8 +703,8 @@ Model {
       FunctionWithSeparateData off
       System {
 	Name			"Simulation"
-	Location		[851, 202, 1595, 1004]
-	Open			off
+	Location		[823, 66, 1567, 868]
+	Open			on
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
 	ScreenColor		"white"
@@ -732,24 +732,24 @@ Model {
 	  SystemSampleTime	  "0.005"
 	  RTWSystemCode		  "Auto"
 	  FunctionWithSeparateData off
-	  MaskPromptString	  "Length of horizon [num. samples]|Num. samples first fine period|Num. samples first coarse period|Position penalty|Velocity penalty|CoP penalty|CP penalty|CP centering penalty|Control moves penalty|First control move penalty|Step period [num. samples]|Length of initial double support phase [num. samples]|Steps before halt|Sampling period [s]|Intermediate sampling period [s]|Time between recomputations [s]|Actuator sampling period [s]|Security margin [m]|Max number of working set recomputations|Dynamics order|Debug mode|PID mode|Closed loop|Inequality constraints|Formulation (0 standard, 1 decoupled modes)|Dump problems|Terminal constraints|Solver (0 QL, 1 QPOases, 2 LSSOL)|Force threshold for DS phase|Foot placement planning period [s]|Initial CoM height"
-	  MaskStyleString	  "edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit"
-	  MaskTunableValueString  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
-	  MaskCallbackString	  "||||||||||||||||||||||||||||||"
-	  MaskEnableString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
-	  MaskVisibilityString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
-	  MaskToolTipString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
-	  MaskVarAliasString	  ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
-	  MaskVariables		  "num_samples_horizon=@1;num_samples_first_fine_period=@2;num_samples_first_per=@3;pos_weight=@4;vel_weight=@5;cop_weight=@6;cp_weight=@7;cp_centering_pen=@8;contr_moves_pen=@9;first_contr_move_pen=@10;num_samples_step=@11;num_samples_dsss=@12;num_steps_ssds=@13;period_qpsample=@14;period_intermed_samples=@15;period_mpcsample=@16;period_actsample=@17;security_margin=@18;num_wsrec=@19;dynamics_order=@20;is_debug_mode=@21;is_pid_mode=@22;is_closed_loop=@23;is_ineq_constraints=@24;formulation=@25;dump_problems=@26;is_terminal_constr=@27;solver=@28;ds_force_thresh=@29;ffoot_plan_period=@30;init_com_height=@31;"
+	  MaskPromptString	  "Length of horizon [num. samples]|Num. samples first fine period|Num. samples first coarse period|Position penalty|Velocity penalty|CoP penalty|CP penalty|CP centering penalty|Control moves penalty|First control move penalty|Second control move penalties|Step period [num. samples]|Length of initial double support phase [num. samples]|Steps before halt|Sampling period [s]|Intermediate sampling period [s]|Time between recomputations [s]|Actuator sampling period [s]|Security margin [m]|Max number of working set recomputations|Dynamics order|Debug mode|PID mode|Closed loop|Inequality constraints|Formulation (0 standard, 1 decoupled modes)|Dump problems|Terminal constraints|Solver (0 QL, 1 QPOases, 2 LSSOL)|Force threshold for DS phase|Foot placement planning period [s]|Initial CoM height"
+	  MaskStyleString	  "edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit"
+	  MaskTunableValueString  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	  MaskCallbackString	  "|||||||||||||||||||||||||||||||"
+	  MaskEnableString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	  MaskVisibilityString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	  MaskToolTipString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
+	  MaskVarAliasString	  ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+	  MaskVariables		  "num_samples_horizon=@1;num_samples_first_fine_period=@2;num_samples_first_per=@3;pos_weight=@4;vel_weight=@5;cop_weight=@6;cp_weight=@7;cp_centering_pen=@8;contr_moves_pen=@9;first_contr_move_pen=@10;second_contr_moves=@11;num_samples_step=@12;num_samples_dsss=@13;num_steps_ssds=@14;period_qpsample=@15;period_intermed_samples=@16;period_mpcsample=@17;period_actsample=@18;security_margin=@19;num_wsrec=@20;dynamics_order=@21;is_debug_mode=@22;is_pid_mode=@23;is_closed_loop=@24;is_ineq_constraints=@25;formulation=@26;dump_problems=@27;is_terminal_constr=@28;solver=@29;ds_force_thresh=@30;ffoot_plan_period=@31;init_com_height=@32;"
 	  MaskIconFrame		  on
 	  MaskIconOpaque	  on
 	  MaskIconRotate	  "none"
 	  MaskIconUnits		  "autoscale"
-	  MaskValueString	  "24|4|5|[0, 0]|[1, 1]|[0, 0]|[0, 0]|[0, 0]|[0, 0]|0|0.7|13|2|0.1|0.02|0.005|0.005|0.02|100|2|1|0|0|1|1|1|0|0|100|1.6|0.9"
-	  MaskTabNameString	  ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+	  MaskValueString	  "24|4|5|[0, 0]|[1, 1]|[0, 0]|[0, 0]|[0, 0]|[0.00, 0.00]|0|0|0.7|13|2|0.1|0.02|0.005|0.005|0.02|100|2|0|0|0|1|1|0|0|0|100|1.6|0.9"
+	  MaskTabNameString	  ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
 	  System {
 	    Name		    "Atomic Walkgen"
-	    Location		    [850, 74, 1598, 860]
+	    Location		    [3, 229, 1038, 1052]
 	    Open		    off
 	    ModelBrowserVisibility  off
 	    ModelBrowserWidth	    200
@@ -792,7 +792,7 @@ Model {
 	      BlockType		      BusCreator
 	      Name		      "Bus\nCreator"
 	      Ports		      [4, 1]
-	      Position		      [600, 232, 605, 278]
+	      Position		      [600, 252, 605, 298]
 	      ShowName		      off
 	      DisplayOption	      "bar"
 	    }
@@ -800,7 +800,7 @@ Model {
 	      BlockType		      BusCreator
 	      Name		      "Bus\nCreator2"
 	      Ports		      [3, 1]
-	      Position		      [490, 171, 495, 209]
+	      Position		      [490, 191, 495, 229]
 	      ShowName		      off
 	      Inputs		      "3"
 	      DisplayOption	      "bar"
@@ -816,7 +816,7 @@ Model {
 	      BlockType		      BusCreator
 	      Name		      "Bus\nCreator3"
 	      Ports		      [3, 1]
-	      Position		      [490, 273, 495, 357]
+	      Position		      [490, 288, 495, 372]
 	      ShowName		      off
 	      Inputs		      "3"
 	      DisplayOption	      "bar"
@@ -832,7 +832,7 @@ Model {
 	      BlockType		      BusCreator
 	      Name		      "Bus\nCreator4"
 	      Ports		      [3, 1]
-	      Position		      [490, 381, 495, 419]
+	      Position		      [490, 401, 495, 439]
 	      ShowName		      off
 	      Inputs		      "3"
 	      DisplayOption	      "bar"
@@ -944,7 +944,7 @@ Model {
 	      BlockType		      BusSelector
 	      Name		      "Bus\nSelector4"
 	      Ports		      [1, 4]
-	      Position		      [715, 415, 720, 535]
+	      Position		      [715, 435, 720, 555]
 	      ShowName		      off
 	      OutputSignals	      "com,cop,left_foot,right_foot"
 	      Port {
@@ -976,7 +976,7 @@ Model {
 	      BlockType		      BusSelector
 	      Name		      "Bus\nSelector5"
 	      Ports		      [1, 1]
-	      Position		      [716, 380, 744, 385]
+	      Position		      [716, 400, 744, 405]
 	      Orientation	      "up"
 	      ShowName		      off
 	      OutputSignals	      "com"
@@ -991,7 +991,7 @@ Model {
 	      BlockType		      BusSelector
 	      Name		      "Bus\nSelector6"
 	      Ports		      [1, 1]
-	      Position		      [756, 380, 784, 385]
+	      Position		      [756, 400, 784, 405]
 	      Orientation	      "up"
 	      ShowName		      off
 	      OutputSignals	      "p_left"
@@ -1006,7 +1006,7 @@ Model {
 	      BlockType		      BusSelector
 	      Name		      "Bus\nSelector7"
 	      Ports		      [1, 1]
-	      Position		      [776, 390, 804, 395]
+	      Position		      [776, 410, 804, 415]
 	      Orientation	      "up"
 	      ShowName		      off
 	      OutputSignals	      "p_right"
@@ -1020,7 +1020,7 @@ Model {
 	    Block {
 	      BlockType		      RateTransition
 	      Name		      "Protected RT1"
-	      Position		      [635, 245, 655, 265]
+	      Position		      [635, 265, 655, 285]
 	      Deterministic	      off
 	    }
 	    Block {
@@ -1032,12 +1032,20 @@ Model {
 	      OutScaling	      "2^0"
 	    }
 	    Block {
+	      BlockType		      Constant
+	      Name		      "Reset1"
+	      Position		      [40, 733, 100, 757]
+	      Value		      "[1, 1, 10]"
+	      OutDataType	      "sfix(16)"
+	      OutScaling	      "2^0"
+	    }
+	    Block {
 	      BlockType		      "S-Function"
 	      Name		      "S-Function"
-	      Ports		      [13, 19]
-	      Position		      [285, 148, 375, 712]
+	      Ports		      [14, 19]
+	      Position		      [285, 146, 370, 754]
 	      FunctionName	      "walkgen_sfun"
-	      Parameters	      "num_samples_horizon, num_samples_step, num_samples_dsss, num_steps_ssds, period_qpsample, period_mpcsample, period_actsample, security_margin, num_wsrec, dynamics_order, is_debug_mode, pos_weight, vel_weight, cop_weight, cp_weight, contr_moves_pen, is_pid_mode, is_closed_loop, is_ineq_constraints, formulation, dump_problems, is_terminal_constr, solver, first_contr_move_pen, ds_force_thresh, ffoot_plan_period, init_com_height, cp_centering_pen, num_samples_first_per, period_intermed_samples, num_samples_first_fine_period"
+	      Parameters	      "num_samples_horizon, num_samples_step, num_samples_dsss, num_steps_ssds, period_qpsample, period_mpcsample, period_actsample, security_margin, num_wsrec, dynamics_order, is_debug_mode, pos_weight, vel_weight, cop_weight, cp_weight, contr_moves_pen, is_pid_mode, is_closed_loop, is_ineq_constraints, formulation, dump_problems, is_terminal_constr, solver, first_contr_move_pen, ds_force_thresh, ffoot_plan_period, init_com_height, cp_centering_pen, num_samples_first_per, period_intermed_samples, num_samples_first_fine_period, second_contr_moves"
 	      Port {
 		PortNumber		1
 		Name			"com"
@@ -1157,7 +1165,7 @@ Model {
 	      BlockType		      Scope
 	      Name		      "Scope1"
 	      Ports		      [1]
-	      Position		      [723, 310, 737, 330]
+	      Position		      [723, 330, 737, 350]
 	      Orientation	      "up"
 	      NamePlacement	      "alternate"
 	      ShowName		      off
@@ -1180,12 +1188,12 @@ Model {
 	      BlockType		      Scope
 	      Name		      "Scope2"
 	      Ports		      [1]
-	      Position		      [742, 310, 758, 330]
+	      Position		      [742, 330, 758, 350]
 	      Orientation	      "up"
 	      NamePlacement	      "alternate"
 	      ShowName		      off
 	      Floating		      off
-	      Location		      [1170, 53, 1918, 1051]
+	      Location		      [1167, 53, 1915, 1051]
 	      Open		      off
 	      NumInputPorts	      "1"
 	      List {
@@ -1203,7 +1211,7 @@ Model {
 	      BlockType		      Scope
 	      Name		      "Scope3"
 	      Ports		      [1]
-	      Position		      [762, 310, 778, 330]
+	      Position		      [762, 330, 778, 350]
 	      Orientation	      "up"
 	      NamePlacement	      "alternate"
 	      ShowName		      off
@@ -1226,7 +1234,7 @@ Model {
 	      BlockType		      Scope
 	      Name		      "Scope4"
 	      Ports		      [1]
-	      Position		      [782, 310, 798, 330]
+	      Position		      [782, 330, 798, 350]
 	      Orientation	      "up"
 	      NamePlacement	      "alternate"
 	      ShowName		      off
@@ -1248,7 +1256,7 @@ Model {
 	    Block {
 	      BlockType		      ToWorkspace
 	      Name		      "To Workspace1"
-	      Position		      [480, 600, 555, 620]
+	      Position		      [480, 620, 555, 640]
 	      ShowName		      off
 	      VariableName	      "com_control"
 	      MaxDataPoints	      "inf"
@@ -1258,7 +1266,7 @@ Model {
 	    Block {
 	      BlockType		      ToWorkspace
 	      Name		      "To Workspace10"
-	      Position		      [480, 480, 555, 500]
+	      Position		      [480, 500, 555, 520]
 	      ShowName		      off
 	      VariableName	      "com_prw"
 	      MaxDataPoints	      "inf"
@@ -1268,7 +1276,7 @@ Model {
 	    Block {
 	      BlockType		      ToWorkspace
 	      Name		      "To Workspace11"
-	      Position		      [480, 510, 555, 530]
+	      Position		      [480, 530, 555, 550]
 	      ShowName		      off
 	      VariableName	      "cop_prw"
 	      MaxDataPoints	      "inf"
@@ -1278,7 +1286,7 @@ Model {
 	    Block {
 	      BlockType		      ToWorkspace
 	      Name		      "To Workspace12"
-	      Position		      [480, 540, 555, 560]
+	      Position		      [480, 560, 555, 580]
 	      ShowName		      off
 	      VariableName	      "support"
 	      MaxDataPoints	      "inf"
@@ -1288,7 +1296,7 @@ Model {
 	    Block {
 	      BlockType		      ToWorkspace
 	      Name		      "To Workspace13"
-	      Position		      [480, 570, 555, 590]
+	      Position		      [480, 590, 555, 610]
 	      ShowName		      off
 	      VariableName	      "resolution_data"
 	      MaxDataPoints	      "inf"
@@ -1298,7 +1306,7 @@ Model {
 	    Block {
 	      BlockType		      ToWorkspace
 	      Name		      "To Workspace14"
-	      Position		      [810, 420, 860, 440]
+	      Position		      [810, 440, 860, 460]
 	      ShowName		      off
 	      VariableName	      "com"
 	      MaxDataPoints	      "inf"
@@ -1308,7 +1316,7 @@ Model {
 	    Block {
 	      BlockType		      ToWorkspace
 	      Name		      "To Workspace15"
-	      Position		      [810, 450, 860, 470]
+	      Position		      [810, 470, 860, 490]
 	      ShowName		      off
 	      VariableName	      "cop"
 	      MaxDataPoints	      "inf"
@@ -1318,7 +1326,7 @@ Model {
 	    Block {
 	      BlockType		      ToWorkspace
 	      Name		      "To Workspace16"
-	      Position		      [810, 480, 860, 500]
+	      Position		      [810, 500, 860, 520]
 	      ShowName		      off
 	      VariableName	      "left_foot"
 	      MaxDataPoints	      "inf"
@@ -1328,7 +1336,7 @@ Model {
 	    Block {
 	      BlockType		      ToWorkspace
 	      Name		      "To Workspace17"
-	      Position		      [810, 510, 860, 530]
+	      Position		      [810, 530, 860, 550]
 	      ShowName		      off
 	      VariableName	      "right_foot"
 	      MaxDataPoints	      "inf"
@@ -1338,7 +1346,7 @@ Model {
 	    Block {
 	      BlockType		      ToWorkspace
 	      Name		      "To Workspace2"
-	      Position		      [480, 630, 555, 650]
+	      Position		      [480, 650, 555, 670]
 	      ShowName		      off
 	      VariableName	      "cp_prw"
 	      MaxDataPoints	      "inf"
@@ -1348,7 +1356,7 @@ Model {
 	    Block {
 	      BlockType		      ToWorkspace
 	      Name		      "To Workspace3"
-	      Position		      [480, 660, 555, 680]
+	      Position		      [480, 680, 555, 700]
 	      ShowName		      off
 	      VariableName	      "cur_state"
 	      MaxDataPoints	      "inf"
@@ -1358,7 +1366,7 @@ Model {
 	    Block {
 	      BlockType		      ToWorkspace
 	      Name		      "To Workspace4"
-	      Position		      [480, 690, 555, 710]
+	      Position		      [480, 710, 555, 730]
 	      ShowName		      off
 	      VariableName	      "sim_parameters"
 	      MaxDataPoints	      "inf"
@@ -1368,7 +1376,7 @@ Model {
 	    Block {
 	      BlockType		      ToWorkspace
 	      Name		      "To Workspace9"
-	      Position		      [480, 450, 555, 470]
+	      Position		      [480, 470, 555, 490]
 	      ShowName		      off
 	      VariableName	      "next_foot"
 	      MaxDataPoints	      "inf"
@@ -1378,7 +1386,7 @@ Model {
 	    Block {
 	      BlockType		      Outport
 	      Name		      "command"
-	      Position		      [885, 248, 915, 262]
+	      Position		      [885, 268, 915, 282]
 	      IconDisplay	      "Port number"
 	      OutDataType	      "sfix(16)"
 	      OutScaling	      "2^0"
@@ -1394,7 +1402,7 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "S-Function"
 	      SrcPort		      1
-	      Points		      [95, 0]
+	      Points		      [100, 0]
 	      DstBlock		      "Bus\nCreator2"
 	      DstPort		      1
 	    }
@@ -1445,7 +1453,7 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "S-Function"
 	      SrcPort		      3
-	      Points		      [95, 0]
+	      Points		      [100, 0]
 	      DstBlock		      "Bus\nCreator2"
 	      DstPort		      3
 	    }
@@ -1454,7 +1462,7 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "Bus\nCreator3"
 	      SrcPort		      1
-	      Points		      [60, 0; 0, -55]
+	      Points		      [60, 0; 0, -50]
 	      DstBlock		      "Bus\nCreator"
 	      DstPort		      3
 	    }
@@ -1463,7 +1471,7 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "S-Function"
 	      SrcPort		      10
-	      Points		      [95, 0]
+	      Points		      [100, 0]
 	      DstBlock		      "Bus\nCreator4"
 	      DstPort		      3
 	    }
@@ -1472,7 +1480,6 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "S-Function"
 	      SrcPort		      5
-	      Points		      [95, 0; 0, 10]
 	      DstBlock		      "Bus\nCreator3"
 	      DstPort		      1
 	    }
@@ -1481,7 +1488,6 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "S-Function"
 	      SrcPort		      6
-	      Points		      [95, 0]
 	      DstBlock		      "Bus\nCreator3"
 	      DstPort		      2
 	    }
@@ -1580,7 +1586,7 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "S-Function"
 	      SrcPort		      8
-	      Points		      [95, 0]
+	      Points		      [100, 0]
 	      DstBlock		      "Bus\nCreator4"
 	      DstPort		      1
 	    }
@@ -1791,6 +1797,12 @@ Model {
 	      SrcPort		      1
 	      DstBlock		      "S-Function"
 	      DstPort		      13
+	    }
+	    Line {
+	      SrcBlock		      "Reset1"
+	      SrcPort		      1
+	      DstBlock		      "S-Function"
+	      DstPort		      14
 	    }
 	  }
 	}

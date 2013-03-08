@@ -82,6 +82,8 @@ private:
 	CommonVectorType tmp_vec_, tmp_vec2_;
 	CommonMatrixType tmp_mat_, tmp_mat2_;
 
+	CommonMatrixType contr_mov_mat_, contr_mov_mat_tr_;
+
 	double current_time_;
 
 	RealClock *clock_;
@@ -114,6 +116,9 @@ private:
 
 
 	std::vector<CommonMatrixType> contr_val_pen_mat_vec_;
+	std::vector<CommonMatrixType> contr_mov_mat_vec_;
+	std::vector<CommonMatrixType> contr_mov_mat_tr_vec_;
+	std::vector<CommonMatrixType> contr_mov_pen_mat_vec_;
 
 	ConvexHull foot_hull_edges_;
 	ConvexHull cop_hull_edges_;

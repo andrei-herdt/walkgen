@@ -4,7 +4,7 @@ num_samples = sim_parameters.signals.values(1,1);
 di = 1;
 
 %% Plot previewed
-for i = 1:di:length(com_prw.time) - di
+for i = 1:di:length(com_prw.time)% - di
     subplot(1,2,1);
     lines_prw_com_x = plot(com_prw.signals.values(i, 1:num_samples), com_prw.signals.values(i, num_samples+1:2*num_samples),'red');
     lines_prw_cp_x = plot(cp_prw.signals.values(i, 1:num_samples), cp_prw.signals.values(i, num_samples+1:2*num_samples),'magenta');
@@ -19,11 +19,11 @@ end
 
 %% Plot realized
 subplot(1,2,1);
-lines_real_com_x = plot(com.time(2:di:length(com.time),1), com.signals.values(1:di:length(com.time)-1, 1),'green');
-lines_real_cop_x = plot(cop.time(2:di:length(com.time),1), cop.signals.values(1:di:length(com.time)-1, 1),'blue');
+lines_real_com_x = plot(com.time(1:di:length(com.time),1), com.signals.values(1:di:length(com.time), 1),'green');
+lines_real_cop_x = stairs(cop.time(1:di:length(com.time),1), cop.signals.values(1:di:length(com.time), 1),'b');
 subplot(1,2,2);
-lines_real_com_y = plot(com.time(2:di:length(com.time),1), com.signals.values(1:di:length(com.time)-1, 2),'green');
-lines_real_cop_y = plot(cop.time(2:di:length(com.time),1), cop.signals.values(1:di:length(com.time)-1, 2),'blue');
+lines_real_com_y = plot(com.time(1:di:length(com.time),1), com.signals.values(1:di:length(com.time), 2),'green');
+lines_real_cop_y = stairs(cop.time(1:di:length(com.time),1), cop.signals.values(1:di:length(com.time), 2),'b');
  
 %% Plot support state changes
 subplot(1,2,1);

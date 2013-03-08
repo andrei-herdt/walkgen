@@ -47,7 +47,7 @@ int main() {
 	mpc_parameters.penalties.cop[0]  			= 1.;//0.00001;
 	mpc_parameters.penalties.cp[0] 				= 10.;
 	mpc_parameters.penalties.contr_moves[0] 	= 1;
-	mpc_parameters.penalties.first_contr_move 	= 1;
+	mpc_parameters.penalties.first_contr_moves 	= 1;
 
 	mpc_parameters.penalties.pos[1] 			= 0.;
 	mpc_parameters.penalties.vel[1]  			= 0.;

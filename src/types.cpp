@@ -381,7 +381,11 @@ Penalties::Penalties(int num_modes)
 ,cp(num_modes)
 ,cp_fp(num_modes)
 ,contr_moves(num_modes)
-,first_contr_move(0.)
+,first_contr_moves(0.)
+,second_contr_moves(0.)
+,active_mode(0)
+,is_initial_mode(true)
+,online(false)
 {
 	pos[0] 			= 0.;
 	vel[0]  		= 0.;//1.;
@@ -396,11 +400,6 @@ Penalties::Penalties(int num_modes)
 	cp[1] 			= 0.;
 	cp_fp[1]		= 0.;
 	contr_moves[1] 	= 0.;
-
-
-	active_mode  = 0;
-
-	is_initial_mode = true;
 }
 Penalties::~Penalties(){}
 

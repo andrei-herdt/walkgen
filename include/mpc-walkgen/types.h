@@ -136,11 +136,14 @@ struct MPC_WALKGEN_API Penalties{
 	std::vector<double> cp;			//Capture point
 	std::vector<double> cp_fp;
 	std::vector<double> contr_moves;
-	double first_contr_move;
+	double first_contr_moves;
+	double second_contr_moves;
 
 	/// \brief Define the element of weight_coefficients std::vector used in this iteration
 	int active_mode;
 	bool is_initial_mode;
+
+	bool online;
 
 	void SetCoefficients(Reference &ref);
 

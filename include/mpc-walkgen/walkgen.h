@@ -47,6 +47,7 @@ public:
 	inline RealClock &clock() {return clock_;};
 	const MPCSolution &solution() {return solution_;};
 	inline const MPCParameters &mpc_parameters() const {return mpc_parameters_;};
+	inline MPCParameters &mpc_parameters() {return mpc_parameters_;};
 	// \}
 
 	//
