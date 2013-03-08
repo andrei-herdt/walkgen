@@ -130,8 +130,8 @@ int main() {
 	walk.clock().ReserveMemory(20, 1000);
 
 	walk.clock().ResetLocal();
-	for (; curr_time < 1.205; curr_time += sample_period_act) {
-		//int online_timer = walk.clock().StartCounter();
+	for (; curr_time < 10.205; curr_time += sample_period_act) {
+		int online_timer = walk.clock().StartCounter();
 		//std::cout << std::endl;
 		//std::cout << std::endl;
 		//std::cout << std::endl;
@@ -159,7 +159,7 @@ int main() {
 		//Debug::WriteToDatFile("hessian", curr_time, walk.solver()->hessian_mat()());
 		//Debug::WriteToDatFile("gradient", curr_time, walk.solver()->gradient_vec()());
 		//walk.clock().StopLastCounter();
-		//walk.clock().StopCounter(online_timer);
+		walk.clock().StopCounter(online_timer);
 		walk.clock().ResetLocal();
 		num_iterations++;
 	}
