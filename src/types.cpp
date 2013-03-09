@@ -416,6 +416,7 @@ SupportState::SupportState()
 ,yaw(0.)
 ,state_changed(false)
 ,transitional_ds(false)
+,is_half_ds_passed(false)
 ,previous_sampling_period(0.)
 {}
 

@@ -77,7 +77,6 @@ void HeuristicPreview::PreviewSupportStates(double first_sample_period, MPCSolut
 	support_fsm_->SetSupportState(0, solution.sampling_times_vec, current_support);
 	solution.sampling_times_vec[0] = current_time;// Quickfix
 	if (current_support.state_changed) {
-		//std::cout << "current state changed at: " << solution.sampling_times_vec[0] << std::endl;
 		if (current_support.foot == LEFT) {
 			foot = &robot_->left_foot()->state();
 		} else {
@@ -101,9 +100,6 @@ void HeuristicPreview::PreviewSupportStates(double first_sample_period, MPCSolut
 	for (int sample = 1; sample <= mpc_parameters_->num_samples_horizon; sample++) {
 		support_fsm_->SetSupportState(sample, solution.sampling_times_vec, previewed_support);
 		// special treatment for the first instant of transitionalDS
-		if (solution.sampling_times_vec[sample] > previewed_support.start_time + mpc_parameters_->period_trans_ds() + kEps) {
-			previewed_support.transitional_ds = false;
-		}
 		if (previewed_support.step_number > 0) {
 			previewed_support.x = 0.0;
 			previewed_support.y = 0.0;
