@@ -30,7 +30,7 @@ int main() {
 	mpc_parameters.period_actsample       		= sample_period_act;
 	mpc_parameters.period_ss					= 0.7;
 	mpc_parameters.warmstart           			= false;
-	mpc_parameters.interpolate_whole_horizon    = true;
+	mpc_parameters.interpolate_whole_horizon    = false;
 	mpc_parameters.solver.analysis              = false;
 	mpc_parameters.problem_dumping		      	= false;
 	mpc_parameters.solver.name                  = QLD;
@@ -44,7 +44,7 @@ int main() {
 
 	mpc_parameters.penalties.pos[0] 			= 0.;
 	mpc_parameters.penalties.vel[0]  			= 0.;
-	mpc_parameters.penalties.cop[0]  			= 1.;//0.00001;
+	mpc_parameters.penalties.cop[0]  			= 0.;//0.00001;
 	mpc_parameters.penalties.contr_moves[0] 	= 10;
 	mpc_parameters.penalties.cp[0] 				= 0.;
 	mpc_parameters.penalties.first_contr_moves 	= 10;
@@ -53,8 +53,8 @@ int main() {
 
 	mpc_parameters.penalties.pos[1] 			= 0.;
 	mpc_parameters.penalties.vel[1]  			= 0.;
-	mpc_parameters.penalties.cop[1]  			= 1.;//1.;
-	mpc_parameters.penalties.cp[1] 				= 10.;
+	mpc_parameters.penalties.cop[1]  			= 0.;//1.;
+	mpc_parameters.penalties.cp[1] 				= 0.;
 	mpc_parameters.penalties.cp_fp[1] 			= 10.;
 	mpc_parameters.penalties.contr_moves[1] 	= 0.;
 

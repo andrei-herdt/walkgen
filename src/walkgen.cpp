@@ -154,7 +154,9 @@ const MPCSolution &Walkgen::Go(double time){
 		ResetOutputIndex();
 		builder_->current_time(current_time_);
 
+		//int problem_counter = clock_.StartCounter();
 		BuildProblem();
+		//clock_.StopCounter(problem_counter);
 
 		if (mpc_parameters_.problem_dumping) {
 			solver_->DumpProblem("problem", current_time_, "txt");
@@ -240,8 +242,6 @@ void Walkgen::BuildProblem() {
 	// --------
 	preview_->PreviewSamplingTimes(current_time_, first_fine_period, solution_.first_coarse_period, solution_);
 	mpc_parameters_.num_samples_horizon = static_cast<int>(solution_.sampling_times_vec.size() - 1);
-	//Debug::Cout("solution_.sampling_times_vec", solution_.sampling_times_vec);
-	//std::cout << "first_fine_period: " << first_fine_period << std::endl;
 
 	preview_->PreviewSupportStates(first_fine_period, solution_);
 

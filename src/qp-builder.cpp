@@ -584,10 +584,10 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	objective_vec_x += ref_variant_cp_[matrix_num] * cp_ref_->global.x.head(num_samples);
 	objective_vec_y += ref_variant_cp_[matrix_num] * cp_ref_->global.y.head(num_samples);
 
-	double zx_cur = com.x(0) - com.z(0)/kGravity*com.x(2);
-	double zy_cur = com.y(0) - com.z(0)/kGravity*com.y(2);
-	objective_vec_x += curr_cop_variant_[matrix_num] * zx_cur;//*last_des_cop_x_;
-	objective_vec_y += curr_cop_variant_[matrix_num] * zy_cur;//*last_des_cop_y_;
+	//double zx_cur = com.x(0) - com.z(0)/kGravity*com.x(2);
+	//double zy_cur = com.y(0) - com.z(0)/kGravity*com.y(2);
+	objective_vec_x += curr_cop_variant_[matrix_num] * *last_des_cop_x_;
+	objective_vec_y += curr_cop_variant_[matrix_num] * *last_des_cop_y_;
 
 
 	//Online adaptation of control move penalties:
@@ -598,8 +598,8 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 		CommonVectorType e_vec = CommonVectorType::Zero(num_samples);
 		e_vec(0) = mpc_parameters_->penalties.first_contr_moves;
 		tmp_vec_ = - contr_mov_mat_tr_vec_[matrix_num].block(0, 0, num_samples + num_unst_modes, num_samples) * e_vec;
-		objective_vec_x += tmp_vec_ * zx_cur;//*last_des_cop_x_;
-		objective_vec_y += tmp_vec_ * zy_cur;//*last_des_cop_y_;
+		objective_vec_x += tmp_vec_ * *last_des_cop_x_;
+		objective_vec_y += tmp_vec_ * *last_des_cop_y_;
 	}
 
 	// Offset from the ankle to the support center for CoP centering:
