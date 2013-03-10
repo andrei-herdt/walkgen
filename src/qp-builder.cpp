@@ -706,7 +706,6 @@ void QPBuilder::BuildCPEqConstraints(const MPCSolution &solution) {
 	// --------------------------------------------------------------------
 	// Choose the precomputed element depending on the period until next sample
 	int samples_left = mpc_parameters_->GetMPCSamplesLeft(solution.first_coarse_period);
-	//std::cout << "samples_left in CPEqConstraints: " << samples_left << std::endl;
 
 	const LinearDynamics &dyn = robot_->com()->dynamics_qp()[samples_left];
 
@@ -951,8 +950,6 @@ void QPBuilder::BuildCoPIneqConstraints(const MPCSolution &solution) {
 	// Has half of ds phase passed?
 	std::vector<double>::const_iterator st_it = solution.sampling_times_vec.begin();
 
-	//Debug::Cout("solution.sampling_times_vec: ", solution.sampling_times_vec);
-
 	// Compose bounds vector:
 	// ----------------------
 	bool is_half_ds_passed = false;
@@ -964,25 +961,24 @@ void QPBuilder::BuildCoPIneqConstraints(const MPCSolution &solution) {
 	++st_it; // Points at the first previewed instant
 	++ss_it; // Points at the first previewed instant
 	for (int i = 0; i < num_samples; ++i) {
-		if ((*st_it > lift_off_margin && is_ff_incontact && ss_it->step_number == 0) || (!is_half_ds_passed && ss_it->transitional_ds && i < 7)) {
+		if (ss_it->state_changed) {
+			robot_->GetConvexHull(hull_, COP_HULL, *ss_it);
+		}
+		if ((solution.sampling_times_vec.front() > lift_off_margin && is_ff_incontact && ss_it->step_number == 0)
+				|| (!is_half_ds_passed && ss_it->transitional_ds && i < 7)) {
 			// X local
 			tmp_vec_(i)  = -kInf;
 			tmp_vec2_(i) = kInf;
 
 			// Y local
 			if (ss_it->foot == LEFT) {
-				//std::cout << "left foot inner constr. deactivated at: " << *st_it << std::endl;
 				tmp_vec_(num_samples + i) = -kInf;
 				tmp_vec2_(num_samples + i)= max(hull_.y_vec(0), hull_.y_vec(1));
 			} else {
-				//std::cout << "right foot inner constr. deactivated at: " << *st_it << std::endl;
 				tmp_vec_(num_samples + i) = min(hull_.y_vec(0), hull_.y_vec(1));
 				tmp_vec2_(num_samples + i)= kInf;
 			}
 		} else {
-			if (ss_it->state_changed) {
-				robot_->GetConvexHull(hull_, COP_HULL, *ss_it);
-			}
 			tmp_vec_(i)  = min(hull_.x_vec(0), hull_.x_vec(3));
 			tmp_vec2_(i) = max(hull_.x_vec(0), hull_.x_vec(3));
 
@@ -990,9 +986,7 @@ void QPBuilder::BuildCoPIneqConstraints(const MPCSolution &solution) {
 			tmp_vec2_(num_samples + i)= max(hull_.y_vec(0), hull_.y_vec(1));
 		}
 		// Has half of transitional ds phase passed?
-		//std::cout << "st: " << ss_it->start_time << " ";
 		if (*st_it < ss_it->start_time + mpc_parameters_->period_trans_ds() / 2. - kEps) {
-			//std::cout << "is_half_ds_passed at: " << *st_it << " ";
 			is_half_ds_passed = false;
 		} else {
 			is_half_ds_passed = true;
@@ -1000,7 +994,6 @@ void QPBuilder::BuildCoPIneqConstraints(const MPCSolution &solution) {
 		++ss_it;
 		++st_it;
 	}
-	//std::cout  << std::endl;
 
 	// Fill QP:
 	// --------
