@@ -45,14 +45,17 @@ int main() {
 	mpc_parameters.penalties.pos[0] 			= 0.;
 	mpc_parameters.penalties.vel[0]  			= 0.;
 	mpc_parameters.penalties.cop[0]  			= 1.;//0.00001;
-	mpc_parameters.penalties.cp[0] 				= 10.;
-	mpc_parameters.penalties.contr_moves[0] 	= 1;
-	mpc_parameters.penalties.first_contr_moves 	= 1;
+	mpc_parameters.penalties.contr_moves[0] 	= 10;
+	mpc_parameters.penalties.cp[0] 				= 0.;
+	mpc_parameters.penalties.first_contr_moves 	= 10;
+	mpc_parameters.penalties.cp_fp[0] 			= 10.;
+	mpc_parameters.penalties.second_contr_moves 	= 10;
 
 	mpc_parameters.penalties.pos[1] 			= 0.;
 	mpc_parameters.penalties.vel[1]  			= 0.;
 	mpc_parameters.penalties.cop[1]  			= 1.;//1.;
 	mpc_parameters.penalties.cp[1] 				= 10.;
+	mpc_parameters.penalties.cp_fp[1] 			= 10.;
 	mpc_parameters.penalties.contr_moves[1] 	= 0.;
 
 	mpc_parameters.init_com_height 				= 0.9;

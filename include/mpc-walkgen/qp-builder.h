@@ -120,6 +120,8 @@ private:
 	std::vector<CommonMatrixType> contr_mov_mat_tr_vec_;
 	std::vector<CommonMatrixType> contr_mov_pen_mat_vec_;
 
+	std::vector<CommonMatrixType> cp_fp_pen_mat_vec_;
+
 	ConvexHull foot_hull_edges_;
 	ConvexHull cop_hull_edges_;
 	ConvexHull hull_;

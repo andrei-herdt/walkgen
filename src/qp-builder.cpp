@@ -87,9 +87,38 @@ void QPBuilder::PrecomputeObjective() {
 	u_trans_ref_mat_vec_.resize(num_recomp * num_modes);
 	v_trans_ref_mat_vec_.resize(num_recomp * num_modes);
 
-
+	cp_fp_pen_mat_vec_.resize(num_recomp * num_modes);
 
 	int num_samples = num_samples_max;
+	for (int mode_num = 0; mode_num < num_modes; ++mode_num) {
+		CommonMatrixType cp_fp_pen_fixed_mat = CommonMatrixType::Identity(num_samples + num_unst_modes, num_samples + num_unst_modes) * mpc_parameters_->penalties.cp_fp[mode_num];
+		cp_fp_pen_fixed_mat.diagonal().head(8) = CommonVectorType::Zero(8);
+
+		double first_period = mpc_parameters_->period_qpsample;
+		for (int s = 7; s > 3; s--) {
+			for (int i = 0; i < 4; i++) {
+				int samples_left = mpc_parameters_->GetMPCSamplesLeft(first_period);
+				int mat_num = samples_left + mode_num*num_recomp;
+				cp_fp_pen_fixed_mat(s, s) = mpc_parameters_->penalties.cp_fp[mode_num] * (1. - samples_left / 19.);
+				cp_fp_pen_mat_vec_[mat_num] = cp_fp_pen_fixed_mat;
+				first_period -= mpc_parameters_->period_recomputation;
+			}
+			cp_fp_pen_fixed_mat(s, s) = 0.;
+		}
+		for (int s = 3; s >= 0; s--) {
+			int samples_left = mpc_parameters_->GetMPCSamplesLeft(first_period);
+			int mat_num = samples_left + mode_num*num_recomp;
+
+			cp_fp_pen_fixed_mat(s, s) = mpc_parameters_->penalties.cp_fp[mode_num] * (1. - samples_left / 19.);
+			cp_fp_pen_mat_vec_[mat_num] = cp_fp_pen_fixed_mat;
+			cp_fp_pen_fixed_mat(s, s) = 0.;
+			first_period -= mpc_parameters_->period_recomputation;
+		}
+	}
+
+
+
+
 	// Precompute:
 	// -----------
 	for (int mode_num = 0; mode_num < num_modes; ++mode_num) {
@@ -102,6 +131,10 @@ void QPBuilder::PrecomputeObjective() {
 			const LinearDynamicsMatrices &vel_dyn = robot_->com()->dynamics_qp()[samples_left].vel;
 			const LinearDynamicsMatrices &cop_dyn = robot_->com()->dynamics_qp()[samples_left].cop;
 			const LinearDynamicsMatrices &cp_dyn = robot_->com()->dynamics_qp()[samples_left].cp;
+
+			if (mpc_parameters_->formulation == DECOUPLED_MODES) {
+				cp_fp_pen_mat_vec_[mat_num](num_samples_max, num_samples_max) = 0.;	// CP variable
+			}
 
 			num_samples = pos_dyn.input_mat.cols();
 			if (mpc_parameters_->formulation == DECOUPLED_MODES) {
@@ -163,14 +196,11 @@ void QPBuilder::PrecomputeObjective() {
 
 			// CP centering:
 			// -------------
-			CommonMatrixType cp_fp_pen_mat = CommonMatrixType::Identity(num_samples + num_unst_modes, num_samples + num_unst_modes) * mpc_parameters_->penalties.cp_fp[mode_num];
-			if (mpc_parameters_->formulation == DECOUPLED_MODES) {
-				cp_fp_pen_mat(num_samples, num_samples) = 0.;	// CP variable
-			}
-			//cp_fp_pen_mat(num_samples - 1 , num_samples - 1) *= 1000;
-			//cp_fp_pen_mat(0, 0) = mpc_parameters_->penalties.cp_fp[mode_num] * first_period / mpc_parameters_->period_qpsample;
 
-			tmp_mat_.noalias() = cp_dyn.input_mat_tr * cp_fp_pen_mat.block(0, 0, num_samples, num_samples) * cp_dyn.input_mat;
+			//cp_fp_pen_mat_vec_[mat_num](num_samples - 1 , num_samples - 1) *= 1000;
+			//cp_fp_pen_mat_vec_[mat_num](0, 0) = mpc_parameters_->penalties.cp_fp[mode_num] * first_period / mpc_parameters_->period_qpsample;
+
+			tmp_mat_.noalias() = cp_dyn.input_mat_tr * cp_fp_pen_mat_vec_[mat_num].block(0, 0, num_samples, num_samples) * cp_dyn.input_mat;
 			hessian_mat +=  tmp_mat_;
 
 
@@ -241,30 +271,30 @@ void QPBuilder::PrecomputeObjective() {
 
 			// CP centering:
 			// -------------
-			u_trans_v_mat_vec_[mat_num] = cp_dyn.input_mat_tr * cp_fp_pen_mat.block(0, 0, num_samples, num_samples) * cp_dyn.input_mat.block(0, 0, num_samples, num_samples);
-			u_trans_v_mat_vec_[mat_num] -= cp_dyn.input_mat_tr * cp_fp_pen_mat.block(0, 0, num_samples, num_samples);
+			u_trans_v_mat_vec_[mat_num] = cp_dyn.input_mat_tr * cp_fp_pen_mat_vec_[mat_num].block(0, 0, num_samples, num_samples) * cp_dyn.input_mat.block(0, 0, num_samples, num_samples);
+			u_trans_v_mat_vec_[mat_num] -= cp_dyn.input_mat_tr * cp_fp_pen_mat_vec_[mat_num].block(0, 0, num_samples, num_samples);
 
-			v_trans_v_mat_vec_[mat_num] = cp_dyn.input_mat_tr.block(0, 0, num_samples, num_samples) * cp_fp_pen_mat.block(0, 0, num_samples, num_samples) * cp_dyn.input_mat.block(0, 0, num_samples, num_samples);
-			v_trans_v_mat_vec_[mat_num] -= cp_dyn.input_mat_tr.block(0, 0, num_samples, num_samples) * cp_fp_pen_mat.block(0, 0, num_samples, num_samples);
-			v_trans_v_mat_vec_[mat_num] += cp_fp_pen_mat.block(0, 0, num_samples, num_samples);
+			v_trans_v_mat_vec_[mat_num] = cp_dyn.input_mat_tr.block(0, 0, num_samples, num_samples) * cp_fp_pen_mat_vec_[mat_num].block(0, 0, num_samples, num_samples) * cp_dyn.input_mat.block(0, 0, num_samples, num_samples);
+			v_trans_v_mat_vec_[mat_num] -= cp_dyn.input_mat_tr.block(0, 0, num_samples, num_samples) * cp_fp_pen_mat_vec_[mat_num].block(0, 0, num_samples, num_samples);
+			v_trans_v_mat_vec_[mat_num] += cp_fp_pen_mat_vec_[mat_num].block(0, 0, num_samples, num_samples);
 
-			v_trans_vc_mat_vec_[mat_num] = cp_dyn.input_mat_tr.block(0, 0, num_samples, num_samples) * cp_fp_pen_mat.block(0, 0, num_samples, num_samples) * cp_dyn.input_mat.block(0, 0, num_samples, num_samples);
-			v_trans_vc_mat_vec_[mat_num] -= cp_dyn.input_mat_tr.block(0, 0, num_samples, num_samples) * cp_fp_pen_mat.block(0, 0, num_samples, num_samples);
-			v_trans_vc_mat_vec_[mat_num] -= cp_fp_pen_mat.block(0, 0, num_samples, num_samples) * cp_dyn.input_mat.block(0, 0, num_samples, num_samples);
-			v_trans_vc_mat_vec_[mat_num] += cp_fp_pen_mat.block(0, 0, num_samples, num_samples);
+			v_trans_vc_mat_vec_[mat_num] = cp_dyn.input_mat_tr.block(0, 0, num_samples, num_samples) * cp_fp_pen_mat_vec_[mat_num].block(0, 0, num_samples, num_samples) * cp_dyn.input_mat.block(0, 0, num_samples, num_samples);
+			v_trans_vc_mat_vec_[mat_num] -= cp_dyn.input_mat_tr.block(0, 0, num_samples, num_samples) * cp_fp_pen_mat_vec_[mat_num].block(0, 0, num_samples, num_samples);
+			v_trans_vc_mat_vec_[mat_num] -= cp_fp_pen_mat_vec_[mat_num].block(0, 0, num_samples, num_samples) * cp_dyn.input_mat.block(0, 0, num_samples, num_samples);
+			v_trans_vc_mat_vec_[mat_num] += cp_fp_pen_mat_vec_[mat_num].block(0, 0, num_samples, num_samples);
 
 			tmp_mat_.noalias() = cp_dyn.state_mat;//New - cp_dyn.input_mat * cop_dyn.state_mat;
-			v_trans_s_mat_vec_[mat_num] = cp_dyn.input_mat_tr.block(0, 0, num_samples, num_samples) * cp_fp_pen_mat.block(0, 0, num_samples, num_samples) * tmp_mat_;
-			v_trans_s_mat_vec_[mat_num] -= cp_fp_pen_mat.block(0, 0, num_samples, num_samples) * tmp_mat_;
+			v_trans_s_mat_vec_[mat_num] = cp_dyn.input_mat_tr.block(0, 0, num_samples, num_samples) * cp_fp_pen_mat_vec_[mat_num].block(0, 0, num_samples, num_samples) * tmp_mat_;
+			v_trans_s_mat_vec_[mat_num] -= cp_fp_pen_mat_vec_[mat_num].block(0, 0, num_samples, num_samples) * tmp_mat_;
 
-			u_trans_s_mat_vec_[mat_num] = cp_dyn.input_mat_tr * cp_fp_pen_mat.block(0, 0, num_samples, num_samples) * tmp_mat_;
+			u_trans_s_mat_vec_[mat_num] = cp_dyn.input_mat_tr * cp_fp_pen_mat_vec_[mat_num].block(0, 0, num_samples, num_samples) * tmp_mat_;
 
-			u_trans_vc_mat_vec_[mat_num] = cp_dyn.input_mat_tr * cp_fp_pen_mat.block(0, 0, num_samples, num_samples) * cp_dyn.input_mat.block(0, 0, num_samples, num_samples);
-			u_trans_vc_mat_vec_[mat_num] -= cp_dyn.input_mat_tr * cp_fp_pen_mat.block(0, 0, num_samples, num_samples);
+			u_trans_vc_mat_vec_[mat_num] = cp_dyn.input_mat_tr * cp_fp_pen_mat_vec_[mat_num].block(0, 0, num_samples, num_samples) * cp_dyn.input_mat.block(0, 0, num_samples, num_samples);
+			u_trans_vc_mat_vec_[mat_num] -= cp_dyn.input_mat_tr * cp_fp_pen_mat_vec_[mat_num].block(0, 0, num_samples, num_samples);
 
-			u_trans_ref_mat_vec_[mat_num] = - cp_dyn.input_mat_tr * cp_fp_pen_mat.block(0, 0, num_samples, num_samples);
-			v_trans_ref_mat_vec_[mat_num] = - cp_dyn.input_mat_tr.block(0, 0, num_samples, num_samples) * cp_fp_pen_mat.block(0, 0, num_samples, num_samples);
-			v_trans_ref_mat_vec_[mat_num] += cp_fp_pen_mat.block(0, 0, num_samples, num_samples);
+			u_trans_ref_mat_vec_[mat_num] = - cp_dyn.input_mat_tr * cp_fp_pen_mat_vec_[mat_num].block(0, 0, num_samples, num_samples);
+			v_trans_ref_mat_vec_[mat_num] = - cp_dyn.input_mat_tr.block(0, 0, num_samples, num_samples) * cp_fp_pen_mat_vec_[mat_num].block(0, 0, num_samples, num_samples);
+			v_trans_ref_mat_vec_[mat_num] += cp_fp_pen_mat_vec_[mat_num].block(0, 0, num_samples, num_samples);
 		}
 	}
 }
@@ -554,10 +584,10 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	objective_vec_x += ref_variant_cp_[matrix_num] * cp_ref_->global.x.head(num_samples);
 	objective_vec_y += ref_variant_cp_[matrix_num] * cp_ref_->global.y.head(num_samples);
 
-	//double zx_cur = com.x(0) - com.z(0)/kGravity*com.x(2);
-	//double zy_cur = com.y(0) - com.z(0)/kGravity*com.y(2);
-	objective_vec_x += curr_cop_variant_[matrix_num] * *last_des_cop_x_;
-	objective_vec_y += curr_cop_variant_[matrix_num] * *last_des_cop_y_;
+	double zx_cur = com.x(0) - com.z(0)/kGravity*com.x(2);
+	double zy_cur = com.y(0) - com.z(0)/kGravity*com.y(2);
+	objective_vec_x += curr_cop_variant_[matrix_num] * zx_cur;//*last_des_cop_x_;
+	objective_vec_y += curr_cop_variant_[matrix_num] * zy_cur;//*last_des_cop_y_;
 
 
 	//Online adaptation of control move penalties:
@@ -568,8 +598,8 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 		CommonVectorType e_vec = CommonVectorType::Zero(num_samples);
 		e_vec(0) = mpc_parameters_->penalties.first_contr_moves;
 		tmp_vec_ = - contr_mov_mat_tr_vec_[matrix_num].block(0, 0, num_samples + num_unst_modes, num_samples) * e_vec;
-		objective_vec_x += tmp_vec_ * *last_des_cop_x_;
-		objective_vec_y += tmp_vec_ * *last_des_cop_y_;
+		objective_vec_x += tmp_vec_ * zx_cur;//*last_des_cop_x_;
+		objective_vec_y += tmp_vec_ * zy_cur;//*last_des_cop_y_;
 	}
 
 	// Offset from the ankle to the support center for CoP centering:
