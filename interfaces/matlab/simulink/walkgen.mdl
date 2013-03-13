@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.971"
+    ComputedModelVersion    "1.975"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -45,11 +45,11 @@ Model {
   Creator		  "The MathWorks Inc."
   UpdateHistory		  "UpdateHistoryNever"
   ModifiedByFormat	  "%<Auto>"
-  LastModifiedBy	  "herd_an"
+  LastModifiedBy	  "f_legs"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Sat Mar 09 16:46:04 2013"
+  LastModifiedDate	  "Wed Mar 13 01:41:00 2013"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:971>"
+  ModelVersionFormat	  "1.%<AutoIncrement:975>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -670,8 +670,8 @@ Model {
   }
   System {
     Name		    "walkgen"
-    Location		    [2450, 74, 2725, 375]
-    Open		    off
+    Location		    [822, 389, 1097, 690]
+    Open		    on
     ModelBrowserVisibility  off
     ModelBrowserWidth	    200
     ScreenColor		    "white"
@@ -703,7 +703,7 @@ Model {
       FunctionWithSeparateData off
       System {
 	Name			"Simulation"
-	Location		[823, 74, 1567, 876]
+	Location		[823, 82, 1567, 884]
 	Open			on
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
@@ -745,11 +745,11 @@ Model {
 	  MaskIconOpaque	  on
 	  MaskIconRotate	  "none"
 	  MaskIconUnits		  "autoscale"
-	  MaskValueString	  "24|4|5|[0, 0]|[1, 1]|[0, 0]|[0, 0]|[0, 0]|[0.00, 0.00]|0|0|0.7|15|2|0.1|0.02|0.005|0.005|0.02|100|2|1|0|0|1|1|0|0|0|100|1.6|0.9"
+	  MaskValueString	  "20|4|5|[0, 0]|[0, 0]|[0.1, 0.1]|[1, 1]|[0, 0]|[0., 0.]|0.|0.|0.7|15|2|0.1|0.02|0.005|0.005|0.02|100|2|1|0|0|1|1|0|0|0|100|0.4|0.9"
 	  MaskTabNameString	  ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
 	  System {
 	    Name		    "Atomic Walkgen"
-	    Location		    [3, 229, 1038, 1052]
+	    Location		    [28, 84, 1063, 907]
 	    Open		    off
 	    ModelBrowserVisibility  off
 	    ModelBrowserWidth	    200
@@ -1035,7 +1035,7 @@ Model {
 	      BlockType		      Constant
 	      Name		      "Reset1"
 	      Position		      [40, 733, 100, 757]
-	      Value		      "[1, 1, 10]"
+	      Value		      "[1, 0, 0]"
 	      OutDataType	      "sfix(16)"
 	      OutScaling	      "2^0"
 	    }
@@ -1864,7 +1864,7 @@ Model {
 	  System {
 	    Name		    "CP Reference"
 	    Location		    [157, 182, 901, 984]
-	    Open		    off
+	    Open		    on
 	    ModelBrowserVisibility  off
 	    ModelBrowserWidth	    200
 	    ScreenColor		    "white"
@@ -1897,7 +1897,7 @@ Model {
 	      ShowName		      off
 	      FontName		      "Arial"
 	      FontSize		      8
-	      Value		      "[0.0, 0.1, 0., 0.0]"
+	      Value		      "[0.0, 0.1, 0., 0.00]"
 	      OutDataType	      "sfix(16)"
 	      OutScaling	      "2^0"
 	    }

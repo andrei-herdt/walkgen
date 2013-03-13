@@ -88,30 +88,42 @@ void QPBuilder::PrecomputeObjective() {
 	v_trans_ref_mat_vec_.resize(num_recomp * num_modes);
 
 	cp_fp_pen_mat_vec_.resize(num_recomp * num_modes);
+	vel_pen_mat_vec_.resize(num_recomp * num_modes);
 
 	int num_samples = num_samples_max;
 	for (int mode_num = 0; mode_num < num_modes; ++mode_num) {
 		CommonMatrixType cp_fp_pen_fixed_mat = CommonMatrixType::Identity(num_samples + num_unst_modes, num_samples + num_unst_modes) * mpc_parameters_->penalties.cp_fp[mode_num];
-		cp_fp_pen_fixed_mat.diagonal().head(8) = CommonVectorType::Zero(8);
+		//cp_fp_pen_fixed_mat.diagonal().head(8) = CommonVectorType::Zero(8);
+		CommonMatrixType vel_pen_fixed_mat = CommonMatrixType::Identity(num_samples + num_unst_modes, num_samples + num_unst_modes) * mpc_parameters_->penalties.vel[mode_num];
+		//vel_pen_fixed_mat.diagonal().head(8) = CommonVectorType::Zero(8);
 
 		double first_period = mpc_parameters_->period_qpsample;
 		for (int s = 7; s > 3; s--) {
 			for (int i = 0; i < 4; i++) {
 				int samples_left = mpc_parameters_->GetMPCSamplesLeft(first_period);
 				int mat_num = samples_left + mode_num*num_recomp;
-				cp_fp_pen_fixed_mat(s, s) = mpc_parameters_->penalties.cp_fp[mode_num] * (1. - samples_left / 19.);
+				
+				cp_fp_pen_fixed_mat(s, s) = mpc_parameters_->penalties.cp_fp[mode_num];// * (1. - samples_left / 19.);
 				cp_fp_pen_mat_vec_[mat_num] = cp_fp_pen_fixed_mat;
+				vel_pen_fixed_mat(s, s) = mpc_parameters_->penalties.vel[mode_num];// * (1. - samples_left / 19.);
+				vel_pen_mat_vec_[mat_num] = vel_pen_fixed_mat;
+
 				first_period -= mpc_parameters_->period_recomputation;
 			}
-			cp_fp_pen_fixed_mat(s, s) = 0.;
+				//cp_fp_pen_fixed_mat(s, s) = 0.;
+				//vel_pen_fixed_mat(s, s) = 0.;
 		}
 		for (int s = 3; s >= 0; s--) {
 			int samples_left = mpc_parameters_->GetMPCSamplesLeft(first_period);
 			int mat_num = samples_left + mode_num*num_recomp;
 
-			cp_fp_pen_fixed_mat(s, s) = mpc_parameters_->penalties.cp_fp[mode_num] * (1. - samples_left / 19.);
+			cp_fp_pen_fixed_mat(s, s) = mpc_parameters_->penalties.cp_fp[mode_num];// * (1. - samples_left / 19.);
 			cp_fp_pen_mat_vec_[mat_num] = cp_fp_pen_fixed_mat;
-			cp_fp_pen_fixed_mat(s, s) = 0.;
+			//cp_fp_pen_fixed_mat(s, s) = 0.;
+			vel_pen_fixed_mat(s, s) = mpc_parameters_->penalties.vel[mode_num];// * (1. - samples_left / 19.);
+			vel_pen_mat_vec_[mat_num] = vel_pen_fixed_mat;
+			//vel_pen_fixed_mat(s, s) = 0.;
+
 			first_period -= mpc_parameters_->period_recomputation;
 		}
 	}
@@ -173,8 +185,8 @@ void QPBuilder::PrecomputeObjective() {
 
 			// Q = beta*Uz^(-T)*Uv^T*Uv*Uz^(-1)
 			//tmp_mat_.noalias() = cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * vel_dyn.input_mat * cop_dyn.input_mat_inv;
-			tmp_mat_.noalias() = vel_dyn.input_mat_tr * vel_dyn.input_mat;
-			hessian_mat = mpc_parameters_->penalties.vel[mode_num] * tmp_mat_;
+			tmp_mat_.noalias() = vel_dyn.input_mat_tr * vel_pen_mat_vec_[mat_num].block(0, 0, num_samples, num_samples) * vel_dyn.input_mat;
+			hessian_mat = tmp_mat_;
 			// Q += alpha*Uz^(-T)*Uz^(-1)
 			//tmp_mat_.noalias() = cop_dyn.input_mat_inv_tr * contr_weighting_mat * cop_dyn.input_mat_inv;
 			hessian_mat += contr_mov_mat_tr_vec_[mat_num] * contr_mov_pen_mat_vec_[mat_num] * contr_mov_mat_vec_[mat_num];
@@ -210,6 +222,14 @@ void QPBuilder::PrecomputeObjective() {
 			if (mpc_parameters_->formulation == DECOUPLED_MODES) {
 				contr_val_pen_mat_vec_[mat_num](num_samples, num_samples) = 0.;	// CP variable
 			}
+			// TODO: Hard coded for 5 ms rate
+			for (int i = 0; i < mpc_parameters_->num_samples_first_fine_period; i++) {
+				contr_val_pen_mat_vec_[mat_num](i, i) = 5. / 100. * mpc_parameters_->penalties.cop[mode_num];
+			}
+			for (int i = mpc_parameters_->num_samples_first_fine_period; i < mpc_parameters_->num_samples_first_fine_period + mpc_parameters_->num_samples_first_coarse_period - 1; i++) {
+				contr_val_pen_mat_vec_[mat_num](i, i) = 20. / 100.  * mpc_parameters_->penalties.cop[mode_num];
+			}
+
 			//contr_val_pen_mat_vec_[mat_num](0, 0) = mpc_parameters_->penalties.cop[mode_num] * first_period / mpc_parameters_->period_qpsample;
 			const_hessian_n_mat_[mat_num] = hessian_mat + contr_val_pen_mat_vec_[mat_num];
 
@@ -223,7 +243,7 @@ void QPBuilder::PrecomputeObjective() {
 			//tmp_mat_.noalias() = vel_dyn.state_mat - vel_dyn.input_mat * cop_dyn.input_mat_inv * cop_dyn.state_mat;
 			//state_variant_[mat_num] = cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * mpc_parameters->weights.vel[mode_num] * tmp_mat_;
 			tmp_mat_.noalias() = vel_dyn.state_mat;//New - vel_dyn.input_mat * cop_dyn.state_mat;
-			state_variant_[mat_num] = vel_dyn.input_mat_tr * mpc_parameters_->penalties.vel[mode_num] * tmp_mat_;
+			state_variant_[mat_num] = vel_dyn.input_mat_tr * vel_pen_mat_vec_[mat_num].block(0, 0, num_samples, num_samples) * tmp_mat_;
 			// delta*Uz^(-T)*Up*(Sp - Up*Uz^(-1)*Sz)
 			//tmp_mat_.noalias() = pos_dyn.state_mat - pos_dyn.input_mat * cop_dyn.input_mat_inv * cop_dyn.state_mat;
 			//state_variant_[mat_num] += cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * mpc_parameters_->weights.pos[mode_num] * tmp_mat_;
@@ -244,7 +264,7 @@ void QPBuilder::PrecomputeObjective() {
 			//select_variant_[mat_num]  = mpc_parameters_->weights.control[mode_num] * identity_mat.block(0, 0, num_samples + num_unst_modes, num_samples);
 			// beta*Uz^(-T)*Uv^T*Uv*Uz^(-1)
 			//select_variant_[mat_num] += cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * mpc_parameters_->weights.vel[mode_num] * vel_dyn.input_mat * cop_dyn.input_mat_inv;
-			select_variant_[mat_num] = vel_dyn.input_mat_tr * mpc_parameters_->penalties.vel[mode_num] * vel_dyn.input_mat.block(0, 0, num_samples, num_samples);
+			select_variant_[mat_num] = vel_dyn.input_mat_tr * vel_pen_mat_vec_[mat_num].block(0, 0, num_samples, num_samples) *  vel_dyn.input_mat.block(0, 0, num_samples, num_samples);
 			// delta*Uz^(-T)*Up^T*Up*Uz^(-1)
 			//select_variant_[mat_num] += cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * mpc_parameters_->weights.pos[mode_num] * pos_dyn.input_mat * cop_dyn.input_mat_inv;
 			select_variant_[mat_num] += pos_dyn.input_mat_tr * mpc_parameters_->penalties.pos[mode_num] * pos_dyn.input_mat.block(0, 0, num_samples, num_samples);
@@ -256,7 +276,7 @@ void QPBuilder::PrecomputeObjective() {
 
 			// - beta*Uz^(-T)*Uv^T
 			//ref_variant_vel_[mat_num] = -cop_dyn.input_mat_inv_tr * vel_dyn.input_mat_tr * mpc_parameters_->weights.vel[mode_num];
-			ref_variant_vel_[mat_num] = -vel_dyn.input_mat_tr * mpc_parameters_->penalties.vel[mode_num];
+			ref_variant_vel_[mat_num] = -vel_dyn.input_mat_tr * vel_pen_mat_vec_[mat_num].block(0, 0, num_samples, num_samples);
 			// - delta*Uz^(-T)*Up^T
 			//ref_variant_pos_[mat_num] = -cop_dyn.input_mat_inv_tr * pos_dyn.input_mat_tr * mpc_parameters_->weights.pos[mode_num];
 			ref_variant_pos_[mat_num] = -pos_dyn.input_mat_tr * mpc_parameters_->penalties.pos[mode_num];
@@ -297,6 +317,13 @@ void QPBuilder::PrecomputeObjective() {
 			v_trans_ref_mat_vec_[mat_num] += cp_fp_pen_mat_vec_[mat_num].block(0, 0, num_samples, num_samples);
 		}
 	}
+
+	state_trans_mat_ = Matrix2D::Zero();
+	state_trans_mat_(0, 0) = 1.;
+	state_trans_mat_(0, 1) = -1. / sqrt(kGravity / robot_->com()->state().z[0]);
+	state_trans_mat_(1, 0) = 1.;
+	state_trans_mat_(1, 1) = 1. / sqrt(kGravity / robot_->com()->state().z[0]);
+
 }
 
 void QPBuilder::BuildProblem(MPCSolution &solution) {
@@ -458,13 +485,8 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	CommonMatrixType state_x = CommonMatrixType::Zero(mpc_parameters_->dynamics_order - num_unst_modes, 1);
 	CommonMatrixType state_y = CommonMatrixType::Zero(mpc_parameters_->dynamics_order - num_unst_modes, 1);
 	if (mpc_parameters_->formulation == DECOUPLED_MODES) {
-		Matrix2D state_trans_mat = Matrix2D::Zero();
-		state_trans_mat(0, 0) = 1.;
-		state_trans_mat(0, 1) = -1. / sqrt(kGravity / com.z[0]);
-		state_trans_mat(1, 0) = 1.;
-		state_trans_mat(1, 1) = 1. / sqrt(kGravity / com.z[0]);
-		tmp_mat_ = state_trans_mat * com.x.head(mpc_parameters_->dynamics_order);
-		tmp_mat2_ = state_trans_mat * com.y.head(mpc_parameters_->dynamics_order);
+		tmp_mat_ = state_trans_mat_ * com.x.head(mpc_parameters_->dynamics_order);
+		tmp_mat2_ = state_trans_mat_ * com.y.head(mpc_parameters_->dynamics_order);
 
 		for (int i = 0; i < mpc_parameters_->dynamics_order - num_unst_modes; i++) {
 			state_x(i, 0) = tmp_mat_(i, 0);
@@ -584,10 +606,10 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	objective_vec_x += ref_variant_cp_[matrix_num] * cp_ref_->global.x.head(num_samples);
 	objective_vec_y += ref_variant_cp_[matrix_num] * cp_ref_->global.y.head(num_samples);
 
-	//double zx_cur = com.x(0) - com.z(0)/kGravity*com.x(2);
-	//double zy_cur = com.y(0) - com.z(0)/kGravity*com.y(2);
-	objective_vec_x += curr_cop_variant_[matrix_num] * *last_des_cop_x_;
-	objective_vec_y += curr_cop_variant_[matrix_num] * *last_des_cop_y_;
+	double zx_cur = com.x(0) - com.z(0)/kGravity*com.x(2);
+	double zy_cur = com.y(0) - com.z(0)/kGravity*com.y(2);
+	objective_vec_x += curr_cop_variant_[matrix_num] * zx_cur;//*last_des_cop_x_;
+	objective_vec_y += curr_cop_variant_[matrix_num] * zy_cur;//*last_des_cop_y_;
 
 
 	//Online adaptation of control move penalties:
@@ -598,8 +620,8 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 		CommonVectorType e_vec = CommonVectorType::Zero(num_samples);
 		e_vec(0) = mpc_parameters_->penalties.first_contr_moves;
 		tmp_vec_ = - contr_mov_mat_tr_vec_[matrix_num].block(0, 0, num_samples + num_unst_modes, num_samples) * e_vec;
-		objective_vec_x += tmp_vec_ * *last_des_cop_x_;
-		objective_vec_y += tmp_vec_ * *last_des_cop_y_;
+		objective_vec_x += tmp_vec_ * zx_cur;//*last_des_cop_x_;
+		objective_vec_y += tmp_vec_ * zy_cur;//*last_des_cop_y_;
 	}
 
 	// Offset from the ankle to the support center for CoP centering:
@@ -717,13 +739,8 @@ void QPBuilder::BuildCPEqConstraints(const MPCSolution &solution) {
 	const BodyState &com = robot_->com()->state();
 	CommonMatrixType state_x = CommonMatrixType::Zero(mpc_parameters_->dynamics_order - num_st_modes, 1);
 	CommonMatrixType state_y = CommonMatrixType::Zero(mpc_parameters_->dynamics_order - num_st_modes, 1);
-	Matrix2D state_trans_mat = Matrix2D::Zero();
-	state_trans_mat(0, 0) = 1.;
-	state_trans_mat(0, 1) = -1. / sqrt(kGravity / com.z[0]);
-	state_trans_mat(1, 0) = 1.;
-	state_trans_mat(1, 1) = 1. / sqrt(kGravity / com.z[0]);
-	tmp_mat_ = state_trans_mat * com.x.head(mpc_parameters_->dynamics_order);
-	tmp_mat2_ = state_trans_mat * com.y.head(mpc_parameters_->dynamics_order);
+	tmp_mat_ = state_trans_mat_ * com.x.head(mpc_parameters_->dynamics_order);
+	tmp_mat2_ = state_trans_mat_ * com.y.head(mpc_parameters_->dynamics_order);
 
 	for (int i = num_st_modes; i < num_st_modes + num_unst_modes; i++) {
 		state_x(i - num_st_modes, 0) = tmp_mat_(i, 0);
@@ -775,17 +792,17 @@ void QPBuilder::BuildCPEqConstraints(const MPCSolution &solution) {
 
 	// Forward in time:
 	// ----------------
-	double neg_pow_state_mats = pow(dyn.d_state_mat_pow_vec[num_samples - 1](1,1), -1.);
+	//double neg_pow_state_mats = pow(dyn.d_state_mat_pow_vec[num_samples - 1](1,1), -1.);
 	double pos_pow_state_mats = dyn.d_state_mat_pow_vec.at(num_samples - 1)(1,1);
 	for (int col = 0; col < num_samples - 1; col++) {
 		atimesb_vec(col) = dyn.rev_matrix_prod_vec.at(num_samples - 2 - col)(1,1) * dyn.d_input_mat_vec[col](1);
 	}
 	atimesb_vec(num_samples - 1) = dyn.d_input_mat_vec.at(num_samples - 1)(1);
-	atimesb_vec *= neg_pow_state_mats;
+	//atimesb_vec *= neg_pow_state_mats;
 
 	//X:
 	// xu_0 < Au^{N}*\s_0^x + \sum Au^{(j-1)}*Bu*u_j < xu_0
-	solver_->constr_mat()()(num_constr, num_samples) = neg_pow_state_mats;	// CP
+	solver_->constr_mat()()(num_constr, num_samples) = 1.; //neg_pow_state_mats;	// CP
 
 	solver_->constr_mat().AddTerm(-atimesb_vec.transpose(), num_constr, 0);
 	if (num_steps_previewed > 0) {
@@ -793,13 +810,13 @@ void QPBuilder::BuildCPEqConstraints(const MPCSolution &solution) {
 		solver_->constr_mat().AddTerm(tmp_mat_, num_constr, 2*(num_samples + num_unst_modes));
 	}
 
-	CommonVectorType constant_x = state_x + atimesb_vec.transpose() * select_mats.sample_step_cx.block(0, 0, num_samples, 1);
+	CommonVectorType constant_x = pos_pow_state_mats * state_x + atimesb_vec.transpose() * select_mats.sample_step_cx.block(0, 0, num_samples, 1);
 	solver_->lc_bounds_vec().Add(constant_x, num_constr);
 	solver_->uc_bounds_vec().Add(constant_x, num_constr);
 
 	//Y:
 	// yu_0 < Au^{-N}*\mu_y - \sum Au^{-(j-1)}*Bu*u_j < yu_0
-	solver_->constr_mat()()(num_constr + num_unst_modes, 2*num_samples + num_unst_modes) = neg_pow_state_mats;
+	solver_->constr_mat()()(num_constr + num_unst_modes, 2 * num_samples + num_unst_modes) = 1.; //neg_pow_state_mats;
 
 	solver_->constr_mat().AddTerm(-atimesb_vec.transpose(), num_constr + num_unst_modes, num_samples + num_unst_modes);
 	if (num_steps_previewed > 0) {
@@ -807,7 +824,7 @@ void QPBuilder::BuildCPEqConstraints(const MPCSolution &solution) {
 		solver_->constr_mat().AddTerm(tmp_mat_, num_constr + num_unst_modes, 2*(num_samples + num_unst_modes) + num_steps_previewed);
 	}
 
-	CommonVectorType constant_y = state_y + atimesb_vec.transpose()*select_mats.sample_step_cy.block(0, 0, num_samples, 1);
+	CommonVectorType constant_y = pos_pow_state_mats * state_y + atimesb_vec.transpose() * select_mats.sample_step_cy.block(0, 0, num_samples, 1);
 	solver_->lc_bounds_vec().Add(constant_y, num_constr + num_unst_modes);
 	solver_->uc_bounds_vec().Add(constant_y, num_constr + num_unst_modes);
 }
@@ -997,16 +1014,16 @@ void QPBuilder::BuildCoPIneqConstraints(const MPCSolution &solution) {
 		if ((solution.sampling_times_vec.front() > lift_off_margin && is_ff_incontact && ss_it->step_number == 0)
 				|| (!is_half_ds_passed && ss_it->transitional_ds && i < 7)) {
 			// X local
-			tmp_vec_(i)  = -kInf;
-			tmp_vec2_(i) = kInf;
+			tmp_vec_(i)  = min(hull_.x_vec(0), hull_.x_vec(3));
+			tmp_vec2_(i) = max(hull_.x_vec(0), hull_.x_vec(3));
 
 			// Y local
 			if (ss_it->foot == LEFT) {
-				tmp_vec_(num_samples + i) = -kInf;
+				tmp_vec_(num_samples + i) = 6 * min(hull_.y_vec(0), hull_.y_vec(1));
 				tmp_vec2_(num_samples + i)= max(hull_.y_vec(0), hull_.y_vec(1));
 			} else {
 				tmp_vec_(num_samples + i) = min(hull_.y_vec(0), hull_.y_vec(1));
-				tmp_vec2_(num_samples + i)= kInf;
+				tmp_vec2_(num_samples + i)= 6 *  max(hull_.y_vec(0), hull_.y_vec(1));
 			}
 		} else {
 			tmp_vec_(i)  = min(hull_.x_vec(0), hull_.x_vec(3));

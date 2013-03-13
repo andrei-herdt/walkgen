@@ -29,7 +29,7 @@ QLDParser::QLDParser(SolverData* const parameters, int num_var_max, int num_cons
 	liwar_ = num_var_max;
 	iwar_.resize(liwar_);
 	std::fill(iwar_.begin(), iwar_.end(), 0);
-	eps_ = 1e-6;
+	eps_ = 1e-11;
 }
 
 QLDParser::~QLDParser() {

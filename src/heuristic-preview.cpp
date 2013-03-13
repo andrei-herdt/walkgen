@@ -23,46 +23,39 @@ HeuristicPreview::~HeuristicPreview() {
 void HeuristicPreview::PreviewSamplingTimes(double current_time,
 		double first_fine_period, double first_coarse_period, MPCSolution &solution) {
 
-	/*
-	solution.sampling_times_vec.resize(mpc_parameters_->num_samples_horizon + 1, 0);
-	std::fill(solution.sampling_times_vec.begin(), solution.sampling_times_vec.end(), 0);
-	// As for now, only the first sampling period varies
-	solution.sampling_times_vec[0] = current_time;
-	solution.sampling_times_vec[1] = solution.sampling_times_vec[0] + first_coarse_period;// mpc_parameters_->QPSamplingPeriod;////// //
-
-	for (int sample = 2; sample < mpc_parameters_->num_samples_horizon + 1; sample++) {
-		solution.sampling_times_vec[sample] += solution.sampling_times_vec[sample - 1] +
-				mpc_parameters_->period_qpsample;
-	}
-	 */
-
 	solution.sampling_times_vec.resize(mpc_parameters_->num_samples_horizon_max + 1, 0.);//TODO
 	std::fill(solution.sampling_times_vec.begin(), solution.sampling_times_vec.end(), 0.);
 	solution.sampling_times_vec.at(0) = current_time;
 
-	int sample = 1;
+	if (mpc_parameters_->formulation == STANDARD) {
+		solution.sampling_times_vec[1] = solution.sampling_times_vec[0] + first_coarse_period;
 
-
-	// First grid
-	for (; sample <= mpc_parameters_->num_samples_first_fine_period; sample++) {
-		solution.sampling_times_vec.at(sample) = solution.sampling_times_vec.at(sample - 1) + mpc_parameters_->period_recomputation;
-	}
-	// Second grid
-	solution.sampling_times_vec.at(sample) = solution.sampling_times_vec.at(0) + first_fine_period + mpc_parameters_->period_inter_samples;
-	sample++;
-	for (; sample < mpc_parameters_->num_samples_first_coarse_period + mpc_parameters_->num_samples_first_fine_period; sample++) {
-		solution.sampling_times_vec.at(sample) = solution.sampling_times_vec.at(sample - 1) + mpc_parameters_->period_inter_samples;
-	}
-	// Third grid (fixed)
-	solution.sampling_times_vec.at(sample) = solution.sampling_times_vec.at(0) + first_coarse_period + mpc_parameters_->period_qpsample;
-	sample++;
-	for (; sample < mpc_parameters_->num_samples_horizon_max; sample++) { //TODO: only num_samples_horizon
-		solution.sampling_times_vec.at(sample) = solution.sampling_times_vec.at(sample - 1) + mpc_parameters_->period_qpsample;
-	}
-	// Last sample (sliding)
-	solution.sampling_times_vec.at(sample) = solution.sampling_times_vec.at(sample - 1) + mpc_parameters_->period_qpsample - first_coarse_period;
-	if (mpc_parameters_->period_qpsample - first_coarse_period < kEps) {
-		solution.sampling_times_vec.pop_back();
+		for (int sample = 2; sample < mpc_parameters_->num_samples_horizon_max + 1; sample++) {
+			solution.sampling_times_vec[sample] += solution.sampling_times_vec[sample - 1] + mpc_parameters_->period_qpsample;
+		}
+	} else {
+		int sample = 1;
+		// First grid
+		for (; sample <= mpc_parameters_->num_samples_first_fine_period; sample++) {
+			solution.sampling_times_vec.at(sample) = solution.sampling_times_vec.at(sample - 1) + mpc_parameters_->period_recomputation;
+		}
+		// Second grid
+		solution.sampling_times_vec.at(sample) = solution.sampling_times_vec.at(0) + first_fine_period + mpc_parameters_->period_inter_samples;
+		sample++;
+		for (; sample < mpc_parameters_->num_samples_first_coarse_period + mpc_parameters_->num_samples_first_fine_period; sample++) {
+			solution.sampling_times_vec.at(sample) = solution.sampling_times_vec.at(sample - 1) + mpc_parameters_->period_inter_samples;
+		}
+		// Third grid (fixed)
+		solution.sampling_times_vec.at(sample) = solution.sampling_times_vec.at(0) + first_coarse_period + mpc_parameters_->period_qpsample;
+		sample++;
+		for (; sample < mpc_parameters_->num_samples_horizon_max; sample++) { //TODO: only num_samples_horizon
+			solution.sampling_times_vec.at(sample) = solution.sampling_times_vec.at(sample - 1) + mpc_parameters_->period_qpsample;
+		}
+		// Last sample (sliding)
+		solution.sampling_times_vec.at(sample) = solution.sampling_times_vec.at(sample - 1) + mpc_parameters_->period_qpsample - first_coarse_period;
+		if (mpc_parameters_->period_qpsample - first_coarse_period < kEps && mpc_parameters_->formulation != STANDARD) {
+			solution.sampling_times_vec.pop_back();
+		}
 	}
 }
 

@@ -133,6 +133,7 @@ const MPCSolution &Walkgen::Go(){
 
 const MPCSolution &Walkgen::Go(double time){
 	current_time_ = time;
+	std::cout << current_time_ << std::endl;
 
 	if (time > next_computation_ - mpc_parameters_.period_recomputation/2.) {
 		next_computation_ += mpc_parameters_.period_recomputation;
@@ -245,36 +246,59 @@ void Walkgen::BuildProblem() {
 
 	preview_->PreviewSupportStates(first_fine_period, solution_);
 
+	// Modify global reference:
+	// ------------------------
+	double ss_time_passed = 0.;
+	double omega = sqrt(kGravity / robot_.com()->state().z[0]); 
+	double delta_cp_y = (robot_data_.left_foot.position[1] - robot_data_.right_foot.position[1]) / (exp(omega * (mpc_parameters_.period_ss + mpc_parameters_.period_trans_ds())) + 1.);
+	if (fabs(vel_ref_.local.yaw(0)) > kEps || fabs(vel_ref_.local.x(0)) > kEps || fabs(vel_ref_.local.y(0)) > kEps) {
+		for (int i = 0; i < mpc_parameters_.num_samples_horizon ; i++) {
+			ss_time_passed = (solution_.sampling_times_vec[i + 1] - solution_.support_states_vec[i + 1].start_time); 
+			if (solution_.support_states_vec[i + 1].phase == SS) {
+				if (solution_.support_states_vec[i + 1].foot == LEFT) {
+					cp_ref_.global.y[i] = robot_data_.left_foot.position[1]  - exp(omega * ss_time_passed) * delta_cp_y;
+				} else if (solution_.support_states_vec[i + 1].foot == RIGHT) {
+					cp_ref_.global.y[i] = robot_data_.right_foot.position[1] + exp(omega * ss_time_passed) * delta_cp_y;
+				}
+			} else {
+				cp_ref_.global.y[i] = robot_data_.right_foot.position[1] + exp(omega * ss_time_passed) * delta_cp_y;
+			}
+		}
+	}
+
+
+
 	// Adapt local capture point offset to the previewed foot:
 	// TODO: No rotation considered!!!
 	// -------------------------------
-	for (int i = 0; i < mpc_parameters_.num_samples_horizon - 1 ; i++) {
+	double delta_ss = 0.;
+	for (int i = 0; i < mpc_parameters_.num_samples_horizon; i++) {
+		ss_time_passed = (solution_.sampling_times_vec[i + 1] - solution_.support_states_vec[i + 1].start_time);
 		if (solution_.support_states_vec[i + 1].phase == SS) {
-			if ((solution_.support_states_vec[i + 1].foot == LEFT && solution_.support_states_vec[i + 2].foot != RIGHT)
-					|| (solution_.support_states_vec[i + 1].foot == RIGHT && solution_.support_states_vec[i + 2].foot == LEFT)) {
-				cp_ref_.local.y[i] *= -1.;
-			} else if ((solution_.support_states_vec[i + 1].foot == RIGHT && solution_.support_states_vec[i + 2].foot != LEFT)
-					|| (solution_.support_states_vec[i + 1].foot == LEFT && solution_.support_states_vec[i + 2].foot == RIGHT)) {
+			if (solution_.support_states_vec[i + 1].foot == LEFT) {
+				//cp_ref_.local.y[i] *= -1.;
+				//cp_ref_.local.y[i] -= delta_cp_y * delta_ss;
+				cp_ref_.local.y[i] = -exp(omega * ss_time_passed) * delta_cp_y;
+			} else if (solution_.support_states_vec[i + 1].foot == RIGHT) {
 				// Do nothing (sign is correct)
+				//cp_ref_.local.y[i] += delta_cp_y * delta_ss;
+				cp_ref_.local.y[i] = exp(omega * ss_time_passed) * delta_cp_y;
+
 			}
 		} else { // DS phase
-			if (solution_.support_states_vec[i + 1].foot == LEFT) {
-				cp_ref_.local.y[i] = - robot_data_.lateral_ds_feet_dist / 2.;
-			} else {
-				cp_ref_.local.y[i] = robot_data_.lateral_ds_feet_dist / 2.;
-			}
+			cp_ref_.local.y[i] = -(robot_data_.left_foot.position[1] - robot_data_.right_foot.position[1]) + exp(omega * ss_time_passed) * delta_cp_y;
 		}
 	}
 	// Last reference is foot center
-	cp_ref_.local.x[mpc_parameters_.num_samples_horizon - 1] = 0.;
-	cp_ref_.local.y[mpc_parameters_.num_samples_horizon - 1] = 0.;
-	if (solution_.support_states_vec[mpc_parameters_.num_samples_horizon].phase == DS) {
-		if (solution_.support_states_vec[mpc_parameters_.num_samples_horizon].foot == LEFT) {
-			cp_ref_.local.y[mpc_parameters_.num_samples_horizon - 1] = - robot_data_.lateral_ds_feet_dist;
-		} else {
-			cp_ref_.local.y[mpc_parameters_.num_samples_horizon - 1] = robot_data_.lateral_ds_feet_dist;
-		}
-	}
+	//cp_ref_.local.x[mpc_parameters_.num_samples_horizon - 1] = 0.;
+	//cp_ref_.local.y[mpc_parameters_.num_samples_horizon - 1] = 0.;
+	//if (solution_.support_states_vec[mpc_parameters_.num_samples_horizon].phase == DS) {
+	//	if (solution_.support_states_vec[mpc_parameters_.num_samples_horizon].foot == LEFT) {
+	//		cp_ref_.local.y[mpc_parameters_.num_samples_horizon - 1] = - robot_data_.lateral_ds_feet_dist;
+	//	} else {
+	//		cp_ref_.local.y[mpc_parameters_.num_samples_horizon - 1] = robot_data_.lateral_ds_feet_dist;
+	//	}
+	//}
 
 	orient_preview_->preview_orientations( current_time_, vel_ref_,
 			mpc_parameters_.period_ss, robot_.left_foot()->state(),
