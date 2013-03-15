@@ -14,8 +14,8 @@ IFLAGS      =  -I. \
 			   -I${EIGEN_DIR}
 
 TEST_EXES = walk${EXE} \
-			measure_time${EXE}
-
+			measure_time${EXE} \
+			dynamics_test${EXE}
 
 ##
 ##	targets
@@ -28,6 +28,10 @@ walk${EXE}: walk.${OBJEXT} ${SRC_DIR}libmpc-walkgen.${LIBEXT}
 
 measure_time${EXE}: measure_time.${OBJEXT} ${SRC_DIR}libmpc-walkgen.${LIBEXT}
 	${CPP} ${DEF_TARGET} ${CPPFLAGS} $< ${SRC_DIR}libmpc-walkgen.${LIBEXT} ${THREAD_LIB} ${QPOASES_LIB} ${QLD_LIB} ${BLAS_LIB} ${LAPACK_LIB}
+
+dynamics_test${EXE}: dynamics_test.${OBJEXT} ${SRC_DIR}libmpc-walkgen.${LIBEXT}
+	${CPP} ${DEF_TARGET} ${CPPFLAGS} $< ${SRC_DIR}libmpc-walkgen.${LIBEXT} ${THREAD_LIB} ${QPOASES_LIB} ${QLD_LIB} ${BLAS_LIB} ${LAPACK_LIB}
+
 
 
 clean: 

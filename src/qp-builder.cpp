@@ -139,10 +139,10 @@ void QPBuilder::PrecomputeObjective() {
 			int samples_left = mpc_parameters_->GetMPCSamplesLeft(first_period);
 			int mat_num = samples_left + mode_num*num_recomp;
 
-			const LinearDynamicsMatrices &pos_dyn = robot_->com()->dynamics_qp()[samples_left].pos;
-			const LinearDynamicsMatrices &vel_dyn = robot_->com()->dynamics_qp()[samples_left].vel;
-			const LinearDynamicsMatrices &cop_dyn = robot_->com()->dynamics_qp()[samples_left].cop;
-			const LinearDynamicsMatrices &cp_dyn = robot_->com()->dynamics_qp()[samples_left].cp;
+			const LinearDynamicsMatrices &pos_dyn = robot_->com()->dynamics_qp_vec()[samples_left].pos;
+			const LinearDynamicsMatrices &vel_dyn = robot_->com()->dynamics_qp_vec()[samples_left].vel;
+			const LinearDynamicsMatrices &cop_dyn = robot_->com()->dynamics_qp_vec()[samples_left].cop;
+			const LinearDynamicsMatrices &cp_dyn = robot_->com()->dynamics_qp_vec()[samples_left].cp;
 
 			if (mpc_parameters_->formulation == DECOUPLED_MODES) {
 				cp_fp_pen_mat_vec_[mat_num](num_samples_max, num_samples_max) = 0.;	// CP variable
@@ -449,7 +449,7 @@ void QPBuilder::TransformControlVector(MPCSolution &solution) {
 
 	//TODO(performance): Optimize this for first interpolate_whole_horizon == false
 	// Transform to com motion
-	int samples_left = mpc_parameters_->GetMPCSamplesLeft(solution.first_coarse_period);
+	//int samples_left = mpc_parameters_->GetMPCSamplesLeft(solution.first_coarse_period);
 	//const LinearDynamicsMatrices &cop_dyn = robot_->com()->dynamics_qp()[samples_left].cop;
 	solution.com_prw.control.x_vec.noalias() = global_contr_x_vec;//new - cop_dyn.state_mat * state_x(0);
 	//solution.com_prw.control.x_vec.noalias() = copdyn.input_mat_inv * tmp_vec_;
@@ -754,7 +754,7 @@ void QPBuilder::BuildCPEqConstraints(const MPCSolution &solution) {
 	// Choose the precomputed element depending on the period until next sample
 	int samples_left = mpc_parameters_->GetMPCSamplesLeft(solution.first_coarse_period);
 
-	const LinearDynamics &dyn = robot_->com()->dynamics_qp()[samples_left];
+	const LinearDynamics &dyn = robot_->com()->dynamics_qp_vec()[samples_left];
 
 	CommonVectorType atimesb_vec(num_samples);
 	/*
@@ -792,17 +792,17 @@ void QPBuilder::BuildCPEqConstraints(const MPCSolution &solution) {
 
 	// Forward in time:
 	// ----------------
-	//double neg_pow_state_mats = pow(dyn.d_state_mat_pow_vec[num_samples - 1](1,1), -1.);
+	double neg_pow_state_mats = pow(dyn.d_state_mat_pow_vec[num_samples - 1](1,1), -1.);
 	double pos_pow_state_mats = dyn.d_state_mat_pow_vec.at(num_samples - 1)(1,1);
 	for (int col = 0; col < num_samples - 1; col++) {
 		atimesb_vec(col) = dyn.rev_matrix_prod_vec.at(num_samples - 2 - col)(1,1) * dyn.d_input_mat_vec[col](1);
 	}
 	atimesb_vec(num_samples - 1) = dyn.d_input_mat_vec.at(num_samples - 1)(1);
-	//atimesb_vec *= neg_pow_state_mats;
+	atimesb_vec *= neg_pow_state_mats;
 
 	//X:
 	// xu_0 < Au^{N}*\s_0^x + \sum Au^{(j-1)}*Bu*u_j < xu_0
-	solver_->constr_mat()()(num_constr, num_samples) = 1.; //neg_pow_state_mats;	// CP
+	solver_->constr_mat()()(num_constr, num_samples) = neg_pow_state_mats;	// CP
 
 	solver_->constr_mat().AddTerm(-atimesb_vec.transpose(), num_constr, 0);
 	if (num_steps_previewed > 0) {
@@ -810,13 +810,13 @@ void QPBuilder::BuildCPEqConstraints(const MPCSolution &solution) {
 		solver_->constr_mat().AddTerm(tmp_mat_, num_constr, 2*(num_samples + num_unst_modes));
 	}
 
-	CommonVectorType constant_x = pos_pow_state_mats * state_x + atimesb_vec.transpose() * select_mats.sample_step_cx.block(0, 0, num_samples, 1);
+	CommonVectorType constant_x = /*pos_pow_state_mats **/ state_x + atimesb_vec.transpose() * select_mats.sample_step_cx.block(0, 0, num_samples, 1);
 	solver_->lc_bounds_vec().Add(constant_x, num_constr);
 	solver_->uc_bounds_vec().Add(constant_x, num_constr);
 
 	//Y:
 	// yu_0 < Au^{-N}*\mu_y - \sum Au^{-(j-1)}*Bu*u_j < yu_0
-	solver_->constr_mat()()(num_constr + num_unst_modes, 2 * num_samples + num_unst_modes) = 1.; //neg_pow_state_mats;
+	solver_->constr_mat()()(num_constr + num_unst_modes, 2 * num_samples + num_unst_modes) = neg_pow_state_mats;
 
 	solver_->constr_mat().AddTerm(-atimesb_vec.transpose(), num_constr + num_unst_modes, num_samples + num_unst_modes);
 	if (num_steps_previewed > 0) {
@@ -824,7 +824,7 @@ void QPBuilder::BuildCPEqConstraints(const MPCSolution &solution) {
 		solver_->constr_mat().AddTerm(tmp_mat_, num_constr + num_unst_modes, 2*(num_samples + num_unst_modes) + num_steps_previewed);
 	}
 
-	CommonVectorType constant_y = pos_pow_state_mats * state_y + atimesb_vec.transpose() * select_mats.sample_step_cy.block(0, 0, num_samples, 1);
+	CommonVectorType constant_y = /*pos_pow_state_mats **/ state_y + atimesb_vec.transpose() * select_mats.sample_step_cy.block(0, 0, num_samples, 1);
 	solver_->lc_bounds_vec().Add(constant_y, num_constr + num_unst_modes);
 	solver_->uc_bounds_vec().Add(constant_y, num_constr + num_unst_modes);
 }

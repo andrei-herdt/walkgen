@@ -82,7 +82,7 @@ void RigidBody::ComputeDynamics(SystemOrder dynamics_order) {
 		std::vector<double> sampling_periods_vec(num_samples, mpc_parameters_->period_qpsample);
 		std::vector<LinearDynamics>::iterator dyn_it = dynamics_qp_vec_.begin();
 		for (int k = 0; k < num_dynamics; ++k) {
-			sampling_periods_vec[0] = mpc_parameters_->period_recomputation * (k+1);
+			sampling_periods_vec[0] = mpc_parameters_->period_qpsample - mpc_parameters_->period_recomputation * k;
 			dyn_build_p_->Build(dynamics_order, *dyn_it, state_.z(0), sampling_periods_vec, num_samples, false);
 			++dyn_it;
 		}
@@ -92,4 +92,37 @@ void RigidBody::ComputeDynamics(SystemOrder dynamics_order) {
 	sampling_periods_vec.resize(num_samples);
 	std::fill(sampling_periods_vec.begin(), sampling_periods_vec.end(), mpc_parameters_->period_actsample);
 	dyn_build_p_->Build(dynamics_order, dynamics_act_, state_.z(0), sampling_periods_vec, num_samples, true);
+}
+
+//
+// Tests:
+//
+void RigidBody::CPOutput2Control(CommonVectorType &contr_vec, const CommonVectorType &output_vec) {
+	assert(output_vec.rows() == dynamics_qp_vec_.front().cp.input_mat.rows());
+
+	const LinearDynamicsMatrices &pos_dyn_mat = dynamics_qp_vec_.front().pos;
+	int num_cols = pos_dyn_mat.input_mat.cols();
+	int num_rows = pos_dyn_mat.input_mat.rows();
+	const LinearDynamicsMatrices &vel_dyn_mat = dynamics_qp_vec_.front().vel;
+
+	double omega = sqrt(kGravity / state_.z[0]);
+	CommonMatrixType input_mat = pos_dyn_mat.input_mat.block(0, 0, num_rows, num_cols - 1)
+					+ 1. / omega * vel_dyn_mat.input_mat.block(0, 0, num_rows, num_cols - 1);
+	CommonMatrixType unst_state_mat = pos_dyn_mat.input_mat.block(0, num_cols - 1, num_rows, 1)
+						+ 1. / omega * vel_dyn_mat.input_mat.block(0, num_cols - 1, num_rows, 1);
+	CommonMatrixType stab_state_mat = pos_dyn_mat.state_mat
+			+ 1. / omega * vel_dyn_mat.state_mat;
+
+	if (mpc_parameters_->formulation == DECOUPLED_MODES) {
+		Matrix2D state_trans_mat = Matrix2D::Zero();
+		state_trans_mat(0, 0) = 1.;
+		state_trans_mat(0, 1) = -1. / omega;
+		state_trans_mat(1, 0) = 1.;
+		state_trans_mat(1, 1) = 1. / omega;
+		CommonVectorType new_state = state_trans_mat * state_.x.head(2);
+		CommonVectorType state = new_state.block(0, 0, 1, 1);
+
+		CommonVectorType tmp_vec = unst_state_mat * output_vec.segment(num_rows - 1, 1);
+		contr_vec = input_mat.inverse() * (output_vec - stab_state_mat * state - tmp_vec);
+	}
 }

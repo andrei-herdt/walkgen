@@ -4,7 +4,7 @@ num_samples = sim_parameters.signals.values(1,1);
 di = 1;
 
 %% Plot previewed
-for i = 1:di:2%length(com_prw.time)% - di
+for i = 1:di:length(com_prw.time)% - di
     subplot(1,2,1);
     lines_prw_com_x = plot(com_prw.signals.values(i, 1:num_samples), com_prw.signals.values(i, num_samples+1:2*num_samples),'red');
     lines_prw_cp_x = plot(cp_prw.signals.values(i, 1:num_samples), cp_prw.signals.values(i, num_samples+1:2*num_samples),'magenta');

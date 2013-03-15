@@ -76,7 +76,7 @@ private:
 
 	::MPCWalkgen::QPSolver *solver_;
 	QPBuilder *builder_;
-	HeuristicPreview *preview_;
+	HeuristicPreview *heur_preview_;
 	RigidBodySystem robot_;
 
 	OrientationsPreview *orient_preview_;

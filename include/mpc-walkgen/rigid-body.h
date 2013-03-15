@@ -35,12 +35,17 @@ public:
 
 	inline void state(const BodyState &s){state_ = s;}
 
-	inline const std::vector<LinearDynamics> &dynamics_qp() const { return dynamics_qp_vec_;};
+	inline const std::vector<LinearDynamics> &dynamics_qp_vec() const { return dynamics_qp_vec_;};
 	inline const LinearDynamics &dynamics_act() const {return dynamics_act_;};
 
 	inline Motion &motion_act() {return motion_act_;};
 	inline Motion &motion_prw() {return motion_prw_;};
+	/// \}
 
+	/// \name Tests
+	/// \{
+	void CPOutput2Control(CommonVectorType &contr_vec,
+			const CommonVectorType &output);
 	/// \}
 
 protected:

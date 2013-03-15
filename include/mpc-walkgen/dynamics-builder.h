@@ -114,8 +114,10 @@ private:
 
 	// \brief (remark)We suppose that the state matrix is diagonal
 	void ComputeDiscreteStateMatDecoupled(
+			CommonMatrixType &d_input_mat,
 			CommonMatrixType &d_state_mat,
-			double sample_period
+			double sample_period,
+			const LinearDynamicsMatrices &dyn_mat
 	);
 
 	// \brief Build products of state matrices
