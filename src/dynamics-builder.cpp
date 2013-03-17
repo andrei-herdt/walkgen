@@ -75,6 +75,7 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, const
 		dyn.cont_ss.c_state_mat(0, 1) = 1.;
 		dyn.cont_ss.c_state_mat(1, 0) = omega_square;
 		dyn.cont_ss.c_state_mat_inv = dyn.cont_ss.c_state_mat.inverse();
+
 		dyn.cont_ss.c_input_mat(0) = 0.;
 		dyn.cont_ss.c_input_mat(1) = - omega_square;
 

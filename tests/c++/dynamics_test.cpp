@@ -23,8 +23,6 @@ int main() {
 	mpc_parameters.penalties.cp[0] 				= 1.;
 	mpc_parameters.penalties.cp[1] 				= 1.;
 
-	mpc_parameters.init_com_height 				= 0.9;
-
 	// Robot parameters:
 	// -----------------
 	const double kSecurityMargin 	= .02;
@@ -52,8 +50,6 @@ int main() {
 	robot_data.com(0) = 0.01;
 	robot_data.com(1) = 0.01;
 	robot_data.com(2) = 0.814;
-
-	robot_data.max_foot_vel = 1.;
 
 	// Constants:
 	const double kOmega = sqrt(kGravity / robot_data.com(2));
