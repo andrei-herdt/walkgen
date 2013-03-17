@@ -414,6 +414,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 			cp_prw[2 * num_samples + sample]    = solution.com_prw.cp.y_vec[sample];
 		}
 
+		num_samples = walk->mpc_parameters().num_samples_horizon;
 		int num_steps_prw = solution.support_states_vec.back().step_number;
 		int num_var_ff_x = 2 * num_samples;
 		int num_var_ff_y = 2 * num_samples + num_steps_prw;

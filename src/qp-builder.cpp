@@ -224,10 +224,10 @@ void QPBuilder::PrecomputeObjective() {
 			}
 			// TODO: Hard coded for 5 ms rate
 			for (int i = 0; i < mpc_parameters_->num_samples_first_fine_period; i++) {
-				contr_val_pen_mat_vec_[mat_num](i, i) = 5. / 100. * mpc_parameters_->penalties.cop[mode_num];
+				contr_val_pen_mat_vec_[mat_num](i, i) = /*0. / 100. **/ mpc_parameters_->penalties.cop[mode_num];
 			}
 			for (int i = mpc_parameters_->num_samples_first_fine_period; i < mpc_parameters_->num_samples_first_fine_period + mpc_parameters_->num_samples_first_coarse_period - 1; i++) {
-				contr_val_pen_mat_vec_[mat_num](i, i) = 20. / 100.  * mpc_parameters_->penalties.cop[mode_num];
+				contr_val_pen_mat_vec_[mat_num](i, i) = /*20. / 100.  **/ mpc_parameters_->penalties.cop[mode_num];
 			}
 
 			//contr_val_pen_mat_vec_[mat_num](0, 0) = mpc_parameters_->penalties.cop[mode_num] * first_period / mpc_parameters_->period_qpsample;
@@ -630,10 +630,10 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 		tmp_vec_ = CommonVectorType::Ones(num_samples + num_unst_modes);
 		if (mpc_parameters_->walking_mode == INITIAL) {
 			double pos_diff_x = fabs(robot_->left_foot()->state().x(0) - robot_->right_foot()->state().x(0)) / 2.;
-			double pos_diff_y = fabs(robot_->left_foot()->state().y(0) - robot_->right_foot()->state().y(0)) / 2.;
+			double pos_diff_y = fabs(robot_->left_foot()->state().y(0) - robot_->right_foot()->state().y(0));
 			if (solution.support_states_vec.front().foot == LEFT) {//TODO: Guess what...
 				objective_vec_x += pos_diff_x * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
-				objective_vec_y += pos_diff_y * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
+				objective_vec_y -= pos_diff_y * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
 			} else {
 				objective_vec_x += pos_diff_x * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
 				objective_vec_y -= pos_diff_y * contr_val_pen_mat_vec_[matrix_num] * tmp_vec_;
@@ -699,8 +699,7 @@ void QPBuilder::BuildEqualityConstraints(const MPCSolution &solution) {
 	}
 
 	const SupportState &curr_sup = solution.support_states_vec.front();
-	if (curr_sup.phase == SS && current_time_ - curr_sup.start_time > mpc_parameters_->ffoot_plan_period
-			&& curr_sup.time_limit - current_time_ > mpc_parameters_->period_qpsample + kEps) {
+	if (curr_sup.phase == SS && current_time_ - curr_sup.start_time > mpc_parameters_->ffoot_plan_period) {
 		BuildFootPosEqConstraints(solution);
 	}
 
@@ -1019,11 +1018,11 @@ void QPBuilder::BuildCoPIneqConstraints(const MPCSolution &solution) {
 
 			// Y local
 			if (ss_it->foot == LEFT) {
-				tmp_vec_(num_samples + i) = 6 * min(hull_.y_vec(0), hull_.y_vec(1));
+				tmp_vec_(num_samples + i) = /*6 **/ min(hull_.y_vec(0), hull_.y_vec(1));
 				tmp_vec2_(num_samples + i)= max(hull_.y_vec(0), hull_.y_vec(1));
 			} else {
 				tmp_vec_(num_samples + i) = min(hull_.y_vec(0), hull_.y_vec(1));
-				tmp_vec2_(num_samples + i)= 6 *  max(hull_.y_vec(0), hull_.y_vec(1));
+				tmp_vec2_(num_samples + i)= /*6 **/ max(hull_.y_vec(0), hull_.y_vec(1));
 			}
 		} else {
 			tmp_vec_(i)  = min(hull_.x_vec(0), hull_.x_vec(3));

@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.977"
+    ComputedModelVersion    "1.978"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "f_legs"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Fri Mar 15 11:10:59 2013"
+  LastModifiedDate	  "Mon Mar 18 00:43:08 2013"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:977>"
+  ModelVersionFormat	  "1.%<AutoIncrement:978>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -107,7 +107,7 @@ Model {
 	  $ObjectID		  2
 	  Version		  "1.3.0"
 	  StartTime		  "0.0"
-	  StopTime		  "5.205"
+	  StopTime		  "5.505"
 	  AbsTol		  "auto"
 	  FixedStep		  "1e-3"
 	  InitialStep		  "auto"
@@ -670,7 +670,7 @@ Model {
   }
   System {
     Name		    "walkgen"
-    Location		    [822, 389, 1097, 690]
+    Location		    [407, 344, 682, 645]
     Open		    on
     ModelBrowserVisibility  off
     ModelBrowserWidth	    200
@@ -703,7 +703,7 @@ Model {
       FunctionWithSeparateData off
       System {
 	Name			"Simulation"
-	Location		[271, 101, 1015, 903]
+	Location		[846, 111, 1590, 913]
 	Open			on
 	ModelBrowserVisibility	off
 	ModelBrowserWidth	200
@@ -745,7 +745,7 @@ Model {
 	  MaskIconOpaque	  on
 	  MaskIconRotate	  "none"
 	  MaskIconUnits		  "autoscale"
-	  MaskValueString	  "20|4|5|[0, 0]|[0, 0]|[0, 0]|[1, 1]|[0, 0]|[0, 0]|0|0|0.7|15|2|0.1|0.02|0.005|0.005|0.02|100|2|1|0|0|0|1|0|0|0|100|0.4|0.94"
+	  MaskValueString	  "16|4|5|[0, 0]|[0, 0]|[0., 0.]|[1, 1]|[1, 1]|[0, 0]|0|0|0.7|15|2|0.1|0.02|0.005|0.005|0.02|100|2|1|0|0|1|1|0|0|0|100|0.4|0"
 	  MaskTabNameString	  ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
 	  System {
 	    Name		    "Atomic Walkgen"
@@ -1193,7 +1193,7 @@ Model {
 	      NamePlacement	      "alternate"
 	      ShowName		      off
 	      Floating		      off
-	      Location		      [847, 53, 1595, 1051]
+	      Location		      [848, 53, 1596, 1051]
 	      Open		      off
 	      NumInputPorts	      "1"
 	      List {
@@ -2161,12 +2161,12 @@ Model {
 	Block {
 	  BlockType		  Constant
 	  Name			  "Constant11"
-	  Position		  [30, 610, 180, 630]
+	  Position		  [25, 609, 190, 631]
 	  ShowName		  off
 	  FontName		  "Arial"
 	  FontSize		  8
 	  FontWeight		  "bold"
-	  Value			  "[0.01, 0.01, 0.814, 0.0, 0.0, 0.0] %[-0.0144, 0.105, 0.814, 0.0, 0.0, 0.0]"
+	  Value			  "[0.01, 0.01, 0.814, 0.0, 0.0, 0.0] "
 	  OutDataType		  "sfix(16)"
 	  OutScaling		  "2^0"
 	  Port {
