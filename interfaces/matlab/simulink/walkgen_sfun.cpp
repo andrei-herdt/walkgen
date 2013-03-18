@@ -26,7 +26,7 @@ static void mdlInitializeSizes(SimStruct *S) {
 	}
 
 	// Specify I/O
-	if (!ssSetNumInputPorts(S, 14)) return;
+	if (!ssSetNumInputPorts(S, 15)) return;
 	ssSetInputPortWidth(S, 0, 2);     //pos_ref
 	ssSetInputPortWidth(S, 1, 3);     //vel_ref
 	ssSetInputPortWidth(S, 2, 4);     //cp_ref (Global reference and local offset)
@@ -41,6 +41,7 @@ static void mdlInitializeSizes(SimStruct *S) {
 	ssSetInputPortWidth(S, 11, 6);    //rfoot_wrench_in
 	ssSetInputPortWidth(S, 12, 1);    //reset_in
 	ssSetInputPortWidth(S, 13, 3);    //contr_moves_pen_in
+	ssSetInputPortWidth(S, 14, 8);    //pert_in
 
 	ssSetInputPortDirectFeedThrough(S, 0, 1);
 	ssSetInputPortDirectFeedThrough(S, 1, 1);
@@ -56,6 +57,7 @@ static void mdlInitializeSizes(SimStruct *S) {
 	ssSetInputPortDirectFeedThrough(S, 11, 1);
 	ssSetInputPortDirectFeedThrough(S, 12, 1);
 	ssSetInputPortDirectFeedThrough(S, 13, 1);
+	ssSetInputPortDirectFeedThrough(S, 14, 1);
 
 	if (!ssSetNumOutputPorts(S,19)) return;
 	// Realized motions
@@ -213,8 +215,8 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 	InputRealPtrsType lfoot_wrench_in = ssGetInputPortRealSignalPtrs(S, 10);
 	InputRealPtrsType rfoot_wrench_in = ssGetInputPortRealSignalPtrs(S, 11);
 	InputRealPtrsType reset_in        = ssGetInputPortRealSignalPtrs(S, 12);
-
 	InputRealPtrsType contr_moves_pen_in        = ssGetInputPortRealSignalPtrs(S, 13);
+	InputRealPtrsType pert_in        = ssGetInputPortRealSignalPtrs(S, 14);
 
 	real_T *com            = ssGetOutputPortRealSignal(S, 0);
 	real_T *dcom           = ssGetOutputPortRealSignal(S, 1);
@@ -277,8 +279,9 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 		// Feasibility hulls:
 		// ------------------
 		const int num_vert_foot_pos = 5;
+		double feet_distance_y = *left_ankle_in[1] - *right_ankle_in[1];
 		double DefaultFPosEdgesX[num_vert_foot_pos] = {-0.3, -0.2, 0.0, 0.2, 0.3};
-		double DefaultFPosEdgesY[num_vert_foot_pos] = {-0.2, -0.3, -0.4, -0.3, -0.2};
+		double DefaultFPosEdgesY[num_vert_foot_pos] = {-/*feet_distance_y + kEps*/0.2, -0.3, -0.4, -0.3, -/*feet_distance_y + kEps*/0.2};
 
 		robot_data.left_foot_pos_hull.Resize(num_vert_foot_pos);
 		robot_data.right_foot_pos_hull.Resize(num_vert_foot_pos);
@@ -289,7 +292,6 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 			robot_data.right_foot_pos_hull.y_vec(i) = -DefaultFPosEdgesY[i];
 		}
 
-		double feet_distance_y = *left_ankle_in[1] - *right_ankle_in[1];
 		robot_data.SetCoPHulls(feet_distance_y);
 
 		robot_data.max_foot_height = kMaxFootHeight;
@@ -339,9 +341,18 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 		robot->right_foot()->force_sensor().force_z = *rfoot_wrench_in[2];
 	}
 
+	double curr_time = ssGetT(S);
+	if (curr_time > *pert_in[0] && curr_time < *pert_in[1]) {
+		robot->com()->state().x[0] += *pert_in[2];
+		robot->com()->state().y[0] += *pert_in[3];
+		robot->com()->state().x[1] += *pert_in[4];
+		robot->com()->state().y[1] += *pert_in[5];
+		robot->com()->state().x[2] += *pert_in[6];
+		robot->com()->state().y[2] += *pert_in[7];
+	}
+
 	// Run simulation:
 	// ---------------
-	double curr_time = ssGetT(S);
 	walk->clock().ResetLocal();
 	int time_online = walk->clock().StartCounter();
 	const MPCSolution &solution = walk->Go(curr_time);
