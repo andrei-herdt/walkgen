@@ -12,7 +12,7 @@ StateFSM::StateFSM(Reference *ref, const MPCParameters *mpc_parameters)
 StateFSM::~StateFSM(){}
 
 
-void StateFSM::SetSupportState(int sample, const std::vector<double> &sampling_times_vec, SupportState &support) {
+void StateFSM::SetSupportState(double current_time, int sample, const std::vector<double> &sampling_times_vec, SupportState &support) {
 
 	support.state_changed = false;
 	support.num_instants++;
@@ -25,7 +25,7 @@ void StateFSM::SetSupportState(int sample, const std::vector<double> &sampling_t
 	// Update time limit for double support phase
 	if (is_reference_given && support.phase == DS &&
 			support.time_limit > sampling_times_vec[0] + mpc_parameters_->period_dsss + kEps) {
-		support.time_limit = sampling_times_vec[0] + mpc_parameters_->period_dsss;
+		support.time_limit = current_time + mpc_parameters_->period_dsss;
 		support.num_steps_left = mpc_parameters_->num_steps_ssds;
 	}
 
@@ -55,8 +55,8 @@ void StateFSM::SetSupportState(int sample, const std::vector<double> &sampling_t
 				support.foot = LEFT;
 			}
 			support.state_changed 	= true;
-			support.num_instants 		= 0;
-			support.transitional_ds 	= true;
+			support.num_instants 	= 0;
+			support.transitional_ds = true;
 			support.start_time 		= support.time_limit;
 			support.time_limit 		+= mpc_parameters_->period_trans_ds() + mpc_parameters_->period_ss;
 			//if (sample != 1) {//Flying foot is not down

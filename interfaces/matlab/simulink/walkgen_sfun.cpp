@@ -446,7 +446,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 		if (current_support.state_changed) {
 			support[0] = current_support.start_time;
 		} else if (current_support.transitional_ds && !next_support.transitional_ds) {
-			support[0] = current_support.start_time + walk->mpc_parameters().period_trans_ds();  // TODO: 0.1 is temporary solution
+			support[0] = current_support.start_time + walk->mpc_parameters().period_trans_ds();
 		} else {
 			support[0] = 0.0;
 		}

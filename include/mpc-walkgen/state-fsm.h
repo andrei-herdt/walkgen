@@ -10,7 +10,11 @@ namespace MPCWalkgen{
       StateFSM(Reference *ref, const MPCParameters *mpc_parameters);
       ~StateFSM();
 
-      void SetSupportState(int sample, const std::vector<double> &samplingTimes_vec, SupportState &Support);
+      void SetSupportState(double current_time,
+    		  int sample,
+    		  const std::vector<double> &samplingTimes_vec,
+    		  SupportState &Support
+    		  );
 
     protected:
       Reference *vel_ref_;

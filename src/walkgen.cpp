@@ -247,20 +247,21 @@ void Walkgen::BuildProblem() {
 
 	// Modify global cp reference:
 	// ---------------------------
-	double ss_time_passed = 0.;
+	double supp_time_passed = 0.;
 	double omega = sqrt(kGravity / robot_.com()->state().z[0]); 
-	double delta_cp_y = (robot_data_.left_foot.position[Y] - robot_data_.right_foot.position[Y]) / (exp(omega * (mpc_parameters_.period_ss + mpc_parameters_.period_trans_ds())) + 1.);
+	double delta_cp_y_ss = (robot_data_.left_foot.position[Y] - robot_data_.right_foot.position[Y]) / (exp(omega * (mpc_parameters_.period_ss + mpc_parameters_.period_trans_ds())) + 1.);
+	double delta_cp_y_ds = (robot_data_.left_foot.position[Y] - robot_data_.right_foot.position[Y]) / (exp(omega * (mpc_parameters_.period_dsss)) + 1.);
 	if (fabs(vel_ref_.local.yaw(0)) > kEps || fabs(vel_ref_.local.x(0)) > kEps || fabs(vel_ref_.local.y(0)) > kEps) {
 		for (int i = 0; i < mpc_parameters_.num_samples_horizon ; i++) {
-			ss_time_passed = solution_.sampling_times_vec[i + 1] - solution_.support_states_vec[i + 1].start_time;
+			supp_time_passed = solution_.sampling_times_vec[i + 1] - solution_.support_states_vec[i + 1].start_time;
 			if (solution_.support_states_vec[i + 1].phase == SS) {
 				if (solution_.support_states_vec[i + 1].foot == LEFT) {
-					cp_ref_.global.y[i] = robot_data_.left_foot.position[Y]  - exp(omega * ss_time_passed) * delta_cp_y;
+					cp_ref_.global.y[i] = robot_data_.left_foot.position[Y]  - exp(omega * supp_time_passed) * delta_cp_y_ss;
 				} else if (solution_.support_states_vec[i + 1].foot == RIGHT) {
-					cp_ref_.global.y[i] = robot_data_.right_foot.position[Y] + exp(omega * ss_time_passed) * delta_cp_y;
+					cp_ref_.global.y[i] = robot_data_.right_foot.position[Y] + exp(omega * supp_time_passed) * delta_cp_y_ss;
 				}
 			} else {
-				cp_ref_.global.y[i] = robot_data_.right_foot.position[Y] + exp(omega * ss_time_passed) * delta_cp_y;
+				cp_ref_.global.y[i] = robot_data_.right_foot.position[Y] + exp(omega * supp_time_passed) * delta_cp_y_ds;
 			}
 		}
 	}
@@ -269,22 +270,21 @@ void Walkgen::BuildProblem() {
 	// Adapt local capture point offset to the previewed foot:
 	// TODO: No rotation considered!!!
 	// -------------------------------
-	double delta_ss = 0.;
 	for (int i = 0; i < mpc_parameters_.num_samples_horizon; i++) {
-		ss_time_passed = (solution_.sampling_times_vec[i + 1] - solution_.support_states_vec[i + 1].start_time);
+		supp_time_passed = (solution_.sampling_times_vec[i + 1] - solution_.support_states_vec[i + 1].start_time);
 		if (solution_.support_states_vec[i + 1].phase == SS) {
 			if (solution_.support_states_vec[i + 1].foot == LEFT) {
 				//cp_ref_.local.y[i] *= -1.;
 				//cp_ref_.local.y[i] -= delta_cp_y * delta_ss;
-				cp_ref_.local.y[i] = -exp(omega * ss_time_passed) * delta_cp_y;
+				cp_ref_.local.y[i] = -exp(omega * supp_time_passed) * delta_cp_y_ss;
 			} else if (solution_.support_states_vec[i + 1].foot == RIGHT) {
 				// Do nothing (sign is correct)
 				//cp_ref_.local.y[i] += delta_cp_y * delta_ss;
-				cp_ref_.local.y[i] = exp(omega * ss_time_passed) * delta_cp_y;
+				cp_ref_.local.y[i] = exp(omega * supp_time_passed) * delta_cp_y_ss;
 
 			}
 		} else { // DS phase
-			cp_ref_.local.y[i] = -(robot_data_.left_foot.position[1] - robot_data_.right_foot.position[1]) + exp(omega * ss_time_passed) * delta_cp_y;
+			cp_ref_.local.y[i] = -(robot_data_.left_foot.position[1] - robot_data_.right_foot.position[1]) + exp(omega * supp_time_passed) * delta_cp_y_ds;
 		}
 	}
 	// Last reference is foot center

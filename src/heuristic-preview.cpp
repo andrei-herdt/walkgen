@@ -60,14 +60,13 @@ void HeuristicPreview::PreviewSamplingTimes(double current_time,
 }
 
 void HeuristicPreview::PreviewSupportStates(double first_sample_period, MPCSolution &solution) {
-	const BodyState *foot;
-	SupportState &current_support = robot_->current_support();
-
 	// SET CURRENT SUPPORT STATE:
 	// --------------------------
-	double current_time = solution.sampling_times_vec[0];// Quickfix
+	const BodyState *foot;
+	SupportState &current_support = robot_->current_support();
+	double current_time = solution.sampling_times_vec[0];
 	solution.sampling_times_vec[0] += mpc_parameters_->period_recomputation;// Quickfix
-	support_fsm_->SetSupportState(0, solution.sampling_times_vec, current_support);
+	support_fsm_->SetSupportState(current_time, 0, solution.sampling_times_vec, current_support);
 	solution.sampling_times_vec[0] = current_time;// Quickfix
 	if (current_support.state_changed) {
 		if (current_support.foot == LEFT) {
@@ -91,7 +90,7 @@ void HeuristicPreview::PreviewSupportStates(double first_sample_period, MPCSolut
 	SupportState previewed_support = current_support;//TODO: Replace =operator by CopyFrom or give to constructor
 	previewed_support.step_number = 0;
 	for (int sample = 1; sample <= mpc_parameters_->num_samples_horizon; sample++) {
-		support_fsm_->SetSupportState(sample, solution.sampling_times_vec, previewed_support);
+		support_fsm_->SetSupportState(current_time, sample, solution.sampling_times_vec, previewed_support);
 		// special treatment for the first instant of transitionalDS
 		if (previewed_support.step_number > 0) {
 			previewed_support.x = 0.0;
