@@ -220,8 +220,6 @@ struct MPC_WALKGEN_API MPCParameters {
 	int num_samples_horizon;  			// Number of samplings inside horizon
 	int num_samples_first_coarse_period;		// Number of additional samples inside first sampling period
 	int num_samples_first_fine_period;		// Number of additional samples inside first sampling period
-	int num_samples_step;				// Step period ss_left<->ss_right in qp sample periods
-	int num_samples_dsss;				// Length of initial double support phase [num. samples]
 	int num_steps_ssds;					// Steps before halt
 	int num_steps_max;
 

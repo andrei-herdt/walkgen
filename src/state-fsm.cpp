@@ -24,8 +24,8 @@ void StateFSM::SetSupportState(int sample, const std::vector<double> &sampling_t
 
 	// Update time limit for double support phase
 	if (is_reference_given && support.phase == DS &&
-			support.time_limit > sampling_times_vec[mpc_parameters_->num_samples_dsss] + kEps) {
-		support.time_limit = sampling_times_vec[mpc_parameters_->num_samples_dsss];
+			support.time_limit > sampling_times_vec[0] + mpc_parameters_->period_dsss + kEps) {
+		support.time_limit = sampling_times_vec[0] + mpc_parameters_->period_dsss;
 		support.num_steps_left = mpc_parameters_->num_steps_ssds;
 	}
 

@@ -113,8 +113,8 @@ static void mdlStart(SimStruct *S) {
 	mpc_parameters.num_samples_first_fine_period 	= static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 30)));
 	mpc_parameters.num_samples_first_coarse_period	= static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 28)));
 	mpc_parameters.period_ss     					= *mxGetPr(ssGetSFcnParam(S, 1));
-	mpc_parameters.num_samples_dsss     			= min(static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 2))), mpc_parameters.num_samples_horizon_max);
-	mpc_parameters.num_steps_ssds       			= min(static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 3))), mpc_parameters.num_samples_horizon_max);
+	mpc_parameters.period_dsss     					= *mxGetPr(ssGetSFcnParam(S, 2));
+	mpc_parameters.num_steps_ssds       			= static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 3)));
 	mpc_parameters.num_steps_max					= 3;
 	mpc_parameters.period_qpsample     				= *mxGetPr(ssGetSFcnParam(S, 4));
 	mpc_parameters.period_recomputation  	   		= *mxGetPr(ssGetSFcnParam(S, 5));
@@ -476,8 +476,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 		cur_state[8] = robot->com()->state().z[2];
 
 		sim_parameters[0] =	walk->mpc_parameters().num_samples_horizon_max - 1;
-		sim_parameters[1] = walk->mpc_parameters().num_samples_step;
-		sim_parameters[2] = walk->mpc_parameters().num_samples_dsss;
+		sim_parameters[2] = walk->mpc_parameters().period_dsss;
 		sim_parameters[3] = walk->mpc_parameters().num_steps_ssds;
 		sim_parameters[4] = walk->mpc_parameters().period_qpsample;
 		sim_parameters[5] = walk->mpc_parameters().period_recomputation;

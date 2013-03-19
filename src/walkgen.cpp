@@ -52,7 +52,7 @@ Walkgen::~Walkgen() {
 }
 
 void Walkgen::Init(MPCParameters &mpc_parameters) {
-	assert(mpc_parameters.num_samples_horizon_max > mpc_parameters_.num_samples_dsss);
+	assert(mpc_parameters_.period_dsss > kEps);
 	assert(mpc_parameters.num_samples_horizon_max > mpc_parameters_.num_steps_ssds);
 	assert(mpc_parameters.period_qpsample >= mpc_parameters.period_recomputation - kEps);
 	assert(mpc_parameters.period_recomputation >= mpc_parameters.period_actsample - kEps);
