@@ -296,6 +296,7 @@ void QPBuilder::PrecomputeObjective() {
 
 			v_trans_v_mat_vec_[mat_num] = cp_dyn.input_mat_tr.block(0, 0, num_samples, num_samples) * cp_fp_pen_mat_vec_[mat_num].block(0, 0, num_samples, num_samples) * cp_dyn.input_mat.block(0, 0, num_samples, num_samples);
 			v_trans_v_mat_vec_[mat_num] -= cp_dyn.input_mat_tr.block(0, 0, num_samples, num_samples) * cp_fp_pen_mat_vec_[mat_num].block(0, 0, num_samples, num_samples);
+			v_trans_v_mat_vec_[mat_num] -= cp_fp_pen_mat_vec_[mat_num].block(0, 0, num_samples, num_samples) * cp_dyn.input_mat.block(0, 0, num_samples, num_samples);
 			v_trans_v_mat_vec_[mat_num] += cp_fp_pen_mat_vec_[mat_num].block(0, 0, num_samples, num_samples);
 
 			v_trans_vc_mat_vec_[mat_num] = cp_dyn.input_mat_tr.block(0, 0, num_samples, num_samples) * cp_fp_pen_mat_vec_[mat_num].block(0, 0, num_samples, num_samples) * cp_dyn.input_mat.block(0, 0, num_samples, num_samples);
@@ -313,6 +314,7 @@ void QPBuilder::PrecomputeObjective() {
 			u_trans_vc_mat_vec_[mat_num] -= cp_dyn.input_mat_tr * cp_fp_pen_mat_vec_[mat_num].block(0, 0, num_samples, num_samples);
 
 			u_trans_ref_mat_vec_[mat_num] = - cp_dyn.input_mat_tr * cp_fp_pen_mat_vec_[mat_num].block(0, 0, num_samples, num_samples);
+
 			v_trans_ref_mat_vec_[mat_num] = - cp_dyn.input_mat_tr.block(0, 0, num_samples, num_samples) * cp_fp_pen_mat_vec_[mat_num].block(0, 0, num_samples, num_samples);
 			v_trans_ref_mat_vec_[mat_num] += cp_fp_pen_mat_vec_[mat_num].block(0, 0, num_samples, num_samples);
 		}
@@ -561,7 +563,7 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 		if (mpc_parameters_->penalties.online) {
 			tmp_mat2_ += contr_mov_mat_tr_vec_[matrix_num].block(0, 0, num_samples + num_unst_modes, num_samples) * contr_mov_pen_mat_vec_[matrix_num].block(0, 0, num_samples, num_samples) * contr_mov_mat_vec_[matrix_num].block(0, 0, num_samples, num_samples);
 		}
-		tmp_mat_.noalias() = select_mats.sample_step_trans * tmp_mat2_ * select_mats.sample_step;
+		tmp_mat_ = select_mats.sample_step_trans * tmp_mat2_ * select_mats.sample_step;
 		hessian.AddTerm(tmp_mat_, 2*(num_samples + num_unst_modes), 2*(num_samples + num_unst_modes));
 		hessian.AddTerm(tmp_mat_, 2*(num_samples + num_unst_modes) + num_steps_previewed, 2*(num_samples + num_unst_modes) + num_steps_previewed);
 

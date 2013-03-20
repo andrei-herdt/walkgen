@@ -281,7 +281,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 		const int num_vert_foot_pos = 5;
 		double feet_distance_y = *left_ankle_in[1] - *right_ankle_in[1];
 		double DefaultFPosEdgesX[num_vert_foot_pos] = {-0.3, -0.2, 0.0, 0.2, 0.3};
-		double DefaultFPosEdgesY[num_vert_foot_pos] = {-/*feet_distance_y + kEps*/0.2, -0.3, -0.4, -0.3, -/*feet_distance_y + kEps*/0.2};
+		double DefaultFPosEdgesY[num_vert_foot_pos] = {-feet_distance_y + kEps, -0.3, -0.4, -0.3, -feet_distance_y + kEps};
 
 		robot_data.left_foot_pos_hull.Resize(num_vert_foot_pos);
 		robot_data.right_foot_pos_hull.Resize(num_vert_foot_pos);
