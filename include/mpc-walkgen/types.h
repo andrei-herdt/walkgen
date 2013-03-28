@@ -53,6 +53,10 @@ enum Formulation {
 	DECOUPLED_MODES = 1		//Stable and unstable modes are decoupled
 };
 
+enum Mapping {
+	ZERO_MAP, 
+	CONST_MAP
+};
 //
 // Typedefs:
 //
@@ -248,6 +252,8 @@ struct MPC_WALKGEN_API MPCParameters {
 	SystemOrder dynamics_order;
 
 	Formulation formulation;
+
+	Mapping mapping;
 
 	Penalties penalties;
 

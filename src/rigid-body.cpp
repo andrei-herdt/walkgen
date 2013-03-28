@@ -38,6 +38,7 @@ void RigidBody::ComputeDynamics(SystemOrder dynamics_order) {
 	int num_samples = mpc_parameters_->num_samples_horizon_max;
 	int num_dynamics = mpc_parameters_->GetNumRecomputations();
 
+	//if (mpc_parameters_->mapping == ZERO_MAP) {
 	std::vector<double> sampling_periods_vec(num_samples, mpc_parameters_->period_qpsample);
 	if (mpc_parameters_->num_samples_first_fine_period > 0 || mpc_parameters_->num_samples_first_coarse_period > 0) {
 		// Build vector of sampling periods:
@@ -86,7 +87,13 @@ void RigidBody::ComputeDynamics(SystemOrder dynamics_order) {
 			dyn_build_p_->Build(dynamics_order, *dyn_it, state_.z(0), sampling_periods_vec, num_samples, false);
 			++dyn_it;
 		}
-	}
+	} /*else if (mpc_parameters_->mapping == CONST_MAP) {
+		double num_var = mpc_parameters_->num_samples_first_fine_period + mpc_parameters_->num_samples_first_coarse_period;
+		std::vector<double> sampling_periods_vec(num_samples, mpc_parameters_->period_actsample);
+		std::vector<LinearDynamics>::iterator dyn_it = dynamics_qp_vec_.begin();
+		dyn_build_p_->Build(dynamics_order, *dyn_it, state_.z(0), sampling_periods_vec, num_samples, false);
+
+	}*/
 
 	num_samples = mpc_parameters_->num_samples_act();
 	sampling_periods_vec.resize(num_samples);

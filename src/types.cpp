@@ -214,6 +214,7 @@ MPCParameters::MPCParameters()
 ,problem_dumping(false)
 ,dynamics_order(THIRD_ORDER)
 ,formulation(STANDARD)
+,mapping(ZERO_MAP)
 ,penalties(2)
 {}
 
