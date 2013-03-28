@@ -47,17 +47,23 @@ void RigidBodySystem::Init(const RobotData &robot_data) {//TODO: Remove object r
 	left_foot_->Init(&robot_data);
 	right_foot_->Init(&robot_data);
 
-	com_->state().x(0) = robot_data_.com(0);
-	com_->state().y(0) = robot_data_.com(1);
-	com_->state().z(0) = robot_data_.com(2);
+	com_->state().x(POSITION) = robot_data_.com(X);
+	com_->state().y(POSITION) = robot_data_.com(Y);
+	com_->state().z(POSITION) = robot_data_.com(Z);
+
+	left_foot_->state().x[POSITION] = robot_data_.left_foot.position[X];
+	left_foot_->state().y[POSITION] = robot_data_.left_foot.position[Y];
+
+	right_foot_->state().x[POSITION] = robot_data_.right_foot.position[X];
+	right_foot_->state().y[POSITION] = robot_data_.right_foot.position[Y];
 
 	current_support_.phase         = DS;
 	current_support_.foot          = LEFT;
 	current_support_.time_limit    = 1e9;
 	current_support_.num_steps_left= 1;
 	current_support_.state_changed = true;
-	current_support_.x             = robot_data.left_foot.position[0];
-	current_support_.y             = robot_data.left_foot.position[1];
+	current_support_.x             = robot_data.left_foot.position[X];
+	current_support_.y             = robot_data.left_foot.position[Y];
 	current_support_.yaw           = 0.0;
 	current_support_.start_time    = 0.0;
 }
@@ -102,12 +108,12 @@ void RigidBodySystem::UpdateState(const MPCSolution &solution) {
 	right_foot_->state().yaw(ACCELERATION) 	= right_foot_->motion_act().acc.yaw_vec[next_sample];
 
 	if (!mpc_parameters_->is_closed_loop) {
-		com_->state().x(0) = solution.com_act.pos.x_vec[next_sample];
-		com_->state().y(0) = solution.com_act.pos.y_vec[next_sample];
-		com_->state().x(1) = solution.com_act.vel.x_vec[next_sample];
-		com_->state().y(1) = solution.com_act.vel.y_vec[next_sample];
-		com_->state().x(2) = solution.com_act.acc.x_vec[next_sample];
-		com_->state().y(2) = solution.com_act.acc.y_vec[next_sample];
+		com_->state().x(POSITION) = solution.com_act.pos.x_vec[next_sample];
+		com_->state().y(POSITION) = solution.com_act.pos.y_vec[next_sample];
+		com_->state().x(VELOCITY) = solution.com_act.vel.x_vec[next_sample];
+		com_->state().y(VELOCITY) = solution.com_act.vel.y_vec[next_sample];
+		com_->state().x(ACCELERATION) = solution.com_act.acc.x_vec[next_sample];
+		com_->state().y(ACCELERATION) = solution.com_act.acc.y_vec[next_sample];
 	}
 
 	// TODO: Temporary solutions

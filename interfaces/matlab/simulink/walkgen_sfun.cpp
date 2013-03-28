@@ -59,7 +59,7 @@ static void mdlInitializeSizes(SimStruct *S) {
 	ssSetInputPortDirectFeedThrough(S, 13, 1);
 	ssSetInputPortDirectFeedThrough(S, 14, 1);
 
-	if (!ssSetNumOutputPorts(S,19)) return;
+	if (!ssSetNumOutputPorts(S,20)) return;
 	// Realized motions
 	ssSetOutputPortWidth(S, 0, 3);        //com
 	ssSetOutputPortWidth(S, 1, 3);        //dcom
@@ -84,6 +84,7 @@ static void mdlInitializeSizes(SimStruct *S) {
 	ssSetOutputPortWidth(S, 16, 3 * num_samples_horizon_max);     //cp_prw (sample_instants, x, y)
 	ssSetOutputPortWidth(S, 17, 9);     //cp_prw (sample_instants, x, y)
 	ssSetOutputPortWidth(S, 18, 7);     //sim_parameters (sample_instants, x, y)
+	ssSetOutputPortWidth(S, 19, 6);     //cp_ref
 
 
 	ssSetNumSampleTimes(S, 1);
@@ -237,6 +238,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 	real_T *cp_prw         = ssGetOutputPortRealSignal(S, 16);
 	real_T *cur_state      = ssGetOutputPortRealSignal(S, 17);
 	real_T *sim_parameters = ssGetOutputPortRealSignal(S, 18);
+	real_T *cp_out 		   = ssGetOutputPortRealSignal(S, 19);
 
 	Walkgen *walk = (Walkgen *)ssGetPWorkValue(S, 0);
 
@@ -299,16 +301,19 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 		walk->SetVelReference(0.0, 0.0, 0.0);
 		walk->SetCPReference(*com_in[0], *com_in[1], *com_in[2], *com_in[3]);
 		walk->Init(robot_data);
-		RigidBodySystem *robot = walk->robot();
-		robot->com()->state().x[0] = *com_in[0];
-		robot->com()->state().y[0] = *com_in[1];
-		robot->com()->state().z[0] = *com_in[2];
-		robot->com()->state().x[1] = *com_in[3];
-		robot->com()->state().y[1] = *com_in[4];
-		robot->com()->state().z[1] = 0.;
-		robot->com()->state().x[2] = kGravity / *com_in[2] * (*com_in[0] - *cop_in[0]);
-		robot->com()->state().y[2] = kGravity / *com_in[2] * (*com_in[1] - *cop_in[1]);
-		robot->com()->state().z[2] = 0.;
+
+		if (is_closed_loop_in > 0.5) {
+			RigidBodySystem *robot = walk->robot();
+			robot->com()->state().x[0] = *com_in[0];
+			robot->com()->state().y[0] = *com_in[1];
+			robot->com()->state().z[0] = *com_in[2];
+			robot->com()->state().x[1] = *com_in[3];
+			robot->com()->state().y[1] = *com_in[4];
+			robot->com()->state().z[1] = 0.;
+			robot->com()->state().x[2] = kGravity / *com_in[2] * (*com_in[0] - *cop_in[0]);
+			robot->com()->state().y[2] = kGravity / *com_in[2] * (*com_in[1] - *cop_in[1]);
+			robot->com()->state().z[2] = 0.;
+		}
 
 		ssSetIWorkValue(S, 0, 1);//Is initialized
 
@@ -321,12 +326,23 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 	walk->SetCPReference(*cp_ref[0], *cp_ref[1], *cp_ref[2], *cp_ref[3]);
 
 	if (*contr_moves_pen_in[0] > kEps) {
-		walk->mpc_parameters().penalties.online = true;
+		walk->mpc_parameters().penalties.dcop_online = true;
 		walk->mpc_parameters().penalties.first_contr_moves = *contr_moves_pen_in[1];
 		walk->mpc_parameters().penalties.second_contr_moves = *contr_moves_pen_in[2];
 	} else {
-		walk->mpc_parameters().penalties.online = false;
+		walk->mpc_parameters().penalties.dcop_online = false;
 	}
+
+	/*
+	if (*contr_val_pen_in[0] > kEps) {
+		walk->mpc_parameters().penalties.cop_online = true;
+		walk->mpc_parameters().penalties.cop[0] = *contr_val_pen_in[1];
+		walk->mpc_parameters().penalties.cop[1] = *contr_val_pen_in[1];
+	} else {
+		walk->mpc_parameters().penalties.cop_online = false;
+	}
+	 */
+
 
 	RigidBodySystem *robot = walk->robot();
 	if (is_closed_loop_in > 0.5) {
@@ -370,8 +386,53 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 	ddcom[1]    = walk->output().com.ddy;
 	ddcom[2]    = walk->output().com.ddz;  //TODO:
 
-	cop[0] = walk->output().cop.x;
-	cop[1] = walk->output().cop.y;
+	cop[X] = walk->output().cop.x;
+	cop[Y] = walk->output().cop.y;
+
+	// Comput gain
+	double omega = sqrt(kGravity / robot->com()->state().z[POSITION]);
+	double cp_x = robot->com()->state().x[POSITION] + 1. / omega * robot->com()->state().x[VELOCITY];
+	double cp_y = robot->com()->state().y[POSITION] + 1. / omega * robot->com()->state().y[VELOCITY];
+	double pd_x = 0.;
+	double pd_y = 0.;
+	if (solution.support_states_vec.front().phase == DS) {
+		pd_x = walk->cp_ref().init[X];
+		pd_y = walk->cp_ref().init[Y];
+	} else {
+		pd_x = solution.support_states_vec.front().x;
+		pd_y = solution.support_states_vec.front().y;
+	}
+
+	double gain_x = (cop[X] - pd_x) / (cp_x - walk->cp_ref().global.x[POSITION]);
+	double gain_y = (cop[Y] - pd_y) / (cp_y - walk->cp_ref().global.y[POSITION]);
+	//std::cout << "gain_x: " << gain_x << " gain_y: " << gain_y
+	//		<< "cop[Y] - pd_y: " << cop[Y] - pd_y << " cp_y - cp_ref.y: " << cp_y - walk->cp_ref().global.y[POSITION]
+	//		<< " fir_per: " << solution.first_coarse_period << " time: " << curr_time << std::endl;
+
+	if (walk->mpc_parameters().is_pid_mode) {
+		double omega = sqrt(kGravity / robot->com()->state().z[POSITION]);
+		double cp_x = *com_in[0] + 1. / omega * *com_in[3];
+		double cp_y = *com_in[1] + 1. / omega * *com_in[4];
+		double pd_x = 0.;
+		double pd_y = 0.;
+		if (solution.support_states_vec.front().phase == DS) {
+			pd_x = walk->cp_ref().init[X];
+			pd_y = walk->cp_ref().init[Y];
+		} else {
+			pd_x = solution.support_states_vec.front().x;
+			pd_y = solution.support_states_vec.front().y;
+		}
+
+		cop[X] = pd_x + 5.6 * (cp_x - walk->cp_ref().global.x[0]);
+		cop[Y] = pd_y + 5.6 * (cp_y - walk->cp_ref().global.y[0]);
+	}
+
+	cp_out[0] = walk->cp_ref().global.x[0];
+	cp_out[1] = walk->cp_ref().global.y[0];
+	cp_out[2] = *com_in[0] + 1. / omega * *com_in[3];
+	cp_out[3] = *com_in[1] + 1. / omega * *com_in[4];
+	cp_out[4] = walk->output().cop.x;
+	cp_out[5] = walk->output().cop.y;
 
 	// Left foot:
 	double ankle_pos_loc_x = -0.035;
@@ -482,16 +543,16 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 		sim_parameters[5] = walk->mpc_parameters().period_recomputation;
 		sim_parameters[6] = walk->mpc_parameters().period_actsample;
 	}
-	}
+}
 
-	static void mdlTerminate(SimStruct *S) {
-		Walkgen *walk = static_cast<Walkgen *>(ssGetPWork(S)[0]);
-		Debug::Cout("Distribution of ticks", walk->clock().ticks_distr_vec());
-		delete walk;
-	}
+static void mdlTerminate(SimStruct *S) {
+	Walkgen *walk = static_cast<Walkgen *>(ssGetPWork(S)[0]);
+	Debug::Cout("Distribution of ticks", walk->clock().ticks_distr_vec());
+	delete walk;
+}
 
-	// Required S-function trailer:
-	// ----------------------------
+// Required S-function trailer:
+// ----------------------------
 #ifdef  MATLAB_MEX_FILE    // Is this file being compiled as a MEX-file?
 #include "simulink.c"      // MEX-file interface mechanism
 #else

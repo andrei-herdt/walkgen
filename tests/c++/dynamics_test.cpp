@@ -10,7 +10,7 @@ int main() {
 	// Common simulation parameters:
 	// -----------------------------
 	MPCParameters mpc_parameters;
-	mpc_parameters.num_samples_dsss       		= 13;
+	mpc_parameters.period_dsss       		= 0.8;
 	mpc_parameters.num_steps_ssds         		= 2;
 	mpc_parameters.num_steps_max				= 3;
 	mpc_parameters.period_qpsample        		= .1;

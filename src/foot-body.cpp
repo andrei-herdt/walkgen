@@ -21,6 +21,7 @@ void FootBody::Interpolate(MPCSolution &solution, double current_time, const Ref
 	BodyState goal_state;
 	const SupportState &current_support = solution.support_states_vec[0];
 	const SupportState &next_support = solution.support_states_vec[1];
+	int num_steps_previewed = solution.support_states_vec.back().step_number;
 	int num_unst_modes = 0;
 	if (mpc_parameters_->formulation == DECOUPLED_MODES) {
 		num_unst_modes = 1;
@@ -35,9 +36,8 @@ void FootBody::Interpolate(MPCSolution &solution, double current_time, const Ref
 	double time_spent_flying = 0.0;
 	double halftime_rounded = mpc_parameters_->period_ss / 2.;
 	if (current_support.phase == SS) {
-		time_left_flying = current_support.time_limit - period_ds - current_time;
-		time_spent_flying = current_time - current_support.start_time;
-		int nbStepsPreviewed = solution.support_states_vec.back().step_number;
+		time_left_flying = current_support.time_limit - current_time;
+		time_spent_flying = current_time - current_support.start_time - period_ds;
 		if (next_support.transitional_ds) {
 			time_left_xy = current_support.time_limit - current_time;
 			goal_state.x(0) = state_.x(0);
@@ -55,10 +55,9 @@ void FootBody::Interpolate(MPCSolution &solution, double current_time, const Ref
 			goal_state.yaw(0) = state_.yaw(0);
 		} else {
 			time_left_xy = time_left_flying - raise_period;
-			int nbPreviewedSteps = solution.support_states_vec.back().step_number;
-			if (nbPreviewedSteps > 0) {
+			if (num_steps_previewed > 0) {
 				goal_state.x(0) = solution.qp_solution_vec(2*(mpc_parameters_->num_samples_horizon + num_unst_modes));
-				goal_state.y(0) = solution.qp_solution_vec(2*(mpc_parameters_->num_samples_horizon + num_unst_modes) + nbStepsPreviewed);
+				goal_state.y(0) = solution.qp_solution_vec(2*(mpc_parameters_->num_samples_horizon + num_unst_modes) + num_steps_previewed);
 				goal_state.yaw(0) = solution.support_yaw_vec[0];
 			} else {
 				goal_state.x(0) = state_.x(0);
@@ -67,7 +66,7 @@ void FootBody::Interpolate(MPCSolution &solution, double current_time, const Ref
 			}
 		}
 		// Vertical trajectory
-		if (time_left_flying - halftime_rounded > mpc_parameters_->period_actsample) {
+		if (time_left_flying - halftime_rounded > mpc_parameters_->period_actsample && time_spent_flying > kEps) {
 			goal_state.z(0) = robot_data_->max_foot_height;
 			time_left_z = time_left_flying - halftime_rounded;
 		} else if (time_left_flying < halftime_rounded && time_left_flying > kEps) { // Half-time passed

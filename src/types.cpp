@@ -4,6 +4,11 @@
 
 using namespace MPCWalkgen;
 
+WalkingMode::WalkingMode()
+:type(INITIAL),
+ start_time(0.)
+{}
+
 Frame::Frame()
 :x(1),y(1),yaw(1)
 {
@@ -26,6 +31,10 @@ Reference::Reference()
 void Reference::SetZero(int size){
 	global.SetZero(size);
 	local.SetZero(size);
+
+	init.fill(0.);
+	offset_ss.fill(0.);
+	offset_ds.fill(0.);
 }
 
 BodyState::BodyState() {
@@ -203,7 +212,6 @@ MPCParameters::MPCParameters()
 ,is_ineq_constr(true)
 ,is_terminal_constr(false)
 ,problem_dumping(false)
-,walking_mode(INITIAL)
 ,dynamics_order(THIRD_ORDER)
 ,formulation(STANDARD)
 ,penalties(2)
@@ -381,16 +389,17 @@ Penalties::Penalties(int num_modes)
 ,contr_moves(num_modes)
 ,first_contr_moves(0.)
 ,second_contr_moves(0.)
-,active_mode(0)
+,active_mode(1)
 ,is_initial_mode(true)
-,online(false)
+,dcop_online(false)
+,cop_online(false)
 {
 	pos[0] 			= 0.;
-	vel[0]  		= 0.;//1.;
-	cop[0]  		= 0.00001;
-	cp[0] 			= 0.;//1.;
+	vel[0]  		= 0.;
+	cop[0]  		= 0.;
+	cp[0] 			= 0.;
 	cp_fp[0]		= 0.;
-	contr_moves[0] 	= 0.0001;
+	contr_moves[0] 	= 0.;
 
 	pos[1] 			= 0.;
 	vel[1]  		= 0.;

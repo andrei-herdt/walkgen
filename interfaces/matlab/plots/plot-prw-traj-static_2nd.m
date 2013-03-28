@@ -8,12 +8,12 @@ for i = 1:di:length(com_prw.time)% - di
     subplot(1,2,1);
     lines_prw_com_x = plot(com_prw.signals.values(i, 1:num_samples), com_prw.signals.values(i, num_samples+1:2*num_samples),'red');
     lines_prw_cp_x = plot(cp_prw.signals.values(i, 1:num_samples), cp_prw.signals.values(i, num_samples+1:2*num_samples),'magenta');
-    %lines_com_control_x = stairs(com_control.signals.values(i, 1:num_samples), com_control.signals.values(i, num_samples+1:2*num_samples),'k');
+    lines_com_control_x = stairs(com_control.signals.values(i, 1:num_samples), com_control.signals.values(i, num_samples+1:2*num_samples),'k');
     hold on;
     subplot(1,2,2);
     lines_prw_com_y = plot(com_prw.signals.values(i, 1:num_samples), com_prw.signals.values(i, 2*num_samples+1:3*num_samples),'red');
     lines_prw_cp_y = plot(cp_prw.signals.values(i, 1:num_samples), cp_prw.signals.values(i, 2*num_samples+1:3*num_samples),'magenta');
-    %lines_com_control_y = stairs(com_control.signals.values(i, 1:num_samples), com_control.signals.values(i, 2*num_samples+1:3*num_samples),'k');
+    lines_com_control_y = stairs(com_control.signals.values(i, 1:num_samples), com_control.signals.values(i, 2*num_samples+1:3*num_samples),'k');
     hold on;
 end
 

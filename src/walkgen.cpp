@@ -109,7 +109,7 @@ void Walkgen::Init(MPCParameters &mpc_parameters) {
 			&robot_, &mpc_parameters_, &clock_, &last_des_cop_x_, &last_des_cop_y_);
 
 	if (mpc_parameters_.init_com_height > kEps) {
-		robot_.com()->state().z[0] = mpc_parameters_.init_com_height;
+		robot_.com()->state().z[POSITION] = mpc_parameters_.init_com_height;
 		robot_.ComputeDynamics();
 		builder_->PrecomputeObjective();
 	}
@@ -120,8 +120,8 @@ void Walkgen::Init(const RobotData &robot_data) {
 	robot_data_ = robot_data;
 	robot_.Init(robot_data_);
 
-	last_des_cop_x_ = robot_data_.com[0];
-	last_des_cop_y_ = robot_data_.com[1];
+	last_des_cop_x_ = robot_data_.com[X];
+	last_des_cop_y_ = robot_data_.com[Y];
 
 	Init();
 }
@@ -186,29 +186,13 @@ const MPCSolution &Walkgen::Go(double time){
 // Private methods:
 //
 void Walkgen::Init() {
-	if (mpc_parameters_.init_com_height < 2 * kEps) {
+	if (mpc_parameters_.init_com_height < kEps) {
 		robot_.ComputeDynamics();
 
 		builder_->PrecomputeObjective();
 	}
 
 	orient_preview_->Init(&mpc_parameters_, robot_data_);
-
-	BodyState left_foot_state;
-	left_foot_state.x[0] = robot_data_.left_foot.position[0];
-	left_foot_state.y[0] = robot_data_.left_foot.position[1];
-	robot_.left_foot()->state(left_foot_state);
-
-	BodyState right_foot_state;
-	right_foot_state.x[0] = robot_data_.right_foot.position[0];
-	right_foot_state.y[0] = robot_data_.right_foot.position[1];
-	robot_.right_foot()->state(right_foot_state);
-
-	BodyState state_com;
-	state_com.x[0] = robot_data_.com(0);//TODO: Add macros for x,y,z
-	state_com.y[0] = robot_data_.com(1);
-	state_com.z[0] = robot_data_.com(2);
-	robot_.com()->state(state_com);
 
 	mpc_parameters_.penalties.active_mode = 0;
 
@@ -245,48 +229,52 @@ void Walkgen::BuildProblem() {
 
 	heur_preview_->PreviewSupportStates(first_fine_period, solution_);
 
-	// Modify global cp reference:
-	// ---------------------------
+	SetWalkingMode();
+
+	// Modify global cp reference in the frontal plane:
+	// ------------------------------------------------
+	// TODO: Left foot first supposition for the cp references!!
+	// TODO: Own method needed.
 	double supp_time_passed = 0.;
 	double omega = sqrt(kGravity / robot_.com()->state().z[0]); 
-	double delta_cp_y_ss = (robot_data_.left_foot.position[Y] - robot_data_.right_foot.position[Y]) / (exp(omega * (mpc_parameters_.period_ss + mpc_parameters_.period_trans_ds())) + 1.);
-	double delta_cp_y_ds = (robot_data_.left_foot.position[Y] - robot_data_.right_foot.position[Y]) / (exp(omega * (mpc_parameters_.period_dsss)) + 1.);
-	if (fabs(vel_ref_.local.yaw(0)) > kEps || fabs(vel_ref_.local.x(0)) > kEps || fabs(vel_ref_.local.y(0)) > kEps) {
+	double cop_center_dis_ss = 0.;//0.015;
+	cp_ref_.offset_ss[Y] = (robot_data_.left_foot.position[Y] - robot_data_.right_foot.position[Y] - 2. * cop_center_dis_ss)
+			/ (exp(omega * (mpc_parameters_.period_ss + mpc_parameters_.period_trans_ds())) + 1.);
+	if (mpc_parameters_.walking_mode.type == INITIAL) {
+		cp_ref_.init[X] = robot_data_.com[X];
+		cp_ref_.init[Y] = robot_data_.com[Y];
+	} else if (mpc_parameters_.walking_mode.type == WALK_START) {
+		cp_ref_.init[X] = robot_data_.com[X];
+		cp_ref_.init[Y] = robot_.com()->state().y[POSITION] + 1. / omega * robot_.com()->state().y[VELOCITY];
+		cp_ref_.offset_ds[Y] = (robot_data_.left_foot.position[Y] - cop_center_dis_ss - cp_ref_.offset_ss[Y] - cp_ref_.init[Y]) / exp(omega * (mpc_parameters_.period_dsss));
+	}
+
+	if (mpc_parameters_.walking_mode.type == INITIAL) {
+		cp_ref_.global.x.fill(cp_ref_.init[X]);
+		cp_ref_.local.x.fill(cp_ref_.init[X] - robot_data_.left_foot.position[X]);
+		cp_ref_.global.y.fill(cp_ref_.init[Y]);
+		cp_ref_.local.y.fill(cp_ref_.init[Y] - robot_data_.left_foot.position[Y]);
+	} else if (mpc_parameters_.walking_mode.type == WALK || mpc_parameters_.walking_mode.type == WALK_START) {
+		cp_ref_.global.x.fill(cp_ref_.init[X]);
+		cp_ref_.local.x.fill(cp_ref_.init[X] - robot_data_.left_foot.position[X]);
 		for (int i = 0; i < mpc_parameters_.num_samples_horizon ; i++) {
-			supp_time_passed = solution_.sampling_times_vec[i + 1] - solution_.support_states_vec[i + 1].start_time;
 			if (solution_.support_states_vec[i + 1].phase == SS) {
+				supp_time_passed = solution_.sampling_times_vec[i + 1] - solution_.support_states_vec[i + 1].start_time;
 				if (solution_.support_states_vec[i + 1].foot == LEFT) {
-					cp_ref_.global.y[i] = robot_data_.left_foot.position[Y]  - exp(omega * supp_time_passed) * delta_cp_y_ss;
+					cp_ref_.global.y[i] = robot_data_.left_foot.position[Y] - cop_center_dis_ss - exp(omega * supp_time_passed) * cp_ref_.offset_ss[Y];
+					cp_ref_.local.y[i] = - cop_center_dis_ss - exp(omega * supp_time_passed) * cp_ref_.offset_ss[Y];
 				} else if (solution_.support_states_vec[i + 1].foot == RIGHT) {
-					cp_ref_.global.y[i] = robot_data_.right_foot.position[Y] + exp(omega * supp_time_passed) * delta_cp_y_ss;
+					cp_ref_.global.y[i] = robot_data_.right_foot.position[Y] + cop_center_dis_ss + exp(omega * supp_time_passed) * cp_ref_.offset_ss[Y];
+					cp_ref_.local.y[i] = cop_center_dis_ss + exp(omega * supp_time_passed) * cp_ref_.offset_ss[Y];
 				}
 			} else {
-				cp_ref_.global.y[i] = robot_data_.right_foot.position[Y] + exp(omega * supp_time_passed) * delta_cp_y_ds;
+				supp_time_passed = solution_.sampling_times_vec[i + 1] - mpc_parameters_.walking_mode.start_time;
+				cp_ref_.global.y[i] = cp_ref_.init[Y] + exp(omega * supp_time_passed) * cp_ref_.offset_ds[Y];
+				cp_ref_.local.y[i] = -(robot_data_.left_foot.position[1] - cp_ref_.init[Y]) + exp(omega * supp_time_passed) * cp_ref_.offset_ds[Y];
 			}
 		}
 	}
 
-
-	// Adapt local capture point offset to the previewed foot:
-	// TODO: No rotation considered!!!
-	// -------------------------------
-	for (int i = 0; i < mpc_parameters_.num_samples_horizon; i++) {
-		supp_time_passed = (solution_.sampling_times_vec[i + 1] - solution_.support_states_vec[i + 1].start_time);
-		if (solution_.support_states_vec[i + 1].phase == SS) {
-			if (solution_.support_states_vec[i + 1].foot == LEFT) {
-				//cp_ref_.local.y[i] *= -1.;
-				//cp_ref_.local.y[i] -= delta_cp_y * delta_ss;
-				cp_ref_.local.y[i] = -exp(omega * supp_time_passed) * delta_cp_y_ss;
-			} else if (solution_.support_states_vec[i + 1].foot == RIGHT) {
-				// Do nothing (sign is correct)
-				//cp_ref_.local.y[i] += delta_cp_y * delta_ss;
-				cp_ref_.local.y[i] = exp(omega * supp_time_passed) * delta_cp_y_ss;
-
-			}
-		} else { // DS phase
-			cp_ref_.local.y[i] = -(robot_data_.left_foot.position[1] - robot_data_.right_foot.position[1]) + exp(omega * supp_time_passed) * delta_cp_y_ds;
-		}
-	}
 	// Last reference is foot center
 	//cp_ref_.local.x[mpc_parameters_.num_samples_horizon - 1] = 0.;
 	//cp_ref_.local.y[mpc_parameters_.num_samples_horizon - 1] = 0.;
@@ -302,8 +290,6 @@ void Walkgen::BuildProblem() {
 			mpc_parameters_.period_ss, robot_.left_foot()->state(),
 			robot_.right_foot()->state(), solution_ );
 	heur_preview_->BuildRotationMatrix(solution_);
-
-	SetWalkingMode();
 
 	// BUILD:
 	// ------
@@ -349,6 +335,7 @@ void Walkgen::UpdateOutput() {
 
 	output_.cop.x = solution_.com_act.cop.x_vec[output_index_];
 	output_.cop.y = solution_.com_act.cop.y_vec[output_index_];
+
 	last_des_cop_x_ = output_.cop.x;
 	last_des_cop_y_ = output_.cop.y;
 
@@ -433,21 +420,26 @@ void Walkgen::SetWalkingMode() {
 
 	// Set active walking mode:
 	// ------------------------
+	// TODO: Walking activated by velocity reference
 	if (fabs(vel_ref_.local.yaw(0)) < kEps && fabs(vel_ref_.local.x(0)) < kEps && fabs(vel_ref_.local.y(0)) < kEps) {
-		if (mpc_parameters_.penalties.is_initial_mode) {
-			mpc_parameters_.penalties.active_mode 	= 1;
-			mpc_parameters_.walking_mode 			= INITIAL;
-		} else {
-			mpc_parameters_.penalties.active_mode 	= 0;
-			mpc_parameters_.walking_mode 			= STOP;
+		if (mpc_parameters_.walking_mode.type == WALK) {
+			mpc_parameters_.penalties.active_mode 	= 0;//TODO: No set of penalties for stop after walking!
+			mpc_parameters_.walking_mode.type 		= STOP;
+			mpc_parameters_.walking_mode.start_time = current_time_;
 		}
 	} else {
-		mpc_parameters_.penalties.active_mode 		= 0;
-		mpc_parameters_.penalties.is_initial_mode 	= false;
-		mpc_parameters_.walking_mode 				= WALK;
+		if (mpc_parameters_.walking_mode.type == INITIAL || mpc_parameters_.walking_mode.type == STOP) {
+			mpc_parameters_.walking_mode.start_time = current_time_;
+			mpc_parameters_.walking_mode.type		= WALK_START;
+
+			mpc_parameters_.penalties.active_mode 		= 0;
+			mpc_parameters_.penalties.is_initial_mode 	= false; //TODO: Unnecessary
+		} else if (mpc_parameters_.walking_mode.type == WALK_START) {
+			mpc_parameters_.walking_mode.type			= WALK;
+		}
 	}
 
-	if (solution_.support_states_vec.front().phase == DS && mpc_parameters_.walking_mode == STOP) {
+	if (solution_.support_states_vec.front().phase == DS && mpc_parameters_.walking_mode.type == STOP) {
 		double mid_feet_x = (robot_.left_foot()->state().x[0] + robot_.right_foot()->state().x[0]) / 2.;
 		double mid_feet_y = (robot_.left_foot()->state().y[0] + robot_.right_foot()->state().y[0]) / 2.;
 		pos_ref_.global.x.fill(mid_feet_x);

@@ -7,58 +7,57 @@ using namespace MPCWalkgen;
 
 int main() {
 
-	int num_samples_horizon_max 		= 24;
-	int num_samples_dsss 			= 15;
-	int num_steps_ssds 				= 2;
+	int num_samples_horizon_max 		= 16;
+	int num_steps_ssds 			= 2;
 	double sample_period_qp 		= .1;
 	double sample_period_first 		= .005;
 	double sample_period_act 		= .005;
-	const double kSecurityMargin 	= .02;
+	const double kSecurityMargin 		= .02;
 
 	// Simulation parameters:
 	// ----------------------
 	MPCParameters mpc_parameters;
-	mpc_parameters.num_samples_horizon_max    		= num_samples_horizon_max;
-	mpc_parameters.num_samples_first_coarse_period	= 0;//5
-	mpc_parameters.num_samples_first_fine_period	= 0;//4;
-	mpc_parameters.num_samples_dsss       		= std::min(num_samples_dsss, num_samples_horizon_max);
+	mpc_parameters.num_samples_horizon_max    	= num_samples_horizon_max;
+	mpc_parameters.num_samples_first_coarse_period	= 5;
+	mpc_parameters.num_samples_first_fine_period	= 4;
+	mpc_parameters.period_dsss       		= 0.8;
 	mpc_parameters.num_steps_ssds         		= std::min(num_steps_ssds, num_samples_horizon_max);
-	mpc_parameters.num_steps_max				= 3;
+	mpc_parameters.num_steps_max			= 3;
 	mpc_parameters.period_qpsample        		= sample_period_qp;
-	mpc_parameters.period_inter_samples			= 0.;//0.02;
+	mpc_parameters.period_inter_samples		= 0.02;
 	mpc_parameters.period_recomputation       	= sample_period_first;
 	mpc_parameters.period_actsample       		= sample_period_act;
-	mpc_parameters.period_ss					= 0.7;
-	mpc_parameters.warmstart           			= false;
-	mpc_parameters.interpolate_whole_horizon    = true;
-	mpc_parameters.solver.analysis              = false;
+	mpc_parameters.period_ss			= 0.7;
+	mpc_parameters.warmstart           		= false;
+	mpc_parameters.interpolate_whole_horizon    	= true;
+	mpc_parameters.solver.analysis              	= false;
 	mpc_parameters.problem_dumping		      	= false;
-	mpc_parameters.solver.name                  = QLD;
-	mpc_parameters.solver.num_wsrec             = 100;
-	mpc_parameters.dynamics_order               = SECOND_ORDER;
-	mpc_parameters.formulation		      		= STANDARD;
-	mpc_parameters.is_pid_mode		      		= false;
+	mpc_parameters.solver.name                  	= QLD;
+	mpc_parameters.solver.num_wsrec             	= 100;
+	mpc_parameters.dynamics_order               	= SECOND_ORDER;
+	mpc_parameters.formulation		      	= DECOUPLED_MODES;
+	mpc_parameters.is_pid_mode		      	= false;
 	mpc_parameters.is_terminal_constr	      	= false;
-	mpc_parameters.is_ineq_constr				= false;
-	mpc_parameters.problem_dumping				= false;
+	mpc_parameters.is_ineq_constr			= false;
+	mpc_parameters.problem_dumping			= false;
 
-	mpc_parameters.penalties.pos[0] 			= 0.;
-	mpc_parameters.penalties.vel[0]  			= 0.;
-	mpc_parameters.penalties.cop[0]  			= 0.;//0.00001;
+	mpc_parameters.penalties.pos[0] 		= 0.;
+	mpc_parameters.penalties.vel[0]  		= 0.;
+	mpc_parameters.penalties.cop[0]  		= 0.;//0.00001;
 	mpc_parameters.penalties.contr_moves[0] 	= 0;
-	mpc_parameters.penalties.cp[0] 				= 1.;
+	mpc_parameters.penalties.cp[0] 			= 1.;
 	mpc_parameters.penalties.first_contr_moves 	= 0;
-	mpc_parameters.penalties.cp_fp[0] 			= 0.;
+	mpc_parameters.penalties.cp_fp[0] 		= 0.;
 	mpc_parameters.penalties.second_contr_moves 	= 0;
 
-	mpc_parameters.penalties.pos[1] 			= 0.;
-	mpc_parameters.penalties.vel[1]  			= 0.;
-	mpc_parameters.penalties.cop[1]  			= 0.;//1.;
-	mpc_parameters.penalties.cp[1] 				= 1.;
-	mpc_parameters.penalties.cp_fp[1] 			= 0.;
+	mpc_parameters.penalties.pos[1] 		= 0.;
+	mpc_parameters.penalties.vel[1]  		= 0.;
+	mpc_parameters.penalties.cop[1]  		= 0.;//1.;
+	mpc_parameters.penalties.cp[1] 			= 1.;
+	mpc_parameters.penalties.cp_fp[1] 		= 0.;
 	mpc_parameters.penalties.contr_moves[1] 	= 0.;
 
-	mpc_parameters.init_com_height 				= 0.94;
+	mpc_parameters.init_com_height 			= 0.94;
 
 	// Robot parameters:
 	// -----------------

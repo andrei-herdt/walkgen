@@ -39,6 +39,8 @@ public:
 	void SetVelReference(const CommonVectorType &x_vec, const CommonVectorType &y_vec, const CommonVectorType &yaw_vec);
 	void SetCPReference(double global_x, double global_y, double local_x, double local_y);
 
+	inline const Reference &cp_ref() const { return cp_ref_; }
+
 	const BodyState &bodyState(BodyType body) const;
 	void bodyState(BodyType body, const BodyState &state);
 	inline const ControlOutput &output() const { return output_; };

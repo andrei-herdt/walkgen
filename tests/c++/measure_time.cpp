@@ -9,7 +9,6 @@ int main() {
 
 	int num_samples_horizon 		= 16;
 	int num_samples_step 			= 8;
-	int num_samples_dsss 			= 8;
 	int num_steps_ssds 			= 2;
 	double sample_period_qp 		= .1;
 	double sample_period_first 		= .001;
@@ -20,8 +19,7 @@ int main() {
 	// ----------------------
 	MPCParameters mpc_parameters;
 	mpc_parameters.num_samples_horizon    		= num_samples_horizon;
-	mpc_parameters.num_samples_step       		= std::min(num_samples_step, num_samples_horizon);
-	mpc_parameters.num_samples_dsss       		= std::min(num_samples_dsss, num_samples_horizon);
+	mpc_parameters.period_dsss       		= 0.8;
 	mpc_parameters.num_steps_ssds         		= std::min(num_steps_ssds, num_samples_horizon);
 	mpc_parameters.period_qpsample        		= sample_period_qp;
 	mpc_parameters.period_recomputation       		= sample_period_first;

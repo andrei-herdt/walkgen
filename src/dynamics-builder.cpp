@@ -651,8 +651,8 @@ void DynamicsBuilder::ComputeDiscreteStateMatDecoupled(CommonMatrixType &d_input
 	d_state_mat(1, 1) = exp(eigenval_vec_[1] * sample_period);
 
 	Matrix2D expm1_state_mat = Matrix2D::Zero();
-	expm1_state_mat(0, 0) = expm1(eigenval_vec_[0] * sample_period);
-	expm1_state_mat(1, 1) = expm1(eigenval_vec_[1] * sample_period);
+	expm1_state_mat(0, 0) = exp(eigenval_vec_[0] * sample_period) - 1.;
+	expm1_state_mat(1, 1) = exp(eigenval_vec_[1] * sample_period) - 1.;
 
 	d_input_mat.noalias() = dyn_mat.c_state_mat_inv * expm1_state_mat * dyn_mat.c_input_mat;
 

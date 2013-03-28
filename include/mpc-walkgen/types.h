@@ -15,9 +15,9 @@ inline double round( double d )
 //
 // Constants
 //
-const static double kEps = 1e-9;
-const static double kGravity = 9.81;
-const static double kInf = 1e10;
+const static double kEps 		= 1e-9;
+const static double kGravity 	= 9.81;
+const static double kInf 		= 1e10;
 
 //
 // Enums:
@@ -46,7 +46,7 @@ enum Axis { X, Y, Z, Yaw };
 
 enum SystemOrder { FIRST_ORDER = 1, SECOND_ORDER = 2, THIRD_ORDER = 3 };
 
-enum Mode { INITIAL, WALK, STOP};
+enum ModeType { INITIAL, WALK_START, WALK, STOP };
 
 enum Formulation {
 	STANDARD = 0,			//State is directly the state of the particle
@@ -70,6 +70,14 @@ typedef unsigned int uint;
 //
 // Data structures:
 //
+struct WalkingMode{
+	ModeType type;
+
+	double start_time;
+
+	WalkingMode();
+};
+
 struct Frame{
 	CommonVectorType x, y, yaw;
 
@@ -80,6 +88,9 @@ struct Frame{
 
 struct Reference{
 	Frame global, local;
+
+	Vector3D init;
+	Vector3D offset_ss, offset_ds;
 
 	Reference();
 
@@ -143,7 +154,8 @@ struct MPC_WALKGEN_API Penalties{
 	int active_mode;
 	bool is_initial_mode;
 
-	bool online;
+	bool dcop_online;
+	bool cop_online;
 
 	void SetCoefficients(Reference &ref);
 
@@ -231,7 +243,7 @@ struct MPC_WALKGEN_API MPCParameters {
 	bool is_terminal_constr;			// Turns on terminal constraints
 	bool problem_dumping;				// Optimization program is written to file before being solved
 
-	Mode walking_mode;	//TODO: Replace this.
+	WalkingMode walking_mode;	//TODO: Replace this.
 
 	SystemOrder dynamics_order;
 

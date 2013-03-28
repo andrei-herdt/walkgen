@@ -115,10 +115,10 @@ private:
 	std::vector<CommonMatrixType> v_trans_ref_mat_vec_;
 
 
-	std::vector<CommonMatrixType> contr_val_pen_mat_vec_;
-	std::vector<CommonMatrixType> contr_mov_mat_vec_;
-	std::vector<CommonMatrixType> contr_mov_mat_tr_vec_;
-	std::vector<CommonMatrixType> contr_mov_pen_mat_vec_;
+	std::vector<CommonMatrixType> cop_pen_mat_vec_;
+	std::vector<CommonMatrixType> dcop_mat_vec_;
+	std::vector<CommonMatrixType> dcop_mat_tr_vec_;
+	std::vector<CommonMatrixType> dcop_pen_mat_vec_;
 
 	std::vector<CommonMatrixType> cp_fp_pen_mat_vec_;
 	std::vector<CommonMatrixType> vel_pen_mat_vec_;

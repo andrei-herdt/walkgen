@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.984"
+    ComputedModelVersion    "1.991"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "f_legs"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Wed Mar 20 04:30:31 2013"
+  LastModifiedDate	  "Thu Mar 28 12:57:43 2013"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:984>"
+  ModelVersionFormat	  "1.%<AutoIncrement:991>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -732,7 +732,7 @@ Model {
 	  SystemSampleTime	  "0.005"
 	  RTWSystemCode		  "Auto"
 	  FunctionWithSeparateData off
-	  MaskPromptString	  "Length of horizon [num. samples]|Num. samples first fine period|Num. samples first coarse period|Position penalty|Velocity penalty|CoP penalty|CP penalty|CP centering penalty|Control moves penalty|First control move penalty|Second control move penalties|SS period |Length of initial double support phase|Steps before halt|Sampling period [s]|Intermediate sampling period [s]|Time between recomputations [s]|Actuator sampling period [s]|Security margin [m]|Max number of working set recomputations|Dynamics order|Debug mode|PID mode|Closed loop|Inequality constraints|Formulation (0 standard, 1 decoupled modes)|Dump problems|Terminal constraints|Solver (0 QL, 1 QPOases, 2 LSSOL)|Force threshold for DS phase|Foot placement planning period [s]|Initial CoM height"
+	  MaskPromptString	  "Length of horizon [num. samples]|Num. samples first fine period|Num. samples first coarse period|Position penalty|Velocity penalty|CoP penalty|CP penalty|CP centering penalty|First control move penalty|Second control move penalties|Control moves penalty|SS period |Length of initial double support phase|Steps before halt|Sampling period [s]|Intermediate sampling period [s]|Time between recomputations [s]|Actuator sampling period [s]|Security margin [m]|Max number of working set recomputations|Dynamics order|Debug mode|PID mode|Closed loop|Inequality constraints|Formulation (0 standard, 1 decoupled modes)|Dump problems|Terminal constraints|Solver (0 QL, 1 QPOases, 2 LSSOL)|Force threshold for DS phase|Foot placement planning period [s]|Initial CoM height"
 	  MaskStyleString	  "edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit,edit"
 	  MaskTunableValueString  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
 	  MaskCallbackString	  "|||||||||||||||||||||||||||||||"
@@ -740,17 +740,17 @@ Model {
 	  MaskVisibilityString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
 	  MaskToolTipString	  "on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on,on"
 	  MaskVarAliasString	  ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
-	  MaskVariables		  "num_samples_horizon=@1;num_samples_first_fine_period=@2;num_samples_first_per=@3;pos_weight=@4;vel_weight=@5;cop_weight=@6;cp_weight=@7;cp_centering_pen=@8;contr_moves_pen=@9;first_contr_move_pen=@10;second_contr_moves=@11;period_ss=@12;period_dsss=@13;num_steps_ssds=@14;period_qpsample=@15;period_intermed_samples=@16;period_mpcsample=@17;period_actsample=@18;security_margin=@19;num_wsrec=@20;dynamics_order=@21;is_debug_mode=@22;is_pid_mode=@23;is_closed_loop=@24;is_ineq_constraints=@25;formulation=@26;dump_problems=@27;is_terminal_constr=@28;solver=@29;ds_force_thresh=@30;ffoot_plan_period=@31;init_com_height=@32;"
+	  MaskVariables		  "num_samples_horizon=@1;num_samples_first_fine_period=@2;num_samples_first_per=@3;pos_weight=@4;vel_weight=@5;cop_weight=@6;cp_weight=@7;cp_centering_pen=@8;first_contr_move_pen=@9;second_contr_moves=@10;contr_moves_pen=@11;period_ss=@12;period_dsss=@13;num_steps_ssds=@14;period_qpsample=@15;period_intermed_samples=@16;period_mpcsample=@17;period_actsample=@18;security_margin=@19;num_wsrec=@20;dynamics_order=@21;is_debug_mode=@22;is_pid_mode=@23;is_closed_loop=@24;is_ineq_constraints=@25;formulation=@26;dump_problems=@27;is_terminal_constr=@28;solver=@29;ds_force_thresh=@30;ffoot_plan_period=@31;init_com_height=@32;"
 	  MaskIconFrame		  on
 	  MaskIconOpaque	  on
 	  MaskIconRotate	  "none"
 	  MaskIconUnits		  "autoscale"
-	  MaskValueString	  "16|4|5|[0, 0]|[0, 0]|[.1, .1]|[0., 0.]|[1, 1]|[0, 0]|0.1|0.05|0.7|1.6|2|0.1|0.02|0.005|0.005|0.03|100|2|1|0|0|1|1|0|0|0|100|0.4|0"
+	  MaskValueString	  "16|4|5|[0, 0]|[0, 0]|[.1, .1]|[1., 1.]|[0, 0]|0.1|0.1|[0.1, 0.1]|0.7|1.6|2|0.1|0.02|0.005|0.005|0.01|100|2|1|0|0|1|1|0|0|0|100|0.4|0"
 	  MaskTabNameString	  ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
 	  System {
 	    Name		    "Atomic Walkgen"
 	    Location		    [844, 52, 1879, 875]
-	    Open		    on
+	    Open		    off
 	    ModelBrowserVisibility  off
 	    ModelBrowserWidth	    200
 	    ScreenColor		    "white"
@@ -818,7 +818,7 @@ Model {
 	      BlockType		      BusCreator
 	      Name		      "Bus\nCreator2"
 	      Ports		      [3, 1]
-	      Position		      [490, 176, 495, 214]
+	      Position		      [490, 201, 495, 239]
 	      ShowName		      off
 	      Inputs		      "3"
 	      DisplayOption	      "bar"
@@ -1044,7 +1044,7 @@ Model {
 	    Block {
 	      BlockType		      "S-Function"
 	      Name		      "S-Function"
-	      Ports		      [15, 19]
+	      Ports		      [15, 20]
 	      Position		      [285, 146, 370, 804]
 	      FunctionName	      "walkgen_sfun"
 	      Parameters	      "num_samples_horizon, period_ss, period_dsss, num_steps_ssds, period_qpsample, period_mpcsample, period_actsample, security_margin, num_wsrec, dynamics_order, is_debug_mode, pos_weight, vel_weight, cop_weight, cp_weight, contr_moves_pen, is_pid_mode, is_closed_loop, is_ineq_constraints, formulation, dump_problems, is_terminal_constr, solver, first_contr_move_pen, ds_force_thresh, ffoot_plan_period, init_com_height, cp_centering_pen, num_samples_first_per, period_intermed_samples, num_samples_first_fine_period, second_contr_moves"
@@ -1162,6 +1162,12 @@ Model {
 		RTWStorageClass		"Auto"
 		DataLoggingNameMode	"SignalName"
 	      }
+	      Port {
+		PortNumber		20
+		Name			"cp_ref"
+		RTWStorageClass		"Auto"
+		DataLoggingNameMode	"SignalName"
+	      }
 	    }
 	    Block {
 	      BlockType		      Scope
@@ -1256,9 +1262,31 @@ Model {
 	      SampleTime	      "0"
 	    }
 	    Block {
+	      BlockType		      Scope
+	      Name		      "Scope5"
+	      Ports		      [1]
+	      Position		      [450, 745, 480, 775]
+	      NamePlacement	      "alternate"
+	      ShowName		      off
+	      Floating		      off
+	      Location		      [79, 53, 1595, 904]
+	      Open		      off
+	      NumInputPorts	      "1"
+	      List {
+		ListType		AxesTitles
+		axes1			"%<SignalLabel>"
+	      }
+	      TimeRange		      "3"
+	      YMin		      "-12"
+	      YMax		      "2"
+	      SaveName		      "ScopeData4"
+	      DataFormat	      "StructureWithTime"
+	      SampleTime	      "0"
+	    }
+	    Block {
 	      BlockType		      ToWorkspace
 	      Name		      "To Workspace1"
-	      Position		      [480, 675, 555, 695]
+	      Position		      [480, 630, 555, 650]
 	      ShowName		      off
 	      VariableName	      "com_control"
 	      MaxDataPoints	      "inf"
@@ -1268,7 +1296,7 @@ Model {
 	    Block {
 	      BlockType		      ToWorkspace
 	      Name		      "To Workspace10"
-	      Position		      [480, 535, 555, 555]
+	      Position		      [480, 510, 555, 530]
 	      ShowName		      off
 	      VariableName	      "com_prw"
 	      MaxDataPoints	      "inf"
@@ -1278,7 +1306,7 @@ Model {
 	    Block {
 	      BlockType		      ToWorkspace
 	      Name		      "To Workspace11"
-	      Position		      [480, 570, 555, 590]
+	      Position		      [480, 540, 555, 560]
 	      ShowName		      off
 	      VariableName	      "cop_prw"
 	      MaxDataPoints	      "inf"
@@ -1288,7 +1316,7 @@ Model {
 	    Block {
 	      BlockType		      ToWorkspace
 	      Name		      "To Workspace12"
-	      Position		      [480, 605, 555, 625]
+	      Position		      [480, 570, 555, 590]
 	      ShowName		      off
 	      VariableName	      "support"
 	      MaxDataPoints	      "inf"
@@ -1298,7 +1326,7 @@ Model {
 	    Block {
 	      BlockType		      ToWorkspace
 	      Name		      "To Workspace13"
-	      Position		      [480, 640, 555, 660]
+	      Position		      [480, 600, 555, 620]
 	      ShowName		      off
 	      VariableName	      "resolution_data"
 	      MaxDataPoints	      "inf"
@@ -1348,7 +1376,7 @@ Model {
 	    Block {
 	      BlockType		      ToWorkspace
 	      Name		      "To Workspace2"
-	      Position		      [480, 710, 555, 730]
+	      Position		      [480, 660, 555, 680]
 	      ShowName		      off
 	      VariableName	      "cp_prw"
 	      MaxDataPoints	      "inf"
@@ -1358,7 +1386,7 @@ Model {
 	    Block {
 	      BlockType		      ToWorkspace
 	      Name		      "To Workspace3"
-	      Position		      [480, 745, 555, 765]
+	      Position		      [480, 690, 555, 710]
 	      ShowName		      off
 	      VariableName	      "cur_state"
 	      MaxDataPoints	      "inf"
@@ -1368,7 +1396,7 @@ Model {
 	    Block {
 	      BlockType		      ToWorkspace
 	      Name		      "To Workspace4"
-	      Position		      [480, 780, 555, 800]
+	      Position		      [480, 720, 555, 740]
 	      ShowName		      off
 	      VariableName	      "sim_parameters"
 	      MaxDataPoints	      "inf"
@@ -1378,7 +1406,7 @@ Model {
 	    Block {
 	      BlockType		      ToWorkspace
 	      Name		      "To Workspace9"
-	      Position		      [480, 500, 555, 520]
+	      Position		      [480, 480, 555, 500]
 	      ShowName		      off
 	      VariableName	      "next_foot"
 	      MaxDataPoints	      "inf"
@@ -1421,7 +1449,7 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "S-Function"
 	      SrcPort		      4
-	      Points		      [0, 5]
+	      Points		      [0, -10]
 	      DstBlock		      "Bus\nCreator"
 	      DstPort		      2
 	    }
@@ -1439,6 +1467,7 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "S-Function"
 	      SrcPort		      9
+	      Points		      [0, 10]
 	      DstBlock		      "Bus\nCreator4"
 	      DstPort		      2
 	    }
@@ -1447,7 +1476,7 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "Bus\nCreator2"
 	      SrcPort		      1
-	      Points		      [60, 0; 0, 65]
+	      Points		      [60, 0; 0, 40]
 	      DstBlock		      "Bus\nCreator"
 	      DstPort		      1
 	    }
@@ -1500,6 +1529,7 @@ Model {
 	      Labels		      [0, 0]
 	      SrcBlock		      "S-Function"
 	      SrcPort		      6
+	      Points		      [0, -5]
 	      DstBlock		      "Bus\nCreator3"
 	      DstPort		      2
 	    }
@@ -1823,6 +1853,14 @@ Model {
 	      DstBlock		      "S-Function"
 	      DstPort		      15
 	    }
+	    Line {
+	      Name		      "cp_ref"
+	      Labels		      [0, 0]
+	      SrcBlock		      "S-Function"
+	      SrcPort		      20
+	      DstBlock		      "Scope5"
+	      DstPort		      1
+	    }
 	  }
 	}
 	Block {
@@ -1916,7 +1954,7 @@ Model {
 	      ShowName		      off
 	      FontName		      "Arial"
 	      FontSize		      8
-	      Value		      "[0.0, 0.1, 0., 0.00]"
+	      Value		      "[0.0, 0.2, 0., 0.00]"
 	      OutDataType	      "sfix(16)"
 	      OutScaling	      "2^0"
 	    }
@@ -3041,7 +3079,7 @@ Model {
 	}
 	Block {
 	  BlockType		  Constant
-	  Name			  "gains"
+	  Name			  "dCoP gains"
 	  Position		  [60, 678, 120, 702]
 	  Value			  "[0, 0, 0]"
 	  OutDataType		  "sfix(16)"
@@ -3051,7 +3089,7 @@ Model {
 	  BlockType		  Constant
 	  Name			  "perturbation"
 	  Position		  [40, 853, 250, 877]
-	  Value			  "[4.1, 4.106, 0, 0, 0, 0.1, 0, 0]"
+	  Value			  "[4.1, 4.106, 0, 0, 0, 0, 0, 0]"
 	  OutDataType		  "sfix(16)"
 	  OutScaling		  "2^0"
 	}
@@ -3216,7 +3254,7 @@ Model {
 	  DstPort		  1
 	}
 	Line {
-	  SrcBlock		  "gains"
+	  SrcBlock		  "dCoP gains"
 	  SrcPort		  1
 	  DstBlock		  "Atomic Walkgen"
 	  DstPort		  4
