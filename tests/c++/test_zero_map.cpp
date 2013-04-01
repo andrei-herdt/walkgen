@@ -129,10 +129,13 @@ int main() {
 	walk.SetVelReference(0.1, 0., 0.);
 	int num_iterations = 0;
 
+	walk.clock().GetFrequency(1000);
+	walk.clock().ReserveMemory(20, 2000);
 	for (; curr_time < 10.; curr_time += sample_period_act) {
                 walk.SetCPReference(0., 0., 0., 0.0145);
 		const MPCSolution &solution = walk.Go(curr_time);
 		num_iterations++;
+		walk.clock().ResetLocal();
 	}
 
 	// Compare final com position:

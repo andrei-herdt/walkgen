@@ -168,7 +168,9 @@ const MPCSolution &Walkgen::Go(double time){
 		solver_->Solve(solution_, mpc_parameters_.warmstart, mpc_parameters_.solver.analysis);
 		//clock_.StopCounter(solver_counter);
 
+		//int traj_counter = clock_.StartCounter();
 		GenerateTrajectories();
+		//clock_.StopCounter(traj_counter);
 
 		// Store parts of the solution:
 		// ----------------------------
@@ -241,7 +243,7 @@ void Walkgen::BuildProblem() {
 	double omega = sqrt(kGravity / robot_.com()->state().z[0]); 
 	double cop_center_dis_ss = 0.;//0.015;
 	cp_ref_.offset_ss[Y] = (robot_data_.left_foot.position[Y] - robot_data_.right_foot.position[Y] - 2. * cop_center_dis_ss)
-					/ (exp(omega * (mpc_parameters_.period_ss + mpc_parameters_.period_trans_ds())) + 1.);
+							/ (exp(omega * (mpc_parameters_.period_ss + mpc_parameters_.period_trans_ds())) + 1.);
 	if (mpc_parameters_.walking_mode.type == INITIAL) {
 		cp_ref_.init[X] = robot_data_.com[X];
 		cp_ref_.init[Y] = robot_data_.com[Y];
@@ -298,6 +300,7 @@ void Walkgen::BuildProblem() {
 	builder_->BuildGlobalVelocityReference(solution_);
 
 	builder_->BuildProblem(solution_);
+
 }
 
 void Walkgen::GenerateTrajectories() {

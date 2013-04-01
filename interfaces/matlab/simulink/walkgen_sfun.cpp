@@ -389,9 +389,9 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 	cop[X] = walk->output().cop.x;
 	cop[Y] = walk->output().cop.y;
 
+	double omega = sqrt(kGravity / robot->com()->state().z[POSITION]);
 	// Comput gains
 	/*
-	double omega = sqrt(kGravity / robot->com()->state().z[POSITION]);
 	double cp_x = robot->com()->state().x[POSITION] + 1. / omega * robot->com()->state().x[VELOCITY];
 	double cp_y = robot->com()->state().y[POSITION] + 1. / omega * robot->com()->state().y[VELOCITY];
 	double pd_x = 0.;

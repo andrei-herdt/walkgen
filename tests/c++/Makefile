@@ -15,6 +15,7 @@ IFLAGS      =  -I. \
 
 TEST_EXES = 	walk${EXE} \
 		test_zero_map${EXE} \
+		test_const_map${EXE} \
 		measure_time${EXE} \
 		dynamics_test${EXE}
 
@@ -28,6 +29,9 @@ walk${EXE}: walk.${OBJEXT} ${SRC_DIR}libmpc-walkgen.${LIBEXT}
 	${CPP} ${DEF_TARGET} ${CPPFLAGS} $< ${SRC_DIR}libmpc-walkgen.${LIBEXT} ${THREAD_LIB} ${QPOASES_LIB} ${QLD_LIB} ${BLAS_LIB} ${LAPACK_LIB}
 
 test_zero_map${EXE}: test_zero_map.${OBJEXT} ${SRC_DIR}libmpc-walkgen.${LIBEXT}
+	${CPP} ${DEF_TARGET} ${CPPFLAGS} $< ${SRC_DIR}libmpc-walkgen.${LIBEXT} ${THREAD_LIB} ${QPOASES_LIB} ${QLD_LIB} ${BLAS_LIB} ${LAPACK_LIB}
+
+test_const_map${EXE}: test_const_map.${OBJEXT} ${SRC_DIR}libmpc-walkgen.${LIBEXT}
 	${CPP} ${DEF_TARGET} ${CPPFLAGS} $< ${SRC_DIR}libmpc-walkgen.${LIBEXT} ${THREAD_LIB} ${QPOASES_LIB} ${QLD_LIB} ${BLAS_LIB} ${LAPACK_LIB}
 
 measure_time${EXE}: measure_time.${OBJEXT} ${SRC_DIR}libmpc-walkgen.${LIBEXT}

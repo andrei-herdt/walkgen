@@ -31,7 +31,7 @@ int main() {
 	mpc_parameters.period_actsample       		= sample_period_act;
 	mpc_parameters.period_ss			= 0.7;
 	mpc_parameters.warmstart           		= false;
-	mpc_parameters.interpolate_whole_horizon    	= true;
+	mpc_parameters.interpolate_whole_horizon    	= false;
 	mpc_parameters.solver.analysis              	= false;
 	mpc_parameters.problem_dumping		      	= false;
 	mpc_parameters.solver.name                  	= QLD;
@@ -135,75 +135,24 @@ int main() {
 
 	walk.clock().ResetLocal();
 	for (; curr_time < 10.; curr_time += sample_period_act) {
-                walk.SetCPReference(0., 0., 0., 0.0145);
-		int online_timer = walk.clock().StartCounter();
-		//std::cout << std::endl;
-		//std::cout << std::endl;
-		//std::cout << std::endl;
-		//std::cout<< "curr_time: " << curr_time << std::endl;
-		//std::cout << "--------------------" << std::endl;
+		walk.SetCPReference(0., 0., 0., 0.0145);
+
 		const MPCSolution &solution = walk.Go(curr_time);
-		//walk.solver()->DumpMatrices(curr_time, "dat");
-		
-		//Debug::Cout("com_prw.pos.x", solution.com_prw.pos.x_vec);
-		//Debug::Cout("com_prw.vel.x", solution.com_prw.vel.x_vec);
-		//std::cout << "com_prw.vel: " << solution.com_prw.vel.x_vec.transpose() << std::endl;
-		
-		//std::cout << "com_prw.cp.x: " << solution.com_prw.cp.x_vec.transpose() << std::endl;
-		//std::cout << "com_prw.cp.x: " << solution.com_prw.cp.x_vec.transpose() << std::endl;
-	 	
-		//std::cout << std::endl;
-		//std::cout << "com_prw.control.x_vec: " << solution.com_prw.control.x_vec.transpose() << std::endl;
-	 	//std::cout << std::endl;
-		//Debug::Cout("solution.qp_solution_vec: ", solution.qp_solution_vec);
-		//Debug::Cout("com_prw.control.y_vec", solution.com_prw.control.y_vec);
-	 	//std::cout << std::endl;
-		//std::cout << "com_act.pos.x: " << walk.output().com.x << "  com_act.vel.x: " << walk.output().com.dx << std::endl;
-		
-		//Debug::Cout("sampling_times_vec", solution.sampling_times_vec);
-		//Debug::WriteToDatFile("hessian", curr_time, walk.solver()->hessian_mat()());
-		//Debug::WriteToDatFile("gradient", curr_time, walk.solver()->gradient_vec()());
-		//walk.clock().StopLastCounter();
-		walk.clock().StopCounter(online_timer);
+
 		walk.clock().ResetLocal();
 		num_iterations++;
 	}
 
-
-
-	// Print total time:
-	int num_counters = walk.clock().GetNumTotalCounters();
-	double passed_time = 0.0;
-	std::cout << "Total [mus]: ----------------" << std::endl;
-	for (int counter = num_counters - 1; counter >= 1; counter--) {
-		passed_time = walk.clock().GetTotalTime(counter);
-		std::cout<<"num"<< counter <<": " << passed_time << "   ";
+	// Compare final com position:
+	// ---------------------------
+	double correct_x = 0.01;
+	double correct_y = 0.0471441;
+	if (fabs(walk.output().com.x - correct_x) > 10e-7 || fabs(walk.output().com.y - correct_y) > 10e-7) {
+		std::cout << "Wrong -- Final CoM position difference: " << fabs(walk.output().com.x - correct_x) <<
+				", " << fabs(walk.output().com.y - correct_y) <<std::endl;
+	} else {
+		std::cout << "Correct" << std::endl;
 	}
-	passed_time = walk.clock().GetTotalTime(0);
-	std::cout << "total: " << passed_time  << std::endl;
-
-	// Print mean time:
-	std::cout << "Mean [mus]: ----------------" << std::endl;
-	for (int counter = num_counters - 1; counter >= 1; counter--) {
-		passed_time = walk.clock().GetTotalTime(counter) / num_iterations;
-		std::cout<<"num"<< counter <<": " << passed_time << "   ";
-	}
-	passed_time = walk.clock().GetTotalTime(0) / num_iterations;
-	std::cout << "total: " << passed_time  << std::endl;
-
-	// Print max time:
-	std::cout << "Max [mus]: ----------------" << std::endl;
-	for (int counter = num_counters - 1; counter >= 1; counter--) {
-		passed_time = walk.clock().GetMaxTime(counter);
-		std::cout<<"num"<< counter <<": " << passed_time << "   ";
-	}
-	passed_time = walk.clock().GetMaxTime(0);
-	std::cout << "total: " << passed_time  << std::endl;
-
-	std::cout << "Final CoM position: " << walk.output().com.x <<
-			", " << walk.output().com.y <<std::endl;
-
-	Debug::Cout("Distribution of ticks: ", walk.clock().ticks_distr_vec());
 
 	return 0;
 }

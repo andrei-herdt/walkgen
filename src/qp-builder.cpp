@@ -312,11 +312,14 @@ void QPBuilder::PrecomputeObjective() {
 			// -------------
 			u_trans_v_mat_vec_[mat_num] = cp_dyn.input_mat_tr * cp_fp_pen_mat_vec_[mat_num].block(0, 0, ns_st, ns_st) * cp_dyn.input_mat.block(0, 0, ns_st, ns_st);
 			u_trans_v_mat_vec_[mat_num] -= cp_dyn.input_mat_tr * cp_fp_pen_mat_vec_[mat_num].block(0, 0, ns_st, ns_st);
+			tmp_mat2_.noalias() = u_trans_v_mat_vec_[mat_num] + select_variant_[mat_num];
+			u_trans_v_mat_vec_[mat_num] = input_map_mat_tr * tmp_mat2_;
 
 			v_trans_v_mat_vec_[mat_num] = cp_dyn.input_mat_tr.block(0, 0, ns_st, ns_st) * cp_fp_pen_mat_vec_[mat_num].block(0, 0, ns_st, ns_st) * cp_dyn.input_mat.block(0, 0, ns_st, ns_st);
 			v_trans_v_mat_vec_[mat_num] -= cp_dyn.input_mat_tr.block(0, 0, ns_st, ns_st) * cp_fp_pen_mat_vec_[mat_num].block(0, 0, ns_st, ns_st);
 			v_trans_v_mat_vec_[mat_num] -= cp_fp_pen_mat_vec_[mat_num].block(0, 0, ns_st, ns_st) * cp_dyn.input_mat.block(0, 0, ns_st, ns_st);
 			v_trans_v_mat_vec_[mat_num] += cp_fp_pen_mat_vec_[mat_num].block(0, 0, ns_st, ns_st);
+			v_trans_v_mat_vec_[mat_num] += select_variant_[mat_num].block(0, 0, ns_st, ns_st);
 
 			v_trans_vc_mat_vec_[mat_num] = cp_dyn.input_mat_tr.block(0, 0, ns_st, ns_st) * cp_fp_pen_mat_vec_[mat_num].block(0, 0, ns_st, ns_st) * cp_dyn.input_mat.block(0, 0, ns_st, ns_st);
 			v_trans_vc_mat_vec_[mat_num] -= cp_dyn.input_mat_tr.block(0, 0, ns_st, ns_st) * cp_fp_pen_mat_vec_[mat_num].block(0, 0, ns_st, ns_st);
@@ -327,12 +330,16 @@ void QPBuilder::PrecomputeObjective() {
 			v_trans_s_mat_vec_[mat_num] = cp_dyn.input_mat_tr.block(0, 0, ns_st, ns_st) * cp_fp_pen_mat_vec_[mat_num].block(0, 0, ns_st, ns_st) * tmp_mat_;
 			v_trans_s_mat_vec_[mat_num] -= cp_fp_pen_mat_vec_[mat_num].block(0, 0, ns_st, ns_st) * tmp_mat_;
 
-			u_trans_s_mat_vec_[mat_num] = cp_dyn.input_mat_tr * cp_fp_pen_mat_vec_[mat_num].block(0, 0, ns_st, ns_st) * tmp_mat_;
+			tmp_mat2_.noalias() = cp_dyn.input_mat_tr * cp_fp_pen_mat_vec_[mat_num].block(0, 0, ns_st, ns_st) * tmp_mat_;
+			u_trans_s_mat_vec_[mat_num] = input_map_mat_tr * tmp_mat2_;
 
-			u_trans_vc_mat_vec_[mat_num] = cp_dyn.input_mat_tr * cp_fp_pen_mat_vec_[mat_num].block(0, 0, ns_st, ns_st) * cp_dyn.input_mat.block(0, 0, ns_st, ns_st);
-			u_trans_vc_mat_vec_[mat_num] -= cp_dyn.input_mat_tr * cp_fp_pen_mat_vec_[mat_num].block(0, 0, ns_st, ns_st);
+			tmp_mat2_.noalias() = cp_dyn.input_mat_tr * cp_fp_pen_mat_vec_[mat_num].block(0, 0, ns_st, ns_st) * cp_dyn.input_mat.block(0, 0, ns_st, ns_st);
+			u_trans_vc_mat_vec_[mat_num] = input_map_mat_tr * tmp_mat2_;
+			tmp_mat2_.noalias() = cp_dyn.input_mat_tr * cp_fp_pen_mat_vec_[mat_num].block(0, 0, ns_st, ns_st);
+			u_trans_vc_mat_vec_[mat_num] -= input_map_mat_tr * tmp_mat2_;
 
-			u_trans_ref_mat_vec_[mat_num] = - cp_dyn.input_mat_tr * cp_fp_pen_mat_vec_[mat_num].block(0, 0, ns_st, ns_st);
+			tmp_mat2_.noalias() = - cp_dyn.input_mat_tr * cp_fp_pen_mat_vec_[mat_num].block(0, 0, ns_st, ns_st);
+			u_trans_ref_mat_vec_[mat_num] = input_map_mat_tr * tmp_mat2_;
 
 			v_trans_ref_mat_vec_[mat_num] = - cp_dyn.input_mat_tr.block(0, 0, ns_st, ns_st) * cp_fp_pen_mat_vec_[mat_num].block(0, 0, ns_st, ns_st);
 			v_trans_ref_mat_vec_[mat_num] += cp_fp_pen_mat_vec_[mat_num].block(0, 0, ns_st, ns_st);
@@ -365,7 +372,9 @@ void QPBuilder::BuildProblem(MPCSolution &solution) {
 	solver_->lv_bounds_vec().Reset(-kInf);
 	solver_->num_var(num_variables);
 
+	//int obj_counter = clock_->StartCounter();
 	BuildObjective(solution);
+	//clock_->StopCounter(obj_counter);
 
 	BuildEqualityConstraints(solution);
 
@@ -562,17 +571,22 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 		hessian.cholesky(chol);
 	}*/
 
+
+	// -----------------------------------------
+	// Most of computation time spent from here:
+	// -----------------------------------------
 	const LinearDynamics &dyn = robot_->com()->dynamics_qp_vec()[samples_left];
 	if (num_steps_previewed > 0) {
 		//tmp_mat_.noalias() = const_hessian_mat_[matrix_num].block(0, 0, num_samples, num_samples) * select_mats.sample_step;
-		tmp_mat2_ = select_variant_[mat_num] + u_trans_v_mat_vec_[mat_num];
+
+
 		//if (mpc_parameters_->penalties.dcop_online) {
 		//	tmp_mat2_ += dcop_mat_tr_vec_[mat_num].block(0, 0, num_samples + num_unst_modes, num_samples) * dcop_pen_mat_vec_[mat_num].block(0, 0, num_samples, num_samples) * dcop_mat_vec_[mat_num].block(0, 0, num_samples, num_samples);
 		//}
-		tmp_mat_.noalias() = tmp_mat2_ * select_mats.sample_step;
-		// Map input:
-		// ----------
-		tmp_mat_ = dyn.input_map_mat_tr * tmp_mat_;// TODO: Can be done in PrecomputeObjective
+
+
+		tmp_mat_.noalias() = u_trans_v_mat_vec_[mat_num] * select_mats.sample_step;
+
 
 		hessian_mat.AddTerm(tmp_mat_, 0, 2 * (ns_c + num_unst_modes));
 		hessian_mat.AddTerm(tmp_mat_, ns_c + num_unst_modes, 2*(ns_c + num_unst_modes) + num_steps_previewed);
@@ -580,7 +594,6 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 		if (!solver_->do_build_cholesky()) {
 			hessian_mat.AddTerm(tmp_mat_.transpose(), 2*(ns_c + num_unst_modes), 0);
 			hessian_mat.AddTerm(tmp_mat_.transpose(), 2*(ns_c + num_unst_modes) + num_steps_previewed, (ns_c + num_unst_modes));
-
 			// rotate the lower left block
 			// TODO(andrei): Rotation can be done before addition
 			// TODO: Unstable modes - Adapt rotation
@@ -589,12 +602,14 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 			//hessian().block(2 * num_samples, 0, 2 * num_steps_previewed, 2 * num_samples) = low_triang_mat;
 		}
 
-		//tmp_mat_.noalias() = select_mats.sample_step_trans * const_hessian_mat_[matrix_num].block(0, 0, num_samples, num_samples) * select_mats.sample_step;
-		tmp_mat2_ = select_variant_[mat_num].block(0, 0, ns_st, ns_st) + v_trans_v_mat_vec_[mat_num];
+			//tmp_mat_.noalias() = select_mats.sample_step_trans * const_hessian_mat_[matrix_num].block(0, 0, num_samples, num_samples) * select_mats.sample_step;
+
 		//if (mpc_parameters_->penalties.dcop_online) {
 		//	tmp_mat2_ += dcop_mat_tr_vec_[mat_num].block(0, 0, num_samples + num_unst_modes, num_samples) * dcop_pen_mat_vec_[mat_num].block(0, 0, num_samples, num_samples) * dcop_mat_vec_[mat_num].block(0, 0, num_samples, num_samples);
 		//}
-		tmp_mat_ = select_mats.sample_step_trans * tmp_mat2_ * select_mats.sample_step;
+
+		tmp_mat2_.noalias() = v_trans_v_mat_vec_[mat_num] * select_mats.sample_step;
+		tmp_mat_.noalias() = select_mats.sample_step_trans * tmp_mat2_;
 		hessian_mat.AddTerm(tmp_mat_, 2*(ns_c + num_unst_modes), 2*(ns_c + num_unst_modes));
 		hessian_mat.AddTerm(tmp_mat_, 2*(ns_c + num_unst_modes) + num_steps_previewed, 2*(ns_c + num_unst_modes) + num_steps_previewed);
 
@@ -605,7 +620,6 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 		//RTimesM(upp_triang_mat, rot_mat2);
 		//hessian().block(0, 2 * num_samples, 2 * num_samples, 2 * num_steps_previewed) = upp_triang_mat;
 
-
 	}
 
 	// Compute gains:
@@ -615,47 +629,50 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 	//double gain_cp = gains_mat(0,0) + gains_mat(0, 1) * 1. / sqrt(kGravity / com.z[0]);
 	//std::cout << "gain" << gain_cp << std::endl;
 
-	CommonVectorType objective_vec_x(ns_c + num_unst_modes),
+	CommonVectorType objective_tmp_vec_x(ns_st + num_unst_modes),
+			objective_tmp_vec_y(ns_st + num_unst_modes),
+			objective_vec_x(ns_c + num_unst_modes),
 			objective_vec_y(ns_c + num_unst_modes),
 			objective_vec(2 * (ns_c + num_unst_modes));//TODO: Make this member
 
 	tmp_mat2_ = state_variant_[mat_num];
-	objective_vec_x = tmp_mat2_ * state_x;
-	objective_vec_y = tmp_mat2_ * state_y;
+	objective_tmp_vec_x = tmp_mat2_ * state_x;
+	objective_tmp_vec_y = tmp_mat2_ * state_y;
 
 	tmp_mat2_ = select_variant_[mat_num];
 	if (mpc_parameters_->penalties.dcop_online) {
 		tmp_mat2_ += dcop_mat_tr_vec_[mat_num].block(0, 0, ns_st + num_unst_modes, ns_st) * dcop_pen_mat_vec_[mat_num].block(0, 0, ns_st, ns_st) * dcop_mat_vec_[mat_num].block(0, 0, ns_st, ns_st);
 	}
-	objective_vec_x += tmp_mat2_ * select_mats.sample_step_cx;
-	objective_vec_y += tmp_mat2_ * select_mats.sample_step_cy;
+	objective_tmp_vec_x += tmp_mat2_ * select_mats.sample_step_cx;
+	objective_tmp_vec_y += tmp_mat2_ * select_mats.sample_step_cy;
 
-	objective_vec_x += ref_variant_vel_[mat_num] * vel_ref_->global.x.head(ns_st);
-	objective_vec_y += ref_variant_vel_[mat_num] * vel_ref_->global.y.head(ns_st);
+	objective_tmp_vec_x += ref_variant_vel_[mat_num] * vel_ref_->global.x.head(ns_st);
+	objective_tmp_vec_y += ref_variant_vel_[mat_num] * vel_ref_->global.y.head(ns_st);
 
-	objective_vec_x += ref_variant_pos_[mat_num] * pos_ref_->global.x.head(ns_st);
-	objective_vec_y += ref_variant_pos_[mat_num] * pos_ref_->global.y.head(ns_st);
+	objective_tmp_vec_x += ref_variant_pos_[mat_num] * pos_ref_->global.x.head(ns_st);
+	objective_tmp_vec_y += ref_variant_pos_[mat_num] * pos_ref_->global.y.head(ns_st);
 
-	objective_vec_x += ref_variant_cp_[mat_num] * cp_ref_->global.x.head(ns_st);
-	objective_vec_y += ref_variant_cp_[mat_num] * cp_ref_->global.y.head(ns_st);
+	objective_tmp_vec_x += ref_variant_cp_[mat_num] * cp_ref_->global.x.head(ns_st);
+	objective_tmp_vec_y += ref_variant_cp_[mat_num] * cp_ref_->global.y.head(ns_st);
 
 	//double zx_cur = com.x(0) - com.z(0) / kGravity * com.x(2);
 	//double zy_cur = com.y(0) - com.z(0) / kGravity * com.y(2);
-	objective_vec_x += curr_cop_variant_[mat_num] * *last_des_cop_x_;//zx_cur;//
-	objective_vec_y += curr_cop_variant_[mat_num] * *last_des_cop_y_;//zy_cur;//
-
+	objective_tmp_vec_x += curr_cop_variant_[mat_num] * *last_des_cop_x_;//zx_cur;//
+	objective_tmp_vec_y += curr_cop_variant_[mat_num] * *last_des_cop_y_;//zy_cur;//
 
 	//Online adaptation of control move penalties:
 	//--------------------------------------------
+	/*
 	if (mpc_parameters_->penalties.dcop_online) {
 		// curr_cop_variant_ online:
 		// -------------------------
 		CommonVectorType e_vec = CommonVectorType::Zero(ns_st);
 		e_vec(0) = mpc_parameters_->penalties.first_contr_moves;
 		tmp_vec_ = - dcop_mat_tr_vec_[mat_num].block(0, 0, ns_st + num_unst_modes, ns_st) * e_vec;
-		objective_vec_x += tmp_vec_ * *last_des_cop_x_;//zx_cur;//
-		objective_vec_y += tmp_vec_ * *last_des_cop_y_;//zy_cur;//
+		objective_tmp_vec_x += tmp_vec_ * *last_des_cop_x_;//zx_cur;//
+		objective_tmp_vec_y += tmp_vec_ * *last_des_cop_y_;//zy_cur;//
 	}
+	*/
 
 	// Offset from the ankle to the support center for CoP centering:
 	// --------------------------------------------------------------
@@ -672,33 +689,46 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 
 		double pos_diff_x =  cp_ref_->init[X] - robot_->left_foot()->state().x(0);
 		double pos_diff_y = cp_ref_->init[Y] - robot_->left_foot()->state().y(0);
-		objective_vec_x -= pos_diff_x * cop_pen_mat_vec_[mat_num] * tmp_vec_;
-		objective_vec_y -= pos_diff_y * cop_pen_mat_vec_[mat_num] * tmp_vec_;
+		objective_tmp_vec_x -= pos_diff_x * cop_pen_mat_vec_[mat_num] * tmp_vec_;
+		objective_tmp_vec_y -= pos_diff_y * cop_pen_mat_vec_[mat_num] * tmp_vec_;
 	}
+
 
 	// Rotation independent part:
 	// --------------------------
 	if (num_steps_previewed > 0) {
-		tmp_vec_.noalias() = select_mats.sample_step_trans * objective_vec_x.head(ns_st);
+
+		tmp_vec_.noalias() = select_mats.sample_step_trans * objective_tmp_vec_x.head(ns_st);
 		solver_->objective_vec().Add(tmp_vec_, 2*(ns_c + num_unst_modes));
-		tmp_vec_.noalias() = select_mats.sample_step_trans * objective_vec_y.head(ns_st);
+		tmp_vec_.noalias() = select_mats.sample_step_trans * objective_tmp_vec_y.head(ns_st);
 		solver_->objective_vec().Add(tmp_vec_, 2*(ns_c + num_unst_modes) + num_steps_previewed);
 
-		tmp_vec_.noalias() = select_mats.sample_step_trans * v_trans_s_mat_vec_[mat_num] * state_x;
+		tmp_vec2_.noalias() = v_trans_s_mat_vec_[mat_num] * state_x;
+		tmp_vec_.noalias() = select_mats.sample_step_trans * tmp_vec2_;
 		solver_->objective_vec().Add(tmp_vec_, 2*(ns_c + num_unst_modes));
-		tmp_vec_.noalias() = select_mats.sample_step_trans * v_trans_s_mat_vec_[mat_num] * state_y;
+		tmp_vec2_.noalias() = v_trans_s_mat_vec_[mat_num] * state_y;
+		tmp_vec_.noalias() = select_mats.sample_step_trans * tmp_vec2_;
 		solver_->objective_vec().Add(tmp_vec_, 2*(ns_c + num_unst_modes) + num_steps_previewed);
 
-		tmp_vec_.noalias() = select_mats.sample_step_trans * v_trans_vc_mat_vec_[mat_num] * select_mats.sample_step_cx.block(0, 0, ns_st, 1);
+		tmp_vec2_.noalias() = v_trans_vc_mat_vec_[mat_num] * select_mats.sample_step_cx;
+		tmp_vec_.noalias() = select_mats.sample_step_trans * tmp_vec2_;
 		solver_->objective_vec().Add(tmp_vec_, 2*(ns_c + num_unst_modes));
-		tmp_vec_.noalias() = select_mats.sample_step_trans * v_trans_vc_mat_vec_[mat_num] * select_mats.sample_step_cy.block(0, 0, ns_st, 1);
+		tmp_vec2_.noalias() = v_trans_vc_mat_vec_[mat_num] * select_mats.sample_step_cy;
+		tmp_vec_.noalias() = select_mats.sample_step_trans * tmp_vec2_;
 		solver_->objective_vec().Add(tmp_vec_, 2*(ns_c + num_unst_modes) + num_steps_previewed);
 
-		tmp_vec_.noalias() = select_mats.sample_step_trans * v_trans_ref_mat_vec_[mat_num] * cp_ref_->local.x.head(ns_st);
+		tmp_vec2_.noalias() = v_trans_ref_mat_vec_[mat_num] * cp_ref_->local.x;
+		tmp_vec_.noalias() = select_mats.sample_step_trans * tmp_vec2_;
 		solver_->objective_vec().Add(tmp_vec_, 2*(ns_c + num_unst_modes));
-		tmp_vec_.noalias() = select_mats.sample_step_trans * v_trans_ref_mat_vec_[mat_num] * cp_ref_->local.y.head(ns_st);
+		tmp_vec2_.noalias() = v_trans_ref_mat_vec_[mat_num] * cp_ref_->local.y;
+		tmp_vec_.noalias() = select_mats.sample_step_trans * tmp_vec2_;
 		solver_->objective_vec().Add(tmp_vec_, 2*(ns_c + num_unst_modes) + num_steps_previewed);
 	}
+
+	// Map input:
+	// ----------
+	objective_vec_x = dyn.input_map_mat_tr * objective_tmp_vec_x;
+	objective_vec_y = dyn.input_map_mat_tr * objective_tmp_vec_y;
 
 	objective_vec_x += u_trans_vc_mat_vec_[mat_num] * select_mats.sample_step_cx.block(0, 0, ns_st, 1);
 	objective_vec_y += u_trans_vc_mat_vec_[mat_num] * select_mats.sample_step_cy.block(0, 0, ns_st, 1);
@@ -708,11 +738,6 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 
 	objective_vec_x += u_trans_ref_mat_vec_[mat_num] * cp_ref_->local.x.head(ns_st);
 	objective_vec_y += u_trans_ref_mat_vec_[mat_num] * cp_ref_->local.y.head(ns_st);
-
-	// Map input:
-	// ----------
-	objective_vec_x = dyn.input_map_mat_tr * objective_vec_x;
-	objective_vec_y = dyn.input_map_mat_tr * objective_vec_y;
 
 	objective_vec << objective_vec_x, objective_vec_y; //TODO: Unnecessary if rot_mat half the size
 	//gradient_vec = rot_mat * gradient_vec;//TODO: Use RTimesV
