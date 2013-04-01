@@ -717,10 +717,10 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 		tmp_vec_.noalias() = select_mats.sample_step_trans * tmp_vec2_;
 		solver_->objective_vec().Add(tmp_vec_, 2*(ns_c + num_unst_modes) + num_steps_previewed);
 
-		tmp_vec2_.noalias() = v_trans_ref_mat_vec_[mat_num] * cp_ref_->local.x;
+		tmp_vec2_.noalias() = v_trans_ref_mat_vec_[mat_num] * cp_ref_->local.x.head(ns_st);
 		tmp_vec_.noalias() = select_mats.sample_step_trans * tmp_vec2_;
 		solver_->objective_vec().Add(tmp_vec_, 2*(ns_c + num_unst_modes));
-		tmp_vec2_.noalias() = v_trans_ref_mat_vec_[mat_num] * cp_ref_->local.y;
+		tmp_vec2_.noalias() = v_trans_ref_mat_vec_[mat_num] * cp_ref_->local.y.head(ns_st);
 		tmp_vec_.noalias() = select_mats.sample_step_trans * tmp_vec2_;
 		solver_->objective_vec().Add(tmp_vec_, 2*(ns_c + num_unst_modes) + num_steps_previewed);
 	}
