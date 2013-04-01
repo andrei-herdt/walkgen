@@ -200,7 +200,8 @@ MPCParameters::MPCParameters()
 ,ffoot_plan_period(kInf)
 ,init_com_height(0.)
 ,num_samples_horizon_max(0)
-,num_samples_horizon(0)
+,num_samples_contr(0)
+,num_samples_state(0)
 ,num_samples_first_coarse_period(0)
 ,num_samples_first_fine_period(0)
 ,num_steps_ssds(0)
@@ -221,11 +222,22 @@ MPCParameters::MPCParameters()
 MPCParameters::~MPCParameters(){}
 
 int MPCParameters::GetMPCSamplesLeft(double first_sampling_period) const {
-	return static_cast<int> (round((period_qpsample - first_sampling_period) / period_recomputation));
+	//TODO: Not good to have it here/ No good condition
+	if (mapping == CONST_MAP) {
+			return 0;
+		} else {
+			return static_cast<int> (round((period_qpsample - first_sampling_period) / period_recomputation));
+		}
+
 }
 
-int MPCParameters::GetNumRecomputations() const {
-	return static_cast<int> (round(period_qpsample / period_recomputation) );
+int MPCParameters::GetNumDynamics() const {
+	//TODO: Not good to have it here/ No good condition
+	if (mapping == CONST_MAP) {
+		return 1;
+	} else {
+		return static_cast<int> (round(period_qpsample / period_recomputation));
+	}
 }
 
 int MPCParameters::num_samples_act() const {
@@ -458,22 +470,25 @@ void LinearDynamicsMatrices::SetZero(int state_dim, int input_dim, int output_di
 	ss_feedthrough_mat.setZero(output_dim, input_dim);
 }
 
-void LinearDynamics::SetZero(int state_dim, int input_dim, int output_dim, int num_samples, int stable_dim, int unstable_dim) {
-	pos.SetZero(state_dim, input_dim, output_dim, num_samples, stable_dim, unstable_dim);
-	vel.SetZero(state_dim, input_dim, output_dim, num_samples, stable_dim, unstable_dim);
-	acc.SetZero(state_dim, input_dim, output_dim, num_samples, stable_dim, unstable_dim);
-	jerk.SetZero(state_dim, input_dim, output_dim, num_samples, stable_dim, unstable_dim);
-	cop.SetZero(state_dim, input_dim, output_dim, num_samples, stable_dim, unstable_dim);
-	cp.SetZero(state_dim, input_dim, output_dim, num_samples, stable_dim, unstable_dim);
+void LinearDynamics::SetZero(int state_dim, int input_dim, int output_dim, int num_samples_state, int num_samples_contr, int stable_dim, int unstable_dim) {
+	pos.SetZero(state_dim, input_dim, output_dim, num_samples_state, stable_dim, unstable_dim);
+	vel.SetZero(state_dim, input_dim, output_dim, num_samples_state, stable_dim, unstable_dim);
+	acc.SetZero(state_dim, input_dim, output_dim, num_samples_state, stable_dim, unstable_dim);
+	jerk.SetZero(state_dim, input_dim, output_dim, num_samples_state, stable_dim, unstable_dim);
+	cop.SetZero(state_dim, input_dim, output_dim, num_samples_state, stable_dim, unstable_dim);
+	cp.SetZero(state_dim, input_dim, output_dim, num_samples_state, stable_dim, unstable_dim);
 
-	cont_ss.SetZero(state_dim, input_dim, output_dim, num_samples, stable_dim, unstable_dim);
-	discr_ss.SetZero(state_dim, input_dim, output_dim, num_samples, stable_dim, unstable_dim);
+	cont_ss.SetZero(state_dim, input_dim, output_dim, num_samples_state, stable_dim, unstable_dim);
+	discr_ss.SetZero(state_dim, input_dim, output_dim, num_samples_state, stable_dim, unstable_dim);
 
-	d_state_mat_vec.resize(num_samples, CommonMatrixType::Zero(state_dim, state_dim));
-	d_state_mat_pow_vec.resize(num_samples, CommonMatrixType::Zero(state_dim, state_dim));
-	rev_matrix_prod_vec.resize(num_samples, CommonMatrixType::Zero(state_dim, state_dim));
-	d_state_mat_pow2_vec.resize(num_samples, CommonMatrixType::Zero(state_dim, state_dim));
-	d_input_mat_vec.resize(num_samples, CommonMatrixType::Zero(state_dim, input_dim));
+	d_state_mat_vec.resize(num_samples_state, CommonMatrixType::Zero(state_dim, state_dim));
+	d_state_mat_pow_vec.resize(num_samples_state, CommonMatrixType::Zero(state_dim, state_dim));
+	rev_matrix_prod_vec.resize(num_samples_state, CommonMatrixType::Zero(state_dim, state_dim));
+	d_state_mat_pow2_vec.resize(num_samples_state, CommonMatrixType::Zero(state_dim, state_dim));
+	d_input_mat_vec.resize(num_samples_state, CommonMatrixType::Zero(state_dim, input_dim));
+
+	input_map_mat.setZero(num_samples_state, num_samples_contr);
+	input_map_mat_tr.setZero(num_samples_contr, num_samples_state);
 }
 
 

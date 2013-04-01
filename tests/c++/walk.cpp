@@ -20,6 +20,8 @@ int main() {
 	mpc_parameters.num_samples_horizon_max    	= num_samples_horizon_max;
 	mpc_parameters.num_samples_first_coarse_period	= 5;
 	mpc_parameters.num_samples_first_fine_period	= 4;
+	mpc_parameters.num_samples_state		= 160;
+	mpc_parameters.num_samples_contr		= num_samples_horizon_max;
 	mpc_parameters.period_dsss       		= 0.8;
 	mpc_parameters.num_steps_ssds         		= std::min(num_steps_ssds, num_samples_horizon_max);
 	mpc_parameters.num_steps_max			= 3;
@@ -36,6 +38,7 @@ int main() {
 	mpc_parameters.solver.num_wsrec             	= 100;
 	mpc_parameters.dynamics_order               	= SECOND_ORDER;
 	mpc_parameters.formulation		      	= DECOUPLED_MODES;
+	mpc_parameters.mapping			      	= CONST_MAP;
 	mpc_parameters.is_pid_mode		      	= false;
 	mpc_parameters.is_terminal_constr	      	= false;
 	mpc_parameters.is_ineq_constr			= false;
@@ -57,7 +60,7 @@ int main() {
 	mpc_parameters.penalties.cp_fp[1] 		= 0.;
 	mpc_parameters.penalties.contr_moves[1] 	= 0.;
 
-	mpc_parameters.init_com_height 			= 0.94;
+	mpc_parameters.init_com_height 			= 0;
 
 	// Robot parameters:
 	// -----------------
@@ -132,7 +135,7 @@ int main() {
 	walk.clock().ReserveMemory(20, 1000);
 
 	walk.clock().ResetLocal();
-	for (; curr_time < .205; curr_time += sample_period_act) {
+	for (; curr_time < 2.; curr_time += sample_period_act) {
                 walk.SetCPReference(0., 0., 0., 0.0145);
 		int online_timer = walk.clock().StartCounter();
 		//std::cout << std::endl;

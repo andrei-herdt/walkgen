@@ -100,7 +100,7 @@ int main() {
 
 		// Response of the system's unstable mode to a constant zmp:
 		// ---------------------------------------------------------
-		CommonVectorType contr_vec = CommonVectorType::Ones(parameters.num_samples_horizon) * robot_data.left_foot.position[Y];
+		CommonVectorType contr_vec = CommonVectorType::Ones(parameters.num_samples_contr) * robot_data.left_foot.position[Y];
 		int mat_num = parameters.GetMPCSamplesLeft(solution.first_coarse_period);
 		LinearDynamicsMatrices dyn_mat = robot->com()->dynamics_qp_vec()[mat_num].cp;
 		CommonVectorType state = CommonVectorType::Zero(2);
@@ -160,7 +160,7 @@ int main() {
 
 		// Response of the system's unstable mode to a constant zmp:
 		// ---------------------------------------------------------
-		CommonVectorType contr_vec = CommonVectorType::Ones(parameters.num_samples_horizon + 1) * robot_data.left_foot.position[Y];
+		CommonVectorType contr_vec = CommonVectorType::Ones(parameters.num_samples_contr + 1) * robot_data.left_foot.position[Y];
 		int mat_num = parameters.GetMPCSamplesLeft(solution.first_coarse_period);
 		LinearDynamicsMatrices dyn_mat = robot->com()->dynamics_qp_vec()[mat_num].cp;
 		Matrix2D state_trans_mat = Matrix2D::Zero();

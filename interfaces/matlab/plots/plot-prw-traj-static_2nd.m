@@ -1,19 +1,20 @@
 figure;
 %% Parameters
-num_samples = sim_parameters.signals.values(1,1);
 di = 1;
 
 %% Plot previewed
 for i = 1:di:length(com_prw.time)% - di
+	ns_c = sim_parameters.signals.values(i,1);
+	ns_st = sim_parameters.signals.values(i,2);
     subplot(1,2,1);
-    lines_prw_com_x = plot(com_prw.signals.values(i, 1:num_samples), com_prw.signals.values(i, num_samples+1:2*num_samples),'red');
-    lines_prw_cp_x = plot(cp_prw.signals.values(i, 1:num_samples), cp_prw.signals.values(i, num_samples+1:2*num_samples),'magenta');
-    lines_com_control_x = stairs(com_control.signals.values(i, 1:num_samples), com_control.signals.values(i, num_samples+1:2*num_samples),'k');
+    lines_prw_com_x = plot(com_prw.signals.values(i, 1:ns_st), com_prw.signals.values(i, ns_st+1:2*ns_st),'red');
+    lines_prw_cp_x = plot(cp_prw.signals.values(i, 1:ns_st), cp_prw.signals.values(i, ns_st+1:2*ns_st),'magenta');
+    lines_com_cop_x = stairs(cop_prw.signals.values(i, 1:ns_st), cop_prw.signals.values(i, ns_st+1:2*ns_st),'k');
     hold on;
     subplot(1,2,2);
-    lines_prw_com_y = plot(com_prw.signals.values(i, 1:num_samples), com_prw.signals.values(i, 2*num_samples+1:3*num_samples),'red');
-    lines_prw_cp_y = plot(cp_prw.signals.values(i, 1:num_samples), cp_prw.signals.values(i, 2*num_samples+1:3*num_samples),'magenta');
-    lines_com_control_y = stairs(com_control.signals.values(i, 1:num_samples), com_control.signals.values(i, 2*num_samples+1:3*num_samples),'k');
+    lines_prw_com_y = plot(com_prw.signals.values(i, 1:ns_st), com_prw.signals.values(i, 2*ns_st+1:3*ns_st),'red');
+    lines_prw_cp_y = plot(cp_prw.signals.values(i, 1:ns_st), cp_prw.signals.values(i, 2*ns_st+1:3*ns_st),'magenta');
+    lines_com_control_y = stairs(cop_prw.signals.values(i, 1:ns_st), cop_prw.signals.values(i, 2*ns_st+1:3*ns_st),'k');
     hold on;
 end
 

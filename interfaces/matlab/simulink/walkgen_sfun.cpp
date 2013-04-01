@@ -75,13 +75,14 @@ static void mdlInitializeSizes(SimStruct *S) {
 	const int num_samples_horizon_max      = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 0)));
 	const int kNumSamplesStep         = static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 1)));
 	const int num_steps_max           = 3;//kNumSamplesHorizon / kNumSamplesStep + 1;
+	const int num_samples_state		= 160; //TODO: Hard coded
 	ssSetOutputPortWidth(S, 10, num_steps_max);               //first_foot_prw
-	ssSetOutputPortWidth(S, 11, 4 * num_samples_horizon_max);     //com_prw (sample_instants, x, y, z)
-	ssSetOutputPortWidth(S, 12, 3 * num_samples_horizon_max);     //cop_prw (sample_instants, x, y)
+	ssSetOutputPortWidth(S, 11, 4 * num_samples_state);     //com_prw (sample_instants, x, y, z)
+	ssSetOutputPortWidth(S, 12, 3 * num_samples_state);     //cop_prw (sample_instants, x, y)
 	ssSetOutputPortWidth(S, 13, 3);       //support
 	ssSetOutputPortWidth(S, 14, 30);      //analysis
 	ssSetOutputPortWidth(S, 15, 3 * num_samples_horizon_max);	//com_control_prw
-	ssSetOutputPortWidth(S, 16, 3 * num_samples_horizon_max);     //cp_prw (sample_instants, x, y)
+	ssSetOutputPortWidth(S, 16, 3 * num_samples_state);     //cp_prw (sample_instants, x, y)
 	ssSetOutputPortWidth(S, 17, 9);     //cp_prw (sample_instants, x, y)
 	ssSetOutputPortWidth(S, 18, 7);     //sim_parameters (sample_instants, x, y)
 	ssSetOutputPortWidth(S, 19, 6);     //cp_ref
@@ -113,10 +114,12 @@ static void mdlStart(SimStruct *S) {
 	mpc_parameters.num_samples_horizon_max  		= static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 0)));
 	mpc_parameters.num_samples_first_fine_period 	= static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 30)));
 	mpc_parameters.num_samples_first_coarse_period	= static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 28)));
+	mpc_parameters.num_samples_state				= 160; // TODO: Hard coded
+	mpc_parameters.num_samples_contr				= mpc_parameters.num_samples_horizon_max;
 	mpc_parameters.period_ss     					= *mxGetPr(ssGetSFcnParam(S, 1));
 	mpc_parameters.period_dsss     					= *mxGetPr(ssGetSFcnParam(S, 2));
 	mpc_parameters.num_steps_ssds       			= static_cast<int>(*mxGetPr(ssGetSFcnParam(S, 3)));
-	mpc_parameters.num_steps_max					= 3;
+	mpc_parameters.num_steps_max					= 3; // TODO: Hard coded
 	mpc_parameters.period_qpsample     				= *mxGetPr(ssGetSFcnParam(S, 4));
 	mpc_parameters.period_recomputation  	   		= *mxGetPr(ssGetSFcnParam(S, 5));
 	mpc_parameters.period_actsample     			= *mxGetPr(ssGetSFcnParam(S, 6));
@@ -176,6 +179,9 @@ static void mdlStart(SimStruct *S) {
 		mpc_parameters.formulation 			= STANDARD;
 	} else if (formulation_in == 1) {
 		mpc_parameters.formulation 			= DECOUPLED_MODES;
+	} else if (formulation_in == 2) {
+		mpc_parameters.formulation 			= DECOUPLED_MODES;
+		mpc_parameters.mapping 			= CONST_MAP;
 	}
 
 	if (dump_problems_in == 1) {
@@ -293,11 +299,8 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 			robot_data.right_foot_pos_hull.x_vec(i) = DefaultFPosEdgesX[i];
 			robot_data.right_foot_pos_hull.y_vec(i) = -DefaultFPosEdgesY[i];
 		}
-
 		robot_data.SetCoPHulls(feet_distance_y);
-
 		robot_data.max_foot_height = kMaxFootHeight;
-
 		walk->SetVelReference(0.0, 0.0, 0.0);
 		walk->SetCPReference(*com_in[0], *com_in[1], *com_in[2], *com_in[3]);
 		walk->Init(robot_data);
@@ -314,11 +317,9 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 			robot->com()->state().y[2] = kGravity / *com_in[2] * (*com_in[1] - *cop_in[1]);
 			robot->com()->state().z[2] = 0.;
 		}
-
 		ssSetIWorkValue(S, 0, 1);//Is initialized
 
 	} // End of initialization
-
 	// INPUT:
 	// ------
 	walk->SetVelReference(*vel_ref[0], *vel_ref[1], *vel_ref[2]);
@@ -342,7 +343,6 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 		walk->mpc_parameters().penalties.cop_online = false;
 	}
 	 */
-
 
 	RigidBodySystem *robot = walk->robot();
 	if (is_closed_loop_in > 0.5) {
@@ -389,7 +389,8 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 	cop[X] = walk->output().cop.x;
 	cop[Y] = walk->output().cop.y;
 
-	// Comput gain
+	// Comput gains
+	/*
 	double omega = sqrt(kGravity / robot->com()->state().z[POSITION]);
 	double cp_x = robot->com()->state().x[POSITION] + 1. / omega * robot->com()->state().x[VELOCITY];
 	double cp_y = robot->com()->state().y[POSITION] + 1. / omega * robot->com()->state().y[VELOCITY];
@@ -405,9 +406,10 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 
 	double gain_x = (cop[X] - pd_x) / (cp_x - walk->cp_ref().global.x[POSITION]);
 	double gain_y = (cop[Y] - pd_y) / (cp_y - walk->cp_ref().global.y[POSITION]);
-	//std::cout << "gain_x: " << gain_x << " gain_y: " << gain_y
-	//		<< "cop[Y] - pd_y: " << cop[Y] - pd_y << " cp_y - cp_ref.y: " << cp_y - walk->cp_ref().global.y[POSITION]
-	//		<< " fir_per: " << solution.first_coarse_period << " time: " << curr_time << std::endl;
+	std::cout << "gain_x: " << gain_x << " gain_y: " << gain_y
+			<< "cop[Y] - pd_y: " << cop[Y] - pd_y << " cp_y - cp_ref.y: " << cp_y - walk->cp_ref().global.y[POSITION]
+			<< " fir_per: " << solution.first_coarse_period << " time: " << curr_time << std::endl;
+	 */
 
 	if (walk->mpc_parameters().is_pid_mode) {
 		double omega = sqrt(kGravity / robot->com()->state().z[POSITION]);
@@ -465,31 +467,33 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 	// Previewed motions:
 	// ------------------
 	if (kDebug == 1) {
-		int num_samples = walk->mpc_parameters().num_samples_horizon_max - 1;
-		for (int sample = 0; sample < num_samples; ++sample) {
+		int num_samples_contr = walk->mpc_parameters().num_samples_contr;//TODO: Minus one because  num_samples_contr might change
+		int num_samples_state = walk->mpc_parameters().num_samples_state;
+		for (int sample = 0; sample < num_samples_state; ++sample) {
 			// CoM:
-			com_prw[sample]                     = solution.sampling_times_vec[sample+1];
-			com_prw[num_samples + sample]       = solution.com_prw.pos.x_vec[sample];
-			com_prw[2 * num_samples + sample]   = solution.com_prw.pos.y_vec[sample];
-			com_prw[3 * num_samples + sample]   = walk->output().com.z;
+			com_prw[sample]                     	= solution.sampling_times_vec[sample+1];
+			com_prw[num_samples_state + sample]     = solution.com_prw.pos.x_vec[sample];
+			com_prw[2 * num_samples_state + sample] = solution.com_prw.pos.y_vec[sample];
+			com_prw[3 * num_samples_state + sample] = walk->output().com.z;
 			// CoP:
-			cop_prw[sample]                     = solution.sampling_times_vec[sample+1];
-			cop_prw[num_samples + sample]       = solution.com_prw.cop.x_vec[sample];
-			cop_prw[2 * num_samples + sample]   = solution.com_prw.cop.y_vec[sample];
-			// CoM control vector:
-			com_control_prw[sample]                     = solution.sampling_times_vec[sample];
-			com_control_prw[num_samples + sample]       = solution.com_prw.control.x_vec[sample];
-			com_control_prw[2 * num_samples + sample]   = solution.com_prw.control.y_vec[sample];
+			cop_prw[sample]                     	= solution.sampling_times_vec[sample+1];
+			cop_prw[num_samples_state + sample]     = solution.com_prw.cop.x_vec[sample];
+			cop_prw[2 * num_samples_state + sample]	= solution.com_prw.cop.y_vec[sample];
 			// CP:
-			cp_prw[sample]                      = solution.sampling_times_vec[sample+1];
-			cp_prw[num_samples + sample]        = solution.com_prw.cp.x_vec[sample];
-			cp_prw[2 * num_samples + sample]    = solution.com_prw.cp.y_vec[sample];
+			cp_prw[sample]                      	= solution.sampling_times_vec[sample+1];
+			cp_prw[num_samples_state + sample]      = solution.com_prw.cp.x_vec[sample];
+			cp_prw[2 * num_samples_state + sample]  = solution.com_prw.cp.y_vec[sample];
+		}
+		for (int sample = 0; sample < num_samples_contr; ++sample) {
+			// CoM control vector:
+			com_control_prw[sample]                 	    = solution.sampling_times_vec[sample];
+			com_control_prw[num_samples_contr + sample]     = solution.com_prw.control.x_vec[sample];
+			com_control_prw[2 * num_samples_contr + sample] = solution.com_prw.control.y_vec[sample];
 		}
 
-		num_samples = walk->mpc_parameters().num_samples_horizon;
 		int num_steps_prw = solution.support_states_vec.back().step_number;
-		int num_var_ff_x = 2 * num_samples;
-		int num_var_ff_y = 2 * num_samples + num_steps_prw;
+		int num_var_ff_x = 2 * num_samples_contr;
+		int num_var_ff_y = 2 * num_samples_contr + num_steps_prw;
 		if (walk->mpc_parameters().formulation == DECOUPLED_MODES) {
 			num_var_ff_x += 2;
 			num_var_ff_y += 2;
@@ -536,7 +540,8 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 		cur_state[7] = robot->com()->state().z[1];
 		cur_state[8] = robot->com()->state().z[2];
 
-		sim_parameters[0] =	walk->mpc_parameters().num_samples_horizon_max - 1;
+		sim_parameters[0] =	walk->mpc_parameters().num_samples_contr;
+		sim_parameters[1] =	walk->mpc_parameters().num_samples_state;
 		sim_parameters[2] = walk->mpc_parameters().period_dsss;
 		sim_parameters[3] = walk->mpc_parameters().num_steps_ssds;
 		sim_parameters[4] = walk->mpc_parameters().period_qpsample;

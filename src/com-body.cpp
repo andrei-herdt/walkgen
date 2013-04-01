@@ -64,6 +64,7 @@ void CoMBody::Interpolate(MPCSolution &solution, double current_time, const Refe
 	// -----------------
 	// Position:
 	if (mpc_parameters_->interpolate_whole_horizon) {
+		int samples_left = mpc_parameters_->GetMPCSamplesLeft(solution.first_coarse_period);
 		if (mpc_parameters_->formulation == DECOUPLED_MODES) {
 			Matrix2D state_trans_mat = Matrix2D::Zero();
 			state_trans_mat(0, 0) = 1.;
@@ -76,7 +77,6 @@ void CoMBody::Interpolate(MPCSolution &solution, double current_time, const Refe
 			state_x = new_state_x.block(0, 0, mpc_parameters_->dynamics_order - num_unst_modes, 1);
 			state_y = new_state_y.block(0, 0, mpc_parameters_->dynamics_order - num_unst_modes, 1);
 			//TODO: Simplify this
-			int samples_left = mpc_parameters_->GetMPCSamplesLeft(solution.first_coarse_period);
 			interpolation_.Interpolate(solution.com_prw.pos.x_vec, dynamics_qp_vec()[samples_left].pos,
 					state_x, solution.com_prw.control.x_vec);
 			interpolation_.Interpolate(solution.com_prw.pos.y_vec, dynamics_qp_vec()[samples_left].pos,
@@ -107,7 +107,6 @@ void CoMBody::Interpolate(MPCSolution &solution, double current_time, const Refe
 					state_y, solution.com_prw.control.y_vec);
 		} else {
 
-			int samples_left = mpc_parameters_->GetMPCSamplesLeft(solution.first_coarse_period);
 			interpolation_.Interpolate(solution.com_prw.pos.x_vec, dynamics_qp_vec()[samples_left].pos,
 					state_x, solution.com_prw.control.x_vec);
 			interpolation_.Interpolate(solution.com_prw.pos.y_vec, dynamics_qp_vec()[samples_left].pos,

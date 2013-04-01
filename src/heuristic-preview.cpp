@@ -8,7 +8,7 @@ using namespace MPCWalkgen;
 HeuristicPreview::HeuristicPreview(Reference *ref, RigidBodySystem *robot, const MPCParameters *mpc_parameters, RealClock *clock)
 :robot_(robot)
 ,mpc_parameters_(mpc_parameters)
-,select_matrices_(mpc_parameters->num_samples_horizon_max)//TODO: Unstable mode number fixed to 1 but should be give as parameter
+,select_matrices_(std::max(mpc_parameters->num_samples_horizon_max, mpc_parameters->num_samples_state))
 ,rot_mat_ (CommonMatrixType::Zero(2*mpc_parameters_->num_samples_horizon_max, 2*mpc_parameters_->num_samples_horizon_max))
 ,rot_mat2_(CommonMatrixType::Zero(2*mpc_parameters_->num_samples_horizon_max, 2*mpc_parameters_->num_samples_horizon_max))
 ,rot_mat2_tr_(CommonMatrixType::Zero(2*mpc_parameters_->num_samples_horizon_max, 2*mpc_parameters_->num_samples_horizon_max))
@@ -23,38 +23,50 @@ HeuristicPreview::~HeuristicPreview() {
 void HeuristicPreview::PreviewSamplingTimes(double current_time,
 		double first_fine_period, double first_coarse_period, MPCSolution &solution) {
 
-	solution.sampling_times_vec.resize(mpc_parameters_->num_samples_horizon_max + 1, 0.);//TODO
-	std::fill(solution.sampling_times_vec.begin(), solution.sampling_times_vec.end(), 0.);
-	solution.sampling_times_vec.at(0) = current_time;
+	if (mpc_parameters_->mapping == ZERO_MAP) {
+		solution.sampling_times_vec.resize(mpc_parameters_->num_samples_horizon_max + 1, 0.);//TODO
+		std::fill(solution.sampling_times_vec.begin(), solution.sampling_times_vec.end(), 0.);
+		solution.sampling_times_vec.at(0) = current_time;
+		if (mpc_parameters_->formulation == STANDARD) {
+			solution.sampling_times_vec[1] = solution.sampling_times_vec[0] + first_coarse_period;
 
-	if (mpc_parameters_->formulation == STANDARD) {
-		solution.sampling_times_vec[1] = solution.sampling_times_vec[0] + first_coarse_period;
-
-		for (int sample = 2; sample < mpc_parameters_->num_samples_horizon_max + 1; sample++) {
-			solution.sampling_times_vec[sample] += solution.sampling_times_vec[sample - 1] + mpc_parameters_->period_qpsample;
+			for (int sample = 2; sample < mpc_parameters_->num_samples_horizon_max + 1; sample++) {
+				solution.sampling_times_vec[sample] += solution.sampling_times_vec[sample - 1] + mpc_parameters_->period_qpsample;
+			}
+		} else {
+			int sample = 1;
+			// First grid
+			for (; sample <= mpc_parameters_->num_samples_first_fine_period; sample++) {
+				solution.sampling_times_vec.at(sample) = solution.sampling_times_vec.at(sample - 1) + mpc_parameters_->period_recomputation;
+			}
+			// Second grid
+			solution.sampling_times_vec.at(sample) = solution.sampling_times_vec.at(0) + first_fine_period + mpc_parameters_->period_inter_samples;
+			sample++;
+			for (; sample < mpc_parameters_->num_samples_first_coarse_period + mpc_parameters_->num_samples_first_fine_period; sample++) {
+				solution.sampling_times_vec.at(sample) = solution.sampling_times_vec.at(sample - 1) + mpc_parameters_->period_inter_samples;
+			}
+			// Third grid (fixed)
+			solution.sampling_times_vec.at(sample) = solution.sampling_times_vec.at(0) + first_coarse_period + mpc_parameters_->period_qpsample;
+			sample++;
+			for (; sample < mpc_parameters_->num_samples_horizon_max; sample++) { //TODO: only num_samples_horizon
+				solution.sampling_times_vec.at(sample) = solution.sampling_times_vec.at(sample - 1) + mpc_parameters_->period_qpsample;
+			}
+			// Last sample (sliding)
+			solution.sampling_times_vec.at(sample) = solution.sampling_times_vec.at(sample - 1) + mpc_parameters_->period_qpsample - first_coarse_period;
+			if (mpc_parameters_->period_qpsample - first_coarse_period < kEps && mpc_parameters_->formulation != STANDARD) {
+				solution.sampling_times_vec.pop_back();
+			}
 		}
-	} else {
-		int sample = 1;
-		// First grid
-		for (; sample <= mpc_parameters_->num_samples_first_fine_period; sample++) {
-			solution.sampling_times_vec.at(sample) = solution.sampling_times_vec.at(sample - 1) + mpc_parameters_->period_recomputation;
-		}
-		// Second grid
-		solution.sampling_times_vec.at(sample) = solution.sampling_times_vec.at(0) + first_fine_period + mpc_parameters_->period_inter_samples;
-		sample++;
-		for (; sample < mpc_parameters_->num_samples_first_coarse_period + mpc_parameters_->num_samples_first_fine_period; sample++) {
-			solution.sampling_times_vec.at(sample) = solution.sampling_times_vec.at(sample - 1) + mpc_parameters_->period_inter_samples;
-		}
-		// Third grid (fixed)
-		solution.sampling_times_vec.at(sample) = solution.sampling_times_vec.at(0) + first_coarse_period + mpc_parameters_->period_qpsample;
-		sample++;
-		for (; sample < mpc_parameters_->num_samples_horizon_max; sample++) { //TODO: only num_samples_horizon
-			solution.sampling_times_vec.at(sample) = solution.sampling_times_vec.at(sample - 1) + mpc_parameters_->period_qpsample;
-		}
-		// Last sample (sliding)
-		solution.sampling_times_vec.at(sample) = solution.sampling_times_vec.at(sample - 1) + mpc_parameters_->period_qpsample - first_coarse_period;
-		if (mpc_parameters_->period_qpsample - first_coarse_period < kEps && mpc_parameters_->formulation != STANDARD) {
-			solution.sampling_times_vec.pop_back();
+	} else if (mpc_parameters_->mapping == CONST_MAP) {
+		solution.sampling_times_vec.resize(mpc_parameters_->num_samples_state + 1, 0.); //TODO: Hard coded
+		std::vector<double>::iterator st_it = solution.sampling_times_vec.begin();
+		std::vector<double>::iterator stm1_it = solution.sampling_times_vec.begin();
+		*st_it = current_time;
+		st_it++;// First previewed sample
+		while (st_it != solution.sampling_times_vec.end()) {
+			*st_it = *stm1_it + mpc_parameters_->period_actsample;
+			st_it++;
+			stm1_it++;
 		}
 	}
 }
@@ -89,7 +101,8 @@ void HeuristicPreview::PreviewSupportStates(double first_sample_period, MPCSolut
 	// initialize the previewed support state before previewing
 	SupportState previewed_support = current_support;//TODO: Replace =operator by CopyFrom or give to constructor
 	previewed_support.step_number = 0;
-	for (int sample = 1; sample <= mpc_parameters_->num_samples_horizon; sample++) {
+	int ns_st = static_cast<int>(solution.sampling_times_vec.size());
+	for (int sample = 1; sample < ns_st; sample++) {
 		support_fsm_->SetSupportState(current_time, sample, solution.sampling_times_vec, previewed_support);
 		// special treatment for the first instant of transitionalDS
 		if (previewed_support.step_number > 0) {
@@ -121,7 +134,7 @@ void HeuristicPreview::PreviewSupportStates(double first_sample_period, MPCSolut
 }
 
 void HeuristicPreview::BuildRotationMatrix(MPCSolution &solution){//TODO: Move to qp-builder
-	int num_samples = mpc_parameters_->num_samples_horizon;
+	int num_samples = mpc_parameters_->num_samples_contr;
 
 	for (int i=0; i<num_samples; ++i) {//TODO:(performance)
 		double cos_yaw = cos(solution.support_states_vec[i+1].yaw);
@@ -153,10 +166,9 @@ void HeuristicPreview::BuildSelectionMatrices(MPCSolution &solution) {//Move to 
 	const BodyState *right_foot_p = &robot_->right_foot()->state();
 
 	int num_steps_previewed = solution.support_states_vec.back().step_number;
-	int num_samples = mpc_parameters_->num_samples_horizon;
-	int num_rows = num_samples;/// + 1;	//TODO: Fixed value for number unstable modes
-
-	if (select_matrices_.sample_step.cols() != num_steps_previewed || select_matrices_.sample_step.rows() != num_samples){
+	int num_samples = mpc_parameters_->num_samples_state;
+	int num_rows = num_samples;
+	if (select_matrices_.sample_step.cols() != num_steps_previewed || select_matrices_.sample_step.rows() != num_samples) {
 		select_matrices_.sample_step.		resize(num_rows, num_steps_previewed);
 		select_matrices_.sample_step_cx.	resize(num_rows);
 		select_matrices_.sample_step_cy.	resize(num_rows);

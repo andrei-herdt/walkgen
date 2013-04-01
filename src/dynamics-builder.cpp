@@ -27,13 +27,14 @@ void DynamicsBuilder::Init(const MPCParameters *mpc_parameters) {
 	precomp_input_mat_.setZero();  // \f[ -A^{-1}\mathbb{I}B \f]
 }
 
-void DynamicsBuilder::Build(SystemOrder dynamics_order, LinearDynamics &dyn, double height, const std::vector<double> &sampling_periods_vec, int num_samples, bool actuation) {
+void DynamicsBuilder::Build(SystemOrder dynamics_order, LinearDynamics &dyn, double height, const std::vector<double> &st_sampling_periods_vec,
+		const std::vector<double> &inp_sampling_periods_vec, int num_samples, bool actuation) {
 	switch (dynamics_order) {
 	case SECOND_ORDER:
-		BuildSecondOrder(dyn, height, sampling_periods_vec, actuation);
+		BuildSecondOrder(dyn, height, st_sampling_periods_vec, inp_sampling_periods_vec, actuation);
 		break;
 	case THIRD_ORDER:
-		BuildThirdOrder(dyn, height, sampling_periods_vec, num_samples);
+		BuildThirdOrder(dyn, height, st_sampling_periods_vec, num_samples);
 		break;
 	}
 }
@@ -41,9 +42,10 @@ void DynamicsBuilder::Build(SystemOrder dynamics_order, LinearDynamics &dyn, dou
 //
 // Private methods:
 //
-void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, const std::vector<double> &sampling_periods_vec, bool is_actuation) {
-	assert(sampling_periods_vec.at(0) > 0.);
-	assert(sampling_periods_vec.size() > 0);
+void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, const std::vector<double> &st_sampling_periods_vec,
+		const std::vector<double> &inp_sampling_periods_vec, bool is_actuation) {
+	assert(st_sampling_periods_vec.at(0) > 0.); assert(inp_sampling_periods_vec.at(0) > 0.);
+	assert(st_sampling_periods_vec.size() > 0); assert(inp_sampling_periods_vec.size() > 0);
 
 	/*
 	BuildSecondOrderCoPOutput(dyn.pos, height, sample_period_first, sample_period_rest, num_samples, POSITION);
@@ -52,14 +54,15 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, const
 	BuildSecondOrderCoPOutput(dyn.cop, height, sample_period_first, sample_period_rest, num_samples, COP);
 	 */
 
-	int num_samples = static_cast<int>(sampling_periods_vec.size());
+	int num_samples_state = static_cast<int>(st_sampling_periods_vec.size());
+	int num_samples_contr = static_cast<int>(inp_sampling_periods_vec.size());
 	double omega = sqrt(kGravity / height);
 	double omega_square = kGravity / height;
 	if (mpc_parameters_->formulation == STANDARD || is_actuation) {
-		double sample_period_first = sampling_periods_vec.at(0); // TODO: Remove dependency on sp_first, sp_rest
+		double sample_period_first = st_sampling_periods_vec.at(0); // TODO: Remove dependency on sp_first, sp_rest
 		double sample_period_rest = sample_period_first;
-		if (sampling_periods_vec.size() > 1) {
-			sample_period_rest = sampling_periods_vec.at(1);
+		if (st_sampling_periods_vec.size() > 1) {
+			sample_period_rest = st_sampling_periods_vec.at(1);
 		}
 
 		int state_dim = 2;
@@ -67,7 +70,7 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, const
 		int num_unstable_modes = state_dim - num_stable_modes;
 		int input_dim = 1;
 		int output_dim = 1;
-		dyn.SetZero(state_dim, input_dim, output_dim, num_samples, num_stable_modes, num_unstable_modes);
+		dyn.SetZero(state_dim, input_dim, output_dim, num_samples_state, num_samples_contr, num_stable_modes, num_unstable_modes);
 
 		// Continuous (general) state space dynamics:
 		// ------------------------------------------
@@ -102,17 +105,17 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, const
 		dyn.pos.c_state_mat 	= dyn.cont_ss.c_state_mat;
 		dyn.pos.c_state_mat_inv = dyn.cont_ss.c_state_mat_inv;
 		dyn.pos.c_input_mat 	= dyn.cont_ss.c_input_mat;
-		BuildSecondOrderCoPInputGeneral(dyn.pos, height, sample_period_first, sample_period_rest, num_samples);
+		BuildSecondOrderCoPInputGeneral(dyn.pos, height, sample_period_first, sample_period_rest, num_samples_state);
 
 		dyn.vel.c_state_mat 	= dyn.cont_ss.c_state_mat;
 		dyn.vel.c_state_mat_inv = dyn.cont_ss.c_state_mat_inv;
 		dyn.vel.c_input_mat 	= dyn.cont_ss.c_input_mat;
-		BuildSecondOrderCoPInputGeneral(dyn.vel, height, sample_period_first, sample_period_rest, num_samples);
+		BuildSecondOrderCoPInputGeneral(dyn.vel, height, sample_period_first, sample_period_rest, num_samples_state);
 
 		dyn.cp.c_state_mat 		= dyn.cont_ss.c_state_mat;
 		dyn.cp.c_state_mat_inv 	= dyn.cont_ss.c_state_mat_inv;
 		dyn.cp.c_input_mat 		= dyn.cont_ss.c_input_mat;
-		BuildSecondOrderCoPInputGeneral(dyn.cp, height, sample_period_first, sample_period_rest, num_samples);
+		BuildSecondOrderCoPInputGeneral(dyn.cp, height, sample_period_first, sample_period_rest, num_samples_state);
 
 		dyn.cop.input_mat.setIdentity();
 		dyn.cop.input_mat_tr.setIdentity();
@@ -128,7 +131,7 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, const
 		int num_unstable_modes = state_dim - num_stable_modes;
 		int input_dim = 1;
 		int output_dim = 1;
-		dyn.SetZero(state_dim, input_dim, output_dim, num_samples, num_stable_modes, num_unstable_modes);
+		dyn.SetZero(state_dim, input_dim, output_dim, num_samples_state, num_samples_contr, num_stable_modes, num_unstable_modes);
 
 		// Continuous (general) state space dynamics:
 		// ------------------------------------------
@@ -147,7 +150,7 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, const
 
 		// Build discrete state space dynamics:
 		// ------------------------------------
-		ComputeDiscreteSSDynamics(dyn, sampling_periods_vec);
+		ComputeDiscreteSSDynamics(dyn, st_sampling_periods_vec);
 
 		// Build products of state matrices:
 		// ---------------------------------
@@ -159,17 +162,74 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, const
 		BuildSecondOrderCoPInputDecoupled(dyn.vel, dyn.d_state_mat_vec, dyn.d_input_mat_vec, dyn.d_state_mat_pow_vec, dyn.rev_matrix_prod_vec);
 		BuildSecondOrderCoPInputDecoupled(dyn.cp, dyn.d_state_mat_vec, dyn.d_input_mat_vec, dyn.d_state_mat_pow_vec, dyn.rev_matrix_prod_vec);
 
-		dyn.cop.input_mat.block(0, 0, num_samples, num_samples).setIdentity();
-		dyn.cop.input_mat_tr.block(0, 0, num_samples, num_samples).setIdentity();
+		dyn.cop.input_mat.block(0, 0, num_samples_state, num_samples_state).setIdentity();
+		dyn.cop.input_mat_tr.block(0, 0, num_samples_state, num_samples_state).setIdentity();
 
 		dyn.acc.state_mat = omega_square*(dyn.pos.state_mat - dyn.cop.state_mat);
 		dyn.acc.input_mat = omega_square*(dyn.pos.input_mat - dyn.cop.input_mat);
 	}
 
+	// Build input map matrix:
+	// -----------------------
+	int num_unstable_modes = 0;
+	if (mpc_parameters_->formulation == DECOUPLED_MODES) {
+		num_unstable_modes = 1;
+	}
+	CommonMatrixType input_map_mat = CommonMatrixType::Zero(num_samples_state + num_unstable_modes, num_samples_contr + num_unstable_modes);
+	if (mpc_parameters_->formulation == DECOUPLED_MODES) {
+		input_map_mat(num_samples_state, num_samples_contr) = 1;
+	}
+	int row = 0;
+	int col = 0;
+	double time_input = 0.;
+	double time_state = 0.;
+	int input_sample = 0;
+	time_input += inp_sampling_periods_vec[input_sample];
+	for (int st_sample = 0; st_sample < num_samples_state; st_sample++) {
+		time_state += st_sampling_periods_vec[st_sample];
+		if (time_state - kEps > time_input) {
+			input_sample++;
+			time_input += inp_sampling_periods_vec[input_sample];
+		}
+		input_map_mat(st_sample, input_sample) = 1.;
+	}
+	dyn.input_map_mat = input_map_mat;
+	dyn.input_map_mat_tr = input_map_mat.transpose();
+
+	// Map input:
+	// ----------
+	//CommonMatrixType new_input_mat = CommonMatrixType::Zero(ns_st, ns_c + 1);
+	// Pos:
+	//new_input_mat.block(0, 0, ns_st, ns_c) = dynamics_qp_vec_.front().pos.input_mat.block(0, 0, ns_st, ns_st) * input_map_mat;
+	//new_input_mat.block(0, ns_c, ns_st, 1) = dynamics_qp_vec_.front().pos.input_mat.block(0, ns_st, ns_st, 1);
+	//dynamics_qp_vec_.front().pos.input_mat = new_input_mat;
+	//dynamics_qp_vec_.front().pos.input_mat_tr = new_input_mat.transpose();
+	// Vel:
+	//new_input_mat.block(0, 0, ns_st, ns_c) = dynamics_qp_vec_.front().vel.input_mat.block(0, 0, ns_st, ns_st) * input_map_mat;
+	//new_input_mat.block(0, ns_c, ns_st, 1) = dynamics_qp_vec_.front().vel.input_mat.block(0, ns_st, ns_st, 1);
+	//dynamics_qp_vec_.front().vel.input_mat = new_input_mat;
+	//dynamics_qp_vec_.front().vel.input_mat_tr = new_input_mat.transpose();
+	// Acc:
+	//new_input_mat.block(0, 0, ns_st, ns_c) = dynamics_qp_vec_.front().acc.input_mat.block(0, 0, ns_st, ns_st) * input_map_mat;
+	//new_input_mat.block(0, ns_c, ns_st, 1) = dynamics_qp_vec_.front().acc.input_mat.block(0, ns_st, ns_st, 1);
+	//dynamics_qp_vec_.front().acc.input_mat = new_input_mat;
+	//dynamics_qp_vec_.front().acc.input_mat_tr = new_input_mat.transpose();
+	// CoP:
+	//new_input_mat.block(0, 0, ns_st, ns_c) = dynamics_qp_vec_.front().cop.input_mat.block(0, 0, ns_st, ns_st) * input_map_mat;
+	//new_input_mat.block(0, ns_c, ns_st, 1) = dynamics_qp_vec_.front().cop.input_mat.block(0, ns_st, ns_st, 1);
+	//dynamics_qp_vec_.front().cop.input_mat = new_input_mat;
+	//dynamics_qp_vec_.front().cop.input_mat_tr = new_input_mat.transpose();
+	// CP:
+	//new_input_mat.block(0, 0, ns_st, ns_c) = dynamics_qp_vec_.front().cp.input_mat.block(0, 0, ns_st, ns_st) * input_map_mat;
+	//new_input_mat.block(0, ns_c, ns_st, 1) = dynamics_qp_vec_.front().cp.input_mat.block(0, ns_st, ns_st, 1);
+	//dynamics_qp_vec_.front().cp.input_mat = new_input_mat;
+	//dynamics_qp_vec_.front().cp.input_mat_tr = new_input_mat.transpose();
+
 }
 
 void DynamicsBuilder::BuildThirdOrder(LinearDynamics &dyn, double height, const std::vector<double> &sampling_periods_vec, int num_samples) {
-	dyn.SetZero(3, 1, 1, num_samples, 0, 0);
+
+	dyn.SetZero(3, 1, 1, num_samples, num_samples, 0, 0);
 
 	double sample_period_first = sampling_periods_vec.at(0);
 	double sample_period_rest = sampling_periods_vec.at(1);
@@ -345,7 +405,7 @@ void DynamicsBuilder::BuildSecondOrderCoPInput(LinearDynamics &dyn, double heigh
 	assert(sample_period_first > 0.);
 	assert(sample_period_rest > 0.);
 
-	dyn.SetZero(2, 1, 1, num_samples, 0, 0);
+	dyn.SetZero(2, 1, 1, num_samples, num_samples, 0, 0);
 
 	double omega 		= sqrt(kGravity/height);
 	double omega_square = kGravity/height;

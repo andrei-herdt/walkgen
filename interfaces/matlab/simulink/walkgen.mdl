@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.991"
+    ComputedModelVersion    "1.995"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "f_legs"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Thu Mar 28 12:57:43 2013"
+  LastModifiedDate	  "Mon Apr  1 18:56:25 2013"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:991>"
+  ModelVersionFormat	  "1.%<AutoIncrement:995>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -745,12 +745,12 @@ Model {
 	  MaskIconOpaque	  on
 	  MaskIconRotate	  "none"
 	  MaskIconUnits		  "autoscale"
-	  MaskValueString	  "16|4|5|[0, 0]|[0, 0]|[.1, .1]|[1., 1.]|[0, 0]|0.1|0.1|[0.1, 0.1]|0.7|1.6|2|0.1|0.02|0.005|0.005|0.01|100|2|1|0|0|1|1|0|0|0|100|0.4|0"
+	  MaskValueString	  "16|4|5|[0, 0]|[0, 0]|[.1, .1]|[1., 1.]|[0, 0]|0.0|0.0|[0., 0.0]|0.7|1.6|2|0.1|0.02|0.005|0.005|0.01|100|2|1|0|0|1|2|0|0|0|100|0.4|0"
 	  MaskTabNameString	  ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
 	  System {
 	    Name		    "Atomic Walkgen"
 	    Location		    [844, 52, 1879, 875]
-	    Open		    off
+	    Open		    on
 	    ModelBrowserVisibility  off
 	    ModelBrowserWidth	    200
 	    ScreenColor		    "white"
@@ -1201,7 +1201,7 @@ Model {
 	      NamePlacement	      "alternate"
 	      ShowName		      off
 	      Floating		      off
-	      Location		      [848, 53, 1596, 1051]
+	      Location		      [1, 50, 1921, 1053]
 	      Open		      off
 	      NumInputPorts	      "1"
 	      List {

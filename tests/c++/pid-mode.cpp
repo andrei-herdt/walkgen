@@ -24,7 +24,7 @@ int main() {
 	// Simulation parameters:
 	// ----------------------
 	MPCParameters mpc_parameters;
-	mpc_parameters.num_samples_horizon    = num_samples_horizon;
+	mpc_parameters.num_samples_contr    = num_samples_horizon;
 	mpc_parameters.num_samples_step       = std::min(num_samples_step, num_samples_horizon);
 	mpc_parameters.num_samples_dsss       = std::min(num_samples_dsss, num_samples_horizon);
 	mpc_parameters.num_steps_ssds         = std::min(num_steps_ssds, num_samples_horizon);

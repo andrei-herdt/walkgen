@@ -233,7 +233,8 @@ struct MPC_WALKGEN_API MPCParameters {
 	double init_com_height;				// Initial CoM height is given
 
 	int num_samples_horizon_max;		// Number max of samples
-	int num_samples_horizon;  			// Number of samplings inside horizon
+	int num_samples_contr;  			// Number of samplings inside horizon
+	int num_samples_state;  			// Number of state samples
 	int num_samples_first_coarse_period;		// Number of additional samples inside first sampling period
 	int num_samples_first_fine_period;		// Number of additional samples inside first sampling period
 	int num_steps_ssds;					// Steps before halt
@@ -264,7 +265,7 @@ struct MPC_WALKGEN_API MPCParameters {
 	/// \brief Number of simulation iterations between two feedback call
 	int num_samples_act() const;
 
-	int GetNumRecomputations() const;			/// \brief Number of feedback iterations between two QP instants
+	int GetNumDynamics() const;			/// \brief Number of feedback iterations between two QP instants
 
 	int num_qpsamples_ss() const;
 
@@ -432,14 +433,17 @@ struct LinearDynamics {
 
 	std::vector<CommonMatrixType> d_state_mat_vec;			//Vector of discrete state matrices
 	std::vector<CommonMatrixType> d_state_mat_pow_vec;		//Vector of multiplied discrete state matrices
-	std::vector<CommonMatrixType> rev_matrix_prod_vec;	//Products of state matrices starting from last sample
+	std::vector<CommonMatrixType> rev_matrix_prod_vec;		//Products of state matrices starting from last sample
 	std::vector<CommonMatrixType> d_state_mat_pow2_vec;		//Vector of multiplied discrete state matrices
 	std::vector<CommonMatrixType> d_input_mat_vec;			//Vector of discrete input matrices
+
+	CommonMatrixType input_map_mat, input_map_mat_tr;
 
 	void SetZero(int state_dim,
 			int input_dim,
 			int output_dim,
-			int num_samples,
+			int num_samples_contr,
+			int num_samples_state,
 			int stable_dim,			//Number of stable modes
 			int unstable_dim		//Number of unstable modes
 	);
