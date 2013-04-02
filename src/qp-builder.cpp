@@ -22,6 +22,8 @@ QPBuilder::QPBuilder(HeuristicPreview *preview, QPSolver *solver,
 ,mpc_parameters_(mpc_parameters)
 ,tmp_vec_(1)
 ,tmp_vec2_(1)
+,tmp_vec3_(1)
+,tmp_vec4_(1)
 ,tmp_mat_(1,1)
 ,tmp_mat2_(1,1)
 ,current_time_(0.)
@@ -437,7 +439,7 @@ void QPBuilder::TransformControlVector(MPCSolution &solution) {
 		num_samples_interp = ns_c;
 		size_contrvec = ns_c + 1;
 	}
-	*/
+	 */
 	//New
 	int samples_left = mpc_parameters_->GetMPCSamplesLeft(solution.first_coarse_period);
 	const CommonMatrixType &input_map_mat = robot_->com()->dynamics_qp_vec()[samples_left].input_map_mat;
@@ -602,7 +604,7 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 			//hessian().block(2 * num_samples, 0, 2 * num_steps_previewed, 2 * num_samples) = low_triang_mat;
 		}
 
-			//tmp_mat_.noalias() = select_mats.sample_step_trans * const_hessian_mat_[matrix_num].block(0, 0, num_samples, num_samples) * select_mats.sample_step;
+		//tmp_mat_.noalias() = select_mats.sample_step_trans * const_hessian_mat_[matrix_num].block(0, 0, num_samples, num_samples) * select_mats.sample_step;
 
 		//if (mpc_parameters_->penalties.dcop_online) {
 		//	tmp_mat2_ += dcop_mat_tr_vec_[mat_num].block(0, 0, num_samples + num_unst_modes, num_samples) * dcop_pen_mat_vec_[mat_num].block(0, 0, num_samples, num_samples) * dcop_mat_vec_[mat_num].block(0, 0, num_samples, num_samples);
@@ -672,7 +674,7 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 		objective_tmp_vec_x += tmp_vec_ * *last_des_cop_x_;//zx_cur;//
 		objective_tmp_vec_y += tmp_vec_ * *last_des_cop_y_;//zy_cur;//
 	}
-	*/
+	 */
 
 	// Offset from the ankle to the support center for CoP centering:
 	// --------------------------------------------------------------
@@ -767,7 +769,7 @@ void QPBuilder::BuildInequalityConstraints(const MPCSolution &solution) {
 
 	int num_steps_previewed = solution.support_states_vec.back().step_number;
 
-	//BuildCoPIneqConstraints(solution);
+	BuildCoPIneqConstraints(solution);
 	if (num_steps_previewed > 0) {
 		BuildFootPosInequalities(solution);
 		BuildFootPosIneqConstraints(solution);
@@ -1022,7 +1024,8 @@ void QPBuilder::BuildFootVelIneqConstraints(const MPCSolution &solution) {
 }
 
 void QPBuilder::BuildCoPIneqConstraints(const MPCSolution &solution) {
-	int num_samples = mpc_parameters_->num_samples_contr;
+	int ns_st = mpc_parameters_->num_samples_state;
+	int ns_c = mpc_parameters_->num_samples_contr;
 	int num_unst_modes = 0;//TODO: Define outside
 	if (mpc_parameters_->formulation == DECOUPLED_MODES) {
 		num_unst_modes = 1;
@@ -1032,9 +1035,10 @@ void QPBuilder::BuildCoPIneqConstraints(const MPCSolution &solution) {
 
 	robot_->GetConvexHull(hull_, COP_HULL, *ss_it);
 
-	int size = 2 * num_samples;
-	tmp_vec_.resize(size);
-	tmp_vec2_.resize(size);
+	tmp_vec_.resize(2 * ns_st);
+	tmp_vec2_.resize(2 * ns_st);
+	tmp_vec3_.setZero(2 * ns_c);
+	tmp_vec4_.setZero(2 * ns_c);
 
 	// Verify if flying foot entered contact:
 	// --------------------------------------
@@ -1067,7 +1071,7 @@ void QPBuilder::BuildCoPIneqConstraints(const MPCSolution &solution) {
 	}
 	++st_it; // Points at the first previewed instant
 	++ss_it; // Points at the first previewed instant
-	for (int i = 0; i < num_samples; ++i) {
+	for (int i = 0; i < ns_st; ++i) {
 		if (ss_it->state_changed) {
 			robot_->GetConvexHull(hull_, COP_HULL, *ss_it);
 		}
@@ -1079,18 +1083,18 @@ void QPBuilder::BuildCoPIneqConstraints(const MPCSolution &solution) {
 
 			// Y local
 			if (ss_it->foot == LEFT) {
-				tmp_vec_(num_samples + i) = min(hull_.y_vec(0), hull_.y_vec(1)) - dist_feet_y;
-				tmp_vec2_(num_samples + i)= max(hull_.y_vec(0), hull_.y_vec(1));
+				tmp_vec_(ns_st + i) = min(hull_.y_vec(0), hull_.y_vec(1)) - dist_feet_y;
+				tmp_vec2_(ns_st + i)= max(hull_.y_vec(0), hull_.y_vec(1));
 			} else {
-				tmp_vec_(num_samples + i) = min(hull_.y_vec(0), hull_.y_vec(1));
-				tmp_vec2_(num_samples + i)= max(hull_.y_vec(0), hull_.y_vec(1)) + dist_feet_y;
+				tmp_vec_(ns_st + i) = min(hull_.y_vec(0), hull_.y_vec(1));
+				tmp_vec2_(ns_st + i)= max(hull_.y_vec(0), hull_.y_vec(1)) + dist_feet_y;
 			}
 		} else {
 			tmp_vec_(i)  = min(hull_.x_vec(0), hull_.x_vec(3));
 			tmp_vec2_(i) = max(hull_.x_vec(0), hull_.x_vec(3));
 
-			tmp_vec_(num_samples + i) = min(hull_.y_vec(0), hull_.y_vec(1));
-			tmp_vec2_(num_samples + i)= max(hull_.y_vec(0), hull_.y_vec(1));
+			tmp_vec_(ns_st + i) = min(hull_.y_vec(0), hull_.y_vec(1));
+			tmp_vec2_(ns_st + i)= max(hull_.y_vec(0), hull_.y_vec(1));
 		}
 		// Has half of transitional ds phase passed?
 		if (*st_it < ss_it->start_time + mpc_parameters_->period_trans_ds() / 2. - kEps) {
@@ -1102,16 +1106,41 @@ void QPBuilder::BuildCoPIneqConstraints(const MPCSolution &solution) {
 		++st_it;
 	}
 
+	// Map constraints:
+	// ----------------
+	const CommonMatrixType &input_map_mat = robot_->com()->dynamics_qp_vec().front().input_map_mat;
+	// X:
+	tmp_vec3_[0] 	= tmp_vec_[0];
+	tmp_vec4_[0] 	= tmp_vec2_[0];
+	// Y:
+	tmp_vec3_[ns_c] 	= tmp_vec_[ns_st];
+	tmp_vec4_[ns_c] 	= tmp_vec2_[ns_st];
+	int row = 0;
+	int col = 0;
+	for (int i = 0; i < ns_st; i++) {
+		if (input_map_mat(row, col) < kEps) {
+			col++;
+		}
+		// X:
+		tmp_vec3_[col] = std::min(tmp_vec3_[col], tmp_vec_[i]);
+		tmp_vec4_[col] = std::max(tmp_vec4_[col], tmp_vec2_[i]);
+		// Y:
+		tmp_vec3_[ns_c + col] = std::min(tmp_vec3_[ns_c + col], tmp_vec_[ns_st + i]);
+		tmp_vec4_[ns_c + col] = std::max(tmp_vec4_[ns_c + col], tmp_vec2_[ns_st + i]);
+
+		row++;
+	}
+
 	// Fill QP:
 	// --------
 	// X:
 	int first_row = 0;
-	solver_->lv_bounds_vec().Set(tmp_vec_.head(num_samples), first_row);
-	solver_->uv_bounds_vec().Set(tmp_vec2_.head(num_samples), first_row);
+	solver_->lv_bounds_vec().Set(tmp_vec3_.head(ns_c), first_row);
+	solver_->uv_bounds_vec().Set(tmp_vec4_.head(ns_c), first_row);
 	// Y:
-	first_row = num_samples + num_unst_modes;
-	solver_->lv_bounds_vec().Set(tmp_vec_.segment(num_samples, num_samples), first_row);
-	solver_->uv_bounds_vec().Set(tmp_vec2_.segment(num_samples, num_samples), first_row);
+	first_row = ns_c + num_unst_modes;
+	solver_->lv_bounds_vec().Set(tmp_vec3_.tail(ns_c), first_row);
+	solver_->uv_bounds_vec().Set(tmp_vec4_.tail(ns_c), first_row);
 }
 
 void QPBuilder::BuildTerminalConstraints(const MPCSolution &solution) {

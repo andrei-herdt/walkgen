@@ -38,7 +38,7 @@ int main() {
 	mpc_parameters.formulation		      	= DECOUPLED_MODES;
 	mpc_parameters.is_pid_mode		      	= false;
 	mpc_parameters.is_terminal_constr	      	= false;
-	mpc_parameters.is_ineq_constr			= false;
+	mpc_parameters.is_ineq_constr			= true;
 	mpc_parameters.problem_dumping			= false;
 
 	mpc_parameters.penalties.pos[0] 		= 0.1;

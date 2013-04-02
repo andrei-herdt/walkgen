@@ -79,7 +79,7 @@ private:
 
 	MPCParameters *mpc_parameters_;
 
-	CommonVectorType tmp_vec_, tmp_vec2_;
+	CommonVectorType tmp_vec_, tmp_vec2_,tmp_vec3_, tmp_vec4_;;
 	CommonMatrixType tmp_mat_, tmp_mat2_;
 
 	CommonMatrixType contr_mov_mat_, contr_mov_mat_tr_;

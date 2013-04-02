@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.995"
+    ComputedModelVersion    "1.996"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "f_legs"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Mon Apr  1 18:56:25 2013"
+  LastModifiedDate	  "Tue Apr  2 04:32:21 2013"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:995>"
+  ModelVersionFormat	  "1.%<AutoIncrement:996>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -745,11 +745,11 @@ Model {
 	  MaskIconOpaque	  on
 	  MaskIconRotate	  "none"
 	  MaskIconUnits		  "autoscale"
-	  MaskValueString	  "16|4|5|[0, 0]|[0, 0]|[.1, .1]|[1., 1.]|[0, 0]|0.0|0.0|[0., 0.0]|0.7|1.6|2|0.1|0.02|0.005|0.005|0.01|100|2|1|0|0|1|2|0|0|0|100|0.4|0"
+	  MaskValueString	  "16|4|5|[0, 0]|[0, 0]|[.02, .02]|[0., 0.]|[1, 1]|0|0|[0., 0.]|0.7|1.6|2|0.1|0.02|0.005|0.005|0.01|100|2|1|0|0|1|2|0|0|0|100|0.4|0"
 	  MaskTabNameString	  ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
 	  System {
 	    Name		    "Atomic Walkgen"
-	    Location		    [844, 52, 1879, 875]
+	    Location		    [844, 52, 1717, 776]
 	    Open		    on
 	    ModelBrowserVisibility  off
 	    ModelBrowserWidth	    200
@@ -1179,7 +1179,7 @@ Model {
 	      ShowName		      off
 	      Floating		      off
 	      Location		      [79, 53, 1595, 904]
-	      Open		      off
+	      Open		      on
 	      NumInputPorts	      "1"
 	      ZoomMode		      "yonly"
 	      List {
@@ -1201,16 +1201,16 @@ Model {
 	      NamePlacement	      "alternate"
 	      ShowName		      off
 	      Floating		      off
-	      Location		      [1, 50, 1921, 1053]
-	      Open		      off
+	      Location		      [4, 53, 1918, 1051]
+	      Open		      on
 	      NumInputPorts	      "1"
 	      List {
 		ListType		AxesTitles
 		axes1			"%<SignalLabel>"
 	      }
 	      TimeRange		      "1"
-	      YMin		      "-0.0025"
-	      YMax		      "0.0475"
+	      YMin		      "-1.6e+07"
+	      YMax		      "7e+06"
 	      SaveName		      "ScopeData1"
 	      DataFormat	      "StructureWithTime"
 	      SampleTime	      "0"
