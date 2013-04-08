@@ -4,11 +4,12 @@
 #include <cmath>
 
 using namespace MPCWalkgen;
+using namespace std;
 
 HeuristicPreview::HeuristicPreview(Reference *ref, RigidBodySystem *robot, const MPCParameters *mpc_parameters, RealClock *clock)
 :robot_(robot)
 ,mpc_parameters_(mpc_parameters)
-,select_matrices_(std::max(mpc_parameters->num_samples_horizon_max, mpc_parameters->num_samples_state))
+,select_matrices_(max(mpc_parameters->num_samples_horizon_max, mpc_parameters->num_samples_state))
 ,rot_mat_ (CommonMatrixType::Zero(2*mpc_parameters_->num_samples_horizon_max, 2*mpc_parameters_->num_samples_horizon_max))
 ,rot_mat2_(CommonMatrixType::Zero(2*mpc_parameters_->num_samples_horizon_max, 2*mpc_parameters_->num_samples_horizon_max))
 ,rot_mat2_tr_(CommonMatrixType::Zero(2*mpc_parameters_->num_samples_horizon_max, 2*mpc_parameters_->num_samples_horizon_max))

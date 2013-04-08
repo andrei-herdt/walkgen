@@ -82,10 +82,10 @@ static void mdlInitializeSizes(SimStruct *S) {
 	ssSetOutputPortWidth(S, 13, 3);       //support
 	ssSetOutputPortWidth(S, 14, 30);      //analysis
 	ssSetOutputPortWidth(S, 15, 3 * num_samples_horizon_max);	//com_control_prw
-	ssSetOutputPortWidth(S, 16, 3 * num_samples_state);     //cp_prw (sample_instants, x, y)
+	ssSetOutputPortWidth(S, 16, 5 * num_samples_state);     //cp_prw (sample_instants, x, y)
 	ssSetOutputPortWidth(S, 17, 9);     //cp_prw (sample_instants, x, y)
 	ssSetOutputPortWidth(S, 18, 7);     //sim_parameters (sample_instants, x, y)
-	ssSetOutputPortWidth(S, 19, 6);     //cp_ref
+	ssSetOutputPortWidth(S, 19, 10);     //cp_out
 
 
 	ssSetNumSampleTimes(S, 1);
@@ -181,7 +181,7 @@ static void mdlStart(SimStruct *S) {
 		mpc_parameters.formulation 			= DECOUPLED_MODES;
 	} else if (formulation_in == 2) {
 		mpc_parameters.formulation 			= DECOUPLED_MODES;
-		mpc_parameters.mapping 			= CONST_MAP;
+		mpc_parameters.mapping 				= CONST_MAP;
 	}
 
 	if (dump_problems_in == 1) {
@@ -193,8 +193,8 @@ static void mdlStart(SimStruct *S) {
 		walk->clock().ReserveMemory(20, 2000);
 		walk->clock().GetFrequency(100);
 	}
-	walk->clock().ReserveMemory(20, 3000);
-	walk->clock().GetFrequency(100);
+	//walk->clock().ReserveMemory(20, 3000);
+	//walk->clock().GetFrequency(100);
 
 	walk->Init(mpc_parameters);
 
@@ -222,8 +222,8 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 	InputRealPtrsType lfoot_wrench_in = ssGetInputPortRealSignalPtrs(S, 10);
 	InputRealPtrsType rfoot_wrench_in = ssGetInputPortRealSignalPtrs(S, 11);
 	InputRealPtrsType reset_in        = ssGetInputPortRealSignalPtrs(S, 12);
-	InputRealPtrsType contr_moves_pen_in        = ssGetInputPortRealSignalPtrs(S, 13);
-	InputRealPtrsType pert_in        = ssGetInputPortRealSignalPtrs(S, 14);
+	InputRealPtrsType cop_offset_in   = ssGetInputPortRealSignalPtrs(S, 13);
+	InputRealPtrsType pert_in         = ssGetInputPortRealSignalPtrs(S, 14);
 
 	real_T *com            = ssGetOutputPortRealSignal(S, 0);
 	real_T *dcom           = ssGetOutputPortRealSignal(S, 1);
@@ -246,6 +246,11 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 	real_T *sim_parameters = ssGetOutputPortRealSignal(S, 18);
 	real_T *cp_out 		   = ssGetOutputPortRealSignal(S, 19);
 
+	double cop_offset_y = 0.;
+	if (*cop_offset_in[0] > kEps) {
+		cop_offset_y = *cop_offset_in[1];
+	}
+
 	Walkgen *walk = (Walkgen *)ssGetPWorkValue(S, 0);
 
 	// Begin initialization of the robot:
@@ -255,12 +260,20 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 		left_foot.ankle_pos_local 	<< -0.035, 0., 0.;
 		left_foot.sole_height 		= *foot_geometry[2] - *foot_geometry[3];
 		left_foot.sole_width 		= *foot_geometry[0]  - *foot_geometry[1];
-		left_foot.SetEdges(*foot_geometry[0] + left_foot.ankle_pos_local(0), *foot_geometry[1] + left_foot.ankle_pos_local(0), *foot_geometry[2], *foot_geometry[3], kSecurityMargin);
+		left_foot.SetEdges(*foot_geometry[0] + left_foot.ankle_pos_local(0),
+				*foot_geometry[1] + left_foot.ankle_pos_local(0),
+				*foot_geometry[2] + cop_offset_y,
+				*foot_geometry[3] + cop_offset_y,
+				kSecurityMargin);
 		FootData right_foot;
 		right_foot.ankle_pos_local 	<< -0.035, 0., 0.;
 		right_foot.sole_height 		= *foot_geometry[2] - *foot_geometry[3];
 		right_foot.sole_width 		= *foot_geometry[0] - *foot_geometry[1];
-		right_foot.SetEdges(*foot_geometry[0] + right_foot.ankle_pos_local(0), *foot_geometry[1] + right_foot.ankle_pos_local(0), *foot_geometry[2], *foot_geometry[3], kSecurityMargin);
+		right_foot.SetEdges(*foot_geometry[0] + right_foot.ankle_pos_local(0),
+				*foot_geometry[1] + right_foot.ankle_pos_local(0),
+				*foot_geometry[2] - cop_offset_y,
+				*foot_geometry[3] - cop_offset_y,
+				kSecurityMargin);
 
 		HipYawData left_hip_yaw;
 		left_hip_yaw.lower_pos_bound 	= -0.523599;
@@ -276,10 +289,10 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 		robot_data.com(1) = *com_in[1];
 		robot_data.com(2) = *com_in[2];
 		robot_data.left_foot.position[0] 	= *left_ankle_in[0] - left_foot.ankle_pos_local(0);
-		robot_data.left_foot.position[1] 	= *left_ankle_in[1];
+		robot_data.left_foot.position[1] 	= *left_ankle_in[1] - cop_offset_y;
 		robot_data.left_foot.position[2] 	= *left_ankle_in[2];
 		robot_data.right_foot.position[0]  	= *right_ankle_in[0] - right_foot.ankle_pos_local(0);
-		robot_data.right_foot.position[1]  	= *right_ankle_in[1];
+		robot_data.right_foot.position[1]  	= *right_ankle_in[1] + cop_offset_y;
 		robot_data.right_foot.position[2]  	= *right_ankle_in[2];
 		robot_data.max_foot_vel = 1.;
 		robot_data.security_margin = kSecurityMargin;
@@ -288,21 +301,21 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 		// ------------------
 		const int num_vert_foot_pos = 5;
 		double feet_distance_y = *left_ankle_in[1] - *right_ankle_in[1];
-		double DefaultFPosEdgesX[num_vert_foot_pos] = {-0.3, -0.2, 0.0, 0.2, 0.3};
+		double DefaultFPosEdgesX[num_vert_foot_pos] = {-0.3, -0.2, 0.0, 0.2, 0.3};//{-0.01, -0.01, 0.0, 0.01, 0.02};//
 		double DefaultFPosEdgesY[num_vert_foot_pos] = {-feet_distance_y + kEps, -0.3, -0.4, -0.3, -feet_distance_y + kEps};
 
 		robot_data.left_foot_pos_hull.Resize(num_vert_foot_pos);
 		robot_data.right_foot_pos_hull.Resize(num_vert_foot_pos);
 		for (int i = 0; i < num_vert_foot_pos; ++i) {
 			robot_data.left_foot_pos_hull.x_vec(i)  = DefaultFPosEdgesX[i];
-			robot_data.left_foot_pos_hull.y_vec(i)  = DefaultFPosEdgesY[i];
+			robot_data.left_foot_pos_hull.y_vec(i)  = DefaultFPosEdgesY[i] + 2 * cop_offset_y;
 			robot_data.right_foot_pos_hull.x_vec(i) = DefaultFPosEdgesX[i];
-			robot_data.right_foot_pos_hull.y_vec(i) = -DefaultFPosEdgesY[i];
+			robot_data.right_foot_pos_hull.y_vec(i) = -DefaultFPosEdgesY[i] - 2 * cop_offset_y;
 		}
 		robot_data.SetCoPHulls(feet_distance_y);
 		robot_data.max_foot_height = kMaxFootHeight;
 		walk->SetVelReference(0.0, 0.0, 0.0);
-		walk->SetCPReference(*com_in[0], *com_in[1], *com_in[2], *com_in[3]);
+		walk->SetCPReference(*cp_ref[0], *cp_ref[1], *cp_ref[2], *cp_ref[3]);
 		walk->Init(robot_data);
 
 		if (is_closed_loop_in > 0.5) {
@@ -323,16 +336,17 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 	// INPUT:
 	// ------
 	walk->SetVelReference(*vel_ref[0], *vel_ref[1], *vel_ref[2]);
-	walk->SetPosReference(*pos_ref[0], *pos_ref[1]);
+	//walk->SetPosReference(*pos_ref[0], *pos_ref[1]);
 	walk->SetCPReference(*cp_ref[0], *cp_ref[1], *cp_ref[2], *cp_ref[3]);
 
-	if (*contr_moves_pen_in[0] > kEps) {
-		walk->mpc_parameters().penalties.dcop_online = true;
-		walk->mpc_parameters().penalties.first_contr_moves = *contr_moves_pen_in[1];
-		walk->mpc_parameters().penalties.second_contr_moves = *contr_moves_pen_in[2];
-	} else {
-		walk->mpc_parameters().penalties.dcop_online = false;
-	}
+	//if (*cop_offset_in[0] > kEps) {
+		//walk->mpc_parameters().penalties.dcop_online = true;
+		//walk->mpc_parameters().penalties.first_contr_moves = *contr_moves_pen_in[1];
+		//walk->mpc_parameters().penalties.second_contr_moves = *contr_moves_pen_in[2];
+		//walk->mpc_parameters().cop_off = *cop_offset_in[1];
+	//} else {
+		//walk->mpc_parameters().penalties.dcop_online = false;
+	//}
 
 	/*
 	if (*contr_val_pen_in[0] > kEps) {
@@ -357,7 +371,10 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 		robot->right_foot()->force_sensor().force_z = *rfoot_wrench_in[2];
 	}
 
+
 	double curr_time = ssGetT(S);
+
+	/*
 	if (curr_time > *pert_in[0] && curr_time < *pert_in[1]) {
 		robot->com()->state().x[0] += *pert_in[2];
 		robot->com()->state().y[0] += *pert_in[3];
@@ -365,14 +382,14 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 		robot->com()->state().y[1] += *pert_in[5];
 		robot->com()->state().x[2] += *pert_in[6];
 		robot->com()->state().y[2] += *pert_in[7];
-	}
+	}*/
 
 	// Run simulation:
 	// ---------------
-	walk->clock().ResetLocal();
-	int time_online = walk->clock().StartCounter();
+	//walk->clock().ResetLocal();
+	//int time_online = walk->clock().StartCounter();
 	const MPCSolution &solution = walk->Go(curr_time);
-	walk->clock().StopCounter(time_online);
+	//walk->clock().StopCounter(time_online);
 
 	// Assign to the output:
 	// ---------------------
@@ -389,44 +406,34 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 	cop[X] = walk->output().cop.x;
 	cop[Y] = walk->output().cop.y;
 
-	double omega = sqrt(kGravity / robot->com()->state().z[POSITION]);
-	// Comput gains
 	/*
-	double cp_x = robot->com()->state().x[POSITION] + 1. / omega * robot->com()->state().x[VELOCITY];
-	double cp_y = robot->com()->state().y[POSITION] + 1. / omega * robot->com()->state().y[VELOCITY];
-	double pd_x = 0.;
-	double pd_y = 0.;
+	double omega = sqrt(kGravity / robot->com()->state().z[POSITION]);
+	// Compute gains
+	double cp_x = *com_in[0] + 1. / omega * *com_in[3];
+	double cp_y = *com_in[1] + 1. / omega * *com_in[4];
+	double zd_x = walk->cp_ref().z_ref_x;
+	double zd_y = walk->cp_ref().z_ref_y;
+	double cop_dist = 0.03;
 	if (solution.support_states_vec.front().phase == DS) {
-		pd_x = walk->cp_ref().init[X];
-		pd_y = walk->cp_ref().init[Y];
+		zd_x = walk->cp_ref().init[X];
+		zd_y = walk->cp_ref().init[Y];
 	} else {
-		pd_x = solution.support_states_vec.front().x;
-		pd_y = solution.support_states_vec.front().y;
+		if (solution.support_states_vec.front().foot == LEFT) {
+			zd_x = solution.support_states_vec.front().x;
+			zd_y = solution.support_states_vec.front().y - cop_dist;
+		} else {
+			zd_x = solution.support_states_vec.front().x;
+			zd_y = solution.support_states_vec.front().y + cop_dist;
+		}
 	}
+	
 
-	double gain_x = (cop[X] - pd_x) / (cp_x - walk->cp_ref().global.x[POSITION]);
-	double gain_y = (cop[Y] - pd_y) / (cp_y - walk->cp_ref().global.y[POSITION]);
-	std::cout << "gain_x: " << gain_x << " gain_y: " << gain_y
-			<< "cop[Y] - pd_y: " << cop[Y] - pd_y << " cp_y - cp_ref.y: " << cp_y - walk->cp_ref().global.y[POSITION]
-			<< " fir_per: " << solution.first_coarse_period << " time: " << curr_time << std::endl;
-	 */
+	double gain_x = (cop[X] - zd_x) / (cp_x - walk->cp_ref().global.x[POSITION]);
+	double gain_y = (cop[Y] - zd_y) / (cp_y - walk->cp_ref().global.y[POSITION]);
 
 	if (walk->mpc_parameters().is_pid_mode) {
-		double omega = sqrt(kGravity / robot->com()->state().z[POSITION]);
-		double cp_x = *com_in[0] + 1. / omega * *com_in[3];
-		double cp_y = *com_in[1] + 1. / omega * *com_in[4];
-		double pd_x = 0.;
-		double pd_y = 0.;
-		if (solution.support_states_vec.front().phase == DS) {
-			pd_x = walk->cp_ref().init[X];
-			pd_y = walk->cp_ref().init[Y];
-		} else {
-			pd_x = solution.support_states_vec.front().x;
-			pd_y = solution.support_states_vec.front().y;
-		}
-
-		cop[X] = pd_x + 5.6 * (cp_x - walk->cp_ref().global.x[0]);
-		cop[Y] = pd_y + 5.6 * (cp_y - walk->cp_ref().global.y[0]);
+		cop[X] = zd_x + 5.6 * (cp_x - walk->cp_ref().global.x[0]);
+		cop[Y] = zd_y + 5.6 * (cp_y - walk->cp_ref().global.y[0]);
 	}
 
 	cp_out[0] = walk->cp_ref().global.x[0];
@@ -435,11 +442,16 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 	cp_out[3] = *com_in[1] + 1. / omega * *com_in[4];
 	cp_out[4] = walk->output().cop.x;
 	cp_out[5] = walk->output().cop.y;
+	cp_out[6] = zd_x;
+	cp_out[7] = zd_y;
+	cp_out[8] = gain_x;
+	cp_out[9] = gain_y;
+	*/
 
 	// Left foot:
 	double ankle_pos_loc_x = -0.035;
 	p_left[0]   = walk->output().left_foot.x + ankle_pos_loc_x;
-	p_left[1]   = walk->output().left_foot.y;
+	p_left[1]   = walk->output().left_foot.y + cop_offset_y;
 	p_left[2]   = walk->output().left_foot.z;
 	p_left[3]   = walk->output().left_foot.yaw;
 	dp_left[0]  = walk->output().left_foot.dx;
@@ -452,7 +464,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 	ddp_left[3] = walk->output().left_foot.ddyaw;
 	// Right foot:
 	p_right[0]      = walk->output().right_foot.x + ankle_pos_loc_x;
-	p_right[1]      = walk->output().right_foot.y;
+	p_right[1]      = walk->output().right_foot.y - cop_offset_y;
 	p_right[2]      = walk->output().right_foot.z;
 	p_right[3]      = walk->output().right_foot.yaw;
 	dp_right[0]     = walk->output().right_foot.dx;
@@ -483,6 +495,8 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 			cp_prw[sample]                      	= solution.sampling_times_vec[sample+1];
 			cp_prw[num_samples_state + sample]      = solution.com_prw.cp.x_vec[sample];
 			cp_prw[2 * num_samples_state + sample]  = solution.com_prw.cp.y_vec[sample];
+			cp_prw[3 * num_samples_state + sample]  = walk->cp_ref().global.x[sample];
+			cp_prw[4 * num_samples_state + sample]  = walk->cp_ref().global.y[sample];
 		}
 		for (int sample = 0; sample < num_samples_contr; ++sample) {
 			// CoM control vector:
@@ -552,7 +566,7 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 
 static void mdlTerminate(SimStruct *S) {
 	Walkgen *walk = static_cast<Walkgen *>(ssGetPWork(S)[0]);
-	Debug::Cout("Distribution of ticks", walk->clock().ticks_distr_vec());
+	//Debug::Cout("Distribution of ticks", walk->clock().ticks_distr_vec());
 	delete walk;
 }
 

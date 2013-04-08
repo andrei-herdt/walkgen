@@ -3,6 +3,7 @@
 #include <iostream>
 
 using namespace MPCWalkgen;
+using namespace std;
 
 Walkgen::Walkgen()
 : mpc_parameters_()
@@ -23,7 +24,9 @@ Walkgen::Walkgen()
 ,next_act_sample_(0)
 ,current_time_(0)
 ,last_des_cop_x_(0)
-,last_des_cop_y_(0) {
+,last_des_cop_y_(0)
+,last_first_contr_x_(0)
+,last_first_contr_y_(0){
 	orient_preview_ = new OrientationsPreview();
 }
 
@@ -96,7 +99,7 @@ void Walkgen::Init(MPCParameters &mpc_parameters) {
 	if (mpc_parameters_.formulation == DECOUPLED_MODES) {
 		num_unstable_modes = 1;
 	}
-	int num_samples_st = std::max(mpc_parameters_.num_samples_state, mpc_parameters_.num_samples_horizon_max);
+	int num_samples_st = max(mpc_parameters_.num_samples_state, mpc_parameters_.num_samples_horizon_max);
 	solution_.com_act.SetZero(mpc_parameters_.num_samples_act(), num_unstable_modes);
 	solution_.com_prw.SetZero(num_samples_st, num_unstable_modes);
 
@@ -110,7 +113,8 @@ void Walkgen::Init(MPCParameters &mpc_parameters) {
 	heur_preview_ = new HeuristicPreview(&vel_ref_, &robot_, &mpc_parameters_, &clock_);
 
 	builder_= new QPBuilder(heur_preview_, solver_, &pos_ref_, &vel_ref_, &cp_ref_,
-			&robot_, &mpc_parameters_, &clock_, &last_des_cop_x_, &last_des_cop_y_);
+			&robot_, &mpc_parameters_, &clock_, &last_des_cop_x_, &last_des_cop_y_,
+			&last_first_contr_x_, &last_first_contr_y_);
 
 	if (mpc_parameters_.init_com_height > kEps) {
 		robot_.com()->state().z[POSITION] = mpc_parameters_.init_com_height;
@@ -126,6 +130,8 @@ void Walkgen::Init(const RobotData &robot_data) {
 
 	last_des_cop_x_ = robot_data_.com[X];
 	last_des_cop_y_ = robot_data_.com[Y];
+	last_first_contr_x_ = robot_data_.com[X] - robot_data_.left_foot.position[X];//TODO: Left foot first assumption
+	last_first_contr_y_ = robot_data_.com[Y] - robot_data_.left_foot.position[Y];
 	Init();
 }
 
@@ -241,7 +247,10 @@ void Walkgen::BuildProblem() {
 	// TODO: Own method needed.
 	double supp_time_passed = 0.;
 	double omega = sqrt(kGravity / robot_.com()->state().z[0]); 
-	double cop_center_dis_ss = 0.;//0.015;
+	double cop_center_dis_ss = 0.0;
+	//if (mpc_parameters_.penalties.dcop_online) {
+	//	cop_center_dis_ss = 0.;//mpc_parameters_.cop_off;
+	//}
 	cp_ref_.offset_ss[Y] = (robot_data_.left_foot.position[Y] - robot_data_.right_foot.position[Y] - 2. * cop_center_dis_ss)
 							/ (exp(omega * (mpc_parameters_.period_ss + mpc_parameters_.period_trans_ds())) + 1.);
 	if (mpc_parameters_.walking_mode.type == INITIAL) {
@@ -256,24 +265,30 @@ void Walkgen::BuildProblem() {
 	if (mpc_parameters_.walking_mode.type == INITIAL) {
 		cp_ref_.global.x.fill(cp_ref_.init[X]);
 		cp_ref_.local.x.fill(cp_ref_.init[X] - robot_data_.left_foot.position[X]);
+		cp_ref_.z_ref_x = cp_ref_.init[X];
 		cp_ref_.global.y.fill(cp_ref_.init[Y]);
 		cp_ref_.local.y.fill(cp_ref_.init[Y] - robot_data_.left_foot.position[Y]);
+		cp_ref_.z_ref_y = cp_ref_.init[Y];
 	} else if (mpc_parameters_.walking_mode.type == WALK || mpc_parameters_.walking_mode.type == WALK_START) {
 		cp_ref_.global.x.fill(cp_ref_.init[X]);
 		cp_ref_.local.x.fill(cp_ref_.init[X] - robot_data_.left_foot.position[X]);
+		cp_ref_.z_ref_x = cp_ref_.init[X];
 		for (int i = 0; i < mpc_parameters_.num_samples_state ; i++) {
 			if (solution_.support_states_vec[i + 1].phase == SS) {
 				supp_time_passed = solution_.sampling_times_vec[i + 1] - solution_.support_states_vec[i + 1].start_time;
 				if (solution_.support_states_vec[i + 1].foot == LEFT) {
 					cp_ref_.global.y[i] = robot_data_.left_foot.position[Y] - cop_center_dis_ss - exp(omega * supp_time_passed) * cp_ref_.offset_ss[Y];
 					cp_ref_.local.y[i] = - cop_center_dis_ss - exp(omega * supp_time_passed) * cp_ref_.offset_ss[Y];
+					cp_ref_.z_ref_y = robot_data_.left_foot.position[Y] - cop_center_dis_ss;
 				} else if (solution_.support_states_vec[i + 1].foot == RIGHT) {
 					cp_ref_.global.y[i] = robot_data_.right_foot.position[Y] + cop_center_dis_ss + exp(omega * supp_time_passed) * cp_ref_.offset_ss[Y];
 					cp_ref_.local.y[i] = cop_center_dis_ss + exp(omega * supp_time_passed) * cp_ref_.offset_ss[Y];
+					cp_ref_.z_ref_y = robot_data_.right_foot.position[Y] + cop_center_dis_ss;
 				}
 			} else {
 				supp_time_passed = solution_.sampling_times_vec[i + 1] - mpc_parameters_.walking_mode.start_time;
 				cp_ref_.global.y[i] = cp_ref_.init[Y] + exp(omega * supp_time_passed) * cp_ref_.offset_ds[Y];
+				cp_ref_.z_ref_y = cp_ref_.init[Y];
 				cp_ref_.local.y[i] = -(robot_data_.left_foot.position[1] - cp_ref_.init[Y]) + exp(omega * supp_time_passed) * cp_ref_.offset_ds[Y];
 			}
 		}
@@ -343,6 +358,12 @@ void Walkgen::UpdateOutput() {
 
 	last_des_cop_x_ = output_.cop.x;
 	last_des_cop_y_ = output_.cop.y;
+	last_first_contr_x_ = solution_.qp_solution_vec[0];
+	int num_unst_modes = 0;
+	if (mpc_parameters_.formulation == DECOUPLED_MODES) {
+		num_unst_modes = 1;
+	}
+	last_first_contr_y_ = solution_.qp_solution_vec[mpc_parameters_.num_samples_contr + num_unst_modes];
 
 	output_.left_foot.x 	= robot_.left_foot()->motion_act().pos.x_vec[output_index_];
 	output_.left_foot.y 	= robot_.left_foot()->motion_act().pos.y_vec[output_index_];

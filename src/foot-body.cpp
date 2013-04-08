@@ -1,5 +1,6 @@
 #include <mpc-walkgen/foot-body.h>
 #include <mpc-walkgen/tools.h>
+#include <mpc-walkgen/debug.h>
 
 #include <iostream>
 
@@ -32,29 +33,30 @@ void FootBody::Interpolate(MPCSolution &solution, double current_time, const Ref
 	int num_samples = mpc_parameters_->num_samples_act();
 	double period_ds = mpc_parameters_->period_trans_ds();
 	double raise_period = std::max(0.05, mpc_parameters_->period_recomputation); // Time during which the horizontal displacement is blocked
-	double time_left_flying = 0.0;
+	double time_until_td = 0.0;  // Time left until touchdown
 	double time_spent_flying = 0.0;
-	double halftime_rounded = mpc_parameters_->period_ss / 2.;
+	double sec_margin = 0.1;// New
+	double halftime_rounded = (mpc_parameters_->period_ss - sec_margin) / 2.;
 	if (current_support.phase == SS) {
-		time_left_flying = current_support.time_limit - current_time;
-		time_spent_flying = current_time - current_support.start_time - period_ds;
-		if (next_support.transitional_ds) {
-			time_left_xy = current_support.time_limit - current_time;
+		time_until_td = current_support.time_limit - current_time;
+		time_spent_flying = current_time - current_support.start_time - period_ds - sec_margin;
+		if (next_support.transitional_ds) {//Don't move
+			time_left_xy = 1.;//current_support.time_limit - current_time;
 			goal_state.x(0) = state_.x(0);
 			goal_state.y(0) = state_.y(0);
 			goal_state.yaw(0) = state_.yaw(0);
-		} else if (time_spent_flying < raise_period - kEps) {
-			time_left_xy = raise_period - time_spent_flying;
+		} else if (time_spent_flying < raise_period - kEps) {//Don't move
+			time_left_xy = 1.;//raise_period - time_spent_flying;
 			goal_state.x(0) = state_.x(0);
 			goal_state.y(0) = state_.y(0);
 			goal_state.yaw(0) = state_.yaw(0);
-		}  else if (time_left_flying < raise_period + kEps) {
+		}  else if (time_until_td < raise_period + kEps) {//Don't move
 			time_left_xy = 1.;
 			goal_state.x(0) = state_.x(0);
 			goal_state.y(0) = state_.y(0);
 			goal_state.yaw(0) = state_.yaw(0);
-		} else {
-			time_left_xy = time_left_flying - raise_period;
+		} else {//Move
+			time_left_xy = time_until_td - raise_period;
 			if (num_steps_previewed > 0) {
 				goal_state.x(0) = solution.qp_solution_vec(2*(mpc_parameters_->num_samples_contr + num_unst_modes));
 				goal_state.y(0) = solution.qp_solution_vec(2*(mpc_parameters_->num_samples_contr + num_unst_modes) + num_steps_previewed);
@@ -66,11 +68,11 @@ void FootBody::Interpolate(MPCSolution &solution, double current_time, const Ref
 			}
 		}
 		// Vertical trajectory
-		if (time_left_flying - halftime_rounded > mpc_parameters_->period_actsample && time_spent_flying > kEps) {
+		if (time_until_td - halftime_rounded > mpc_parameters_->period_actsample && time_spent_flying > kEps) {
 			goal_state.z(0) = robot_data_->max_foot_height;
-			time_left_z = time_left_flying - halftime_rounded;
-		} else if (time_left_flying < halftime_rounded && time_left_flying > kEps) { // Half-time passed
-			time_left_z = time_left_flying;
+			time_left_z = time_until_td - halftime_rounded;
+		} else if (time_until_td < halftime_rounded && time_until_td > kEps) { // Half-time passed
+			time_left_z = time_until_td;
 		} else {
 			// time_left_z stays 1
 		}

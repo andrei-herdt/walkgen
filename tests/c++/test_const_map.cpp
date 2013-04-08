@@ -60,7 +60,7 @@ int main() {
 	mpc_parameters.penalties.cp_fp[1] 		= 0.;
 	mpc_parameters.penalties.contr_moves[1] 	= 0.;
 
-	mpc_parameters.init_com_height 			= 0;
+	mpc_parameters.init_com_height 			= 0.95;
 
 	// Robot parameters:
 	// -----------------
@@ -145,11 +145,11 @@ int main() {
 
 	// Compare final com position:
 	// ---------------------------
-	double correct_x = 0.01;
-	double correct_y = 0.0471441;
+	double correct_x = 0.00980392;
+	double correct_y = 0.0678534;
 	if (fabs(walk.output().com.x - correct_x) > 10e-7 || fabs(walk.output().com.y - correct_y) > 10e-7) {
-		std::cout << "Wrong -- Final CoM position difference: " << fabs(walk.output().com.x - correct_x) <<
-				", " << fabs(walk.output().com.y - correct_y) <<std::endl;
+		std::cout << "Wrong -- Final CoM position: " << walk.output().com.x <<
+				", " << walk.output().com.y <<std::endl;
 	} else {
 		std::cout << "Correct" << std::endl;
 	}

@@ -35,6 +35,9 @@ void Reference::SetZero(int size){
 	init.fill(0.);
 	offset_ss.fill(0.);
 	offset_ds.fill(0.);
+
+	z_ref_x = 0.;
+	z_ref_y = 0.;
 }
 
 BodyState::BodyState() {
@@ -199,6 +202,7 @@ MPCParameters::MPCParameters()
 ,ds_force_thresh(1000.)
 ,ffoot_plan_period(kInf)
 ,init_com_height(0.)
+,cop_off(0.)
 ,num_samples_horizon_max(0)
 ,num_samples_contr(0)
 ,num_samples_state(0)

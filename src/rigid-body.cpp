@@ -99,17 +99,17 @@ void RigidBody::ComputeDynamics(SystemOrder dynamics_order) {
 		// --------------------------
 		std::vector<double> st_sampling_periods_vec(ns_st, mpc_parameters_->period_actsample);
 
-		std::vector<double> inp_sampling_periods_vec(ns_c, mpc_parameters_->period_qpsample / 2.);
-		/*
+		//std::vector<double> inp_sampling_periods_vec(ns_c, mpc_parameters_->period_qpsample / 2.);
+
 		std::vector<double> inp_sampling_periods_vec(ns_c, mpc_parameters_->period_qpsample);
 		int period_num = 0;
 		for(; period_num < mpc_parameters_->num_samples_first_fine_period; period_num++) {
-			inp_sampling_periods_vec[period_num] = mpc_parameters_->period_recomputation;
+			inp_sampling_periods_vec.at(period_num) = mpc_parameters_->period_recomputation;
 		}
 		for(; period_num < mpc_parameters_->num_samples_first_coarse_period + mpc_parameters_->num_samples_first_fine_period - 1; period_num++) {
-			inp_sampling_periods_vec[period_num] = mpc_parameters_->period_inter_samples;
+			inp_sampling_periods_vec.at(period_num) = mpc_parameters_->period_inter_samples;
 		}
-		*/
+
 		// Generate dynamics:
 		// ------------------
 		dyn_build_p_->Build(dynamics_order, dynamics_qp_vec_.front(), state_.z(0), st_sampling_periods_vec, inp_sampling_periods_vec, ns_c, false);

@@ -22,8 +22,10 @@ public:
 			RigidBodySystem *robot,
 			MPCParameters *mpc_parameters,
 			RealClock *clock,
-			double *last_des_cop_x,
-			double *last_des_cop_y
+			double *last_des_cop_x,//TODO: Temporary solutions
+			double *last_des_cop_y,
+			double *last_first_contr_x,
+			double *last_first_contr_y
 			);
 	~QPBuilder();
 
@@ -53,6 +55,8 @@ private:
 	void BuildCPEqConstraints(const MPCSolution &solution);
 
 	void BuildFootPosEqConstraints(const MPCSolution &solution);
+
+	void BuildFootPosEqConstraintsSag(const MPCSolution &solution);
 
 	void BuildCoPEqConstraints(const MPCSolution &solution);
 
@@ -89,6 +93,7 @@ private:
 	RealClock *clock_;
 
 	double *last_des_cop_x_, *last_des_cop_y_;
+	double *last_first_contr_x_, *last_first_contr_y_;
 
 	RelativeInequalities foot_inequalities_;
 

@@ -105,6 +105,7 @@ private:
 	double current_time_;
 
 	double last_des_cop_x_, last_des_cop_y_;
+	double last_first_contr_x_, last_first_contr_y_;
 };
 }
 

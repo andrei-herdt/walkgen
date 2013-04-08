@@ -95,6 +95,7 @@ struct Reference{
 
 	Vector3D init;
 	Vector3D offset_ss, offset_ds;
+	double z_ref_y, z_ref_x;
 
 	Reference();
 
@@ -231,6 +232,8 @@ struct MPC_WALKGEN_API MPCParameters {
 	double ffoot_plan_period;			// Time for planning the foot placement
 
 	double init_com_height;				// Initial CoM height is given
+
+	double cop_off;
 
 	int num_samples_horizon_max;		// Number max of samples
 	int num_samples_contr;  			// Number of samplings inside horizon
