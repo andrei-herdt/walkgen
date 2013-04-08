@@ -82,10 +82,10 @@ static void mdlInitializeSizes(SimStruct *S) {
 	ssSetOutputPortWidth(S, 13, 3);       //support
 	ssSetOutputPortWidth(S, 14, 30);      //analysis
 	ssSetOutputPortWidth(S, 15, 3 * num_samples_horizon_max);	//com_control_prw
-	ssSetOutputPortWidth(S, 16, 5 * num_samples_state);     //cp_prw (sample_instants, x, y)
+	ssSetOutputPortWidth(S, 16, 3 * num_samples_state);     //cp_prw (sample_instants, x, y)
 	ssSetOutputPortWidth(S, 17, 9);     //cp_prw (sample_instants, x, y)
 	ssSetOutputPortWidth(S, 18, 7);     //sim_parameters (sample_instants, x, y)
-	ssSetOutputPortWidth(S, 19, 10);     //cp_out
+	ssSetOutputPortWidth(S, 19, 6);     //cp_out
 
 
 	ssSetNumSampleTimes(S, 1);
@@ -247,9 +247,9 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 	real_T *cp_out 		   = ssGetOutputPortRealSignal(S, 19);
 
 	double cop_offset_y = 0.;
-	if (*cop_offset_in[0] > kEps) {
-		cop_offset_y = *cop_offset_in[1];
-	}
+	//if (*cop_offset_in[0] > kEps) {
+	//	cop_offset_y = *cop_offset_in[1];
+	//}
 
 	Walkgen *walk = (Walkgen *)ssGetPWorkValue(S, 0);
 
@@ -495,8 +495,8 @@ static void mdlOutputs(SimStruct *S, int_T tid) {
 			cp_prw[sample]                      	= solution.sampling_times_vec[sample+1];
 			cp_prw[num_samples_state + sample]      = solution.com_prw.cp.x_vec[sample];
 			cp_prw[2 * num_samples_state + sample]  = solution.com_prw.cp.y_vec[sample];
-			cp_prw[3 * num_samples_state + sample]  = walk->cp_ref().global.x[sample];
-			cp_prw[4 * num_samples_state + sample]  = walk->cp_ref().global.y[sample];
+			//cp_prw[3 * num_samples_state + sample]  = walk->cp_ref().global.x[sample];
+			//cp_prw[4 * num_samples_state + sample]  = walk->cp_ref().global.y[sample];
 		}
 		for (int sample = 0; sample < num_samples_contr; ++sample) {
 			// CoM control vector:
