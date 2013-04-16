@@ -17,12 +17,12 @@ class Debug {
 
 public:
 
-	static void Disp(const char *string);
-	static void Disp(const char *name, bool val);
-	static void Disp(const char *name, int val);
-	static void Disp(const char *name, double val);
+	static void Print(const char *string);
+	static void Print(const char *name, bool val);
+	static void Print(const char *name, int val);
+	static void Print(const char *name, double val);
 
-	// \brief Print of std::vector
+	static void Cout(const char *name, bool val);
 	static void Cout(const char *name, const std::vector<double> &vec);
 	static void Cout(const char *name, const std::vector<unsigned long long> &vec);
 

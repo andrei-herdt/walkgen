@@ -7,7 +7,7 @@ Model {
     NumRootInports	    0
     NumRootOutports	    0
     ParameterArgumentNames  ""
-    ComputedModelVersion    "1.1001"
+    ComputedModelVersion    "1.1005"
     NumModelReferences	    0
     NumTestPointedSignals   0
   }
@@ -47,9 +47,9 @@ Model {
   ModifiedByFormat	  "%<Auto>"
   LastModifiedBy	  "f_legs"
   ModifiedDateFormat	  "%<Auto>"
-  LastModifiedDate	  "Sun Apr  7 06:04:13 2013"
+  LastModifiedDate	  "Sun Apr 14 07:06:30 2013"
   RTWModifiedTimeStamp	  0
-  ModelVersionFormat	  "1.%<AutoIncrement:1001>"
+  ModelVersionFormat	  "1.%<AutoIncrement:1005>"
   ConfigurationManager	  "none"
   SimulationMode	  "normal"
   LinearizationMsg	  "none"
@@ -107,7 +107,7 @@ Model {
 	  $ObjectID		  2
 	  Version		  "1.3.0"
 	  StartTime		  "0.0"
-	  StopTime		  "5"
+	  StopTime		  "2.5"
 	  AbsTol		  "auto"
 	  FixedStep		  "1e-3"
 	  InitialStep		  "auto"
@@ -308,8 +308,9 @@ Model {
 	  $ObjectID		  8
 	  Array {
 	    Type		    "Cell"
-	    Dimension		    1
+	    Dimension		    2
 	    Cell		    "IncludeHyperlinkInReport"
+	    Cell		    "GenerateTraceInfo"
 	    PropName		    "DisabledProps"
 	  }
 	  Version		  "1.3.0"
@@ -348,7 +349,7 @@ Model {
 	      $ObjectID		      9
 	      Array {
 		Type			"Cell"
-		Dimension		9
+		Dimension		16
 		Cell			"IgnoreCustomStorageClasses"
 		Cell			"InsertBlockDesc"
 		Cell			"SFDataObjDesc"
@@ -358,6 +359,13 @@ Model {
 		Cell			"ParamNamingRule"
 		Cell			"InlinedPrmAccess"
 		Cell			"CustomSymbolStr"
+		Cell			"CustomSymbolStrGlobalVar"
+		Cell			"CustomSymbolStrType"
+		Cell			"CustomSymbolStrField"
+		Cell			"CustomSymbolStrFcn"
+		Cell			"CustomSymbolStrBlkIO"
+		Cell			"CustomSymbolStrTmpVar"
+		Cell			"CustomSymbolStrMacro"
 		PropName		"DisabledProps"
 	      }
 	      Version		      "1.3.0"
@@ -377,7 +385,7 @@ Model {
 	      CustomSymbolStrGlobalVar "$R$N$M"
 	      CustomSymbolStrType     "$N$R$M"
 	      CustomSymbolStrField    "$N$M"
-	      CustomSymbolStrFcn      "$F$N$M"
+	      CustomSymbolStrFcn      "$R$N$M$F"
 	      CustomSymbolStrBlkIO    "rtb_$N$M"
 	      CustomSymbolStrTmpVar   "$N$M"
 	      CustomSymbolStrMacro    "$R$N$M"
@@ -395,7 +403,7 @@ Model {
 	      $ObjectID		      10
 	      Array {
 		Type			"Cell"
-		Dimension		12
+		Dimension		15
 		Cell			"IncludeMdlTerminateFcn"
 		Cell			"CombineOutputUpdateFcns"
 		Cell			"SuppressErrorStatus"
@@ -408,6 +416,9 @@ Model {
 		Cell			"SupportAbsoluteTime"
 		Cell			"SupportContinuousTime"
 		Cell			"SupportNonInlinedSFcns"
+		Cell			"GenerateTestInterfaces"
+		Cell			"ModelStepFunctionPrototypeControlCompliant"
+		Cell			"PortableWordSizes"
 		PropName		"DisabledProps"
 	      }
 	      Version		      "1.3.0"
@@ -458,6 +469,7 @@ Model {
 	PropName		"Components"
       }
       Name		      "Configuration"
+      ExtraOptions	      "-aGenerateTraceInfo=0 "
       CurrentDlgPage	      "Solver"
     }
     PropName		    "ConfigurationSets"
@@ -758,12 +770,12 @@ Model {
 	  MaskIconOpaque	  on
 	  MaskIconRotate	  "none"
 	  MaskIconUnits		  "autoscale"
-	  MaskValueString	  "16|4|5|[0, 0]|[0, 0]|[.02, .02]|[1, 1]|[0, 0]|0.|0.|[0., 0.]|0.7|1.6|2|0.1|0.02|0.005|0.005|0.0|100|2|1|0|0|1|2|0|0|0|100|0.4|0"
+	  MaskValueString	  "16|4|5|[0, 0]|[0, 0]|[.05, .05]|[0, 0]|[1, 1]|0.|0.|[0., 0.]|0.7|1.6|2|0.1|0.02|0.005|0.005|0.02|100|2|1|0|0|1|2|0|0|0|100|0.4|0"
 	  MaskTabNameString	  ",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
 	  System {
 	    Name		    "Atomic Walkgen"
-	    Location		    [844, 52, 1717, 776]
-	    Open		    off
+	    Location		    [190, 220, 1063, 944]
+	    Open		    on
 	    ModelBrowserVisibility  off
 	    ModelBrowserWidth	    200
 	    ScreenColor		    "white"
@@ -1245,7 +1257,7 @@ Model {
 	      ShowName		      off
 	      Floating		      off
 	      Location		      [4, 53, 1918, 1051]
-	      Open		      off
+	      Open		      on
 	      NumInputPorts	      "1"
 	      List {
 		ListType		AxesTitles
@@ -3363,7 +3375,7 @@ Model {
 	  BlockType		  Constant
 	  Name			  "dCoP gains"
 	  Position		  [60, 678, 120, 702]
-	  Value			  "[1, 0.01, 0]"
+	  Value			  "[1, 0.03, 0]"
 	  OutDataType		  "sfix(16)"
 	  OutScaling		  "2^0"
 	}
@@ -3371,7 +3383,7 @@ Model {
 	  BlockType		  Constant
 	  Name			  "perturbation"
 	  Position		  [40, 853, 250, 877]
-	  Value			  "[4.1, 4.106, 0, 0, 0, 0, 0, 0]"
+	  Value			  "[4.6, 4.606, 0, 0.01, 0, 0, 0, 0]"
 	  OutDataType		  "sfix(16)"
 	  OutScaling		  "2^0"
 	}

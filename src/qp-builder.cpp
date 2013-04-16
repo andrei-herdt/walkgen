@@ -775,11 +775,30 @@ void QPBuilder::BuildEqualityConstraints(const MPCSolution &solution) {
 		BuildCPEqConstraints(solution);
 	}
 
+	const Wrench *ff_wrench;
 	const SupportState &curr_sup = solution.support_states_vec.front();
-	if (curr_sup.phase == SS && current_time_ - curr_sup.start_time > mpc_parameters_->ffoot_plan_period && solution.support_states_vec.back().step_number > 0) {
+	if (curr_sup.foot == RIGHT) {//TODO: Move to RBS
+		ff_wrench = &robot_->left_foot()->force_sensor();
+	} else {
+		ff_wrench = &robot_->right_foot()->force_sensor();
+	}
+	bool is_ff_incontact = false;
+	if (curr_sup.phase == SS && ff_wrench->force_z > mpc_parameters_->ds_force_thresh) {
+		is_ff_incontact = true;
+	}
+	double plann_margin = 0.05;
+	double local_ss_time = current_time_ - curr_sup.start_time;
+	double half_ss_time = mpc_parameters_->period_ss / 2.;
+	if (curr_sup.phase == SS && solution.support_states_vec.back().step_number > 0 &&
+			((local_ss_time > mpc_parameters_->ffoot_plan_period)/* ||
+					(is_ff_incontact && local_ss_time > half_ss_time) ||								//Contact occured
+					(local_ss_time > plann_margin && local_ss_time < half_ss_time - plann_margin) ||
+					(local_ss_time > half_ss_time + plann_margin)*/
+					)
+	) {
 		BuildFootPosEqConstraints(solution);
 	}
-	BuildFootPosEqConstraintsSag(solution);
+	//BuildFootPosEqConstraintsSag(solution);
 
 	//if (solution.is_prev_sol_exist == true &&
 	//		mpc_parameters_->period_qpsample > (solution.sampling_times_vec[1] - solution.sampling_times_vec[0]) + kEps) {
@@ -926,9 +945,9 @@ void QPBuilder::BuildFootPosEqConstraints(const MPCSolution &solution) {
 	solver_->num_eq_constr(num_eq_constr + 2);
 
 	//X:
-	//solver_->constr_mat()()(num_constr, 2*(num_samples + num_unst_modes)) = 1.;
-	//solver_->lc_bounds_vec().Add(solution.prev_first_foot_x, num_constr);
-	//solver_->uc_bounds_vec().Add(solution.prev_first_foot_x, num_constr);
+	solver_->constr_mat()()(num_constr, 2*(num_samples + num_unst_modes)) = 1.;
+	solver_->lc_bounds_vec().Add(solution.prev_first_foot_x, num_constr);
+	solver_->uc_bounds_vec().Add(solution.prev_first_foot_x, num_constr);
 
 	//Y:
 	solver_->constr_mat()()(num_constr + 1, 2*(num_samples + num_unst_modes) + num_steps_previewed) = 1.;
@@ -1086,20 +1105,26 @@ void QPBuilder::BuildCoPIneqConstraints(const MPCSolution &solution) {
 
 	tmp_vec_.resize(2 * ns_st);
 	tmp_vec2_.resize(2 * ns_st);
-	tmp_vec3_.setZero(2 * ns_c);
-	tmp_vec4_.setZero(2 * ns_c);
+
 
 	// Verify if flying foot entered contact:
 	// --------------------------------------
 	const Wrench *ff_wrench;
+	const Wrench *sf_wrench;
 	if (ss_it->foot == RIGHT) {
 		ff_wrench = &robot_->left_foot()->force_sensor();
+		sf_wrench = &robot_->right_foot()->force_sensor();
 	} else {
 		ff_wrench = &robot_->right_foot()->force_sensor();
+		sf_wrench = &robot_->left_foot()->force_sensor();
 	}
 	bool is_ff_incontact = false;
 	if (ss_it->phase == SS && ff_wrench->force_z > mpc_parameters_->ds_force_thresh) {
 		is_ff_incontact = true;
+	}
+	bool is_cur_sf_incontact = false;
+	if (ss_it->phase == SS && sf_wrench->force_z > mpc_parameters_->ds_force_thresh) {
+		is_cur_sf_incontact = true;
 	}
 	double lift_off_margin = ss_it->start_time + mpc_parameters_->period_ss / 2.;
 
@@ -1113,59 +1138,85 @@ void QPBuilder::BuildCoPIneqConstraints(const MPCSolution &solution) {
 	// Compose bounds vector:
 	// ----------------------
 	bool is_half_ds_passed = false;
-	if (*st_it < ss_it->start_time + mpc_parameters_->period_trans_ds() / 2. - kEps) {
-		is_half_ds_passed = false;
-	} else {
-		is_half_ds_passed = true;
-	}
 	++st_it; // Points at the first previewed instant
 	++ss_it; // Points at the first previewed instant
+	//Debug::Cout("is_sf_incontact: ", is_cur_sf_incontact);
+	//Debug::Cout("is_ff_incontact: ", is_ff_incontact);
+	//std::cout << "current_time: " << current_time_ << std::endl;
 	for (int i = 0; i < ns_st; ++i) {
 		if (ss_it->state_changed) {
 			robot_->GetConvexHull(hull_, COP_HULL, *ss_it);
 		}
-		if ((solution.sampling_times_vec.front() > lift_off_margin && is_ff_incontact && ss_it->step_number == 0)
-				|| (!is_half_ds_passed && ss_it->transitional_ds && i < 7)) {
-			// X local
-			tmp_vec_(i)  = min(hull_.x_vec(0), hull_.x_vec(3));
-			tmp_vec2_(i) = max(hull_.x_vec(0), hull_.x_vec(3));
-
-			// Y local
-			if (ss_it->foot == LEFT) {
-				tmp_vec_(ns_st + i) = min(hull_.y_vec(0), hull_.y_vec(1)) - dist_feet_y;
-				tmp_vec2_(ns_st + i)= max(hull_.y_vec(0), hull_.y_vec(1));
-			} else {
-				tmp_vec_(ns_st + i) = min(hull_.y_vec(0), hull_.y_vec(1));
-				tmp_vec2_(ns_st + i)= max(hull_.y_vec(0), hull_.y_vec(1)) + dist_feet_y;
-			}
-		} else {
-			tmp_vec_(i)  = min(hull_.x_vec(0), hull_.x_vec(3));
-			tmp_vec2_(i) = max(hull_.x_vec(0), hull_.x_vec(3));
-
-			//tmp_vec_(ns_st + i) = min(hull_.y_vec(0), hull_.y_vec(1));
-			//tmp_vec2_(ns_st + i)= max(hull_.y_vec(0), hull_.y_vec(1));
-			// Y local
-			if (ss_it->foot == LEFT) {
-				tmp_vec_(ns_st + i) = min(hull_.y_vec(0), hull_.y_vec(1)) - dist_feet_y;
-				tmp_vec2_(ns_st + i)= max(hull_.y_vec(0), hull_.y_vec(1));
-			} else {
-				tmp_vec_(ns_st + i) = min(hull_.y_vec(0), hull_.y_vec(1));
-				tmp_vec2_(ns_st + i)= max(hull_.y_vec(0), hull_.y_vec(1)) + dist_feet_y;
-			}
-		}
 		// Has half of transitional ds phase passed?
-		if (*st_it < ss_it->start_time + mpc_parameters_->period_trans_ds() / 2. - kEps) {
+		if (*st_it < ss_it->start_time + 2 * mpc_parameters_->period_trans_ds() - kEps) {
 			is_half_ds_passed = false;
 		} else {
 			is_half_ds_passed = true;
 		}
+		// X local
+		tmp_vec_(i)  = min(hull_.x_vec(0), hull_.x_vec(3));
+		tmp_vec2_(i) = max(hull_.x_vec(0), hull_.x_vec(3));
+
+		// Y local
+		if ((solution.sampling_times_vec.front() > lift_off_margin && is_ff_incontact && ss_it->step_number == 0)
+				|| (!is_half_ds_passed)) {// Contact occured or half of ds phase not passed //TODO: Hard coded here
+			if (ss_it->foot == LEFT) {
+				//std::cout << "DS1l: ";
+				tmp_vec_(ns_st + i) = /*min(hull_.y_vec(0), hull_.y_vec(1))*/ - dist_feet_y - max(hull_.y_vec(0), hull_.y_vec(1));
+				tmp_vec2_(ns_st + i)= max(hull_.y_vec(0), hull_.y_vec(1));
+			} else {
+				//std::cout << "DS1r: ";
+				tmp_vec_(ns_st + i) = min(hull_.y_vec(0), hull_.y_vec(1));
+				tmp_vec2_(ns_st + i)= /*max(hull_.y_vec(0), hull_.y_vec(1))*/ - min(hull_.y_vec(0), hull_.y_vec(1)) + dist_feet_y;
+			}
+		} else {
+			if (!is_cur_sf_incontact && ss_it->step_number == 0) {//DS constraints for cur. sup. if NO contact occured
+				if (ss_it->foot == LEFT) {
+					//std::cout << "DS2l: ";
+					tmp_vec_(ns_st + i) = /*min(hull_.y_vec(0), hull_.y_vec(1))*/ - dist_feet_y - max(hull_.y_vec(0), hull_.y_vec(1));
+					tmp_vec2_(ns_st + i)= max(hull_.y_vec(0), hull_.y_vec(1));
+				} else {
+					//std::cout << "DS2r: ";
+					tmp_vec_(ns_st + i) = min(hull_.y_vec(0), hull_.y_vec(1));
+					tmp_vec2_(ns_st + i)= /*max(hull_.y_vec(0), hull_.y_vec(1))*/ - min(hull_.y_vec(0), hull_.y_vec(1)) + dist_feet_y;
+				}
+			} else {//SS constraints (normal functioning)
+				//tmp_vec_(ns_st + i) = min(hull_.y_vec(0), hull_.y_vec(1));
+				//tmp_vec2_(ns_st + i)= max(hull_.y_vec(0), hull_.y_vec(1));
+				// Y local
+				//std::cout << "SS: ";
+				if (ss_it->foot == LEFT) {
+					tmp_vec_(ns_st + i) = min(hull_.y_vec(0), hull_.y_vec(1));// - dist_feet_y /*- max(hull_.y_vec(0), hull_.y_vec(1))*/;
+					tmp_vec2_(ns_st + i)= max(hull_.y_vec(0), hull_.y_vec(1));
+				} else {
+					tmp_vec_(ns_st + i) = min(hull_.y_vec(0), hull_.y_vec(1));
+					tmp_vec2_(ns_st + i)= max(hull_.y_vec(0), hull_.y_vec(1));// /*- min(hull_.y_vec(0), hull_.y_vec(1))*/ + dist_feet_y;
+				}
+			}
+		}
+
+		if (ss_it->step_number > 0) {
+			if (ss_it->foot == LEFT) {
+				tmp_vec2_(ns_st + i) -= 0.02;//0.045
+			} else {
+				tmp_vec_(ns_st + i) += 0.02;//0.045
+			}
+
+		}
+
 		++ss_it;
 		++st_it;
 	}
 
+	//std::cout <<"current_time_: " << current_time_ << std::endl;
+	//std::cout <<"tmp_vec2_: " << tmp_vec2_.transpose() << std::endl;
+
+	//std::cout << std::endl;
 	// Map constraints:
 	// ----------------
 	const CommonMatrixType &input_map_mat = robot_->com()->dynamics_qp_vec().front().input_map_mat;
+	tmp_vec3_.setConstant(2 * ns_c, -kInf);
+	tmp_vec4_.setConstant(2 * ns_c, kInf);
 	// X:
 	tmp_vec3_[0] 	= tmp_vec_[0];
 	tmp_vec4_[0] 	= tmp_vec2_[0];
@@ -1179,14 +1230,25 @@ void QPBuilder::BuildCoPIneqConstraints(const MPCSolution &solution) {
 			col++;
 		}
 		// X:
-		tmp_vec3_[col] = min(tmp_vec3_[col], tmp_vec_[i]);
-		tmp_vec4_[col] = max(tmp_vec4_[col], tmp_vec2_[i]);
+		tmp_vec3_[col] = max(tmp_vec3_[col], tmp_vec_[i]);
+		tmp_vec4_[col] = min(tmp_vec4_[col], tmp_vec2_[i]);
 		// Y:
-		tmp_vec3_[ns_c + col] = min(tmp_vec3_[ns_c + col], tmp_vec_[ns_st + i]);
-		tmp_vec4_[ns_c + col] = max(tmp_vec4_[ns_c + col], tmp_vec2_[ns_st + i]);
+		tmp_vec3_[ns_c + col] = max(tmp_vec3_[ns_c + col], tmp_vec_[ns_st + i]);
+		tmp_vec4_[ns_c + col] = min(tmp_vec4_[ns_c + col], tmp_vec2_[ns_st + i]);
 
 		row++;
 	}
+	//std::cout << "tmp_vec3y_: " << tmp_vec3_.tail(ns_c).transpose() << std::endl;
+	//std::cout << "tmp_vec3_: " << tmp_vec3_.transpose() << std::endl;
+	//std::cout << "tmp_vec4_: " << tmp_vec4_.transpose() << std::endl;
+	/*if (solution.first_coarse_period < mpc_parameters_->period_actsample + kEps ||
+			fabs(solution.first_coarse_period - mpc_parameters_->period_qpsample) < kEps) {
+		if (curr_sup.foot == LEFT) {
+			tmp_vec4_(ns_c) *= 4;
+		} else {
+			tmp_vec3_(ns_c) *= 4;
+		}
+	}*/
 
 	// Fill QP:
 	// --------

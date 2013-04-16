@@ -68,7 +68,7 @@ int main() {
 	left_foot.position[0] 		= 0.;//-0.035;
 	left_foot.position[1] 		= 0.22;
 	left_foot.position[2] 		= 0.0;
-	left_foot.SetEdges(0.13, -0.06, 0.0475, -0.0475, kSecurityMargin);
+	left_foot.SetEdges(0.13, -0.06, 0.0475, -0.0475, kSecurityMargin, kSecurityMargin, kSecurityMargin, kSecurityMargin);
 
 	FootData right_foot;
 	right_foot.ankle_pos_local 	<< -0.035, 0, 0.105;
@@ -77,7 +77,7 @@ int main() {
 	right_foot.position[0] 		= 0.;//-0.035;
 	right_foot.position[1] 		= -0.0059;
 	right_foot.position[2] 		= 0.0;
-	right_foot.SetEdges(0.13, -0.06, 0.0475, -0.0475, kSecurityMargin);
+	right_foot.SetEdges(0.13, -0.06, 0.0475, -0.0475, kSecurityMargin, kSecurityMargin, kSecurityMargin, kSecurityMargin);
 
 
 	HipYawData left_hip_yaw;

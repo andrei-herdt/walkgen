@@ -2,23 +2,28 @@
 
 using namespace std;
 
-void Debug::Disp(const char *string) {
+void Debug::Print(const char *string) {
 	printf(string, "\n");
 }
 
-void Debug::Disp(const char *name, bool val) {
+void Debug::Print(const char *name, bool val) {
 	printf(name); printf(": ");
 	val ? printf("true \n") : printf("false \n");
 }
 
-void Debug::Disp(const char *name, int val) {
+void Debug::Print(const char *name, int val) {
 	printf(name); printf(": ");
 	printf("%d \n", val);
 }
 
-void Debug::Disp(const char *name, double val) {
+void Debug::Print(const char *name, double val) {
 	printf(name, ": ");
 	printf("%f \n", val);
+}
+
+void Debug::Cout(const char *name, bool val) {
+	cout << name << ": " << endl;
+	val ? cout << "true" << endl : cout << "false" << endl;
 }
 
 void Debug::Cout(const char *name, const vector<double> &vec) {

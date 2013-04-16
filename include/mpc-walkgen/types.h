@@ -26,10 +26,10 @@ enum HullType{ FOOT_HULL, COP_HULL };//TODO: Remove this
 
 enum Derivative {
 	POSITION		= 0,
-	VELOCITY		= 1,
-	ACCELERATION	= 2,
-	JERK			= 3,
-	COP				= 4
+			VELOCITY		= 1,
+			ACCELERATION	= 2,
+			JERK			= 3,
+			COP				= 4
 };
 
 enum SampleRate { QP, ACTUATORS };//TODO: Needed?
@@ -50,7 +50,7 @@ enum ModeType { INITIAL, WALK_START, WALK, STOP };
 
 enum Formulation {
 	STANDARD = 0,			//State is directly the state of the particle
-	DECOUPLED_MODES = 1		//Stable and unstable modes are decoupled
+			DECOUPLED_MODES = 1		//Stable and unstable modes are decoupled
 };
 
 enum Mapping {
@@ -133,7 +133,15 @@ struct MPC_WALKGEN_API FootData{
 	FootData(const FootData &f);//TODO: LocalAnklePosition_ better?
 	~FootData();
 
-	void SetEdges(double front, double back, double left, double right, double security_margin);
+	void SetEdges(double front,
+			double back,
+			double left,
+			double right,
+			double sec_marg_left,
+			double sec_marg_right,
+			double sec_marg_front,
+			double sec_marg_back
+	);
 };
 
 struct MPC_WALKGEN_API HipYawData {

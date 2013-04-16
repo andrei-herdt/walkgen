@@ -85,19 +85,19 @@ FootData::~FootData(){
 }
 
 void FootData::SetEdges(double front, double back, double left, double right,
-		double security_margin)
+		double sec_marg_left, double sec_marg_right, double sec_marg_front, double sec_marg_back)
 {
 	// Clockwise, starting at front-left corner
 	// Foots sagittal plane is aligned with the x-axis
-	edges_x_vec[0] = front - security_margin;
-	edges_x_vec[1] = front - security_margin;
-	edges_x_vec[2] = back + security_margin;
-	edges_x_vec[3] = back + security_margin;
+	edges_x_vec[0] = front - sec_marg_front;
+	edges_x_vec[1] = front - sec_marg_front;
+	edges_x_vec[2] = back + sec_marg_back;
+	edges_x_vec[3] = back + sec_marg_back;
 
-	edges_y_vec[0] = left - security_margin;
-	edges_y_vec[1] = right + security_margin;
-	edges_y_vec[2] = right + security_margin;
-	edges_y_vec[3] = left - security_margin;
+	edges_y_vec[0] = left - sec_marg_left;
+	edges_y_vec[1] = right + sec_marg_right;
+	edges_y_vec[2] = right + sec_marg_right;
+	edges_y_vec[3] = left - sec_marg_left;
 }
 
 HipYawData::HipYawData()
@@ -382,9 +382,9 @@ void RobotData::SetCoPHulls(double ds_distance) {
 		left_foot_ds_hull.y_vec(i) = left_foot.edges_y_vec[i];
 
 		right_foot_ss_hull.x_vec(i) = right_foot.edges_x_vec[i];
-		right_foot_ss_hull.y_vec(i) = -right_foot.edges_y_vec[i]; // Counter-clockwise
+		right_foot_ss_hull.y_vec(i) = right_foot.edges_y_vec[i];
 		right_foot_ds_hull.x_vec(i) = right_foot.edges_x_vec[i];
-		right_foot_ds_hull.y_vec(i) = -right_foot.edges_y_vec[i]; // Counter-clockwise
+		right_foot_ds_hull.y_vec(i) = right_foot.edges_y_vec[i];
 	}
 	left_foot_ds_hull.y_vec(1)  -= ds_distance;
 	left_foot_ds_hull.y_vec(2)  -= ds_distance;

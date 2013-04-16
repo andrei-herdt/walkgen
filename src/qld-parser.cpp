@@ -94,6 +94,11 @@ void QLDParser::Solve(MPCSolution &solution,
 		solution.analysis.objective_value = obj_val_mat(0, 0);
 		if (ifail_ != 0) {
 			std::cout << "qld::ifail_: " << ifail_ << std::endl;
+			if (ifail_ > 10) {
+				std::cout << "Inconsistent constraints! " << std::endl;
+				std::cout << "lv_bounds_vec: " << lv_bounds_vec_().transpose() << std::endl;
+				std::cout << "uv_bounds_vec: " << uv_bounds_vec_().transpose() << std::endl;
+			}
 		}
 		//solution.analysis.num_iterations = num_wsr;
 	}
