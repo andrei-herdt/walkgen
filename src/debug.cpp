@@ -7,12 +7,12 @@ void Debug::Print(const char *string) {
 }
 
 void Debug::Print(const char *name, bool val) {
-	printf(name); printf(": ");
+	printf("%s", name); printf(": ");
 	val ? printf("true \n") : printf("false \n");
 }
 
 void Debug::Print(const char *name, int val) {
-	printf(name); printf(": ");
+	printf("%s", name); printf(": ");
 	printf("%d \n", val);
 }
 

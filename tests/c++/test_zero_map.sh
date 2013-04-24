@@ -3,4 +3,4 @@ cd ../../src/
 make -j 4
 cd -
 make -j 4
-test_zero_map
+./test_zero_map

@@ -145,8 +145,8 @@ int main() {
 
 	// Compare final com position:
 	// ---------------------------
-	double correct_x = 0.00980392;
-	double correct_y = 0.0678534;
+	double correct_x = 0.01;
+	double correct_y = 0.0497126;
 	if (fabs(walk.output().com.x - correct_x) > 10e-7 || fabs(walk.output().com.y - correct_y) > 10e-7) {
 		std::cout << "Wrong -- Final CoM position: " << walk.output().com.x <<
 				", " << walk.output().com.y <<std::endl;
