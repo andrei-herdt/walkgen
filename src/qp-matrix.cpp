@@ -41,8 +41,6 @@ void QPMatrix::AddTerm(const MatrixRowMaj &mat,
 	// The following is optimized for row major matrices.
 	// It has to be adapted if colum major ones are used.
 	// --------------------------------------------------
-	int newcol = 0;
-	int newrow = 0;
 	const double *mat_p = mat.data();
 	double *goal_mat_p = NULL;
 	int const *first_col_p = col_indices_vec_.data() + first_col;

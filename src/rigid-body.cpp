@@ -54,7 +54,6 @@ void RigidBody::ComputeDynamics(SystemOrder dynamics_order) {
 
 			int num_cycles_ext = static_cast<int>(mpc_parameters_->period_qpsample / mpc_parameters_->period_inter_samples);
 			int num_cycles_int = static_cast<int>(mpc_parameters_->period_inter_samples / mpc_parameters_->period_recomputation);
-			double first_period = mpc_parameters_->period_recomputation;
 
 			std::vector<LinearDynamics>::iterator dyn_it = dynamics_qp_vec_.begin();
 			double last_period = 0.;

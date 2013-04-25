@@ -30,6 +30,8 @@ void DynamicsBuilder::Init(const MPCParameters *mpc_parameters) {
 void DynamicsBuilder::Build(SystemOrder dynamics_order, LinearDynamics &dyn, double height, const std::vector<double> &st_sampling_periods_vec,
 		const std::vector<double> &inp_sampling_periods_vec, int num_samples, bool actuation) {
 	switch (dynamics_order) {
+	case FIRST_ORDER:
+		break;
 	case SECOND_ORDER:
 		BuildSecondOrder(dyn, height, st_sampling_periods_vec, inp_sampling_periods_vec, actuation);
 		break;
@@ -179,8 +181,6 @@ void DynamicsBuilder::BuildSecondOrder(LinearDynamics &dyn, double height, const
 	if (mpc_parameters_->formulation == DECOUPLED_MODES) {
 		input_map_mat(num_samples_state, num_samples_contr) = 1;
 	}
-	int row = 0;
-	int col = 0;
 	double time_input = 0.;
 	double time_state = 0.;
 	int input_sample = 0;
@@ -652,7 +652,7 @@ void DynamicsBuilder::ComputeDiscreteSSDynamics(LinearDynamics &dyn, const std::
 	// Ad_pow(0) = I
 	dyn.d_state_mat_pow2_vec[0] = CommonMatrixType::Identity(2, 2);
 	//ComputeDiscreteInputMatGeneral(dyn.d_input_mat_vec[0], dyn.d_state_mat_vec[0], dyn.cont_ss);
-	for (int period_num = 1; period_num < sampling_periods_vec.size(); period_num++) {
+	for (unsigned period_num = 1; period_num < sampling_periods_vec.size(); period_num++) {
 		ComputeDiscreteStateMatDecoupled(dyn.d_input_mat_vec[period_num], dyn.d_state_mat_vec[period_num], sampling_periods_vec[period_num], dyn.cont_ss);
 		// A_{i-1}*A_i
 		dyn.d_state_mat_pow_vec[period_num](0, 0) = dyn.d_state_mat_pow_vec[period_num - 1](0, 0) * dyn.d_state_mat_vec[period_num](0, 0);

@@ -28,7 +28,7 @@ void Debug::Cout(const char *name, bool val) {
 
 void Debug::Cout(const char *name, const vector<double> &vec) {
 	cout << name << endl;
-	for (int i=0; i < vec.size(); i++) {
+	for (unsigned i = 0; i < vec.size(); i++) {
 		cout << vec[i] << " ";
 	}
 	cout << endl;
@@ -36,7 +36,7 @@ void Debug::Cout(const char *name, const vector<double> &vec) {
 
 void Debug::Cout(const char *name, const vector<unsigned long long> &vec) {
 	cout << name << endl;
-	for (int i=0; i < vec.size(); i++) {
+	for (unsigned i=0; i < vec.size(); i++) {
 		cout << vec[i] << " ";
 	}
 	cout << endl;
@@ -44,7 +44,7 @@ void Debug::Cout(const char *name, const vector<unsigned long long> &vec) {
 
 void Debug::Cout(const char *name, const vector<MPCWalkgen::CommonMatrixType> &vec) {
 	cout << name << endl;
-	for (int i=0; i < vec.size(); i++) {
+	for (unsigned i=0; i < vec.size(); i++) {
 		cout << vec[i] << " " << endl;
 	}
 	cout << endl;

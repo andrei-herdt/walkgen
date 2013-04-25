@@ -195,15 +195,15 @@ void OrientationsPreview::preview_orientations(double Time,
 	// ---------------------------------------
 	PreviewedTrunkOrientations_deq.push_back(TrunkState_.yaw[0]);
 	PreviewedTrunkOrientations_deq.push_back(TrunkStateT_.yaw[0]);
-	unsigned j = 0;
-	for(unsigned i = 1; i<mpc_parameters_->num_samples_contr; i++ ) {
+	int j = 0;
+	for(int i = 1; i<mpc_parameters_->num_samples_contr; i++ ) {
 		PreviewedTrunkOrientations_deq.push_back(TrunkStateT_.yaw[0]+TrunkStateT_.yaw[1]*mpc_parameters_->period_qpsample);
 	}
 
 	std::vector<SupportState>::iterator prwSS_it = Solution.support_states_vec.begin();
 	double supportAngle = prwSS_it->yaw;
 	prwSS_it++;//Point at the first previewed instant
-	for(unsigned i = 0; i<mpc_parameters_->num_samples_contr; i++ ) {
+	for(int i = 0; i<mpc_parameters_->num_samples_contr; i++ ) {
 		if(prwSS_it->state_changed) {
 			supportAngle = Solution.support_yaw_vec[j];
 			j++;

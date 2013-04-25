@@ -162,9 +162,7 @@ void HeuristicPreview::BuildRotationMatrix(MPCSolution &solution){//TODO: Move t
 //
 // Private methods:
 //
-void HeuristicPreview::BuildSelectionMatrices(MPCSolution &solution) {//Move to qp-builder
-	const BodyState *left_foot_p = &robot_->left_foot()->state();
-	const BodyState *right_foot_p = &robot_->right_foot()->state();
+void HeuristicPreview::BuildSelectionMatrices(MPCSolution &solution) {//TODO: Move to qp-builder
 
 	int num_steps_previewed = solution.support_states_vec.back().step_number;
 	int num_samples = mpc_parameters_->num_samples_state;

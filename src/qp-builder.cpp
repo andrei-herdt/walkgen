@@ -420,8 +420,8 @@ void QPBuilder::TransformControlVector(MPCSolution &solution) {
 	}
 
 	const SelectionMatrices &select = preview_->selection_matrices();
-	const CommonMatrixType &rot_mat = preview_->rot_mat();
-	const BodyState &com = robot_->com()->state();
+	//const CommonMatrixType &rot_mat = preview_->rot_mat();
+	//const BodyState &com = robot_->com()->state();
 	const CommonVectorType &feet_x_vec = solution.qp_solution_vec.segment(2*(ns_c + num_unst_modes), num_steps);
 	const CommonVectorType &feet_y_vec = solution.qp_solution_vec.segment(2*(ns_c + num_unst_modes) + num_steps, num_steps);
 
@@ -513,9 +513,9 @@ void QPBuilder::BuildObjective(const MPCSolution &solution) {
 
 	const BodyState &com = robot_->com()->state();
 	const SelectionMatrices &select_mats = preview_->selection_matrices();
-	const CommonMatrixType &rot_mat = preview_->rot_mat();
-	const CommonMatrixType &rot_mat2 = preview_->rot_mat2();
-	const CommonMatrixType &rot_mat2_trans = preview_->rot_mat2_tr();
+	//const CommonMatrixType &rot_mat = preview_->rot_mat();
+	//const CommonMatrixType &rot_mat2 = preview_->rot_mat2();
+	//const CommonMatrixType &rot_mat2_trans = preview_->rot_mat2_tr();
 
 	QPMatrix &hessian_mat = solver_->hessian_mat();
 
@@ -786,9 +786,9 @@ void QPBuilder::BuildEqualityConstraints(const MPCSolution &solution) {
 	if (curr_sup.phase == SS && ff_wrench->force_z > mpc_parameters_->ds_force_thresh) {
 		is_ff_incontact = true;
 	}
-	double plann_margin = 0.05;
+	//double plann_margin = 0.05;
 	double local_ss_time = current_time_ - curr_sup.start_time;
-	double half_ss_time = mpc_parameters_->period_ss / 2.;
+	//double half_ss_time = mpc_parameters_->period_ss / 2.;
 	if (curr_sup.phase == SS && solution.support_states_vec.back().step_number > 0 &&
 			((local_ss_time > mpc_parameters_->ffoot_plan_period)/* ||
 					(is_ff_incontact && local_ss_time > half_ss_time) ||								//Contact occured
@@ -889,7 +889,7 @@ void QPBuilder::BuildCPEqConstraints(const MPCSolution &solution) {
 	// Forward in time:
 	// ----------------
 	double neg_pow_state_mats = 1. / dyn.d_state_mat_pow_vec.at(ns_st - 1)(1,1);
-	double pos_pow_state_mats = dyn.d_state_mat_pow_vec.at(ns_st - 1)(1,1);
+	//double pos_pow_state_mats = dyn.d_state_mat_pow_vec.at(ns_st - 1)(1,1);
 	for (int col = 0; col < ns_st - 1; col++) {//TODO: This can be done in DynamicsBuilder
 		atimesb_vec(col) = dyn.rev_matrix_prod_vec.at(ns_st - 2 - col)(1,1) * dyn.d_input_mat_vec[col](1);
 	}
@@ -958,7 +958,7 @@ void QPBuilder::BuildFootPosEqConstraints(const MPCSolution &solution) {
 void QPBuilder::BuildFootPosEqConstraintsSag(const MPCSolution &solution) {
 	assert(solver_->num_constr() == solver_->num_eq_constr());
 
-	int num_steps_previewed = solution.support_states_vec.back().step_number;
+	//int num_steps_previewed = solution.support_states_vec.back().step_number;
 	int num_samples 		= mpc_parameters_->num_samples_contr;
 	int num_unst_modes 		= 0;
 	if (mpc_parameters_->formulation == DECOUPLED_MODES) {
@@ -984,7 +984,6 @@ void QPBuilder::BuildFootPosEqConstraintsSag(const MPCSolution &solution) {
 void QPBuilder::BuildCoPEqConstraints(const MPCSolution &solution) {
 	assert(solver_->num_constr() == solver_->num_eq_constr());
 
-	int num_steps_previewed = solution.support_states_vec.back().step_number;
 	int num_samples 		= mpc_parameters_->num_samples_contr;
 	int num_unst_modes 		= 0;
 	if (mpc_parameters_->formulation == DECOUPLED_MODES) {
@@ -1099,7 +1098,7 @@ void QPBuilder::BuildCoPIneqConstraints(const MPCSolution &solution) {
 		num_unst_modes = 1;
 	}
 	std::vector<SupportState>::const_iterator ss_it = solution.support_states_vec.begin();
-	const SupportState &curr_sup = solution.support_states_vec.front();
+	//const SupportState &curr_sup = solution.support_states_vec.front();
 
 	robot_->GetConvexHull(hull_, COP_HULL, *ss_it);
 
@@ -1140,9 +1139,6 @@ void QPBuilder::BuildCoPIneqConstraints(const MPCSolution &solution) {
 	bool is_half_ds_passed = false;
 	++st_it; // Points at the first previewed instant
 	++ss_it; // Points at the first previewed instant
-	//Debug::Cout("is_sf_incontact: ", is_cur_sf_incontact);
-	//Debug::Cout("is_ff_incontact: ", is_ff_incontact);
-	//std::cout << "current_time: " << current_time_ << std::endl;
 	for (int i = 0; i < ns_st; ++i) {
 		if (ss_it->state_changed) {
 			robot_->GetConvexHull(hull_, COP_HULL, *ss_it);
@@ -1161,22 +1157,18 @@ void QPBuilder::BuildCoPIneqConstraints(const MPCSolution &solution) {
 		if ((solution.sampling_times_vec.front() > lift_off_margin && is_ff_incontact && ss_it->step_number == 0)
 				|| (!is_half_ds_passed)) {// Contact occured or half of ds phase not passed //TODO: Hard coded here
 			if (ss_it->foot == LEFT) {
-				//std::cout << "DS1l: ";
 				tmp_vec_(ns_st + i) = /*min(hull_.y_vec(0), hull_.y_vec(1))*/ - dist_feet_y - max(hull_.y_vec(0), hull_.y_vec(1));
 				tmp_vec2_(ns_st + i)= max(hull_.y_vec(0), hull_.y_vec(1));
 			} else {
-				//std::cout << "DS1r: ";
 				tmp_vec_(ns_st + i) = min(hull_.y_vec(0), hull_.y_vec(1));
 				tmp_vec2_(ns_st + i)= /*max(hull_.y_vec(0), hull_.y_vec(1))*/ - min(hull_.y_vec(0), hull_.y_vec(1)) + dist_feet_y;
 			}
 		} else {
 			if (!is_cur_sf_incontact && ss_it->step_number == 0) {//DS constraints for cur. sup. if NO contact occured
 				if (ss_it->foot == LEFT) {
-					//std::cout << "DS2l: ";
 					tmp_vec_(ns_st + i) = /*min(hull_.y_vec(0), hull_.y_vec(1))*/ - dist_feet_y - max(hull_.y_vec(0), hull_.y_vec(1));
 					tmp_vec2_(ns_st + i)= max(hull_.y_vec(0), hull_.y_vec(1));
 				} else {
-					//std::cout << "DS2r: ";
 					tmp_vec_(ns_st + i) = min(hull_.y_vec(0), hull_.y_vec(1));
 					tmp_vec2_(ns_st + i)= /*max(hull_.y_vec(0), hull_.y_vec(1))*/ - min(hull_.y_vec(0), hull_.y_vec(1)) + dist_feet_y;
 				}
@@ -1184,7 +1176,6 @@ void QPBuilder::BuildCoPIneqConstraints(const MPCSolution &solution) {
 				//tmp_vec_(ns_st + i) = min(hull_.y_vec(0), hull_.y_vec(1));
 				//tmp_vec2_(ns_st + i)= max(hull_.y_vec(0), hull_.y_vec(1));
 				// Y local
-				//std::cout << "SS: ";
 				if (ss_it->foot == LEFT) {
 					tmp_vec_(ns_st + i) = min(hull_.y_vec(0), hull_.y_vec(1));// - dist_feet_y /*- max(hull_.y_vec(0), hull_.y_vec(1))*/;
 					tmp_vec2_(ns_st + i)= max(hull_.y_vec(0), hull_.y_vec(1));
@@ -1208,10 +1199,7 @@ void QPBuilder::BuildCoPIneqConstraints(const MPCSolution &solution) {
 		++st_it;
 	}
 
-	//std::cout <<"current_time_: " << current_time_ << std::endl;
-	//std::cout <<"tmp_vec2_: " << tmp_vec2_.transpose() << std::endl;
 
-	//std::cout << std::endl;
 	// Map constraints:
 	// ----------------
 	const CommonMatrixType &input_map_mat = robot_->com()->dynamics_qp_vec().front().input_map_mat;
